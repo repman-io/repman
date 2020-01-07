@@ -1,6 +1,8 @@
 <?php
 
-namespace App;
+declare(strict_types=1);
+
+namespace Buddy\Repman;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;

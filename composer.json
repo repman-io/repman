@@ -2,7 +2,7 @@
     "type": "project",
     "license": "proprietary",
     "require": {
-        "php": "^7.2.5",
+        "php": "^7.3.11",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "symfony/console": "5.0.*",
@@ -12,6 +12,7 @@
         "symfony/yaml": "5.0.*"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16"
     },
     "config": {
         "preferred-install": {
@@ -21,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "Buddy\\Repman\\": "src/"
         }
     },
     "autoload-dev": {
@@ -48,6 +49,12 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "check-cs": [
+            "php-cs-fixer fix --dry-run --diff"
+        ],
+        "fix-cs": [
+            "php-cs-fixer fix"
         ]
     },
     "conflict": {
