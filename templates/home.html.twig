@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <h2>Usage</h2>
+
+    Use this composer plugin:
+
+    <pre>
+composer global require buddy-works/repman-composer-plugin
+    </pre>
+
+    or add this lines to your composer.json file:<br />
+
+    <pre>
+{
+    "repositories": [
+        {"type": "composer", "url": "{{ indexUrl }}"},
+        {"packagist": false}
+    ]
+}
+    </pre>
+
+    and then update composer.lock file:
+
+    <pre>
+composer update --lock
+    </pre>
+{% endblock %}
