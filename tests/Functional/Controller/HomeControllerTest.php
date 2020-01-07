@@ -12,6 +12,6 @@ final class HomeControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', '/');
 
-        self::assertStringContainsString('Usage', $this->client->getResponse()->getContent());
+        self::assertStringContainsString('Usage', (string) $this->client->getResponse()->getContent());
     }
 }

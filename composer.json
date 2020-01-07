@@ -16,6 +16,9 @@
     "require-dev": {
         "coduo/php-matcher": "^4.0",
         "friendsofphp/php-cs-fixer": "^2.16",
+        "phpstan/extension-installer": "^1.0",
+        "phpstan/phpstan": "^0.12.4",
+        "phpstan/phpstan-phpunit": "^0.12.5",
         "phpunit/phpunit": "^8.5",
         "symfony/browser-kit": "5.0.*"
     },
@@ -61,11 +64,15 @@
         "fix-cs": [
             "php-cs-fixer fix"
         ],
+        "phpstan": [
+            "phpstan analyse src tests --level=max"
+        ],
         "phpunit": [
             "phpunit"
         ],
         "tests": [
             "@check-cs",
+            "@phpstan",
             "@phpunit"
         ]
     },

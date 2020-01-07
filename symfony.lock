@@ -71,6 +71,15 @@
     "phpspec/prophecy": {
         "version": "1.10.1"
     },
+    "phpstan/extension-installer": {
+        "version": "1.0.3"
+    },
+    "phpstan/phpstan": {
+        "version": "0.12.4"
+    },
+    "phpstan/phpstan-phpunit": {
+        "version": "0.12.5"
+    },
     "phpunit/php-code-coverage": {
         "version": "7.0.10"
     },
