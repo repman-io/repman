@@ -10,10 +10,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class ProxyController
 {
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
     public function __construct(RouterInterface $router)
     {
@@ -36,7 +33,7 @@ final class ProxyController
                     'preferred' => true,
                 ],
             ],
-            'providers-lazy-url' => '/repo/packagist/p/%package%.json',
+            'providers-lazy-url' => '/repo/packagist/p/%package%',
         ]);
     }
 }

@@ -12,10 +12,7 @@ abstract class FunctionalTestCase extends WebTestCase
 {
     use PHPMatcherAssertions;
 
-    /**
-     * @var KernelBrowser
-     */
-    protected $client;
+    protected KernelBrowser $client;
 
     protected function setUp(): void
     {

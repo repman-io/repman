@@ -4,7 +4,7 @@
     "description": "PHP Repository Manager - fast packagist proxy",
     "license": "proprietary",
     "require": {
-        "php": "^7.3.11",
+        "php": "^7.4.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "sensio/framework-extra-bundle": "^5.5",

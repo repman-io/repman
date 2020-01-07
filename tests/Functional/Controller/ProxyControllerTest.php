@@ -24,7 +24,7 @@ final class ProxyControllerTest extends FunctionalTestCase
                     "preferred": true
                 }
             ],
-            "providers-lazy-url": "/repo/packagist/p/%package%.json"
+            "providers-lazy-url": "/repo/packagist/p/%package%"
         }
         ', $this->client->getResponse()->getContent());
     }
