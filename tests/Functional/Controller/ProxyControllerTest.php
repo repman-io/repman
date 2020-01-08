@@ -28,4 +28,18 @@ final class ProxyControllerTest extends FunctionalTestCase
         }
         ', $this->client->getResponse()->getContent());
     }
+
+    public function testProviderAction(): void
+    {
+        $this->client->request('GET', '/repo/packagist/p/buddy-works/repman');
+
+        self::assertMatchesPattern('
+        {
+            "packages":
+            {
+                "buddy-works/repman": "@array@"
+            }
+        }
+        ', $this->client->getResponse()->getContent());
+    }
 }

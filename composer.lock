@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6360e0d64bb9ccfc4c1df616ca69035",
+    "content-hash": "28683e2a78c613292b09b6a1b06da6ba",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -135,6 +135,49 @@
                 "php"
             ],
             "time": "2019-10-30T14:39:59+00:00"
+        },
+        {
+            "name": "munusphp/munus",
+            "version": "0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/munusphp/munus.git",
+                "reference": "ca7e744682fc73b5754d6ed7d3f9bc913e1c3126"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/munusphp/munus/zipball/ca7e744682fc73b5754d6ed7d3f9bc913e1c3126",
+                "reference": "ca7e744682fc73b5754d6ed7d3f9bc913e1c3126",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.15",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^8.4",
+                "psalm/plugin-phpunit": "^0.8.0",
+                "vimeo/psalm": "^3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Munus\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arkadiusz Kondas",
+                    "email": "arkadiusz.kondas@gmail.com"
+                }
+            ],
+            "description": "Power of object-oriented programming with the elegance of functional programming.",
+            "time": "2020-01-08T09:02:55+00:00"
         },
         {
             "name": "psr/cache",

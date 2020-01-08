@@ -1,0 +1,13 @@
+{
+  "packages": [],
+  "notify": "https://packagist.org/downloads/%package%",
+  "notify-batch": "https://packagist.org/downloads/",
+  "providers-url": "/p/%package%$%hash%.json",
+  "metadata-url": "/p2/%package%.json",
+  "search": "https://packagist.org/search.json?q=%query%&type=%type%",
+  "provider-includes": {
+    "p/provider-latest$%hash%.json": {
+      "sha256": "f408804dd36ed133c9272f308065b1cc1a4dcf533353eb8fbe3297e78b11529e"
+    }
+  }
+}

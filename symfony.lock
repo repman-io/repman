@@ -41,6 +41,9 @@
             ".php_cs.dist"
         ]
     },
+    "munusphp/munus": {
+        "version": "0.1.0"
+    },
     "myclabs/deep-copy": {
         "version": "1.9.4"
     },

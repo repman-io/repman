@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Buddy\Repman\Service\Proxy;
+use Buddy\Repman\Service\RemoteFilesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -11,14 +13,16 @@ use Symfony\Component\Routing\RouterInterface;
 final class ProxyController
 {
     private RouterInterface $router;
+    private RemoteFilesystem $remoteFilesystem;
 
-    public function __construct(RouterInterface $router)
+    public function __construct(RouterInterface $router, RemoteFilesystem $remoteFilesystem)
     {
         $this->router = $router;
+        $this->remoteFilesystem = $remoteFilesystem;
     }
 
     /**
-     * @Route("packages.json", name="packages", methods={"GET"})
+     * @Route("/packages.json", name="packages", methods={"GET"})
      */
     public function packages(): JsonResponse
     {
@@ -35,5 +39,15 @@ final class ProxyController
             ],
             'providers-lazy-url' => '/repo/packagist/p/%package%',
         ]);
+    }
+
+    /**
+     * @Route("/repo/{repo}/p/{name}", name="package_provider", requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?"}, methods={"GET"})
+     */
+    public function provider(string $repo, string $name): JsonResponse
+    {
+        $proxy = new Proxy('https://packagist.org', $this->remoteFilesystem);
+
+        return new JsonResponse($proxy->provider($name)->getOrElse([]));
     }
 }

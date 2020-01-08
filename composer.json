@@ -7,6 +7,7 @@
         "php": "^7.4.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "munusphp/munus": "^0.1.0",
         "sensio/framework-extra-bundle": "^5.5",
         "symfony/console": "5.0.*",
         "symfony/dotenv": "5.0.*",
