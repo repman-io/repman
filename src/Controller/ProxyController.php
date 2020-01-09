@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Buddy\Repman\Service\Cache;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\RemoteFilesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,11 +15,13 @@ final class ProxyController
 {
     private RouterInterface $router;
     private RemoteFilesystem $remoteFilesystem;
+    private Cache $cache;
 
-    public function __construct(RouterInterface $router, RemoteFilesystem $remoteFilesystem)
+    public function __construct(RouterInterface $router, RemoteFilesystem $remoteFilesystem, Cache $cache)
     {
         $this->router = $router;
         $this->remoteFilesystem = $remoteFilesystem;
+        $this->cache = $cache;
     }
 
     /**
@@ -46,7 +49,7 @@ final class ProxyController
      */
     public function provider(string $repo, string $name): JsonResponse
     {
-        $proxy = new Proxy('https://packagist.org', $this->remoteFilesystem);
+        $proxy = new Proxy('packagist', 'https://packagist.org', $this->remoteFilesystem, $this->cache);
 
         return new JsonResponse($proxy->provider($name)->getOrElse([]));
     }

@@ -8,13 +8,19 @@ use Munus\Control\Option;
 
 final class Proxy
 {
-    private string $baseUrl;
-    private RemoteFilesystem $remoteFilesystem;
+    public const PACKAGES_PATH = 'packages.json';
 
-    public function __construct(string $baseUrl, RemoteFilesystem $remoteFilesystem)
+    private string $url;
+    private string $name;
+    private RemoteFilesystem $remoteFilesystem;
+    private Cache $cache;
+
+    public function __construct(string $name, string $url, RemoteFilesystem $remoteFilesystem, Cache $cache)
     {
-        $this->baseUrl = rtrim($baseUrl, '/');
+        $this->name = $name;
+        $this->url = rtrim($url, '/');
         $this->remoteFilesystem = $remoteFilesystem;
+        $this->cache = $cache;
     }
 
     /**
@@ -27,7 +33,7 @@ final class Proxy
             return Option::none();
         }
 
-        $contents = $this->remoteFilesystem->getContents($this->baseUrl.'/'.$providerPath->get());
+        $contents = $this->cache->get($this->getCachePath($providerPath->get()), fn () => $this->remoteFilesystem->getContents($this->url.'/'.$providerPath->get())->getOrElse(''));
         if ($contents->isEmpty()) {
             return Option::none();
         }
@@ -44,7 +50,7 @@ final class Proxy
         if (isset($root['provider-includes'])) {
             foreach ($root['provider-includes'] as $url => $meta) {
                 $filename = str_replace('%hash%', $meta['sha256'], $url);
-                $contents = $this->remoteFilesystem->getContents($this->baseUrl.'/'.$filename);
+                $contents = $this->cache->get($this->getCachePath($filename), fn () => $this->remoteFilesystem->getContents($this->url.'/'.$filename)->getOrElse(''));
                 $data = Json::decode($contents->getOrElse('{}'));
                 if (isset($data['providers'][$packageName])) {
                     return Option::some(
@@ -66,9 +72,20 @@ final class Proxy
      */
     private function getRootPackages(): array
     {
-        $rootPackages = $this->baseUrl.'/packages.json';
-        $contents = $this->remoteFilesystem->getContents($rootPackages);
+        $contents = $this->cache->get($this->getCachePath(self::PACKAGES_PATH), function (): string {
+            return $this->remoteFilesystem->getContents($this->getUrl(self::PACKAGES_PATH))->getOrElse('');
+        });
 
         return Json::decode($contents->getOrElse('{}'));
+    }
+
+    private function getUrl(string $path): string
+    {
+        return sprintf('%s/%s', $this->url, $path);
+    }
+
+    private function getCachePath(string $path): string
+    {
+        return sprintf('%s/%s', $this->name, $path);
     }
 }

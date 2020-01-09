@@ -138,16 +138,16 @@
         },
         {
             "name": "munusphp/munus",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/munusphp/munus.git",
-                "reference": "ca7e744682fc73b5754d6ed7d3f9bc913e1c3126"
+                "reference": "f0c896a759d4e2e1eff57978318e841911796305"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/munusphp/munus/zipball/ca7e744682fc73b5754d6ed7d3f9bc913e1c3126",
-                "reference": "ca7e744682fc73b5754d6ed7d3f9bc913e1c3126",
+                "url": "https://api.github.com/repos/munusphp/munus/zipball/f0c896a759d4e2e1eff57978318e841911796305",
+                "reference": "f0c896a759d4e2e1eff57978318e841911796305",
                 "shasum": ""
             },
             "require": {
@@ -177,7 +177,7 @@
                 }
             ],
             "description": "Power of object-oriented programming with the elegance of functional programming.",
-            "time": "2020-01-08T09:02:55+00:00"
+            "time": "2020-01-09T12:38:26+00:00"
         },
         {
             "name": "psr/cache",

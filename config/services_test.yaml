@@ -1,3 +1,6 @@
 services:
     Buddy\Repman\Service\RemoteFilesystem:
         class: Buddy\Repman\Tests\Doubles\FakeRemoteFilesystem
+
+    Buddy\Repman\Service\Cache:
+        class: Buddy\Repman\Service\Cache\InMemoryCache
