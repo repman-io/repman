@@ -13,11 +13,11 @@ final class Proxy
 
     private string $url;
     private string $name;
-    private RemoteFilesystem $remoteFilesystem;
+    private Downloader $remoteFilesystem;
     private Cache $cache;
     private string $distsDir;
 
-    public function __construct(string $name, string $url, RemoteFilesystem $remoteFilesystem, Cache $cache, string $distsDir)
+    public function __construct(string $name, string $url, Downloader $remoteFilesystem, Cache $cache, string $distsDir)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');

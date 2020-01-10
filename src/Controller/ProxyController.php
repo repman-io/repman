@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use Buddy\Repman\Service\Cache;
 use Buddy\Repman\Service\Proxy;
-use Buddy\Repman\Service\RemoteFilesystem;
+use Buddy\Repman\Service\Proxy\ProxyRegister;
+use Munus\Control\Option;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,16 +16,12 @@ use Symfony\Component\Routing\RouterInterface;
 final class ProxyController
 {
     private RouterInterface $router;
-    private RemoteFilesystem $remoteFilesystem;
-    private Cache $cache;
-    private string $distsDir;
+    private ProxyRegister $register;
 
-    public function __construct(RouterInterface $router, RemoteFilesystem $remoteFilesystem, Cache $cache, string $distsDir)
+    public function __construct(RouterInterface $router, ProxyRegister $register)
     {
         $this->router = $router;
-        $this->remoteFilesystem = $remoteFilesystem;
-        $this->cache = $cache;
-        $this->distsDir = $distsDir;
+        $this->register = $register;
     }
 
     /**
@@ -53,9 +49,12 @@ final class ProxyController
      */
     public function provider(string $repo, string $package): JsonResponse
     {
-        $proxy = new Proxy('packagist', 'https://packagist.org', $this->remoteFilesystem, $this->cache, $this->distsDir);
-
-        return new JsonResponse($proxy->providerData($package)->getOrElse([]));
+        return new JsonResponse($this->register->all()
+            ->map(fn (Proxy $proxy) => $proxy->providerData($package))
+            ->find(fn (Option $option) => !$option->isEmpty())
+            ->map(fn (Option $option) => $option->get())
+            ->getOrElse([])
+        );
     }
 
     /**
@@ -66,10 +65,11 @@ final class ProxyController
      */
     public function distribution(string $repo, string $package, string $version, string $ref, string $type): BinaryFileResponse
     {
-        $proxy = new Proxy('packagist', 'https://packagist.org', $this->remoteFilesystem, $this->cache, $this->distsDir);
-        $filename = $proxy->distFilename($package, $version, $ref, $type)
-            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
-
-        return new BinaryFileResponse($filename);
+        return new BinaryFileResponse($this->register->all()
+            ->map(fn (Proxy $proxy) => $proxy->distFilename($package, $version, $ref, $type))
+            ->find(fn (Option $option) => !$option->isEmpty())
+            ->map(fn (Option $option) => $option->get())
+            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
+        );
     }
 }

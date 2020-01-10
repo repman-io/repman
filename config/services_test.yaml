@@ -2,8 +2,8 @@ parameters:
     dists_dir: '%kernel.project_dir%/tests/Resources'
 
 services:
-    Buddy\Repman\Service\RemoteFilesystem:
-        class: Buddy\Repman\Tests\Doubles\FakeRemoteFilesystem
+    Buddy\Repman\Service\Downloader:
+        class: Buddy\Repman\Tests\Doubles\FakeDownloader
 
     Buddy\Repman\Service\Cache:
         class: Buddy\Repman\Service\Cache\InMemoryCache

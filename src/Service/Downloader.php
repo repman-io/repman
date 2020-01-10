@@ -6,7 +6,7 @@ namespace Buddy\Repman\Service;
 
 use Munus\Control\Option;
 
-interface RemoteFilesystem
+interface Downloader
 {
     /**
      * @return Option<string>

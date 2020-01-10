@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Buddy\Repman\Service\RemoteFilesystem;
+use Buddy\Repman\Service\Downloader;
 use Munus\Control\Option;
 
-final class FakeRemoteFilesystem implements RemoteFilesystem
+final class FakeDownloader implements Downloader
 {
     private string $basePath;
 

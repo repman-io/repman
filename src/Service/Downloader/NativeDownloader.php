@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Service\RemoteFilesystem;
+namespace Buddy\Repman\Service\Downloader;
 
-use Buddy\Repman\Service\RemoteFilesystem;
+use Buddy\Repman\Service\Downloader;
 use Munus\Control\Option;
 
-final class NativeRemoteFilesystem implements RemoteFilesystem
+final class NativeDownloader implements Downloader
 {
     /**
      * @return Option<string>
