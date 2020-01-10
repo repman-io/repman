@@ -42,4 +42,11 @@ final class ProxyControllerTest extends FunctionalTestCase
         }
         ', $this->client->getResponse()->getContent());
     }
+
+    public function testDistributionAction(): void
+    {
+        $this->client->request('GET', '/repo/packagist/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip');
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
 }

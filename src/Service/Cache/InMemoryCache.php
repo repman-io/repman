@@ -23,6 +23,16 @@ final class InMemoryCache implements Cache
         return Option::some($this->cache[$path]);
     }
 
+    public function put(string $path, string $contents): void
+    {
+        $this->cache[$path] = $contents;
+    }
+
+    public function exists(string $path): bool
+    {
+        return isset($this->cache[$path]);
+    }
+
     public function delete(string $path): void
     {
         if (isset($this->cache[$path])) {

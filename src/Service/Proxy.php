@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
+use Composer\Semver\VersionParser;
 use Munus\Control\Option;
 
 final class Proxy
@@ -14,21 +15,52 @@ final class Proxy
     private string $name;
     private RemoteFilesystem $remoteFilesystem;
     private Cache $cache;
+    private string $distsDir;
 
-    public function __construct(string $name, string $url, RemoteFilesystem $remoteFilesystem, Cache $cache)
+    public function __construct(string $name, string $url, RemoteFilesystem $remoteFilesystem, Cache $cache, string $distsDir)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');
         $this->remoteFilesystem = $remoteFilesystem;
         $this->cache = $cache;
+        $this->distsDir = rtrim($distsDir, '/');
+    }
+
+    /**
+     * @return Option<string>
+     */
+    public function distFilename(string $package, string $version, string $ref, string $format): Option
+    {
+        $filename = $this->getCachePath(sprintf('dist/%s/%s_%s.%s', $package, $version, $ref, $format));
+        if (!$this->cache->exists($filename)) {
+            $providerData = $this->providerData($package)->getOrElse([]);
+            if (!isset($providerData['packages'][$package])) {
+                return Option::none();
+            }
+            $parser = new VersionParser();
+            foreach ($providerData['packages'][$package] as $packageVersion) {
+                if (!isset($packageVersion['version_normalized'])) {
+                    $packageVersion['version_normalized'] = $parser->normalize($packageVersion['version']);
+                }
+
+                if ($packageVersion['version_normalized'] === $version && isset($packageVersion['dist']['url'])) {
+                    $this->cache->put($filename, $this->remoteFilesystem->getContents($packageVersion['dist']['url'])->getOrElseThrow(
+                        new \RuntimeException(sprintf('Failed to download %s from %s', $package, $packageVersion['dist']['url']))
+                    ));
+                }
+            }
+        }
+        $distFilename = $this->distsDir.'/'.$filename;
+
+        return Option::when(file_exists($distFilename), $distFilename);
     }
 
     /**
      * @return Option<array<mixed>>
      */
-    public function provider(string $packageName): Option
+    public function providerData(string $package): Option
     {
-        $providerPath = $this->getProviderPath($packageName);
+        $providerPath = $this->getProviderPath($package);
         if ($providerPath->isEmpty()) {
             return Option::none();
         }

@@ -1,10 +1,3 @@
 index:
     path: /
     controller: Buddy\Repman\Controller\HomeController::home
-
-package_dist:
-    path: /repo/{repo}/dists/{name}/{version}/{ref}.{type}
-    requirements:
-        name: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?'
-        ref: '[a-f0-9]*?'
-        type: zip|tar

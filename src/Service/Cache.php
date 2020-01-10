@@ -13,5 +13,9 @@ interface Cache
      */
     public function get(string $path, callable $supplier): Option;
 
+    public function put(string $path, string $contents): void;
+
+    public function exists(string $path): bool;
+
     public function delete(string $path): void;
 }

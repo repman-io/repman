@@ -31,15 +31,24 @@ final class FileCache implements Cache
             return Option::some((string) file_get_contents($filename));
         }
 
-        $dirname = dirname($filename);
-        if (!is_dir($dirname)) {
-            mkdir($dirname, 0777, true);
-        }
+        $this->ensureDirExist($filename);
 
         return TryTo::run($supplier)
             ->onSuccess(fn ($value) => file_put_contents($filename, $value))
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());
+    }
+
+    public function put(string $path, string $contents): void
+    {
+        $filename = $this->getFilename($path);
+        $this->ensureDirExist($filename);
+        file_put_contents($filename, $contents);
+    }
+
+    public function exists(string $path): bool
+    {
+        return file_exists($filename = $this->getFilename($path));
     }
 
     public function delete(string $path): void
@@ -53,5 +62,13 @@ final class FileCache implements Cache
     private function getFilename(string $path): string
     {
         return sprintf('%s/%s', $this->basePath, $path);
+    }
+
+    private function ensureDirExist(string $filename): void
+    {
+        $dirname = dirname($filename);
+        if (!is_dir($dirname)) {
+            mkdir($dirname, 0777, true);
+        }
     }
 }
