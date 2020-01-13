@@ -2,12 +2,16 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
+        <title>{% block title %}Repman - PHP Repository Manager{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
         <h1>Repman</h1>
         <p>PHP Repository Manager</p>
+        <menu>
+            <a href="{{ path('index') }}">Home</a>
+            <a href="{{ path('packages_list') }}">Proxy packages</a>
+        </menu>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

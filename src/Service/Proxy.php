@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service;
 
 use Composer\Semver\VersionParser;
+use Munus\Collection\GenericList;
 use Munus\Control\Option;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 final class Proxy
 {
@@ -25,6 +28,11 @@ final class Proxy
         $this->downloader = $downloader;
         $this->cache = $cache;
         $this->distsDir = rtrim($distsDir, '/');
+    }
+
+    public function name(): string
+    {
+        return $this->name;
     }
 
     /**
@@ -72,6 +80,31 @@ final class Proxy
         }
 
         return Option::some(Json::decode($contents->get()));
+    }
+
+    /**
+     * @return GenericList<string>
+     */
+    public function syncedPackages(): GenericList
+    {
+        $dir = $this->distsDir.'/'.$this->getCachePath('p');
+        if (!is_dir($dir)) {
+            return GenericList::empty();
+        }
+
+        $files = Finder::create()->files()->ignoreVCS(true)
+            ->name('/\.json$/')->notName('/^provider-/')
+            ->in($this->distsDir.'/'.$this->getCachePath('p'));
+        $packages = [];
+        foreach ($files as $file) {
+            /* @var SplFileInfo $file */
+            if (false === $length = strpos($file->getRelativePathname(), '$')) {
+                continue;
+            }
+            $packages[] = substr($file->getRelativePathname(), 0, $length);
+        }
+
+        return GenericList::ofAll($packages);
     }
 
     /**

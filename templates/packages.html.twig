@@ -1,0 +1,16 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <h2>Packages list</h2>
+
+
+    {% for proxy, packages in proxies %}
+        <h4>{{ proxy }}</h4>
+        <ul>
+            {% for package in packages %}
+                <li>{{ package }}</li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+{% endblock %}

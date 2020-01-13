@@ -49,4 +49,11 @@ final class ProxyControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
     }
+
+    public function testPackagesListAction(): void
+    {
+        $this->client->request('GET', '/packages');
+
+        self::assertStringContainsString('packagist.org', (string) $this->client->getResponse()->getContent());
+    }
 }

@@ -86,7 +86,8 @@
         "tests": [
             "@check-cs",
             "@phpstan",
-            "@phpunit"
+            "@phpunit",
+            "bin/console lint:twig"
         ]
     }
 }
