@@ -10,18 +10,19 @@ use Munus\Control\Option;
 final class Proxy
 {
     public const PACKAGES_PATH = 'packages.json';
+    public const PACKAGES_EXPIRE_TIME = 60;
 
     private string $url;
     private string $name;
-    private Downloader $remoteFilesystem;
+    private Downloader $downloader;
     private Cache $cache;
     private string $distsDir;
 
-    public function __construct(string $name, string $url, Downloader $remoteFilesystem, Cache $cache, string $distsDir)
+    public function __construct(string $name, string $url, Downloader $downloader, Cache $cache, string $distsDir)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');
-        $this->remoteFilesystem = $remoteFilesystem;
+        $this->downloader = $downloader;
         $this->cache = $cache;
         $this->distsDir = rtrim($distsDir, '/');
     }
@@ -44,7 +45,7 @@ final class Proxy
                 }
 
                 if ($packageVersion['version_normalized'] === $version && isset($packageVersion['dist']['url'])) {
-                    $this->cache->put($filename, $this->remoteFilesystem->getContents($packageVersion['dist']['url'])->getOrElseThrow(
+                    $this->cache->put($filename, $this->downloader->getContents($packageVersion['dist']['url'])->getOrElseThrow(
                         new \RuntimeException(sprintf('Failed to download %s from %s', $package, $packageVersion['dist']['url']))
                     ));
                 }
@@ -65,7 +66,7 @@ final class Proxy
             return Option::none();
         }
 
-        $contents = $this->cache->get($this->getCachePath($providerPath->get()), fn () => $this->remoteFilesystem->getContents($this->url.'/'.$providerPath->get())->getOrElse(''));
+        $contents = $this->cache->get($this->getCachePath($providerPath->get()), fn () => $this->downloader->getContents($this->url.'/'.$providerPath->get())->getOrElse(''));
         if ($contents->isEmpty()) {
             return Option::none();
         }
@@ -82,7 +83,7 @@ final class Proxy
         if (isset($root['provider-includes'])) {
             foreach ($root['provider-includes'] as $url => $meta) {
                 $filename = str_replace('%hash%', $meta['sha256'], $url);
-                $contents = $this->cache->get($this->getCachePath($filename), fn () => $this->remoteFilesystem->getContents($this->url.'/'.$filename)->getOrElse(''));
+                $contents = $this->cache->get($this->getCachePath($filename), fn () => $this->downloader->getContents($this->url.'/'.$filename)->getOrElse(''));
                 $data = Json::decode($contents->getOrElse('{}'));
                 if (isset($data['providers'][$packageName])) {
                     return Option::some(
@@ -105,8 +106,8 @@ final class Proxy
     private function getRootPackages(): array
     {
         $contents = $this->cache->get($this->getCachePath(self::PACKAGES_PATH), function (): string {
-            return $this->remoteFilesystem->getContents($this->getUrl(self::PACKAGES_PATH))->getOrElse('');
-        });
+            return $this->downloader->getContents($this->getUrl(self::PACKAGES_PATH))->getOrElse('');
+        }, self::PACKAGES_EXPIRE_TIME);
 
         return Json::decode($contents->getOrElse('{}'));
     }

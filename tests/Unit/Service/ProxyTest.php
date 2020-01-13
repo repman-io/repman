@@ -26,7 +26,7 @@ final class ProxyTest extends TestCase
     {
         /** @phpstan-var mixed $cache */
         $cache = $this->prophesize(Cache::class);
-        $cache->get('packagist.org/packages.json', Argument::type('callable'))->willReturn(Option::some('{}'));
+        $cache->get('packagist.org/packages.json', Argument::type('callable'), Proxy::PACKAGES_EXPIRE_TIME)->willReturn(Option::some('{}'));
 
         $proxy = new Proxy('packagist.org', 'https://packagist.org', new FakeDownloader(), $cache->reveal(), __DIR__.'/../../Resources');
 

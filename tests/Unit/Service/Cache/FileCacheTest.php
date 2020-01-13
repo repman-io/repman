@@ -39,6 +39,16 @@ final class FileCacheTest extends TestCase
         ));
     }
 
+    public function testCacheHitExpire(): void
+    {
+        $cache = new FileCache(__DIR__.'/../../../Resources');
+
+        self::assertTrue(Option::none()->equals($cache->get('packages.json', function () {
+            // to prevent overwrite packages.json
+            throw new \LogicException();
+        }, 60)));
+    }
+
     public function testCacheMiss(): void
     {
         $content = '{"some":"json"}';

@@ -14,7 +14,7 @@ final class InMemoryCache implements Cache
      */
     private array $cache;
 
-    public function get(string $path, callable $supplier): Option
+    public function get(string $path, callable $supplier, int $expireTime = 0): Option
     {
         if (!isset($this->cache[$path])) {
             $this->cache[$path] = $supplier();

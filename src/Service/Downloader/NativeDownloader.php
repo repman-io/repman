@@ -14,13 +14,16 @@ final class NativeDownloader implements Downloader
      */
     public function getContents(string $url): Option
     {
-        $content = @file_get_contents($url, false, $this->createContext());
+        $retries = 3;
+        do {
+            $content = @file_get_contents($url, false, $this->createContext());
+            if ($content !== false) {
+                return Option::some($content);
+            }
+            --$retries;
+        } while ($retries > 0);
 
-        if ($content === false) {
-            return Option::none();
-        }
-
-        return Option::some($content);
+        return Option::none();
     }
 
     /**

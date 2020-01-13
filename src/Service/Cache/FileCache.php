@@ -24,10 +24,10 @@ final class FileCache implements Cache
         $this->basePath = $basePath;
     }
 
-    public function get(string $path, callable $supplier): Option
+    public function get(string $path, callable $supplier, int $expireTime = 0): Option
     {
         $filename = $this->getFilename($path);
-        if (is_readable($filename)) {
+        if (is_readable($filename) && ($expireTime === 0 || filemtime($filename) > time() - $expireTime)) {
             return Option::some((string) file_get_contents($filename));
         }
 

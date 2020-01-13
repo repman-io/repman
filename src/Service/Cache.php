@@ -11,7 +11,7 @@ interface Cache
     /**
      * @return Option<string>
      */
-    public function get(string $path, callable $supplier): Option;
+    public function get(string $path, callable $supplier, int $expireTime = 0): Option;
 
     public function put(string $path, string $contents): void;
 
