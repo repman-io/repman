@@ -38,18 +38,18 @@ final class ProxyController extends AbstractController
             'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
             'mirrors' => [
                 [
-                    'dist-url' => $this->router->generate('index', [], RouterInterface::ABSOLUTE_URL).'repo/packagist/dists/%package%/%version%/%reference%.%type%',
+                    'dist-url' => $this->router->generate('index', [], RouterInterface::ABSOLUTE_URL).'dists/%package%/%version%/%reference%.%type%',
                     'preferred' => true,
                 ],
             ],
-            'providers-lazy-url' => '/repo/packagist/p/%package%',
+            'providers-lazy-url' => '/p/%package%',
         ]);
     }
 
     /**
-     * @Route("/repo/{repo}/p/{package}", name="package_provider", requirements={"package"="[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?"}, methods={"GET"})
+     * @Route("/p/{package}", name="package_provider", requirements={"package"="[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?"}, methods={"GET"})
      */
-    public function provider(string $repo, string $package): JsonResponse
+    public function provider(string $package): JsonResponse
     {
         return new JsonResponse($this->register->all()
             ->map(fn (Proxy $proxy) => $proxy->providerData($package))
@@ -60,12 +60,12 @@ final class ProxyController extends AbstractController
     }
 
     /**
-     * @Route("/repo/{repo}/dists/{package}/{version}/{ref}.{type}",
+     * @Route("/dists/{package}/{version}/{ref}.{type}",
      *     name="package_dist",
      *     requirements={"package"="[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?","ref"="[a-f0-9]*?","type"="zip|tar"},
      *     methods={"GET"})
      */
-    public function distribution(string $repo, string $package, string $version, string $ref, string $type): BinaryFileResponse
+    public function distribution(string $package, string $version, string $ref, string $type): BinaryFileResponse
     {
         return new BinaryFileResponse($this->register->all()
             ->map(fn (Proxy $proxy) => $proxy->distFilename($package, $version, $ref, $type))

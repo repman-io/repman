@@ -24,14 +24,14 @@ final class ProxyControllerTest extends FunctionalTestCase
                     "preferred": true
                 }
             ],
-            "providers-lazy-url": "/repo/packagist/p/%package%"
+            "providers-lazy-url": "/p/%package%"
         }
         ', $this->client->getResponse()->getContent());
     }
 
     public function testProviderAction(): void
     {
-        $this->client->request('GET', '/repo/packagist/p/buddy-works/repman');
+        $this->client->request('GET', '/p/buddy-works/repman');
 
         self::assertMatchesPattern('
         {
@@ -45,7 +45,7 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testDistributionAction(): void
     {
-        $this->client->request('GET', '/repo/packagist/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip');
+        $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip');
 
         self::assertTrue($this->client->getResponse()->isOk());
     }
