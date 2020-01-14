@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
+use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
 use Munus\Collection\GenericList;
 use Munus\Control\Option;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 final class Proxy
 {
@@ -19,15 +18,15 @@ final class Proxy
     private string $name;
     private Downloader $downloader;
     private Cache $cache;
-    private string $distsDir;
+    private Storage $distStorage;
 
-    public function __construct(string $name, string $url, Downloader $downloader, Cache $cache, string $distsDir)
+    public function __construct(string $name, string $url, Downloader $downloader, Cache $cache, Storage $distStorage)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');
         $this->downloader = $downloader;
         $this->cache = $cache;
-        $this->distsDir = rtrim($distsDir, '/');
+        $this->distStorage = $distStorage;
     }
 
     public function name(): string
@@ -40,8 +39,8 @@ final class Proxy
      */
     public function distFilename(string $package, string $version, string $ref, string $format): Option
     {
-        $filename = $this->getCachePath(sprintf('dist/%s/%s_%s.%s', $package, $version, $ref, $format));
-        if (!$this->cache->exists($filename)) {
+        $dist = new Dist($this->name, $package, $version, $ref, $format);
+        if (!$this->distStorage->has($dist)) {
             $providerData = $this->providerData($package)->getOrElse([]);
             if (!isset($providerData['packages'][$package])) {
                 return Option::none();
@@ -53,13 +52,11 @@ final class Proxy
                 }
 
                 if ($packageVersion['version_normalized'] === $version && isset($packageVersion['dist']['url'])) {
-                    $this->cache->put($filename, $this->downloader->getContents($packageVersion['dist']['url'])->getOrElseThrow(
-                        new \RuntimeException(sprintf('Failed to download %s from %s', $package, $packageVersion['dist']['url']))
-                    ));
+                    $this->distStorage->download($packageVersion['dist']['url'], $dist);
                 }
             }
         }
-        $distFilename = $this->distsDir.'/'.$filename;
+        $distFilename = $this->distStorage->filename($dist);
 
         return Option::when(file_exists($distFilename), $distFilename);
     }
@@ -87,17 +84,7 @@ final class Proxy
      */
     public function syncedPackages(): GenericList
     {
-        $dir = $this->distsDir.'/'.$this->getCachePath('dist');
-        if (!is_dir($dir)) {
-            return GenericList::empty();
-        }
-
-        $files = Finder::create()->directories()->sortByName()->depth(1)->ignoreVCS(true)->in($dir);
-
-        return GenericList::ofAll(array_map(
-            fn (SplFileInfo $fileInfo) => $fileInfo->getRelativePathname(),
-            iterator_to_array($files->getIterator()
-        )));
+        return $this->distStorage->packages($this->name);
     }
 
     /**

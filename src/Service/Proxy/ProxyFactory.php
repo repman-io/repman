@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Proxy;
 
 use Buddy\Repman\Service\Cache;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy;
 
@@ -12,13 +13,13 @@ final class ProxyFactory
 {
     private Downloader $downloader;
     private Cache $cache;
-    private string $distsDir;
+    private Storage $distStorage;
 
-    public function __construct(Downloader $downloader, Cache $cache, string $distsDir)
+    public function __construct(Downloader $downloader, Cache $cache, Storage $distStorage)
     {
         $this->downloader = $downloader;
         $this->cache = $cache;
-        $this->distsDir = $distsDir;
+        $this->distStorage = $distStorage;
     }
 
     public function create(string $url): Proxy
@@ -28,7 +29,7 @@ final class ProxyFactory
             $url,
             $this->downloader,
             $this->cache,
-            $this->distsDir
+            $this->distStorage
         );
     }
 }
