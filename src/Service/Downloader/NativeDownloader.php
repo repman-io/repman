@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Downloader;
 
+use Buddy\Repman\Kernel;
 use Buddy\Repman\Service\Downloader;
 use Munus\Control\Option;
 
@@ -38,7 +39,7 @@ final class NativeDownloader implements Downloader
                 'header' => [
                     sprintf(
                         'User-Agent: Repman/%s (%s; %s; %s)',
-                        'dev', //TODO replace with released version
+                        Kernel::REPMAN_VERSION,
                         php_uname('s'),
                         php_uname('r'),
                         $phpVersion

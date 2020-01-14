@@ -7,6 +7,7 @@ namespace Buddy\Repman\Service\Proxy\MetadataProvider;
 use Buddy\Repman\Service\Cache;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Json;
+use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\MetadataProvider;
 use Munus\Control\Option;
 
@@ -21,9 +22,12 @@ final class CacheableMetadataProvider implements MetadataProvider
         $this->cache = $cache;
     }
 
+    /**
+     * @return Option<array<mixed>>
+     */
     public function fromUrl(string $url, int $expireTime = 0): Option
     {
-        $path = (string) parse_url($url, PHP_URL_HOST).'/'.ltrim((string) parse_url($url, PHP_URL_PATH), '/');
+        $path = $this->getPath($url);
 
         return $this->cache->get($path, function () use ($url, $path, $expireTime) {
             $content = $this->downloader->getContents($url)->getOrElseThrow(
@@ -36,5 +40,22 @@ final class CacheableMetadataProvider implements MetadataProvider
 
             return Json::decode($content);
         }, $expireTime);
+    }
+
+    /**
+     * @return Option<array<mixed>>
+     */
+    public function fromPath(string $package, string $repoUrl, int $expireTime = 0): Option
+    {
+        if (!$this->cache->exists($this->getPath($repoUrl.'/'.Proxy::PACKAGES_PATH), $expireTime)) {
+            return Option::none();
+        }
+
+        return $this->cache->find((string) parse_url($repoUrl, PHP_URL_HOST).'/p/'.$package);
+    }
+
+    private function getPath(string $url): string
+    {
+        return (string) parse_url($url, PHP_URL_HOST).'/'.ltrim((string) parse_url($url, PHP_URL_PATH), '/');
     }
 }

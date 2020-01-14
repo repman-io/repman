@@ -23,6 +23,11 @@ final class FakeMetadataProvider implements MetadataProvider
         return Option::some($this->metadata[$url]);
     }
 
+    public function fromPath(string $package, string $repoUrl, int $expireTime = 0): Option
+    {
+        return Option::none();
+    }
+
     /**
      * @param array<mixed> $metadata
      */

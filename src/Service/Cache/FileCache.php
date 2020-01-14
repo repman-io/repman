@@ -28,7 +28,7 @@ final class FileCache implements Cache
 
     public function get(string $path, callable $supplier, int $expireTime = 0): Option
     {
-        $filename = $this->getFilename($path);
+        $filename = $this->getPath($path);
         if (is_readable($filename) && ($expireTime === 0 || filemtime($filename) > time() - $expireTime)) {
             return Option::some(unserialize((string) file_get_contents($filename)));
         }
@@ -43,12 +43,13 @@ final class FileCache implements Cache
 
     public function removeOld(string $path): void
     {
-        if (false === $length = strpos(basename($path), '$')) {
+        $dir = $this->getPath(dirname($path));
+        if (false === ($length = strpos(basename($path), '$')) || !is_dir($dir)) {
             return;
         }
 
         $pattern = substr(basename($path), 0, $length).'$*';
-        $files = Finder::create()->files()->ignoreVCS(true)->name($pattern)->in($this->basePath.'/'.dirname($path));
+        $files = Finder::create()->files()->ignoreVCS(true)->name($pattern)->in($dir);
 
         foreach ($files as $file) {
             /* @var SplFileInfo $file */
@@ -56,7 +57,31 @@ final class FileCache implements Cache
         }
     }
 
-    private function getFilename(string $path): string
+    public function find(string $path): Option
+    {
+        $dir = $this->getPath(dirname($path));
+        if (!is_dir($dir)) {
+            return Option::none();
+        }
+
+        $pattern = basename($path).'$*';
+        /** @var SplFileInfo[] $files */
+        $files = iterator_to_array(Finder::create()->files()->ignoreVCS(true)->ignoreUnreadableDirs(true)->name($pattern)->in($dir)->getIterator());
+        if ($files === []) {
+            return Option::none();
+        }
+
+        return Option::some(unserialize((string) file_get_contents(current($files)->getPathname())));
+    }
+
+    public function exists(string $path, int $expireTime = 0): bool
+    {
+        $filename = $this->getPath($path);
+
+        return is_readable($filename) && ($expireTime === 0 || filemtime($filename) > time() - $expireTime);
+    }
+
+    private function getPath(string $path): string
     {
         return sprintf('%s/%s', $this->basePath, $path);
     }

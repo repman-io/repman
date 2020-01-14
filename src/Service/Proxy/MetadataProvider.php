@@ -12,4 +12,9 @@ interface MetadataProvider
      * @return Option<array<mixed>>
      */
     public function fromUrl(string $url, int $expireTime = 0): Option;
+
+    /**
+     * @return Option<array<mixed>>
+     */
+    public function fromPath(string $package, string $repoUrl, int $expireTime = 0): Option;
 }

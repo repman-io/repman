@@ -65,6 +65,10 @@ final class Proxy
      */
     public function providerData(string $package): Option
     {
+        if (!($fromPath = $this->metadataProvider->fromPath($package, $this->url, self::PACKAGES_EXPIRE_TIME))->isEmpty()) {
+            return $fromPath;
+        }
+
         $providerPath = $this->getProviderPath($package);
         if ($providerPath->isEmpty()) {
             return Option::none();

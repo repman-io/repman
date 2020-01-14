@@ -27,4 +27,14 @@ final class InMemoryCache implements Cache
     {
         // TODO: Implement remove() method.
     }
+
+    public function find(string $path): Option
+    {
+        return Option::none();
+    }
+
+    public function exists(string $path, int $expireTime = 0): bool
+    {
+        return false;
+    }
 }
