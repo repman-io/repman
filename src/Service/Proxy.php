@@ -87,24 +87,17 @@ final class Proxy
      */
     public function syncedPackages(): GenericList
     {
-        $dir = $this->distsDir.'/'.$this->getCachePath('p');
+        $dir = $this->distsDir.'/'.$this->getCachePath('dist');
         if (!is_dir($dir)) {
             return GenericList::empty();
         }
 
-        $files = Finder::create()->files()->ignoreVCS(true)
-            ->name('/\.json$/')->notName('/^provider-/')
-            ->in($this->distsDir.'/'.$this->getCachePath('p'));
-        $packages = [];
-        foreach ($files as $file) {
-            /* @var SplFileInfo $file */
-            if (false === $length = strpos($file->getRelativePathname(), '$')) {
-                continue;
-            }
-            $packages[] = substr($file->getRelativePathname(), 0, $length);
-        }
+        $files = Finder::create()->directories()->sortByName()->depth(1)->ignoreVCS(true)->in($dir);
 
-        return GenericList::ofAll($packages);
+        return GenericList::ofAll(array_map(
+            fn (SplFileInfo $fileInfo) => $fileInfo->getRelativePathname(),
+            iterator_to_array($files->getIterator()
+        )));
     }
 
     /**
