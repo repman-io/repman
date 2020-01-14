@@ -11,13 +11,14 @@ use PHPUnit\Framework\TestCase;
 final class FileCacheTest extends TestCase
 {
     private FileCache $cache;
+    private string $basePath;
     private string $packagesPath;
 
     protected function setUp(): void
     {
-        $basePath = sys_get_temp_dir().'/'.'repman';
-        $this->cache = new FileCache($basePath);
-        $this->packagesPath = $basePath.'/packagist/packages.json';
+        $this->basePath = sys_get_temp_dir().'/'.'repman';
+        $this->cache = new FileCache($this->basePath);
+        $this->packagesPath = $this->basePath.'/packagist/packages.json';
     }
 
     protected function tearDown(): void
@@ -30,7 +31,7 @@ final class FileCacheTest extends TestCase
     {
         $content = '{"some":"json"}';
         @mkdir(dirname($this->packagesPath));
-        file_put_contents($this->packagesPath, $content);
+        file_put_contents($this->packagesPath, serialize($content));
 
         self::assertTrue(Option::some($content)->equals(
             $this->cache->get('packagist/packages.json', function () {
@@ -60,12 +61,13 @@ final class FileCacheTest extends TestCase
         self::assertTrue(file_exists($this->packagesPath));
     }
 
-    public function testCacheDelete(): void
+    public function testCacheRemoveByPattern(): void
     {
-        @mkdir(dirname($this->packagesPath));
-        file_put_contents($this->packagesPath, '{"some":"json"}');
+        $file = '/p/buddy-works/repman$d1392374.json';
+        @mkdir(dirname($this->basePath.$file), 0777, true);
+        file_put_contents($this->basePath.$file, '{}');
 
-        $this->cache->delete('packagist/packages.json');
-        self::assertTrue(!file_exists($this->packagesPath));
+        $this->cache->removeOld($file);
+        self::assertTrue(!file_exists($this->basePath.$file));
     }
 }

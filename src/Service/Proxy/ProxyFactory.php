@@ -4,21 +4,17 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Proxy;
 
-use Buddy\Repman\Service\Cache;
 use Buddy\Repman\Service\Dist\Storage;
-use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy;
 
 final class ProxyFactory
 {
-    private Downloader $downloader;
-    private Cache $cache;
+    private MetadataProvider $metadataProvider;
     private Storage $distStorage;
 
-    public function __construct(Downloader $downloader, Cache $cache, Storage $distStorage)
+    public function __construct(MetadataProvider $metadataProvider, Storage $distStorage)
     {
-        $this->downloader = $downloader;
-        $this->cache = $cache;
+        $this->metadataProvider = $metadataProvider;
         $this->distStorage = $distStorage;
     }
 
@@ -27,8 +23,7 @@ final class ProxyFactory
         return new Proxy(
             (string) parse_url($url, PHP_URL_HOST),
             $url,
-            $this->downloader,
-            $this->cache,
+            $this->metadataProvider,
             $this->distStorage
         );
     }

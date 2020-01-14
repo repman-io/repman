@@ -7,6 +7,8 @@ namespace Buddy\Repman\Service\Cache;
 use Buddy\Repman\Service\Cache;
 use Munus\Control\Option;
 use Munus\Control\TryTo;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 final class FileCache implements Cache
 {
@@ -28,34 +30,25 @@ final class FileCache implements Cache
     {
         $filename = $this->getFilename($path);
         if (is_readable($filename) && ($expireTime === 0 || filemtime($filename) > time() - $expireTime)) {
-            return Option::some((string) file_get_contents($filename));
+            return Option::some(unserialize((string) file_get_contents($filename)));
         }
 
         $this->ensureDirExist($filename);
 
         return TryTo::run($supplier)
-            ->onSuccess(fn ($value) => file_put_contents($filename, $value))
+            ->onSuccess(fn ($value) => file_put_contents($filename, serialize($value)))
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());
     }
 
-    public function put(string $path, string $contents): void
+    public function removeOld(string $path): void
     {
-        $filename = $this->getFilename($path);
-        $this->ensureDirExist($filename);
-        file_put_contents($filename, $contents);
-    }
+        $pattern = substr(basename($path), 0, (int) strpos(basename($path), '$')).'$*';
+        $files = Finder::create()->files()->ignoreVCS(true)->name($pattern)->in($this->basePath.'/'.dirname($path));
 
-    public function exists(string $path): bool
-    {
-        return file_exists($filename = $this->getFilename($path));
-    }
-
-    public function delete(string $path): void
-    {
-        $filename = $this->getFilename($path);
-        if (file_exists($filename)) {
-            @unlink($filename);
+        foreach ($files as $file) {
+            /* @var SplFileInfo $file */
+            @unlink($file->getPathname());
         }
     }
 

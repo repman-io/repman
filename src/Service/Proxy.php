@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service;
 
 use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Proxy\MetadataProvider;
 use Composer\Semver\VersionParser;
 use Munus\Collection\GenericList;
 use Munus\Control\Option;
@@ -16,16 +17,14 @@ final class Proxy
 
     private string $url;
     private string $name;
-    private Downloader $downloader;
-    private Cache $cache;
+    private MetadataProvider $metadataProvider;
     private Storage $distStorage;
 
-    public function __construct(string $name, string $url, Downloader $downloader, Cache $cache, Storage $distStorage)
+    public function __construct(string $name, string $url, MetadataProvider $metadataProvider, Storage $distStorage)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');
-        $this->downloader = $downloader;
-        $this->cache = $cache;
+        $this->metadataProvider = $metadataProvider;
         $this->distStorage = $distStorage;
     }
 
@@ -71,12 +70,7 @@ final class Proxy
             return Option::none();
         }
 
-        $contents = $this->cache->get($this->getCachePath($providerPath->get()), fn () => $this->downloader->getContents($this->url.'/'.$providerPath->get())->getOrElse(''));
-        if ($contents->isEmpty()) {
-            return Option::none();
-        }
-
-        return Option::some(Json::decode($contents->get()));
+        return $this->metadataProvider->fromUrl($this->getUrl($providerPath->get()));
     }
 
     /**
@@ -95,9 +89,7 @@ final class Proxy
         $root = $this->getRootPackages();
         if (isset($root['provider-includes'])) {
             foreach ($root['provider-includes'] as $url => $meta) {
-                $filename = str_replace('%hash%', $meta['sha256'], $url);
-                $contents = $this->cache->get($this->getCachePath($filename), fn () => $this->downloader->getContents($this->url.'/'.$filename)->getOrElse(''));
-                $data = Json::decode($contents->getOrElse('{}'));
+                $data = $this->metadataProvider->fromUrl($this->getUrl(str_replace('%hash%', $meta['sha256'], $url)))->getOrElse([]);
                 if (isset($data['providers'][$packageName])) {
                     return Option::some(
                         (string) str_replace(
@@ -118,20 +110,11 @@ final class Proxy
      */
     private function getRootPackages(): array
     {
-        $contents = $this->cache->get($this->getCachePath(self::PACKAGES_PATH), function (): string {
-            return $this->downloader->getContents($this->getUrl(self::PACKAGES_PATH))->getOrElse('');
-        }, self::PACKAGES_EXPIRE_TIME);
-
-        return Json::decode($contents->getOrElse('{}'));
+        return $this->metadataProvider->fromUrl($this->getUrl(self::PACKAGES_PATH), self::PACKAGES_EXPIRE_TIME)->getOrElse([]);
     }
 
     private function getUrl(string $path): string
     {
         return sprintf('%s/%s', $this->url, $path);
-    }
-
-    private function getCachePath(string $path): string
-    {
-        return sprintf('%s/%s', $this->name, $path);
     }
 }
