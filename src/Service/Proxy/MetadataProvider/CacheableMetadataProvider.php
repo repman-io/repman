@@ -10,7 +10,7 @@ use Buddy\Repman\Service\Json;
 use Buddy\Repman\Service\Proxy\MetadataProvider;
 use Munus\Control\Option;
 
-final class SerializableMetadataProvider implements MetadataProvider
+final class CacheableMetadataProvider implements MetadataProvider
 {
     private Downloader $downloader;
     private Cache $cache;

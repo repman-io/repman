@@ -43,7 +43,11 @@ final class FileCache implements Cache
 
     public function removeOld(string $path): void
     {
-        $pattern = substr(basename($path), 0, (int) strpos(basename($path), '$')).'$*';
+        if (false === $length = strpos(basename($path), '$')) {
+            return;
+        }
+
+        $pattern = substr(basename($path), 0, $length).'$*';
         $files = Finder::create()->files()->ignoreVCS(true)->name($pattern)->in($this->basePath.'/'.dirname($path));
 
         foreach ($files as $file) {

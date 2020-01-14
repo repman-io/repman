@@ -70,4 +70,15 @@ final class FileCacheTest extends TestCase
         $this->cache->removeOld($file);
         self::assertTrue(!file_exists($this->basePath.$file));
     }
+
+    public function testCacheNotRemoveWhenDollarSignIsMissing(): void
+    {
+        $file = '/p/buddy-works/repman.json';
+        @mkdir(dirname($this->basePath.$file), 0777, true);
+        file_put_contents($this->basePath.$file, '{}');
+
+        $this->cache->removeOld($file);
+        self::assertTrue(file_exists($this->basePath.$file));
+        @unlink($this->basePath.$file);
+    }
 }

@@ -9,7 +9,7 @@ use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
 use Buddy\Repman\Service\Proxy;
-use Buddy\Repman\Service\Proxy\MetadataProvider\SerializableMetadataProvider;
+use Buddy\Repman\Service\Proxy\MetadataProvider\CacheableMetadataProvider;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\Doubles\FakeMetadataProvider;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +19,7 @@ final class ProxyTest extends TestCase
 {
     public function testPackageProvider(): void
     {
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new SerializableMetadataProvider(new FakeDownloader(), new InMemoryCache()), new InMemoryStorage());
+        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), new InMemoryStorage());
         $provider = $proxy->providerData('buddy-works/repman')->get();
 
         self::assertEquals('0.1.0', $provider['packages']['buddy-works/repman']['0.1.0']['version']);
