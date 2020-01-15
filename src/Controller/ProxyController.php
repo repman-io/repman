@@ -55,7 +55,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Proxy $proxy) => $proxy->providerData($package))
             ->find(fn (Option $option) => !$option->isEmpty())
             ->map(fn (Option $option) => $option->get())
-            ->getOrElse([])
+            ->getOrElse(['packages' => []])
         );
     }
 

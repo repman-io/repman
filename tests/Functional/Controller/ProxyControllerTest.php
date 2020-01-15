@@ -43,6 +43,17 @@ final class ProxyControllerTest extends FunctionalTestCase
         ', $this->client->getResponse()->getContent());
     }
 
+    public function testProviderActionEmptyPackagesWhenNotExist(): void
+    {
+        $this->client->request('GET', '/p/buddy-works/example-app');
+
+        self::assertMatchesPattern('
+        {
+            "packages": []
+        }
+        ', $this->client->getResponse()->getContent());
+    }
+
     public function testDistributionAction(): void
     {
         $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip');
