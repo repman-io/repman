@@ -41,6 +41,9 @@
             ".php_cs.dist"
         ]
     },
+    "monolog/monolog": {
+        "version": "2.0.2"
+    },
     "munusphp/munus": {
         "version": "0.1.0"
     },
@@ -271,6 +274,23 @@
     },
     "symfony/mime": {
         "version": "v5.0.2"
+    },
+    "symfony/monolog-bridge": {
+        "version": "v5.0.2"
+    },
+    "symfony/monolog-bundle": {
+        "version": "3.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "3.3",
+            "ref": "222b46a1bb02cd04bbc59700adec2f44f1a644b7"
+        },
+        "files": [
+            "config/packages/dev/monolog.yaml",
+            "config/packages/prod/monolog.yaml",
+            "config/packages/test/monolog.yaml"
+        ]
     },
     "symfony/options-resolver": {
         "version": "v5.0.2"
