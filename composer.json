@@ -104,7 +104,8 @@
             "@check-cs",
             "@phpstan",
             "@phpunit",
-            "bin/console lint:twig templates --show-deprecations"
+            "bin/console lint:twig templates --show-deprecations",
+            "bin/console cache:warmup --env=prod"
         ]
     }
 }
