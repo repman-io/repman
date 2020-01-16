@@ -89,6 +89,7 @@
             "php-cs-fixer fix"
         ],
         "phpstan": [
+            "bin/console cache:clear --env=test",
             "phpstan analyse src tests --level=max"
         ],
         "phpunit": [
