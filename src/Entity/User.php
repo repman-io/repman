@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\UserRepository")
+ * @ORM\Table(name="`user`")
  */
 class User implements UserInterface
 {
     /**
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
-    private Uuid $id;
+    private UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
@@ -38,7 +37,17 @@ class User implements UserInterface
      */
     private string $password;
 
-    public function getId(): ?Uuid
+    /**
+     * @param array<string> $roles
+     */
+    public function __construct(UuidInterface $id, string $email, array $roles)
+    {
+        $this->id = $id;
+        $this->email = $email;
+        $this->roles = $roles;
+    }
+
+    public function getId(): ?UuidInterface
     {
         return $this->id;
     }
