@@ -1,0 +1,4 @@
+services:
+  Buddy\Repman\Service\Doctrine\FixPostgreSQLDefaultSchemaListener:
+    tags:
+      - { name: doctrine.event_listener, event: postGenerateSchema }
