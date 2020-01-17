@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Functional\Command;
 use Buddy\Repman\Command\ClearMetadataCacheCommand;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class ClearMetadataCacheCommandTest extends FunctionalTestCase
 {
@@ -15,7 +16,7 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
         $basePath = sys_get_temp_dir().'/'.'repman';
         $this->prepareTempFiles(
             $packagesFile = $basePath.'/packagist.org/packages.json',
-            $distFile = $basePath.'dist/a/b/dist.zip'
+            $distFile = $basePath.'/dist/a/b/dist.zip'
         );
 
         self::assertTrue(file_exists($packagesFile));
@@ -28,6 +29,9 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
         self::assertFalse(file_exists($packagesFile));
         self::assertTrue(file_exists($distFile));
         self::assertEquals("Deleted 1 file(s).\n", $commandTester->getDisplay());
+
+        $filesystem = new Filesystem();
+        $filesystem->remove($basePath);
     }
 
     private function prepareTempFiles(string $packagesFile, string $distFile): void

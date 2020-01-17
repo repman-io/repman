@@ -16,7 +16,15 @@
                 <a href="{{ url('app_logout') }}">Logout</a>
             </div>
         </nav>
-        <div class="container container-fluid">
+        <div class="container container-fluid pt-3">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
             {% block body %}{% endblock %}
         </div>
         {% block javascripts %}

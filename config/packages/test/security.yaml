@@ -1,4 +1,7 @@
 security:
-  firewalls:
-    main:
-      http_basic: ~
+    encoders:
+        Buddy\Repman\Entity\User:
+            algorithm: plaintext
+    firewalls:
+        main:
+            http_basic: ~

@@ -19,4 +19,6 @@ interface Storage
      * @return GenericList<string>
      */
     public function packages(string $repo): GenericList;
+
+    public function remove(string $packageName): void;
 }

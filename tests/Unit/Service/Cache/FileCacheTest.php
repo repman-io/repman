@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Cache;
 use Buddy\Repman\Service\Cache\FileCache;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class FileCacheTest extends TestCase
 {
@@ -23,8 +24,8 @@ final class FileCacheTest extends TestCase
 
     protected function tearDown(): void
     {
-        @unlink($this->packagesPath);
-        @rmdir(dirname($this->packagesPath));
+        $filesystem = new Filesystem();
+        $filesystem->remove($this->basePath);
     }
 
     public function testCacheHit(): void

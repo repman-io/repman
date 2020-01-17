@@ -39,7 +39,10 @@ abstract class FunctionalTestCase extends WebTestCase
     protected function createAndLoginAdmin(string $email = 'test@buddy.works', string $password = 'password'): void
     {
         $this->createAdmin($email, $password);
-        $this->ensureKernelShutdown(); // TODO im not convinced
+
+        if (static::$booted) {
+            $this->ensureKernelShutdown();
+        }
         $this->client = static::createClient([], [
             'PHP_AUTH_USER' => $email,
             'PHP_AUTH_PW' => $password,

@@ -75,6 +75,24 @@ final class FileStorage implements Storage
             )));
     }
 
+    public function remove(string $packageName): void
+    {
+        $dirs = [];
+        foreach (Finder::create()->directories()->path($packageName)->ignoreVCS(true)->in($this->distsDir) as $dir) {
+            /* @var SplFileInfo $dir */
+            $dirs[] = $dir->getPathname();
+            foreach (Finder::create()->files()->in($dir->getPathname()) as $file) {
+                /* @var SplFileInfo $file */
+                @unlink($file->getPathname());
+            }
+        }
+
+        // can't remove dir in Finder loop, RecursiveDirectoryIterator throws error
+        foreach ($dirs as $dir) {
+            @rmdir($dir);
+        }
+    }
+
     private function ensureDirExist(string $filename): void
     {
         $dirname = dirname($filename);

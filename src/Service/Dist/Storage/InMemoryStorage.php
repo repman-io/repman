@@ -41,4 +41,9 @@ final class InMemoryStorage implements Storage
     {
         return GenericList::ofAll($this->dists);
     }
+
+    public function remove(string $packageName): void
+    {
+        // TODO: Implement remove() method.
+    }
 }

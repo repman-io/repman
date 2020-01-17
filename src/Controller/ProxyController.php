@@ -17,12 +17,10 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class ProxyController extends AbstractController
 {
-    private RouterInterface $router;
     private ProxyRegister $register;
 
-    public function __construct(RouterInterface $router, ProxyRegister $register)
+    public function __construct(ProxyRegister $register)
     {
-        $this->router = $router;
         $this->register = $register;
     }
 
@@ -38,7 +36,7 @@ final class ProxyController extends AbstractController
             'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
             'mirrors' => [
                 [
-                    'dist-url' => $this->router->generate('index', [], RouterInterface::ABSOLUTE_URL).'dists/%package%/%version%/%reference%.%type%',
+                    'dist-url' => $this->generateUrl('index', [], RouterInterface::ABSOLUTE_URL).'dists/%package%/%version%/%reference%.%type%',
                     'preferred' => true,
                 ],
             ],
@@ -47,7 +45,7 @@ final class ProxyController extends AbstractController
     }
 
     /**
-     * @Route("/p/{package}", name="package_provider", requirements={"package"="[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?"}, methods={"GET"})
+     * @Route("/p/{package}", name="package_provider", requirements={"package"="%package_name_pattern%"}, methods={"GET"})
      */
     public function provider(string $package): JsonResponse
     {
@@ -62,7 +60,7 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/dists/{package}/{version}/{ref}.{type}",
      *     name="package_dist",
-     *     requirements={"package"="[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?","ref"="[a-f0-9]*?","type"="zip|tar"},
+     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar"},
      *     methods={"GET"})
      */
     public function distribution(string $package, string $version, string $ref, string $type): BinaryFileResponse

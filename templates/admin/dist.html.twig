@@ -3,5 +3,18 @@
 {% block body %}
     <h1>Downloaded packages:</h1>
 
-    TODO: list
+    {% for proxy, packages in proxies %}
+        <h4>{{ proxy }}</h4>
+        <ul>
+            {% for package in packages %}
+                <li class="mb-1">
+                    {{ package }}
+                    <form class="d-inline" action="{{ path('admin_dist_remove', {packageName: package}) }}" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button class="btn btn-danger btn-sm" type="submit">delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
 {% endblock %}
