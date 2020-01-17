@@ -1,0 +1,27 @@
+{% if app.user %}
+    <ul class="nav navbar-menu align-items-center ml-auto">
+        <li class="nav-item dropdown">
+            <a href="#" data-toggle="dropdown"
+               class="nav-link d-flex align-items-center py-0 px-lg-0 px-2 text-reset ml-2">
+                <span class="avatar avatar-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </span>
+                <span class="ml-2 d-none d-lg-block lh-1">
+                      {{ app.user.username }}
+                      <span class="text-muted d-block mt-1 text-h6">Administrator</span>
+                    </span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                <a class="dropdown-item" href="{{ url('admin_dist_list')}}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    Packages
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{{ url('app_logout') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon dropdown-icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Sign out
+                </a>
+            </div>
+        </li>
+    </ul>
+{% endif %}

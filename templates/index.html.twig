@@ -1,28 +1,29 @@
 {% extends "base.html.twig" %}
 
-{% block body %}
+{% block content %}
     <h2>Usage</h2>
 
     Use this composer plugin:
-
-    <pre>
-composer global require buddy-works/repman-composer-plugin
-    </pre>
+    <div class="highlight">
+        <pre>
+composer global require buddy-works/repman-composer-plugin</pre>
+    </div>
 
     or add this lines to your composer.json file:<br />
 
-    <pre>
+<div class="highlight">
+        <pre>
 {
     "repositories": [
         {"type": "composer", "url": "{{ indexUrl }}"},
         {"packagist": false}
     ]
-}
-    </pre>
+}</pre></div>
 
     and then update composer.lock file:
 
-    <pre>
-composer update --lock
-    </pre>
+    <div class="highlight">
+        <pre>
+composer update --lock</pre></div>
+
 {% endblock %}

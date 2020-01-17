@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a3a2bd450203c9889d2a78dbb8ed967c",
+    "content-hash": "6f30822ce7c9f9d5aa980a49a5038c06",
     "packages": [
         {
             "name": "composer/semver",
@@ -2090,6 +2090,68 @@
                 "controllers"
             ],
             "time": "2019-12-27T08:57:19+00:00"
+        },
+        {
+            "name": "symfony/asset",
+            "version": "v5.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/asset.git",
+                "reference": "6b66969b9f5cd53c1ce69bdc651aa962f211b6b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/asset/zipball/6b66969b9f5cd53c1ce69bdc651aa962f211b6b6",
+                "reference": "6b66969b9f5cd53c1ce69bdc651aa962f211b6b6",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://127.0.0.1:8000/dists/%package%/%version%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "php": "^7.2.5"
+            },
+            "require-dev": {
+                "symfony/http-foundation": "^4.4|^5.0",
+                "symfony/http-kernel": "^4.4|^5.0"
+            },
+            "suggest": {
+                "symfony/http-foundation": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Asset\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Asset Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-11-18T17:27:11+00:00"
         },
         {
             "name": "symfony/cache",
@@ -5485,13 +5547,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/dmaicher/doctrine-test-bundle/zipball/13eaeacf5bda4fd716c5d6d8ec6bf7bac89d3947",
                 "reference": "13eaeacf5bda4fd716c5d6d8ec6bf7bac89d3947",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://127.0.0.1:8000/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "shasum": ""
             },
             "require": {
                 "doctrine/dbal": "^2.9,>=2.9.3",
