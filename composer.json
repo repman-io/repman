@@ -40,6 +40,7 @@
     "require-dev": {
         "coduo/php-matcher": "^4.0",
         "dama/doctrine-test-bundle": "^6.3",
+        "doctrine/doctrine-fixtures-bundle": "^3.3",
         "friendsofphp/php-cs-fixer": "^2.16",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.12.4",

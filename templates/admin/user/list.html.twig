@@ -1,0 +1,25 @@
+{% extends "base.html.twig" %}
+
+{% block content %}
+    <h1>Users:</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>E-mail</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'component/pagination.html.twig' with {'path_name': 'admin_user_list'} %}
+{% endblock %}
