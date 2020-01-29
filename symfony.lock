@@ -1,4 +1,7 @@
 {
+    "cbschuld/browser.php": {
+        "version": "1.9.4"
+    },
     "coduo/php-matcher": {
         "version": "4.0.0"
     },
@@ -113,6 +116,9 @@
     },
     "doctrine/reflection": {
         "version": "v1.1.0"
+    },
+    "egulias/email-validator": {
+        "version": "2.1.15"
     },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
@@ -404,6 +410,18 @@
     },
     "symfony/intl": {
         "version": "v5.0.2"
+    },
+    "symfony/mailer": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "15658c2a0176cda2e7dba66276a2030b52bd81b2"
+        },
+        "files": [
+            "config/packages/mailer.yaml"
+        ]
     },
     "symfony/maker-bundle": {
         "version": "1.0",

@@ -16,6 +16,8 @@
                             <div class="card-body p-6">
                                 <div class="card-title">Login to your account</div>
 
+                                {% include 'component/flash.html.twig' %}
+
                                 {% if error %}
                                     <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
                                 {% endif %}
@@ -31,7 +33,7 @@
                                     <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Enter email" required autofocus>
                                 </div>
                                 <div class="mb-2">
-                                    <a href="" class="float-right small">I forgot password</a>
+                                    <a href="{{ path('app_send_reset_password_link') }}" class="float-right small">I forgot password</a>
                                     <label for="inputPassword" class="form-label">
                                         Password
                                     </label>

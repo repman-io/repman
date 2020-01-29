@@ -1,0 +1,8 @@
+{% extends 'bootstrap_4_layout.html.twig' %}
+
+{% block submit_widget -%}
+    {%- set attr = attr|merge({class: (attr.class|default('btn-primary'))|trim}) -%}
+    <div class="form-footer">
+        {{- parent() -}}
+    </div>
+{%- endblock submit_widget %}

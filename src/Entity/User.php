@@ -38,6 +38,11 @@ class User implements UserInterface
     private string $password;
 
     /**
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     */
+    private ?string $resetPasswordToken = null;
+
+    /**
      * @param array<string> $roles
      */
     public function __construct(UuidInterface $id, string $email, array $roles)
@@ -47,12 +52,27 @@ class User implements UserInterface
         $this->roles = $roles;
     }
 
+    public function setResetPasswordToken(string $token): void
+    {
+        $this->resetPasswordToken = $token;
+    }
+
+    public function resetPassword(string $token, string $password): void
+    {
+        if ($token !== $this->resetPasswordToken) {
+            throw new \RuntimeException('Invalid reset password token');
+        }
+
+        $this->password = $password;
+        $this->resetPasswordToken = null;
+    }
+
     public function getId(): ?UuidInterface
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }

@@ -68,13 +68,7 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-12">
 
-                            {% for label, messages in app.flashes %}
-                                {% for message in messages %}
-                                    <div class="alert alert-{{ label }}">
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            {% endfor %}
+                            {% include 'component/flash.html.twig' %}
 
                             <div class="card">
                                 <div class="card-body p-md-4 p-xl-5">
