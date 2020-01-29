@@ -16,4 +16,6 @@
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
+/coverage
+/clover.xml
 ###< phpunit/phpunit ###
