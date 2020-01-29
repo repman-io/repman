@@ -14,11 +14,13 @@ final class ResetPasswordHandler implements MessageHandlerInterface
 {
     private EntityManagerInterface $em;
     private UserPasswordEncoderInterface $encoder;
+    private int $resetPasswordTokenTtl;
 
-    public function __construct(EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
+    public function __construct(EntityManagerInterface $em, UserPasswordEncoderInterface $encoder, int $resetPasswordTokenTtl)
     {
         $this->em = $em;
         $this->encoder = $encoder;
+        $this->resetPasswordTokenTtl = $resetPasswordTokenTtl;
     }
 
     public function __invoke(ResetPassword $message): void
@@ -28,7 +30,12 @@ final class ResetPasswordHandler implements MessageHandlerInterface
             return;
         }
 
-        $user->resetPassword($message->token(), $this->encoder->encodePassword($user, $message->password()));
+        $user->resetPassword(
+            $message->token(),
+            $this->encoder->encodePassword($user, $message->password()),
+            $this->resetPasswordTokenTtl
+        );
+
         $this->em->flush();
     }
 }

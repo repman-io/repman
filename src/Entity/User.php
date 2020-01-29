@@ -26,6 +26,11 @@ class User implements UserInterface
     private string $email;
 
     /**
+     * @ORM\Column(type="datetime_immutable")
+     */
+    private \DateTimeImmutable $createdAt;
+
+    /**
      * @var array<string>
      * @ORM\Column(type="json")
      */
@@ -43,6 +48,11 @@ class User implements UserInterface
     private ?string $resetPasswordToken = null;
 
     /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
+
+    /**
      * @param array<string> $roles
      */
     public function __construct(UuidInterface $id, string $email, array $roles)
@@ -50,38 +60,33 @@ class User implements UserInterface
         $this->id = $id;
         $this->email = $email;
         $this->roles = $roles;
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function setResetPasswordToken(string $token): void
     {
         $this->resetPasswordToken = $token;
+        $this->resetPasswordTokenCreatedAt = new \DateTimeImmutable();
     }
 
-    public function resetPassword(string $token, string $password): void
+    public function resetPassword(string $token, string $password, int $tokenTtl): void
     {
         if ($token !== $this->resetPasswordToken) {
-            throw new \RuntimeException('Invalid reset password token');
+            throw new \InvalidArgumentException('Invalid reset password token');
+        }
+
+        if ($this->resetPasswordTokenCreatedAt === null || $this->resetPasswordTokenCreatedAt->modify(sprintf('%s sec', $tokenTtl)) < new \DateTimeImmutable()) {
+            throw new \InvalidArgumentException('Token expired');
         }
 
         $this->password = $password;
         $this->resetPasswordToken = null;
-    }
-
-    public function getId(): ?UuidInterface
-    {
-        return $this->id;
+        $this->resetPasswordTokenCreatedAt = null;
     }
 
     public function getEmail(): string
     {
         return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
     }
 
     /**
@@ -106,16 +111,6 @@ class User implements UserInterface
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
-    }
-
-    /**
-     * @param array<string> $roles
-     */
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 
     /**

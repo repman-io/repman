@@ -104,7 +104,7 @@
         ],
         "coverage-ci": [
             "phpunit --colors=never --coverage-clover 'clover.xml'",
-            "bin/coverage-checker clover.xml 83"
+            "bin/coverage-checker clover.xml 90"
         ],
         "reset-db": [
             "bin/console doctrine:database:drop --force --if-exists",

@@ -69,11 +69,15 @@ class SecurityController extends AbstractController
         $form = $this->createForm(ResetPasswordType::class, ['token' => $request->get('token')]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new ResetPassword(
-                $form->get('token')->getData(),
-                $form->get('password')->getData()
-            ));
-            $this->addFlash('success', 'Your password has been changed, you can now log in');
+            try {
+                $this->dispatchMessage(new ResetPassword(
+                    $form->get('token')->getData(),
+                    $form->get('password')->getData()
+                ));
+                $this->addFlash('success', 'Your password has been changed, you can now log in');
+            } catch (\RuntimeException $exception) {
+                $this->addFlash('error', 'Invalid or expired password reset token');
+            }
 
             return $this->redirectToRoute('app_login');
         }

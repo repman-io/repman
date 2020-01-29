@@ -8,6 +8,9 @@ use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Munus\Collection\GenericList;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class InMemoryStorage implements Storage
 {
     /**

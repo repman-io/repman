@@ -7,6 +7,9 @@ namespace Buddy\Repman\Service\Doctrine;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class FixPostgreSQLDefaultSchemaListener
 {
     public function postGenerateSchema(GenerateSchemaEventArgs $args): void
