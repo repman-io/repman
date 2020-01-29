@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\MessageHandler;
+namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Message\CreateUser;
+use Buddy\Repman\Message\User\CreateUser;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;

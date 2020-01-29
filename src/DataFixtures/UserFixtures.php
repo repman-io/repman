@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\DataFixtures;
 
-use Buddy\Repman\Message\CreateUser;
+use Buddy\Repman\Message\User\CreateUser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;

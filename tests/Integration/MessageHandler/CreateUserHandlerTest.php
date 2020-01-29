@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\MessageHandler;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Message\CreateUser;
+use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;

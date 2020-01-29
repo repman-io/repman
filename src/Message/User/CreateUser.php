@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Message;
+namespace Buddy\Repman\Message\User;
 
 final class CreateUser
 {

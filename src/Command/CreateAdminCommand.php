@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
-use Buddy\Repman\Message\CreateUser;
+use Buddy\Repman\Message\User\CreateUser;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

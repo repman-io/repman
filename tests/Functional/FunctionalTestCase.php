@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional;
 
-use Buddy\Repman\Message\CreateUser;
+use Buddy\Repman\Message\User\CreateUser;
 use Coduo\PHPMatcher\PHPUnit\PHPMatcherAssertions;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
