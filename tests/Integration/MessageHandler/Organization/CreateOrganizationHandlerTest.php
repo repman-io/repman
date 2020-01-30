@@ -13,13 +13,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class CreateOrganizationHandlerTest extends IntegrationTestCase
 {
-    public function testCreateOrganization(): void
+    public function testSuccess(): void
     {
         /** @var User */
         $owner = $this->entityManager()
             ->getRepository(User::class)
             ->findOneBy([]);
-        $name = ' - Test organization  ŹĆŻŁ !@#$%^&*() ';
+        $name = 'Acme Inc.';
 
         $this->container()
             ->get(MessageBusInterface::class)
@@ -42,6 +42,23 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
 
         // check fields
         self::assertEquals($name, $organization->getName());
-        self::assertEquals('test-organization-z-czl', $organization->getAlias());
+        self::assertEquals('acme-inc', $organization->getAlias());
+    }
+
+    public function testOwnerDoesNotExist(): void
+    {
+        $this->container()
+            ->get(MessageBusInterface::class)
+            ->dispatch(new CreateOrganization(
+                $id = Uuid::uuid4()->toString(),
+                Uuid::uuid4()->toString(), // bogus id
+                'Failure Inc.'
+            ));
+
+        $organization = $this->entityManager()
+            ->getRepository(Organization::class)
+            ->find($id);
+
+        self::assertNull($organization);
     }
 }
