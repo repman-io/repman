@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -53,6 +55,12 @@ class User implements UserInterface
     private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
 
     /**
+     * @var Collection|Organization[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization", mappedBy="owner")
+     */
+    private Collection $organizations;
+
+    /**
      * @param array<string> $roles
      */
     public function __construct(UuidInterface $id, string $email, array $roles)
@@ -61,6 +69,7 @@ class User implements UserInterface
         $this->email = $email;
         $this->roles = $roles;
         $this->createdAt = new \DateTimeImmutable();
+        $this->organizations = new ArrayCollection();
     }
 
     public function setResetPasswordToken(string $token): void
@@ -84,6 +93,11 @@ class User implements UserInterface
         $this->resetPasswordTokenCreatedAt = null;
     }
 
+    public function getId(): UuidInterface
+    {
+        return $this->id;
+    }
+
     public function getEmail(): string
     {
         return $this->email;
@@ -96,7 +110,7 @@ class User implements UserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return $this->getEmail();
     }
 
     /**
@@ -118,7 +132,7 @@ class User implements UserInterface
      */
     public function getPassword(): string
     {
-        return (string) $this->password;
+        return $this->password;
     }
 
     public function setPassword(string $password): self
@@ -146,5 +160,20 @@ class User implements UserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    public function getOrganizations(): Collection
+    {
+        return $this->organizations;
+    }
+
+    public function addOrganization(Organization $organization): self
+    {
+        if (!$this->organizations->contains($organization)) {
+            $this->organizations[] = $organization;
+            $organization->setOwner($this);
+        }
+
+        return $this;
     }
 }

@@ -25,7 +25,7 @@ final class UserController extends AbstractController
     public function list(Request $request): Response
     {
         return $this->render('admin/user/list.html.twig', [
-            'users' => $this->userQuery->findAll(20, $request->get('offset', 0)),
+            'users' => $this->userQuery->findAll(20, (int) $request->get('offset', 0)),
             'count' => $this->userQuery->count(),
         ]);
     }

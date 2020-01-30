@@ -3,6 +3,10 @@ version: '3'
 services:
   database:
     image: postgres:11-alpine
+    logging:
+      driver: none
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: main
       POSTGRES_PASSWORD: main
@@ -11,6 +15,11 @@ services:
 
   mailhog:
     image: mailhog/mailhog
+    logging:
+      driver: none
     ports:
       - 1025:1025 # smtp server
       - 8025:8025 # web ui
+
+volumes:
+  postgres-data:

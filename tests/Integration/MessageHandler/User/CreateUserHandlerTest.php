@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Tests\Integration\MessageHandler;
+namespace Buddy\Repman\Tests\Integration\MessageHandler\User;
 
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Query\Admin\Model\User;

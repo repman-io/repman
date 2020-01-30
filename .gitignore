@@ -19,3 +19,12 @@
 /coverage
 /clover.xml
 ###< phpunit/phpunit ###
+
+###> IDE ###
+/.vscode
+/.phan
+###< IDE ###
+
+###> OS ###
+.DS_Store
+###< OS ###

@@ -49,7 +49,7 @@ final class ProxyControllerTest extends FunctionalTestCase
 
         self::assertMatchesPattern('
         {
-            "packages": []
+            "packages": {}
         }
         ', $this->client->getResponse()->getContent());
     }
