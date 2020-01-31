@@ -41,6 +41,10 @@ final class CreateOrganizationHandler implements MessageHandlerInterface
             return Option::some('User does not exist');
         }
 
+        if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            return Option::some('User must be admin');
+        }
+
         $alias = $this->aliasGenerator->generate($message->name());
         $orgOption = $this->orgQuery->getByAlias($alias);
 

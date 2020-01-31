@@ -13,4 +13,11 @@ interface OrganizationQuery
      * @return Option<Organization>
      */
     public function getByAlias(string $alias): Option;
+
+    /**
+     * @return Organization[]
+     */
+    public function findAll(int $limit = 20, int $offset = 0): array;
+
+    public function count(): int;
 }

@@ -16,4 +16,19 @@ final class Organization
         $this->name = $name;
         $this->alias = $alias;
     }
+
+    public function id(): string
+    {
+        return $this->id;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function alias(): string
+    {
+        return $this->alias;
+    }
 }

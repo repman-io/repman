@@ -38,6 +38,26 @@ final class DbalOrganizationQuery implements OrganizationQuery
     }
 
     /**
+     * @return Organization[]
+     */
+    public function findAll(int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $data): Organization {
+            return $this->hydrateOrganization($data);
+        }, $this->connection->fetchAll('SELECT id, name, alias FROM "organization" LIMIT :limit OFFSET :offset', [
+            ':limit' => $limit,
+            ':offset' => $offset,
+        ]));
+    }
+
+    public function count(): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn('SELECT COUNT(id) FROM "organization"');
+    }
+
+    /**
      * @param array<mixed> $data
      */
     private function hydrateOrganization(array $data): Organization

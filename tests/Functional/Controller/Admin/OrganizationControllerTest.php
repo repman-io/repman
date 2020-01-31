@@ -8,16 +8,21 @@ use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 
 final class OrganizationControllerTest extends FunctionalTestCase
 {
+    private string $userId;
+
     protected function setUp(): void
     {
         parent::setUp();
-        $this->createAndLoginAdmin();
+
+        $this->userId = $this->createAndLoginAdmin();
+        $this->createOrganization('Acme', $this->userId);
     }
 
     public function testRegisterFormRendering(): void
     {
         $this->client->request('GET', '/admin/register');
 
+        self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Register organization', $this->body());
         self::assertStringContainsString('Name', $this->body());
     }
@@ -46,6 +51,15 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Organization name already exist', $this->body());
+    }
+
+    public function testList(): void
+    {
+        $this->client->request('GET', '/admin/organization');
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Organizations', $this->body());
+        self::assertStringContainsString('Acme', $this->body());
     }
 
     private function body(): string

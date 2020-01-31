@@ -7,6 +7,7 @@ namespace Buddy\Repman\Controller\Admin;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\CreateOrganization;
+use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
+    private OrganizationQuery $organizationQuery;
+
+    public function __construct(OrganizationQuery $organizationQuery)
+    {
+        $this->organizationQuery = $organizationQuery;
+    }
+
     /**
      * @Route("/admin/register", name="admin_organization_register", methods={"GET","POST"})
      */
@@ -47,6 +55,17 @@ final class OrganizationController extends AbstractController
 
         return $this->render('admin/organization/register.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/organization", name="admin_organization_list", methods={"GET"})
+     */
+    public function list(Request $request): Response
+    {
+        return $this->render('admin/organization/list.html.twig', [
+            'organizations' => $this->organizationQuery->findAll(20, (int) $request->get('offset', 0)),
+            'count' => $this->organizationQuery->count(),
         ]);
     }
 }

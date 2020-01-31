@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional;
 
+use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\User\CreateUser;
 use Coduo\PHPMatcher\PHPUnit\PHPMatcherAssertions;
 use Ramsey\Uuid\Uuid;
@@ -24,21 +25,23 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->client = static::createClient();
     }
 
-    protected function createAdmin(string $email, string $password): void
+    protected function createAdmin(string $email, string $password): string
     {
         $this->container()->get(MessageBusInterface::class)->dispatch(
             new CreateUser(
-                Uuid::uuid4()->toString(),
+                $id = Uuid::uuid4()->toString(),
                 $email,
                 $password,
                 ['ROLE_ADMIN']
             )
         );
+
+        return $id;
     }
 
-    protected function createAndLoginAdmin(string $email = 'test@buddy.works', string $password = 'password'): void
+    protected function createAndLoginAdmin(string $email = 'test@buddy.works', string $password = 'password'): string
     {
-        $this->createAdmin($email, $password);
+        $id = $this->createAdmin($email, $password);
 
         if (static::$booted) {
             $this->ensureKernelShutdown();
@@ -47,6 +50,21 @@ abstract class FunctionalTestCase extends WebTestCase
             'PHP_AUTH_USER' => $email,
             'PHP_AUTH_PW' => $password,
         ]);
+
+        return $id;
+    }
+
+    protected function createOrganization(string $name, string $ownerId): string
+    {
+        $this->container()->get(MessageBusInterface::class)->dispatch(
+            new CreateOrganization(
+                $id = Uuid::uuid4()->toString(),
+                $ownerId,
+                $name
+            )
+        );
+
+        return $id;
     }
 
     protected function container(): ContainerInterface
