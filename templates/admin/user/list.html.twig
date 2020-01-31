@@ -1,8 +1,9 @@
 {% extends "base.html.twig" %}
 
-{% block content %}
-    <h1>Users:</h1>
+{% block header %}Users{% endblock %}
 
+{% block content %}
+<div class="markdown">
     <table class="table">
         <thead>
             <tr>
@@ -22,4 +23,5 @@
         </tbody>
     </table>
     {% include 'component/pagination.html.twig' with {'path_name': 'admin_user_list'} %}
+</div>
 {% endblock %}

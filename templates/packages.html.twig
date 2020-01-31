@@ -1,9 +1,9 @@
 {% extends "base.html.twig" %}
 
+{% block header %}Packages list{% endblock %}
+
 {% block content %}
-    <h2>Packages list</h2>
-
-
+<div class="markdown">
     {% for proxy, packages in proxies %}
         <h4>{{ proxy }}</h4>
         <ul>
@@ -12,5 +12,5 @@
             {% endfor %}
         </ul>
     {% endfor %}
-
+</div>
 {% endblock %}

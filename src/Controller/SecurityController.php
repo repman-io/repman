@@ -76,7 +76,7 @@ class SecurityController extends AbstractController
                 ));
                 $this->addFlash('success', 'Your password has been changed, you can now log in');
             } catch (\RuntimeException $exception) {
-                $this->addFlash('error', 'Invalid or expired password reset token');
+                $this->addFlash('danger', 'Invalid or expired password reset token');
             }
 
             return $this->redirectToRoute('app_login');

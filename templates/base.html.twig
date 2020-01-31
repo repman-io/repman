@@ -71,10 +71,15 @@
                             {% include 'component/flash.html.twig' %}
 
                             <div class="card">
-                                <div class="card-body p-md-4 p-xl-5">
-                                    <div class="markdown">
-                                        {% block content %}{% endblock %}
+                                {% if block('header') is defined %}
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            {% block header %}{% endblock %}
+                                        </h3>
                                     </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    {% block content %}{% endblock %}
                                 </div>
                             </div>
                         </div>

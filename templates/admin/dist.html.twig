@@ -1,8 +1,9 @@
 {% extends "base.html.twig" %}
 
-{% block content %}
-    <h1>Downloaded packages:</h1>
+{% block header %}Downloaded packages{% endblock %}
 
+{% block content %}
+<div class="markdown">
     {% for proxy, packages in proxies %}
         <h4>{{ proxy }}</h4>
         <ul>
@@ -17,4 +18,5 @@
             {% endfor %}
         </ul>
     {% endfor %}
+</div>
 {% endblock %}
