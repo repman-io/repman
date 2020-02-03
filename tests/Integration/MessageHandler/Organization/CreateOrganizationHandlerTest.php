@@ -22,7 +22,7 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
 
         $error = $this->createOrganization(
             $id = Uuid::uuid4()->toString(),
-            $owner->getId()->toString(),
+            $owner->id()->toString(),
             $name
         );
 
@@ -33,62 +33,35 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         self::assertTrue($error->isEmpty());
 
         self::assertInstanceOf(Organization::class, $organization);
-        self::assertEquals($id, $organization->getId()->toString());
+        self::assertEquals($id, $organization->id()->toString());
 
         // check associations
-        self::assertEquals($owner->getOrganizations()[0]->getId(), $organization->getId());
-        self::assertEquals($owner->getId(), $organization->getOwner()->getId());
+        self::assertEquals($owner->getOrganizations()[0]->id(), $organization->id());
+        self::assertEquals($owner->id(), $organization->owner()->id());
 
         // check fields
-        self::assertEquals($name, $organization->getName());
-        self::assertEquals('acme-inc', $organization->getAlias());
-    }
-
-    public function testValidationOfUniquenessOfAlias(): void
-    {
-        $owner = $this->sampleUser();
-        $name = 'same';
-
-        $this->createOrganization(
-            Uuid::uuid4()->toString(),
-            $owner->getId()->toString(),
-            $name
-        );
-
-        $error = $this->createOrganization(
-            Uuid::uuid4()->toString(),
-            $owner->getId()->toString(),
-            $name
-        );
-
-        self::assertFalse($error->isEmpty());
-        self::assertEquals($error->get(), 'Organization name already exist');
+        self::assertEquals($name, $organization->name());
+        self::assertEquals('acme-inc', $organization->alias());
     }
 
     public function testOwnerDoesNotExist(): void
     {
-        $error = $this->createOrganization(
+        self::expectException('Symfony\Component\Messenger\Exception\HandlerFailedException');
+        self::expectExceptionMessage('User does not exist');
+
+        $this->createOrganization(
             $id = Uuid::uuid4()->toString(),
             Uuid::uuid4()->toString(), // bogus id
             'Failure Inc.'
         );
-
-        $organization = $this->entityManager()
-            ->getRepository(Organization::class)
-            ->find($id);
-
-        self::assertFalse($error->isEmpty());
-        self::assertEquals($error->get(), 'User does not exist');
-
-        self::assertNull($organization);
     }
 
     private function sampleUser(): User
     {
-        /** @var User */
-        $user = $this->entityManager()
-            ->getRepository(User::class)
-            ->findOneBy([]);
+        $user = (new User(Uuid::uuid4(), 'a@b.com', []))->setPassword('pass');
+
+        $this->entityManager()->persist($user);
+        $this->entityManager()->flush();
 
         return $user;
     }

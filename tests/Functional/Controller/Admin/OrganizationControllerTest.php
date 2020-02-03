@@ -41,7 +41,18 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Organization has been created', $this->body());
     }
 
-    public function testErrors(): void
+    public function testValidation(): void
+    {
+        $this->client->request('GET', '/admin/register');
+
+        $this->client->followRedirects();
+        $this->client->submitForm('Save', ['register[name]' => '']);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('This value should not be blank', $this->body());
+    }
+
+    public function testUniqueness(): void
     {
         $this->client->request('GET', '/admin/register');
 
@@ -50,7 +61,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->client->submitForm('Save', ['register[name]' => 'same']);
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Organization name already exist', $this->body());
+        self::assertStringContainsString('Organization already exist', $this->body());
     }
 
     public function testList(): void

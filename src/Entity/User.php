@@ -93,7 +93,7 @@ class User implements UserInterface
         $this->resetPasswordTokenCreatedAt = null;
     }
 
-    public function getId(): UuidInterface
+    public function id(): UuidInterface
     {
         return $this->id;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Buddy\Repman\Service\Organization\AliasGenerator;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -39,16 +40,16 @@ class Organization
      */
     private string $alias;
 
-    public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
+    public function __construct(UuidInterface $id, User $owner, string $name)
     {
         $this->id = $id;
-        $this->owner = $owner;
+        $this->setOwner($owner->addOrganization($this));
         $this->name = $name;
-        $this->alias = $alias;
+        $this->alias = self::generateAlias($this->name());
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): UuidInterface
+    public function id(): UuidInterface
     {
         return $this->id;
     }
@@ -60,18 +61,23 @@ class Organization
         return $this;
     }
 
-    public function getOwner(): User
+    public function owner(): User
     {
         return $this->owner;
     }
 
-    public function getName(): string
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function getAlias(): string
+    public function alias(): string
     {
         return $this->alias;
+    }
+
+    public static function generateAlias(string $input): string
+    {
+        return (new AliasGenerator())->generate($input);
     }
 }

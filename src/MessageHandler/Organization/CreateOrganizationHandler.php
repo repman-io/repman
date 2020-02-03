@@ -8,7 +8,6 @@ use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
-use Buddy\Repman\Service\Organization\AliasGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Munus\Control\Option;
 use Ramsey\Uuid\Uuid;
@@ -18,13 +17,11 @@ final class CreateOrganizationHandler implements MessageHandlerInterface
 {
     private EntityManagerInterface $em;
     private OrganizationQuery $orgQuery;
-    private AliasGenerator $aliasGenerator;
 
-    public function __construct(EntityManagerInterface $em, OrganizationQuery $orgQuery, AliasGenerator $alias)
+    public function __construct(EntityManagerInterface $em, OrganizationQuery $orgQuery)
     {
         $this->em = $em;
         $this->orgQuery = $orgQuery;
-        $this->aliasGenerator = $alias;
     }
 
     /**
@@ -38,25 +35,13 @@ final class CreateOrganizationHandler implements MessageHandlerInterface
             ->find($message->ownerId());
 
         if (!$user instanceof User) {
-            return Option::some('User does not exist');
-        }
-
-        if (!in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-            return Option::some('User must be admin');
-        }
-
-        $alias = $this->aliasGenerator->generate($message->name());
-        $orgOption = $this->orgQuery->getByAlias($alias);
-
-        if (!$orgOption->isEmpty()) {
-            return Option::some('Organization name already exist');
+            throw new \InvalidArgumentException('User does not exist');
         }
 
         $organization = new Organization(
             Uuid::fromString($message->id()),
             $user,
             $message->name(),
-            $alias,
         );
 
         $this->em->persist($organization);
