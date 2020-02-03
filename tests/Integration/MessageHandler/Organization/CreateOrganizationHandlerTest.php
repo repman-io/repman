@@ -8,10 +8,8 @@ use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
-use Munus\Control\Option;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Stamp\HandledStamp;
 
 final class CreateOrganizationHandlerTest extends IntegrationTestCase
 {
@@ -20,7 +18,7 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         $owner = $this->sampleUser();
         $name = 'Acme Inc.';
 
-        $error = $this->createOrganization(
+        $this->createOrganization(
             $id = Uuid::uuid4()->toString(),
             $owner->id()->toString(),
             $name
@@ -29,8 +27,6 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         $organization = $this->entityManager()
             ->getRepository(Organization::class)
             ->find($id);
-
-        self::assertTrue($error->isEmpty());
 
         self::assertInstanceOf(Organization::class, $organization);
         self::assertEquals($id, $organization->id()->toString());
@@ -66,20 +62,11 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         return $user;
     }
 
-    /**
-     * @return Option<string>
-     */
-    private function createOrganization(string $id, string $ownerId, string $name): Option
+    private function createOrganization(string $id, string $ownerId, string $name): void
     {
-        $envelope = $this
+        $this
             ->container()
             ->get(MessageBusInterface::class)
             ->dispatch(new CreateOrganization($id, $ownerId, $name));
-
-        /** @var HandledStamp */
-        $stamp = $envelope->last(HandledStamp::class);
-        $error = $stamp->getResult();
-
-        return $error;
     }
 }

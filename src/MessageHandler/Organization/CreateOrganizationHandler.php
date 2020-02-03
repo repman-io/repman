@@ -9,7 +9,6 @@ use Buddy\Repman\Entity\User;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Doctrine\ORM\EntityManagerInterface;
-use Munus\Control\Option;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
@@ -24,10 +23,7 @@ final class CreateOrganizationHandler implements MessageHandlerInterface
         $this->orgQuery = $orgQuery;
     }
 
-    /**
-     * @return Option<string>
-     */
-    public function __invoke(CreateOrganization $message): Option
+    public function __invoke(CreateOrganization $message): void
     {
         /** @var User */
         $user = $this->em
@@ -46,7 +42,5 @@ final class CreateOrganizationHandler implements MessageHandlerInterface
 
         $this->em->persist($organization);
         $this->em->flush();
-
-        return Option::none();
     }
 }
