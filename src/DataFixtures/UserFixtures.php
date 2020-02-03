@@ -26,7 +26,7 @@ final class UserFixtures extends Fixture
                 Uuid::uuid4()->toString(),
                 uniqid().'@buddy.works',
                 'secret123',
-                ['ROLE_USER', 'ROLE_ADMIN']
+                ['ROLE_USER']
             ));
         }
     }
