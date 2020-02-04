@@ -16,9 +16,9 @@ final class UserControllerTest extends FunctionalTestCase
 
     public function testListUsers(): void
     {
-        $this->client->request('GET', '/admin/user');
+        $this->client->request('GET', $this->urlTo('admin_user_list'));
 
         self::assertEquals(200, $this->client->getResponse()->getStatusCode());
-        self::assertStringContainsString('test@buddy.works', (string) $this->client->getResponse()->getContent());
+        self::assertStringContainsString('test@buddy.works', $this->lastResponseBody());
     }
 }

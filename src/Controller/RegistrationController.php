@@ -46,10 +46,9 @@ class RegistrationController extends AbstractController
             // TODO: send verification email
 
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');
+            $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getById($id), 'main'), $request);
 
-            return $this->guardHandler->authenticateUserAndHandleSuccess(
-                $this->users->getById($id), $request, $this->authenticator, 'main'
-            ) ?? $this->redirectToRoute('index');
+            return $this->redirectToRoute('organization_create');
         }
 
         return $this->render('registration/register.html.twig', [

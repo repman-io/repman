@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Form\Type\Organization;
 
+use Buddy\Repman\Validator\UniqueOrganization;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -13,6 +14,11 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class RegisterType extends AbstractType
 {
+    public function getBlockPrefix(): string
+    {
+        return '';
+    }
+
     /**
      * @param array<mixed> $options
      */
@@ -25,6 +31,7 @@ class RegisterType extends AbstractType
                     new Length([
                         'max' => 80,
                     ]),
+                    new UniqueOrganization(),
                 ],
             ])
             ->add('save', SubmitType::class)

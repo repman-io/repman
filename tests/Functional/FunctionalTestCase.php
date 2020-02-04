@@ -25,6 +25,16 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->client = static::createClient();
     }
 
+    protected function urlTo(string $path): string
+    {
+        return $this->container()->get('router')->generate($path);
+    }
+
+    protected function lastResponseBody(): string
+    {
+        return (string) $this->client->getResponse()->getContent();
+    }
+
     protected function createAdmin(string $email, string $password): string
     {
         $this->container()->get(MessageBusInterface::class)->dispatch(

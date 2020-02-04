@@ -18,63 +18,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->createOrganization('Acme', $this->userId);
     }
 
-    public function testRegisterFormRendering(): void
-    {
-        $this->client->request('GET', '/admin/register');
-
-        self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Register organization', $this->body());
-        self::assertStringContainsString('Name', $this->body());
-    }
-
-    public function testSuccessfulRegistration(): void
-    {
-        $this->client->request('GET', '/admin/register');
-
-        $this->client->submitForm('Save', ['register[name]' => 'Acme Inc.']);
-
-        self::assertTrue($this->client->getResponse()->isRedirect('/admin/register'));
-
-        $this->client->followRedirect();
-
-        self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Organization has been created', $this->body());
-    }
-
-    public function testValidation(): void
-    {
-        $this->client->request('GET', '/admin/register');
-
-        $this->client->followRedirects();
-        $this->client->submitForm('Save', ['register[name]' => '']);
-
-        self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('This value should not be blank', $this->body());
-    }
-
-    public function testUniqueness(): void
-    {
-        $this->client->request('GET', '/admin/register');
-
-        $this->client->followRedirects();
-        $this->client->submitForm('Save', ['register[name]' => 'same']);
-        $this->client->submitForm('Save', ['register[name]' => 'same']);
-
-        self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Organization already exist', $this->body());
-    }
-
     public function testList(): void
     {
-        $this->client->request('GET', '/admin/organization');
+        $this->client->request('GET', $this->urlTo('admin_organization_list'));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Organizations', $this->body());
-        self::assertStringContainsString('Acme', $this->body());
-    }
-
-    private function body(): string
-    {
-        return (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Organizations', $this->lastResponseBody());
+        self::assertStringContainsString('Acme', $this->lastResponseBody());
     }
 }

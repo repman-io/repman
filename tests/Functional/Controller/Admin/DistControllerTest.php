@@ -16,7 +16,7 @@ final class DistControllerTest extends FunctionalTestCase
 
     public function testDistList(): void
     {
-        $this->client->request('GET', '/admin/dist');
+        $this->client->request('GET', $this->urlTo('admin_dist_list'));
 
         self::assertStringContainsString('packagist.org', (string) $this->client->getResponse()->getContent());
     }

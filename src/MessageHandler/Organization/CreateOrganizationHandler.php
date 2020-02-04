@@ -7,7 +7,7 @@ namespace Buddy\Repman\MessageHandler\Organization;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Message\Organization\CreateOrganization;
-use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Service\Organization\AliasGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
@@ -15,12 +15,12 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 final class CreateOrganizationHandler implements MessageHandlerInterface
 {
     private EntityManagerInterface $em;
-    private OrganizationQuery $orgQuery;
+    private AliasGenerator $aliasGenerator;
 
-    public function __construct(EntityManagerInterface $em, OrganizationQuery $orgQuery)
+    public function __construct(EntityManagerInterface $em, AliasGenerator $aliasGenerator)
     {
         $this->em = $em;
-        $this->orgQuery = $orgQuery;
+        $this->aliasGenerator = $aliasGenerator;
     }
 
     public function __invoke(CreateOrganization $message): void
@@ -38,6 +38,7 @@ final class CreateOrganizationHandler implements MessageHandlerInterface
             Uuid::fromString($message->id()),
             $user,
             $message->name(),
+            $this->aliasGenerator->generate($message->name())
         );
 
         $this->em->persist($organization);

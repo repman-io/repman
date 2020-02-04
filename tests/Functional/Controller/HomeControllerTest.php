@@ -10,7 +10,7 @@ final class HomeControllerTest extends FunctionalTestCase
 {
     public function testHomePage(): void
     {
-        $this->client->request('GET', '/');
+        $this->client->request('GET', $this->urlTo('index'));
 
         self::assertStringContainsString('Usage', (string) $this->client->getResponse()->getContent());
     }
