@@ -25,9 +25,12 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->client = static::createClient();
     }
 
-    protected function urlTo(string $path): string
+    /**
+     * @param array<mixed> $parameters
+     */
+    protected function urlTo(string $path, array $parameters = []): string
     {
-        return $this->container()->get('router')->generate($path);
+        return $this->container()->get('router')->generate($path, $parameters);
     }
 
     protected function lastResponseBody(): string

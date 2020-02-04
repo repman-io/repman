@@ -61,4 +61,29 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Organization &quot;same&quot; already exists', $this->lastResponseBody());
     }
+
+    public function testOverview(): void
+    {
+        $this->createOrganization('buddy', $this->userId);
+        $this->client->request('GET', $this->urlTo('organization_overview', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testOverviewNotAllowedForNotOwnedOrganization(): void
+    {
+        $otherId = $this->createAdmin('cto@buddy.works', 'strong');
+        $this->createOrganization('buddy', $otherId);
+        $this->client->request('GET', $this->urlTo('organization_overview', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isForbidden());
+    }
+
+    public function testPackages(): void
+    {
+        $this->createOrganization('buddy', $this->userId);
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Validator;
 
-use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Service\Organization\AliasGenerator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

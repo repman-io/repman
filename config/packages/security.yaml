@@ -34,4 +34,5 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
-         - { path: ^/organization, roles: ROLE_USER }
+         - { path: ^/organization/new, roles: ROLE_USER }
+         - { path: ^/organization/.+/(overview|packages), roles: ROLE_ORGANIZATION_MEMBER }

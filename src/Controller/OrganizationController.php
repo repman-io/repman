@@ -7,6 +7,7 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\CreateOrganization;
+use Buddy\Repman\Query\User\Model\Organization;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +41,26 @@ final class OrganizationController extends AbstractController
 
         return $this->render('admin/organization/register.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/overview", name="organization_overview", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function overview(Organization $organization): Response
+    {
+        return $this->render('organization/overview.html.twig', [
+            'organization' => $organization,
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package", name="organization_packages", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packages(Organization $organization): Response
+    {
+        return $this->render('organization/packages.html.twig', [
+            'organization' => $organization,
         ]);
     }
 }

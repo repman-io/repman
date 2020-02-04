@@ -11,7 +11,7 @@
                 <p class="dropdown-item">No organizations added.</p>
             {% else %}
                 {% for org in app.user.organizations %}
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="{{ url('organization_overview', {"organization": org.alias}) }}">
                         {{ org.name }}
                     </a>
                 {% endfor %}
