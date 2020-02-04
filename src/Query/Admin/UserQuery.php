@@ -19,5 +19,10 @@ interface UserQuery
      */
     public function getById(string $id): Option;
 
+    /**
+     * @return Option<User>
+     */
+    public function getByEmail(string $email): Option;
+
     public function count(): int;
 }

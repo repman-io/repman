@@ -1,9 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Reset password - Repman{% endblock %}
+{% block title %}Register - Repman{% endblock %}
 
 {% block body %}
-<body class="antialiased border-top-wide border-primary">
+    <body class="antialiased border-top-wide border-primary">
     <div class="d-flex h-auto min-h-full justify-content-center">
         <div class="d-flex align-items-center justify-content-center flex-fill">
             <div class="container">
@@ -14,23 +14,15 @@
                         </div>
                         <div class="card" method="post">
                             <div class="card-body p-6">
-                                <div class="card-title">Reset your password</div>
+                                <div class="card-title">Register</div>
 
-                                {% include 'component/flash.html.twig' %}
-
-                                <p>Provide your email and we'll send you a password reset link.</p>
-
-                                {{ form(form) }}
-
+                                {{ form(registrationForm) }}
                             </div>
-                        </div>
-                        <div class="text-center text-muted">
-                            Don't have account yet? <a href="{{ url('app_register') }}">Sign up</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
+    </body>
 {% endblock %}
