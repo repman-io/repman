@@ -45,6 +45,16 @@ class User implements UserInterface
     private string $password;
 
     /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private ?\DateTimeImmutable $emailConfirmedAt = null;
+
+    /**
+     * @ORM\Column(type="string", unique=true)
+     */
+    private string $emailConfirmToken;
+
+    /**
      * @ORM\Column(type="string", nullable=true, unique=true)
      */
     private ?string $resetPasswordToken = null;
@@ -63,10 +73,11 @@ class User implements UserInterface
     /**
      * @param array<string> $roles
      */
-    public function __construct(UuidInterface $id, string $email, array $roles)
+    public function __construct(UuidInterface $id, string $email, string $emailConfirmToken, array $roles)
     {
         $this->id = $id;
         $this->email = $email;
+        $this->emailConfirmToken = $emailConfirmToken;
         $this->roles = $roles;
         $this->createdAt = new \DateTimeImmutable();
         $this->organizations = new ArrayCollection();
@@ -91,6 +102,24 @@ class User implements UserInterface
         $this->password = $password;
         $this->resetPasswordToken = null;
         $this->resetPasswordTokenCreatedAt = null;
+    }
+
+    public function confirmEmail(string $token): void
+    {
+        if ($this->emailConfirmedAt !== null) {
+            return;
+        }
+
+        if ($token !== $this->emailConfirmToken) {
+            throw new \InvalidArgumentException('Invalid confirm e-mail token');
+        }
+
+        $this->emailConfirmedAt = new \DateTimeImmutable();
+    }
+
+    public function emailConfirmedAt(): ?\DateTimeImmutable
+    {
+        return $this->emailConfirmedAt;
     }
 
     public function id(): UuidInterface

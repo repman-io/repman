@@ -11,23 +11,40 @@ use Symfony\Component\Mailer\MailerInterface;
 final class SymfonyMailer implements Mailer
 {
     private MailerInterface $mailer;
+    private string $sender;
 
-    public function __construct(MailerInterface $mailer)
+    public function __construct(MailerInterface $mailer, string $sender)
     {
         $this->mailer = $mailer;
+        $this->sender = $sender;
     }
 
     public function sendPasswordResetLink(string $email, string $token, string $operatingSystem, string $browser): void
     {
         $this->mailer->send((new TemplatedEmail())
-            ->from('repman@buddy.works')
+            ->from($this->sender)
             ->to($email)
+            ->subject('Reset password to your Repman account')
             ->htmlTemplate('emails/password-reset.html.twig')
             ->context([
                 'userEmail' => $email,
                 'token' => $token,
                 'operatingSystem' => $operatingSystem,
                 'browser' => $browser,
+            ])
+        );
+    }
+
+    public function sendEmailVerification(string $email, string $token): void
+    {
+        $this->mailer->send((new TemplatedEmail())
+            ->from($this->sender)
+            ->to($email)
+            ->subject('Verify your Repman email address')
+            ->htmlTemplate('emails/email-verification.html.twig')
+            ->context([
+                'userEmail' => $email,
+                'token' => $token,
             ])
         );
     }

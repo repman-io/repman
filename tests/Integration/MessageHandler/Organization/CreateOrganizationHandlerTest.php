@@ -24,6 +24,7 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
             $name
         );
 
+        // TODO: replace with query
         $organization = $this->entityManager()
             ->getRepository(Organization::class)
             ->find($id);
@@ -56,7 +57,8 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
 
     private function sampleUser(): User
     {
-        $user = (new User(Uuid::uuid4(), 'a@b.com', []))->setPassword('pass');
+        // TODO: replace with dispatch message
+        $user = (new User(Uuid::uuid4(), 'a@b.com', Uuid::uuid4()->toString(), []))->setPassword('pass');
 
         $this->entityManager()->persist($user);
         $this->entityManager()->flush();

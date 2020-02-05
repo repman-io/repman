@@ -27,6 +27,7 @@ final class CreateUserHandler implements MessageHandlerInterface
         $user = new User(
             Uuid::fromString($message->id()),
             $message->email(),
+            $message->confirmToken(),
             $message->roles()
         );
         $user->setPassword($this->encoder->encodePassword($user, $message->plainPassword()));

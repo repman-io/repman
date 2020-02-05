@@ -67,7 +67,7 @@ class SecurityController extends AbstractController
                     $form->get('password')->getData()
                 ));
                 $this->addFlash('success', 'Your password has been changed, you can now log in');
-            } catch (\RuntimeException $exception) {
+            } catch (\RuntimeException | \InvalidArgumentException $exception) {
                 $this->addFlash('danger', 'Invalid or expired password reset token');
             }
 

@@ -49,6 +49,7 @@ class CreateAdminCommand extends Command
             $id,
             $email,
             $plainPassword,
+            Uuid::uuid4()->toString(),
             ['ROLE_ADMIN']
         ));
 

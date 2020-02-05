@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200129142512 extends AbstractMigration
+final class Version20200205132541 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,11 +22,11 @@ final class Version20200129142512 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql('ALTER TABLE "user" ADD created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP');
-        $this->addSql('ALTER TABLE "user" ADD reset_password_token_created_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
-        $this->addSql('COMMENT ON COLUMN "user".created_at IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('COMMENT ON COLUMN "user".reset_password_token_created_at IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('ALTER TABLE "user" ALTER created_at DROP DEFAULT');
+        $this->addSql('ALTER TABLE "user" ADD email_confirmed_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
+        $this->addSql('ALTER TABLE "user" ADD email_confirm_token VARCHAR(255) NOT NULL DEFAULT md5(random()::text || clock_timestamp()::text)::uuid::text');
+        $this->addSql('COMMENT ON COLUMN "user".email_confirmed_at IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_8D93D6495AFEB9F9 ON "user" (email_confirm_token)');
+        $this->addSql('ALTER TABLE "user" ALTER email_confirm_token DROP DEFAULT');
     }
 
     public function down(Schema $schema): void
@@ -34,7 +34,8 @@ final class Version20200129142512 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql('ALTER TABLE "user" DROP created_at');
-        $this->addSql('ALTER TABLE "user" DROP reset_password_token_created_at');
+        $this->addSql('DROP INDEX UNIQ_8D93D6495AFEB9F9');
+        $this->addSql('ALTER TABLE "user" DROP email_confirmed_at');
+        $this->addSql('ALTER TABLE "user" DROP email_confirm_token');
     }
 }

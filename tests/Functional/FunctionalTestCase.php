@@ -45,6 +45,7 @@ abstract class FunctionalTestCase extends WebTestCase
                 $id = Uuid::uuid4()->toString(),
                 $email,
                 $password,
+                Uuid::uuid4()->toString(),
                 ['ROLE_ADMIN']
             )
         );

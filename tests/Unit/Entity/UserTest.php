@@ -14,7 +14,7 @@ final class UserTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->user = new User(Uuid::uuid4(), 'test@buddy.works', ['ROLE_USER']);
+        $this->user = new User(Uuid::uuid4(), 'test@buddy.works', '4f6a2491-244a-4aef-8ec9-8dc36f7a10ce', ['ROLE_USER']);
     }
 
     public function testResetPassword(): void
@@ -41,5 +41,28 @@ final class UserTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $this->user->resetPassword('token', 'secret', -1);
+    }
+
+    public function testConfirmEmailAddress(): void
+    {
+        $this->user->confirmEmail('4f6a2491-244a-4aef-8ec9-8dc36f7a10ce');
+
+        self::assertNotNull($this->user->emailConfirmedAt());
+    }
+
+    public function testConfirmEmailAddressSetConfirmTimeOnlyOnce(): void
+    {
+        $this->user->confirmEmail('4f6a2491-244a-4aef-8ec9-8dc36f7a10ce');
+        $time = $this->user->emailConfirmedAt();
+        $this->user->confirmEmail('4f6a2491-244a-4aef-8ec9-8dc36f7a10ce');
+
+        self::assertEquals($time, $this->user->emailConfirmedAt());
+    }
+
+    public function testConfirmEmailAddressWithInvalidToken(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->user->confirmEmail('wrong');
     }
 }

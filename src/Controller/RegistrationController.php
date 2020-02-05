@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Form\Type\User\RegisterType;
+use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\Message\User\SendConfirmToken;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\LoginFormAuthenticator;
 use Ramsey\Uuid\Uuid;
@@ -41,9 +43,14 @@ class RegistrationController extends AbstractController
                 $id = Uuid::uuid4()->toString(),
                 $form->get('email')->getData(),
                 $form->get('plainPassword')->getData(),
+                $confirmToken = Uuid::uuid4()->toString(),
                 ['ROLE_USER']
             ));
-            // TODO: send verification email
+            // TODO: move to async queue
+            $this->dispatchMessage(new SendConfirmToken(
+                $form->get('email')->getData(),
+                $confirmToken
+            ));
 
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');
             $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getById($id), 'main'), $request);
@@ -54,5 +61,20 @@ class RegistrationController extends AbstractController
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/register/confirm/{token}", name="app_register_confirm", methods={"GET"}, requirements={"token":"%uuid_pattern%"})
+     */
+    public function confirm(string $token): Response
+    {
+        try {
+            $this->dispatchMessage(new ConfirmEmail($token));
+            $this->addFlash('success', 'E-mail address was confirmed. Enjoy your Repman account.');
+        } catch (\RuntimeException | \InvalidArgumentException $exception) {
+            $this->addFlash('success', 'Invalid or expired e-mail confirm token');
+        }
+
+        return $this->redirectToRoute('index');
     }
 }
