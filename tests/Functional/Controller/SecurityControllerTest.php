@@ -37,39 +37,43 @@ final class SecurityControllerTest extends FunctionalTestCase
     {
         $this->createAndLoginAdmin();
 
-        $this->client->request('GET', '/admin/dist');
-        self::assertTrue($this->client->getResponse()->isOk());
-
-        $this->client->request('GET', '/logout');
+        $this->client->request('GET', $this->urlTo('app_logout'));
 
         self::assertTrue($this->client->getResponse()->isRedirection());
+    }
+
+    public function testRedirectOnIndexWhenAlreadyLogged(): void
+    {
+        $this->createAndLoginAdmin();
+        $this->client->request('GET', $this->urlTo('app_login'));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
     }
 
     public function testPasswordReset(): void
     {
         $this->createAdmin($email = 'test@buddy.works', 'password');
 
-        $this->client->request('GET', '/reset-password');
+        $this->client->request('GET', $this->urlTo('app_send_reset_password_link'));
         self::assertTrue($this->client->getResponse()->isOk());
 
         $this->client->submitForm('Email me a password reset link', [
             'email' => $email,
         ]);
 
-        self::assertTrue($this->client->getResponse()->isRedirect('/reset-password'));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_send_reset_password_link')));
 
         $this->client->followRedirect();
         self::assertStringContainsString('email has been sent', (string) $this->client->getResponse()->getContent());
 
         $token = $this->getUserPasswordResetToken($email);
-        $this->client->request('GET', '/reset-password/'.$token);
+        $this->client->request('GET', $this->urlTo('app_reset_password', ['token' => $token]));
         self::assertTrue($this->client->getResponse()->isOk());
 
         $this->client->submitForm('Change password', [
             'password' => 'secret123',
         ]);
 
-        self::assertTrue($this->client->getResponse()->isRedirect('/login'));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
         $this->client->followRedirect();
 
         $this->client->submitForm('Sign in', [
@@ -77,7 +81,20 @@ final class SecurityControllerTest extends FunctionalTestCase
             'password' => 'secret123',
         ]);
 
-        self::assertTrue($this->client->getResponse()->isRedirect('/'));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+    }
+
+    public function testPasswordResetWithInvalidToken(): void
+    {
+        $this->client->request('GET', $this->urlTo('app_reset_password', ['token' => 'not-exist']));
+        $this->client->submitForm('Change password', [
+            'password' => 'secret123',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Invalid or expired password reset token', (string) $this->client->getResponse()->getContent());
     }
 
     private function getUserPasswordResetToken(string $email): string

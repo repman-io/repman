@@ -46,9 +46,11 @@
         "friendsofphp/php-cs-fixer": "^2.16",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^0.12.4",
+        "phpstan/phpstan-doctrine": "^0.12.9",
         "phpstan/phpstan-phpunit": "^0.12.5",
         "phpstan/phpstan-symfony": "^0.12.3",
         "phpunit/phpunit": "^8.5",
+        "sensiolabs/security-checker": "^6.0",
         "symfony/browser-kit": "5.0.*",
         "symfony/maker-bundle": "^1.14",
         "symfony/profiler-pack": "^1.0"
@@ -84,7 +86,8 @@
         ],
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "security-checker security:check": "script"
         },
         "check-cs": [
             "php-cs-fixer fix --dry-run --diff"
@@ -104,7 +107,7 @@
         ],
         "coverage-ci": [
             "phpunit --colors=never --coverage-clover 'clover.xml'",
-            "bin/coverage-checker clover.xml 90"
+            "bin/coverage-checker clover.xml 93"
         ],
         "reset-db": [
             "bin/console doctrine:database:drop --force --if-exists",
@@ -117,6 +120,9 @@
             "@coverage-ci",
             "bin/console lint:twig templates --show-deprecations",
             "bin/console cache:warmup --env=prod"
+        ],
+        "security": [
+            "bin/console security:check"
         ]
     }
 }

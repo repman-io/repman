@@ -55,7 +55,7 @@ class User implements UserInterface
     private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
 
     /**
-     * @var Collection|Organization[]
+     * @var Collection<int,Organization>|Organization[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization", mappedBy="owner")
      */
     private Collection $organizations;
@@ -162,6 +162,9 @@ class User implements UserInterface
         // $this->plainPassword = null;
     }
 
+    /**
+     * @return Collection<int,Organization>|Organization[]
+     */
     public function getOrganizations(): Collection
     {
         return $this->organizations;

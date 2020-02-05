@@ -32,14 +32,6 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/logout", name="app_logout")
-     */
-    public function logout(): Response
-    {
-        throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
-    }
-
-    /**
      * @Route("/reset-password", name="app_send_reset_password_link", methods={"GET","POST"})
      */
     public function sendResetPasswordLink(Request $request): Response

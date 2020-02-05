@@ -32,7 +32,9 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         self::assertEquals($id, $organization->id()->toString());
 
         // check associations
-        self::assertEquals($owner->getOrganizations()[0]->id(), $organization->id());
+        /** @var Organization $added */
+        $added = $owner->getOrganizations()->first();
+        self::assertEquals($added->id(), $organization->id());
         self::assertEquals($owner->id(), $organization->owner()->id());
 
         // check fields

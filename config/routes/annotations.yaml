@@ -1,3 +1,6 @@
 controllers:
     resource: ../../src/Controller/
     type: annotation
+
+app_logout:
+    path: /logout

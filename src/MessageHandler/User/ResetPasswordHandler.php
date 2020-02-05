@@ -27,7 +27,7 @@ final class ResetPasswordHandler implements MessageHandlerInterface
     {
         $user = $this->em->getRepository(User::class)->findOneBy(['resetPasswordToken' => $message->token()]);
         if (!$user instanceof User) {
-            return;
+            throw new \RuntimeException(sprintf('User with password reset token %s not found.', $message->token()));
         }
 
         $user->resetPassword(
