@@ -17,7 +17,7 @@ final class FileCacheTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->basePath = sys_get_temp_dir().'/'.'repman';
+        $this->basePath = sys_get_temp_dir().'/repman';
         $this->cache = new FileCache($this->basePath);
         $this->packagesPath = $this->basePath.'/packagist/packages.json';
     }
@@ -28,7 +28,14 @@ final class FileCacheTest extends TestCase
         $filesystem->remove($this->basePath);
     }
 
-    public function testCacheHit(): void
+    public function testThrowExceptionWhenCacheDirIsNotWritable(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new FileCache('/proc/new');
+    }
+
+    public function testCacheHitAndExists(): void
     {
         $content = '{"some":"json"}';
         @mkdir(dirname($this->packagesPath));
@@ -39,6 +46,18 @@ final class FileCacheTest extends TestCase
                 throw new \RuntimeException('This should not happen');
             })
         ));
+        self::assertTrue($this->cache->exists('packagist/packages.json'));
+    }
+
+    public function testCacheFind(): void
+    {
+        $file = '/p/buddy-works/repman$d1392374.json';
+        @mkdir(dirname($this->basePath.$file), 0777, true);
+        file_put_contents($this->basePath.$file, 'a:1:{s:4:"some";s:4:"json";}');
+
+        self::assertTrue(Option::some(['some' => 'json'])->equals($this->cache->find('/p/buddy-works/repman')));
+        self::assertTrue(Option::none()->equals($this->cache->find('/path/to/not-exist-dir')));
+        self::assertTrue(Option::none()->equals($this->cache->find('/p/buddy-works/missing-package')));
     }
 
     public function testCacheHitExpire(): void

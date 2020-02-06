@@ -11,6 +11,7 @@ use Buddy\Repman\Message\User\SendPasswordResetLink;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
@@ -39,12 +40,16 @@ class SecurityController extends AbstractController
         $form = $this->createForm(SendResetPasswordLinkType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $browser = new \Browser();
-            $this->dispatchMessage(new SendPasswordResetLink(
-                $form->get('email')->getData(),
-                $browser->getPlatform(),
-                $browser->getBrowser().' '.$browser->getVersion()
-            ));
+            try {
+                $browser = new \Browser();
+                $this->dispatchMessage(new SendPasswordResetLink(
+                    $form->get('email')->getData(),
+                    $browser->getPlatform(),
+                    $browser->getBrowser().' '.$browser->getVersion()
+                ));
+            } catch (HandlerFailedException $exception) {
+                // do nothing if user not exists
+            }
             $this->addFlash('success', 'An email has been sent to your address');
 
             return $this->redirectToRoute('app_send_reset_password_link');
@@ -67,7 +72,7 @@ class SecurityController extends AbstractController
                     $form->get('password')->getData()
                 ));
                 $this->addFlash('success', 'Your password has been changed, you can now log in');
-            } catch (\RuntimeException | \InvalidArgumentException $exception) {
+            } catch (HandlerFailedException $exception) {
                 $this->addFlash('danger', 'Invalid or expired password reset token');
             }
 

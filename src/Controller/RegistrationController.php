@@ -41,19 +41,19 @@ class RegistrationController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->dispatchMessage(new CreateUser(
                 $id = Uuid::uuid4()->toString(),
-                $form->get('email')->getData(),
+                $email = $form->get('email')->getData(),
                 $form->get('plainPassword')->getData(),
                 $confirmToken = Uuid::uuid4()->toString(),
                 ['ROLE_USER']
             ));
             // TODO: move to async queue
             $this->dispatchMessage(new SendConfirmToken(
-                $form->get('email')->getData(),
+                $email,
                 $confirmToken
             ));
 
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');
-            $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getById($id), 'main'), $request);
+            $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getByEmail($email), 'main'), $request);
 
             return $this->redirectToRoute('organization_create');
         }

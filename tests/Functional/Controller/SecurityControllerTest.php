@@ -17,6 +17,48 @@ final class SecurityControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isRedirect('/login'));
     }
 
+    public function testLoginWithInvalidEmail(): void
+    {
+        $this->client->request('GET', $this->urlTo('app_login'));
+        $this->client->submitForm('Sign in', [
+            'email' => 'not@exist.com',
+            'password' => 'secret',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+        $this->client->followRedirect();
+        self::assertStringContainsString('Invalid credentials.', $this->lastResponseBody());
+    }
+
+    public function testLoginWithInvalidPassword(): void
+    {
+        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->client->request('GET', $this->urlTo('app_login'));
+        $this->client->submitForm('Sign in', [
+            'email' => $email,
+            'password' => 'other',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+        $this->client->followRedirect();
+        self::assertStringContainsString('Invalid credentials.', $this->lastResponseBody());
+    }
+
+    public function testLoginCSRFProtection(): void
+    {
+        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+
+        $this->client->request('POST', $this->urlTo('app_login'), [
+            'email' => $email,
+            'password' => $password,
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Invalid CSRF token.', $this->lastResponseBody());
+    }
+
     public function testSuccessfulLogin(): void
     {
         $this->createAdmin($email = 'test@buddy.works', $password = 'password');
@@ -33,6 +75,21 @@ final class SecurityControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isOk());
     }
 
+    public function testRedirectToRequestedPathOnSuccessfulLogin(): void
+    {
+        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+
+        $this->client->request('GET', '/admin/dist');
+        $this->client->followRedirect();
+        $this->client->submitForm('Sign in', [
+            'email' => $email,
+            'password' => $password,
+        ]);
+
+        // authenticator user $targetPath, so in test env localhost will be added to url
+        self::assertTrue($this->client->getResponse()->isRedirect('http://localhost/admin/dist'));
+    }
+
     public function testSuccessfulLogout(): void
     {
         $this->createAndLoginAdmin();
@@ -47,6 +104,18 @@ final class SecurityControllerTest extends FunctionalTestCase
         $this->createAndLoginAdmin();
         $this->client->request('GET', $this->urlTo('app_login'));
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+    }
+
+    public function testPasswordResetForNonExistingUser(): void
+    {
+        $this->client->request('GET', $this->urlTo('app_send_reset_password_link'));
+        $this->client->submitForm('Email me a password reset link', [
+            'email' => 'not@exist.com',
+        ]);
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_send_reset_password_link')));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('email has been sent', $this->lastResponseBody());
     }
 
     public function testPasswordReset(): void

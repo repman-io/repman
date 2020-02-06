@@ -17,7 +17,7 @@ final class FileCache implements Cache
     public function __construct(string $basePath)
     {
         if (!is_dir($basePath)) {
-            mkdir($basePath, 0777, true);
+            @mkdir($basePath, 0777, true);
         }
         $basePath = rtrim($basePath, '/');
         if (!is_writable($basePath)) {

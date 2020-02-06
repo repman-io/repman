@@ -10,7 +10,7 @@ use Munus\Control\Option;
 final class InMemoryCache implements Cache
 {
     /**
-     * @var array<string,string>
+     * @var array<string,mixed>
      */
     private array $cache;
 
@@ -30,11 +30,11 @@ final class InMemoryCache implements Cache
 
     public function find(string $path): Option
     {
-        return Option::none();
+        return isset($this->cache[$path]) ? Option::some($this->cache[$path]) : Option::none();
     }
 
     public function exists(string $path, int $expireTime = 0): bool
     {
-        return false;
+        return isset($this->cache[$path]);
     }
 }
