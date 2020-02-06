@@ -32,12 +32,4 @@ final class User
     {
         return $this->email;
     }
-
-    /**
-     * @return string[]
-     */
-    public function roles(): array
-    {
-        return $this->roles;
-    }
 }

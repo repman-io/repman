@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -39,6 +41,12 @@ class Organization
      */
     private string $alias;
 
+    /**
+     * @var Collection<int,Organization\Package>|Organization\Package[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization")
+     */
+    private Collection $packages;
+
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
         $this->id = $id;
@@ -46,6 +54,7 @@ class Organization
         $this->name = $name;
         $this->alias = $alias;
         $this->createdAt = new \DateTimeImmutable();
+        $this->packages = new ArrayCollection();
     }
 
     public function id(): UuidInterface

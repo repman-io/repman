@@ -1,9 +1,35 @@
 {% extends "base.html.twig" %}
 
+{% block header_btn %}
+<a href="{{ url('organization_package_new', {"organization":organization.alias}) }}" class="btn btn-success">Add package</a>
+{% endblock %}
 {% block header %} {{ organization.name }} packages:{% endblock %}
 
 {% block content %}
-    <div class="markdown">
-        Place for {{ organization.name }} packages
-    </div>
+
+<div class="markdown">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Released</th>
+                <th>Description</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for package in packages %}
+                <tr>
+                    <td>{{ package.name }}</td>
+                    <td>{{ package.latestReleasedVersion }}</td>
+                    <td>{{ package.latestReleaseDate | date('Y-m-d H:i:s') }}</td>
+                    <td>{{ package.description }}</td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'component/pagination.html.twig' with {'path_name': 'organization_packages'} %}
+</div>
 {% endblock %}

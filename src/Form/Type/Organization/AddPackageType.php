@@ -4,16 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Form\Type\Organization;
 
-use Buddy\Repman\Validator\AliasNotBlank;
-use Buddy\Repman\Validator\UniqueOrganization;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
 
-class RegisterType extends AbstractType
+class AddPackageType extends AbstractType
 {
     public function getBlockPrefix(): string
     {
@@ -26,17 +24,12 @@ class RegisterType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, [
+            ->add('url', TextType::class, [
                 'constraints' => [
                     new NotBlank(),
-                    new Length([
-                        'max' => 80,
-                    ]),
-                    new UniqueOrganization(),
-                    new AliasNotBlank(),
+                    new Url(),
                 ],
             ])
-            ->add('save', SubmitType::class)
-        ;
+            ->add('Add', SubmitType::class);
     }
 }

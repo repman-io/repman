@@ -5,7 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     package_name_pattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?'
-    organization_pattern: '[a-z0-9_.-]+'
+    organization_pattern: '[a-z0-9_-]+'
     uuid_pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
     dists_dir: '%kernel.project_dir%/var/repo'
 

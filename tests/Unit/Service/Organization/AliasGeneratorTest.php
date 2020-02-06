@@ -12,10 +12,10 @@ final class AliasGeneratorTest extends TestCase
     public function testGenerate(): void
     {
         $generator = new AliasGenerator();
-        $name = " - Test  ąęśźćńłó ĄĘŚŹĆŃŁÓ !@#$%^&*(){}[]:\";'\/`~|<>,.ÅåÄäÖöÆæØøÜü";
+        $name = " - _.1234567890Test  ąęśźćńłó ĄĘŚŹĆŃŁÓ !@#$%^&*(){}[]:\";'\/`~|<>,.ÅåÄäÖöÆæØøÜü";
 
         self::assertEquals(
-            'test-aeszcnlo-aeszcnlo-aaaaooaeaeoouu',
+            '_-1234567890test-aeszcnlo-aeszcnlo-aaaaooaeaeoouu',
             $generator->generate($name)
         );
     }

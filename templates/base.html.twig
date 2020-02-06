@@ -89,9 +89,12 @@
                             <div class="card">
                                 {% if block('header') is defined %}
                                     <div class="card-header">
-                                        <h3 class="card-title">
+                                        <h3 class="card-title flex-grow-1">
                                             {% block header %}{% endblock %}
                                         </h3>
+                                        <div class="">
+                                            {% block header_btn %}{% endblock %}
+                                        </div>
                                     </div>
                                 {% endif %}
                                 <div class="card-body">

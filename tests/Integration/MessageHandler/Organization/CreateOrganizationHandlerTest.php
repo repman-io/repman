@@ -6,10 +6,8 @@ namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class CreateOrganizationHandlerTest extends IntegrationTestCase
 {
@@ -64,13 +62,5 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         $this->entityManager()->flush();
 
         return $user;
-    }
-
-    private function createOrganization(string $id, string $ownerId, string $name): void
-    {
-        $this
-            ->container()
-            ->get(MessageBusInterface::class)
-            ->dispatch(new CreateOrganization($id, $ownerId, $name));
     }
 }

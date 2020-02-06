@@ -39,7 +39,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Organization &quot;Acme Inc.&quot; has been created', $this->lastResponseBody());
     }
 
-    public function testValidation(): void
+    public function testNameCantBeEmpty(): void
     {
         $this->client->request('GET', $this->urlTo('organization_create'));
 
@@ -48,6 +48,17 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('This value should not be blank', $this->lastResponseBody());
+    }
+
+    public function testInvalidName(): void
+    {
+        $this->client->request('GET', $this->urlTo('organization_create'));
+
+        $this->client->followRedirects();
+        $this->client->submitForm('Save', ['name' => '!@#']); // only special chars
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Name cannot consist of special characters only.', $this->lastResponseBody());
     }
 
     public function testUniqueness(): void
@@ -83,6 +94,27 @@ final class OrganizationControllerTest extends FunctionalTestCase
     {
         $this->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testAddPackage(): void
+    {
+        $this->createOrganization('buddy', $this->userId);
+        $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+
+        $this->client->submitForm('Add', [
+            'url' => 'http://guthib.com',
+        ]);
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
+        );
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package has beed added', (string) $this->client->getResponse()->getContent());
 
         self::assertTrue($this->client->getResponse()->isOk());
     }

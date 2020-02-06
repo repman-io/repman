@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
+use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\CreateOrganization;
+use Buddy\Repman\Message\Package\CreatePackage;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\PackageQuery;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +19,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
+    private PackageQuery $packageQuery;
+
+    public function __construct(PackageQuery $packageQuery)
+    {
+        $this->packageQuery = $packageQuery;
+    }
+
     /**
      * @Route("/organization/new", name="organization_create", methods={"GET","POST"})
      */
@@ -57,10 +67,38 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package", name="organization_packages", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packages(Organization $organization): Response
+    public function packages(Organization $organization, Request $request): Response
     {
         return $this->render('organization/packages.html.twig', [
+            'packages' => $this->packageQuery->findAll(20, (int) $request->get('offset', 0)),
+            'count' => $this->packageQuery->count(),
             'organization' => $organization,
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/new", name="organization_package_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packageNew(Organization $organization, Request $request): Response
+    {
+        $form = $this->createForm(AddPackageType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->dispatchMessage(new CreatePackage(
+                Uuid::uuid4()->toString(),
+                $organization->id(),
+                $form->get('url')->getData()
+            ));
+
+            $this->addFlash('success', 'Package has beed added');
+
+            return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+        }
+
+        return $this->render('package/new.html.twig', [
+            'organization' => $organization,
+            'form' => $form->createView(),
         ]);
     }
 }
