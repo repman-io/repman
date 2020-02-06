@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Token;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -42,10 +44,16 @@ class Organization
     private string $alias;
 
     /**
-     * @var Collection<int,Organization\Package>|Organization\Package[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization")
+     * @var Collection<int,Package>|Package[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"})
      */
     private Collection $packages;
+
+    /**
+     * @var Collection<int,Token>|Token[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"})
+     */
+    private Collection $tokens;
 
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
@@ -55,6 +63,7 @@ class Organization
         $this->alias = $alias;
         $this->createdAt = new \DateTimeImmutable();
         $this->packages = new ArrayCollection();
+        $this->tokens = new ArrayCollection();
     }
 
     public function id(): UuidInterface
@@ -82,5 +91,25 @@ class Organization
     public function alias(): string
     {
         return $this->alias;
+    }
+
+    public function addToken(Token $token): void
+    {
+        if ($this->tokens->contains($token)) {
+            return;
+        }
+
+        $token->setOrganization($this);
+        $this->tokens->add($token);
+    }
+
+    public function addPackage(Package $package): void
+    {
+        if ($this->packages->contains($package)) {
+            return;
+        }
+
+        $package->setOrganization($this);
+        $this->packages->add($package);
     }
 }

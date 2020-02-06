@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Message\Package;
+namespace Buddy\Repman\Message\Organization;
 
-final class CreatePackage
+final class AddPackage
 {
     private string $id;
     private string $url;

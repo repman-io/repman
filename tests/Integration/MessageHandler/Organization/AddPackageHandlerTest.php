@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Tests\Integration\MessageHandler\Package;
+namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
-use Buddy\Repman\Entity\User;
-use Buddy\Repman\Message\Package\CreatePackage;
+use Buddy\Repman\Message\Organization\AddPackage;
+use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\MessageBusInterface;
 
-final class CreatePackageHandlerTest extends IntegrationTestCase
+final class AddPackageHandlerTest extends IntegrationTestCase
 {
     public function testSuccess(): void
     {
@@ -19,10 +18,7 @@ final class CreatePackageHandlerTest extends IntegrationTestCase
 
         $organizationId = $this->createOrganizationWithOwner();
 
-        $this
-            ->container()
-            ->get(MessageBusInterface::class)
-            ->dispatch(new CreatePackage(
+        $this->dispatchMessage(new AddPackage(
                 $id = Uuid::uuid4()->toString(),
                 $organizationId,
                 $url
@@ -42,14 +38,11 @@ final class CreatePackageHandlerTest extends IntegrationTestCase
     public function testMissingOrganization(): void
     {
         self::expectException('Symfony\Component\Messenger\Exception\HandlerFailedException');
-        self::expectExceptionMessage('Organization does not exist');
+        self::expectExceptionMessage('Organization with id c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2 not found.');
 
-        $this
-            ->container()
-            ->get(MessageBusInterface::class)
-            ->dispatch(new CreatePackage(
-                $id = Uuid::uuid4()->toString(),
-                Uuid::uuid4()->toString(), // random
+        $this->dispatchMessage(new AddPackage(
+                Uuid::uuid4()->toString(),
+                'c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2',
                 'test.com'
             )
         );
@@ -57,14 +50,12 @@ final class CreatePackageHandlerTest extends IntegrationTestCase
 
     private function createOrganizationWithOwner(): string
     {
-        $user = (new User($userId = Uuid::uuid4(), 'a@b.com', Uuid::uuid4()->toString(), []))->setPassword('pass');
-
-        $this->entityManager()->persist($user);
-        $this->entityManager()->flush();
+        $userId = Uuid::uuid4()->toString();
+        $this->dispatchMessage(new CreateUser($userId, 'a@b.com', 'pass', 'token'));
 
         $this->createOrganization(
             $organizationId = Uuid::uuid4()->toString(),
-            $userId->toString(),
+            $userId,
             'Test organization'
         );
 

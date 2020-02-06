@@ -34,6 +34,41 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $user;
     }
 
+    public function getByEmail(string $email): User
+    {
+        $user = $this->findOneBy(['email' => $email]);
+        if (!$user instanceof User) {
+            throw new \InvalidArgumentException(sprintf('User with email %s not found', $email));
+        }
+
+        return $user;
+    }
+
+    public function getByResetPasswordToken(string $token): User
+    {
+        $user = $this->findOneBy(['resetPasswordToken' => $token]);
+        if (!$user instanceof User) {
+            throw new \InvalidArgumentException(sprintf('User with reset password token %s not found', $token));
+        }
+
+        return $user;
+    }
+
+    public function getByConfirmEmailToken(string $token): User
+    {
+        $user = $this->findOneBy(['emailConfirmToken' => $token]);
+        if (!$user instanceof User) {
+            throw new \InvalidArgumentException(sprintf('User with email confirm token %s not found', $token));
+        }
+
+        return $user;
+    }
+
+    public function add(User $user): void
+    {
+        $this->_em->persist($user);
+    }
+
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      *

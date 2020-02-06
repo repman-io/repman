@@ -7,8 +7,8 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
+use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
-use Buddy\Repman\Message\Package\CreatePackage;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\PackageQuery;
 use Ramsey\Uuid\Uuid;
@@ -85,7 +85,7 @@ final class OrganizationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new CreatePackage(
+            $this->dispatchMessage(new AddPackage(
                 Uuid::uuid4()->toString(),
                 $organization->id(),
                 $form->get('url')->getData()

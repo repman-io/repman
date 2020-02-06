@@ -6,19 +6,19 @@ namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Message\User\CreateUser;
-use Doctrine\ORM\EntityManagerInterface;
+use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 final class CreateUserHandler implements MessageHandlerInterface
 {
-    private EntityManagerInterface $em;
+    private UserRepository $users;
     private UserPasswordEncoderInterface $encoder;
 
-    public function __construct(EntityManagerInterface $em, UserPasswordEncoderInterface $encoder)
+    public function __construct(UserRepository $users, UserPasswordEncoderInterface $encoder)
     {
-        $this->em = $em;
+        $this->users = $users;
         $this->encoder = $encoder;
     }
 
@@ -32,7 +32,6 @@ final class CreateUserHandler implements MessageHandlerInterface
         );
         $user->setPassword($this->encoder->encodePassword($user, $message->plainPassword()));
 
-        $this->em->persist($user);
-        $this->em->flush();
+        $this->users->add($user);
     }
 }

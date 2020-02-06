@@ -27,7 +27,7 @@ final class DbalPackageQuery implements PackageQuery
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
             'SELECT id, repository_url, name, latest_released_version, latest_release_date, description
-            FROM "package" LIMIT :limit OFFSET :offset', [
+            FROM "organization_package" LIMIT :limit OFFSET :offset', [
             ':limit' => $limit,
             ':offset' => $offset,
         ]));
@@ -37,7 +37,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn('SELECT COUNT(id) FROM "package"');
+            ->fetchColumn('SELECT COUNT(id) FROM "organization_package"');
     }
 
     /**
@@ -47,7 +47,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         $data = $this->connection->fetchAssoc(
             'SELECT id, repository_url, name, latest_released_version, latest_release_date, description
-            FROM "package" WHERE id = :id', [
+            FROM "organization_package" WHERE id = :id', [
             ':id' => $id,
         ]);
         if ($data === false) {

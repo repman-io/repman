@@ -9,7 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\PackageRepository")
+ * @ORM\Entity
+ * @ORM\Table(name="organization_package")
  */
 class Package
 {
@@ -50,14 +51,21 @@ class Package
      */
     private Organization $organization;
 
-    public function __construct(UuidInterface $id, Organization $organization, string $url, string $name, string $description, string $latestReleasedVersion)
+    public function __construct(UuidInterface $id, string $url, string $name, string $description, string $latestReleasedVersion)
     {
         $this->id = $id;
-        $this->organization = $organization;
         $this->repositoryUrl = $url;
         $this->name = $name;
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = new \DateTimeImmutable();
+    }
+
+    public function setOrganization(Organization $organization): void
+    {
+        if (isset($this->organization)) {
+            throw new \RuntimeException('You can not change package organization');
+        }
+        $this->organization = $organization;
     }
 }

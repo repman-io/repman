@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\OrganizationQuery;
 
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
@@ -35,6 +36,21 @@ final class DbalOrganizationQuery implements OrganizationQuery
         }
 
         return Option::some($this->hydrateOrganization($data));
+    }
+
+    /**
+     * @return Token[]
+     */
+    public function findAllTokens(string $organizationId): array
+    {
+        return array_map(function (array $data): Token {
+            return new Token(
+                $data['name'],
+                $data['value']
+            );
+        }, $this->connection->fetchAll('SELECT name, value FROM organization_token WHERE organization_id = :id', [
+            ':id' => $organizationId,
+        ]));
     }
 
     /**

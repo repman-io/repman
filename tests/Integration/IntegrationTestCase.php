@@ -27,6 +27,11 @@ abstract class IntegrationTestCase extends KernelTestCase
         return self::$kernel->getContainer()->get('test.service_container');
     }
 
+    protected function dispatchMessage(object $message): void
+    {
+        $this->container()->get(MessageBusInterface::class)->dispatch($message);
+    }
+
     protected function entityManager(): \Doctrine\Persistence\ObjectManager
     {
         return $this->entityManager;
@@ -34,9 +39,6 @@ abstract class IntegrationTestCase extends KernelTestCase
 
     protected function createOrganization(string $id, string $ownerId, string $name): void
     {
-        $this
-            ->container()
-            ->get(MessageBusInterface::class)
-            ->dispatch(new CreateOrganization($id, $ownerId, $name));
+        $this->dispatchMessage(new CreateOrganization($id, $ownerId, $name));
     }
 }

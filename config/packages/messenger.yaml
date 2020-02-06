@@ -1,5 +1,9 @@
 framework:
     messenger:
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - doctrine_transaction
         # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
         # failure_transport: failed
 
