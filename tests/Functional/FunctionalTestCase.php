@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional;
 
 use Buddy\Repman\Message\Organization\CreateOrganization;
+use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\Service\Organization\TokenGenerator;
 use Coduo\PHPMatcher\PHPUnit\PHPMatcherAssertions;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -79,6 +81,17 @@ abstract class FunctionalTestCase extends WebTestCase
         );
 
         return $id;
+    }
+
+    public function createToken(string $orgId, string $value): void
+    {
+        $this->container()->get(TokenGenerator::class)->setNextToken($value);
+        $this->container()->get(MessageBusInterface::class)->dispatch(
+            new GenerateToken(
+                $orgId,
+                'token'
+            )
+        );
     }
 
     protected function container(): ContainerInterface
