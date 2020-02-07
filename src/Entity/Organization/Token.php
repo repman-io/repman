@@ -54,4 +54,9 @@ class Token
         }
         $this->organization = $organization;
     }
+
+    public function isEqual(string $value): bool
+    {
+        return $this->value === $value;
+    }
 }

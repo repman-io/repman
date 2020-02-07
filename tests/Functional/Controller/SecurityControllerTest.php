@@ -32,7 +32,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
     public function testLoginWithInvalidPassword(): void
     {
-        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
         $this->client->request('GET', $this->urlTo('app_login'));
         $this->client->submitForm('Sign in', [
             'email' => $email,
@@ -46,7 +46,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
     public function testLoginCSRFProtection(): void
     {
-        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
 
         $this->client->request('POST', $this->urlTo('app_login'), [
             'email' => $email,
@@ -61,7 +61,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
     public function testSuccessfulLogin(): void
     {
-        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
 
         $this->client->request('GET', '/login');
         $this->client->submitForm('Sign in', [
@@ -77,7 +77,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
     public function testRedirectToRequestedPathOnSuccessfulLogin(): void
     {
-        $this->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
 
         $this->client->request('GET', '/admin/dist');
         $this->client->followRedirect();
@@ -120,7 +120,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
     public function testPasswordReset(): void
     {
-        $this->createAdmin($email = 'test@buddy.works', 'password');
+        $this->fixtures->createAdmin($email = 'test@buddy.works', 'password');
 
         $this->client->request('GET', $this->urlTo('app_send_reset_password_link'));
         self::assertTrue($this->client->getResponse()->isOk());

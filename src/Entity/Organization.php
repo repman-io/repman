@@ -51,7 +51,7 @@ class Organization
 
     /**
      * @var Collection<int,Token>|Token[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $tokens;
 
@@ -66,21 +66,11 @@ class Organization
         $this->tokens = new ArrayCollection();
     }
 
-    public function id(): UuidInterface
-    {
-        return $this->id;
-    }
-
     public function setOwner(User $owner): self
     {
         $this->owner = $owner;
 
         return $this;
-    }
-
-    public function owner(): User
-    {
-        return $this->owner;
     }
 
     public function name(): string
@@ -101,6 +91,16 @@ class Organization
 
         $token->setOrganization($this);
         $this->tokens->add($token);
+    }
+
+    public function removeToken(string $value): void
+    {
+        foreach ($this->tokens as $token) {
+            if ($token->isEqual($value)) {
+                $this->tokens->removeElement($token);
+                break;
+            }
+        }
     }
 
     public function addPackage(Package $package): void

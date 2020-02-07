@@ -35,5 +35,5 @@ security:
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
          - { path: ^/organization/new, roles: ROLE_USER }
-         - { path: ^/organization/.+/(overview|packages), roles: ROLE_ORGANIZATION_MEMBER }
+         - { path: ^/organization/.+/.+, roles: ROLE_ORGANIZATION_MEMBER }
          - { path: ^/repo, roles: ROLE_ORGANIZATION }

@@ -11,6 +11,7 @@ use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
@@ -146,5 +147,20 @@ final class OrganizationController extends AbstractController
             'tokens' => $this->organizationQuery->findAllTokens($organization->id()),
             'organization' => $organization,
         ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/token/{token}", name="organization_token_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function removeToken(Organization $organization, string $token): Response
+    {
+        $this->dispatchMessage(new RemoveToken(
+            $organization->id(),
+            $token
+        ));
+
+        $this->addFlash('success', 'Token has been successfully removed');
+
+        return $this->redirectToRoute('organization_tokens', ['organization' => $organization->alias()]);
     }
 }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
-use Buddy\Repman\Entity\Organization;
-use Buddy\Repman\Entity\User;
+use Buddy\Repman\Message\Organization\CreateOrganization;
+use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -13,32 +14,19 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
 {
     public function testSuccess(): void
     {
-        $owner = $this->sampleUser();
-        $name = 'Acme Inc.';
-
-        $this->createOrganization(
+        $this->dispatchMessage(new CreateOrganization(
             $id = Uuid::uuid4()->toString(),
-            $owner->id()->toString(),
-            $name
-        );
+            $ownerId = $this->fixtures->createUser('test@buddy.works', 'secret'),
+            $name = 'Acme Inc.'
+        ));
 
-        // TODO: replace with query
-        $organization = $this->entityManager()
-            ->getRepository(Organization::class)
-            ->find($id);
+        /** @var Organization $organization */
+        $organization = $this->container()->get(DbalOrganizationQuery::class)->getByAlias('acme-inc')->get();
 
-        self::assertInstanceOf(Organization::class, $organization);
-        self::assertEquals($id, $organization->id()->toString());
-
-        // check associations
-        /** @var Organization $added */
-        $added = $owner->getOrganizations()->first();
-        self::assertEquals($added->id(), $organization->id());
-        self::assertEquals($owner->id(), $organization->owner()->id());
-
-        // check fields
-        self::assertEquals($name, $organization->name());
+        self::assertEquals('Acme Inc.', $organization->name());
         self::assertEquals('acme-inc', $organization->alias());
+        self::assertEquals($id, $organization->id());
+        self::assertTrue($organization->isOwnedBy($ownerId));
     }
 
     public function testOwnerDoesNotExist(): void
@@ -46,21 +34,12 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         self::expectException('Symfony\Component\Messenger\Exception\HandlerFailedException');
         self::expectExceptionMessage('User does not exist');
 
-        $this->createOrganization(
-            $id = Uuid::uuid4()->toString(),
-            Uuid::uuid4()->toString(), // bogus id
-            'Failure Inc.'
+        $this->dispatchMessage(
+            new CreateOrganization(
+                Uuid::uuid4()->toString(),
+                Uuid::uuid4()->toString(),
+                'Failure Inc.'
+            )
         );
-    }
-
-    private function sampleUser(): User
-    {
-        // TODO: replace with dispatch message
-        $user = (new User(Uuid::uuid4(), 'a@b.com', Uuid::uuid4()->toString(), []))->setPassword('pass');
-
-        $this->entityManager()->persist($user);
-        $this->entityManager()->flush();
-
-        return $user;
     }
 }

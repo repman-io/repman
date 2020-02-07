@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
 use Buddy\Repman\Message\Organization\AddPackage;
-use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
@@ -16,7 +15,7 @@ final class AddPackageHandlerTest extends IntegrationTestCase
     {
         $url = 'http://guthib.com/my/repo';
 
-        $organizationId = $this->createOrganizationWithOwner();
+        $organizationId = $this->fixtures->createOrganization('Buddy', $this->fixtures->createUser());
 
         $this->dispatchMessage(new AddPackage(
                 $id = Uuid::uuid4()->toString(),
@@ -46,19 +45,5 @@ final class AddPackageHandlerTest extends IntegrationTestCase
                 'test.com'
             )
         );
-    }
-
-    private function createOrganizationWithOwner(): string
-    {
-        $userId = Uuid::uuid4()->toString();
-        $this->dispatchMessage(new CreateUser($userId, 'a@b.com', 'pass', 'token'));
-
-        $this->createOrganization(
-            $organizationId = Uuid::uuid4()->toString(),
-            $userId,
-            'Test organization'
-        );
-
-        return $organizationId;
     }
 }

@@ -15,7 +15,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         parent::setUp();
 
         $this->userId = $this->createAndLoginAdmin();
-        $this->createOrganization('Acme', $this->userId);
+        $this->fixtures->createOrganization('Acme', $this->userId);
     }
 
     public function testList(): void

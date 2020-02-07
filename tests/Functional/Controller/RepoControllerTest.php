@@ -28,9 +28,13 @@ final class RepoControllerTest extends FunctionalTestCase
 
     public function testPackagesAction(): void
     {
-        $userId = $this->createAdmin('test@buddy.works', 'secret');
-        $orgId = $this->createOrganization('buddy', $userId);
-        $this->createToken($orgId, 'secret-org-token');
+        $this->fixtures->createToken(
+            $this->fixtures->createOrganization(
+                'buddy',
+                $this->fixtures->createAdmin('test@buddy.works', 'secret')
+            ),
+            'secret-org-token'
+        );
 
         $this->client->request('GET', $this->urlTo('repo_packages'), [], [], [
             'PHP_AUTH_USER' => 'token',

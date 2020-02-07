@@ -75,7 +75,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testOverview(): void
     {
-        $this->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_overview', ['organization' => 'buddy']));
 
         self::assertTrue($this->client->getResponse()->isOk());
@@ -83,8 +83,8 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testOverviewNotAllowedForNotOwnedOrganization(): void
     {
-        $otherId = $this->createAdmin('cto@buddy.works', 'strong');
-        $this->createOrganization('buddy', $otherId);
+        $otherId = $this->fixtures->createAdmin('cto@buddy.works', 'strong');
+        $this->fixtures->createOrganization('buddy', $otherId);
         $this->client->request('GET', $this->urlTo('organization_overview', ['organization' => 'buddy']));
 
         self::assertTrue($this->client->getResponse()->isForbidden());
@@ -92,13 +92,13 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testPackages(): void
     {
-        $anotherUserID = $this->createAdmin('another@user.com', 'secret');
+        $anotherUserID = $this->fixtures->createUser('another@user.com', 'secret');
 
-        $buddyId = $this->createOrganization('buddy', $this->userId);
-        $anotherOrgId = $this->createOrganization('google', $anotherUserID);
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $anotherOrgId = $this->fixtures->createOrganization('google', $anotherUserID);
 
-        $this->addPackage($buddyId, 'https://buddy.com');
-        $this->addPackage($anotherOrgId, 'https://google.com');
+        $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->addPackage($anotherOrgId, 'https://google.com');
 
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
 
@@ -112,7 +112,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testAddPackage(): void
     {
-        $this->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy']));
 
         self::assertTrue($this->client->getResponse()->isOk());
@@ -133,7 +133,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testGenerateNewToken(): void
     {
-        $this->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_token_new', ['organization' => 'buddy']));
         $this->client->submitForm('Generate', [
             'name' => 'Production Token',
@@ -145,5 +145,23 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $this->client->followRedirect();
         self::assertStringContainsString('Production Token', $this->lastResponseBody());
+    }
+
+    public function testRemoveToken(): void
+    {
+        $this->fixtures->createToken(
+            $this->fixtures->createOrganization('buddy', $this->userId),
+            'secret-token'
+        );
+        $this->client->request('DELETE', $this->urlTo('organization_token_remove', [
+            'organization' => 'buddy',
+            'token' => 'secret-token',
+        ]));
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy']))
+        );
+        $this->client->followRedirect();
+        self::assertStringNotContainsString('secret-token', $this->lastResponseBody());
     }
 }
