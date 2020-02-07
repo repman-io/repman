@@ -114,8 +114,24 @@ final class OrganizationControllerTest extends FunctionalTestCase
         );
 
         $this->client->followRedirect();
-        self::assertStringContainsString('Package has beed added', (string) $this->client->getResponse()->getContent());
+        self::assertStringContainsString('Package has been added', (string) $this->client->getResponse()->getContent());
 
         self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testGenerateNewToken(): void
+    {
+        $this->createOrganization('buddy', $this->userId);
+        $this->client->request('GET', $this->urlTo('organization_token_new', ['organization' => 'buddy']));
+        $this->client->submitForm('Generate', [
+            'name' => 'Production Token',
+        ]);
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy']))
+        );
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Production Token', $this->lastResponseBody());
     }
 }

@@ -46,9 +46,11 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return array_map(function (array $data): Token {
             return new Token(
                 $data['name'],
-                $data['value']
+                $data['value'],
+                new \DateTimeImmutable($data['created_at']),
+                $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
             );
-        }, $this->connection->fetchAll('SELECT name, value FROM organization_token WHERE organization_id = :id', [
+        }, $this->connection->fetchAll('SELECT name, value, created_at, last_used_at FROM organization_token WHERE organization_id = :id', [
             ':id' => $organizationId,
         ]));
     }

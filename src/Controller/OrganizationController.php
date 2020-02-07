@@ -6,10 +6,13 @@ namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
+use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
+use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,10 +23,12 @@ use Symfony\Component\Routing\Annotation\Route;
 final class OrganizationController extends AbstractController
 {
     private PackageQuery $packageQuery;
+    private OrganizationQuery $organizationQuery;
 
-    public function __construct(PackageQuery $packageQuery)
+    public function __construct(PackageQuery $packageQuery, OrganizationQuery $organizationQuery)
     {
         $this->packageQuery = $packageQuery;
+        $this->organizationQuery = $organizationQuery;
     }
 
     /**
@@ -91,14 +96,50 @@ final class OrganizationController extends AbstractController
                 $form->get('url')->getData()
             ));
 
-            $this->addFlash('success', 'Package has beed added');
+            $this->addFlash('success', 'Package has been added');
 
             return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
         }
 
-        return $this->render('package/new.html.twig', [
+        return $this->render('organization/addPackage.html.twig', [
             'organization' => $organization,
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/token/new", name="organization_token_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function generateToken(Organization $organization, Request $request): Response
+    {
+        $form = $this->createForm(GenerateTokenType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->dispatchMessage(new GenerateToken(
+                $organization->id(),
+                $name = $form->get('name')->getData()
+            ));
+
+            $this->addFlash('success', sprintf('Token "%s" has been successfully generated.', $name));
+
+            return $this->redirectToRoute('organization_tokens', ['organization' => $organization->alias()]);
+        }
+
+        return $this->render('organization/generateToken.html.twig', [
+            'organization' => $organization,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/token", name="organization_tokens", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function tokens(Organization $organization): Response
+    {
+        return $this->render('organization/tokens.html.twig', [
+            'tokens' => $this->organizationQuery->findAllTokens($organization->id()),
+            'organization' => $organization,
         ]);
     }
 }

@@ -1,0 +1,56 @@
+{% extends "base.html.twig" %}
+
+{% block header_btn %}
+<a href="{{ url('organization_token_new', {"organization":organization.alias}) }}" class="btn btn-success">Generate new token</a>
+{% endblock %}
+{% block header %} {{ organization.name }} tokens:{% endblock %}
+
+{% block content %}
+
+<div class="markdown">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Created</th>
+                <th>Last used</th>
+                <th>Value</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for token in tokens %}
+                <tr>
+                    <td>{{ token.name }}</td>
+                    <td>{{ token.createdAt|date('Y-m-d H:i:s')}}</td>
+                    <td>{{ token.lasUsedAt ? token.lasUsedAt|date('Y-m-d H:i:s') : 'never' }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm show-token">
+                            Show token
+                        </button>
+                        <div class="input-group d-none">
+                            <input id="token{{ loop.index }}" type="text" class="form-control" readonly value="{{ token.value }}">
+                            <span class="input-group-append">
+                              <button data-clipboard-target="#token{{ loop.index }}" class="btn btn-primary p-2" type="button" title="Copy to clipboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-md m-0"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                              </button>
+                            </span>
+                        </div>
+                    </td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function() {
+            new ClipboardJS('.btn');
+            $('.show-token').click(function(){
+                $(this).parent().find('div.input-group').removeClass('d-none');
+                $(this).remove();
+            });
+        };
+    </script>
+</div>
+{% endblock %}

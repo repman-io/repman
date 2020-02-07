@@ -7,3 +7,6 @@ services:
 
     Buddy\Repman\Service\Cache:
         class: Buddy\Repman\Service\Cache\InMemoryCache
+
+    Buddy\Repman\Service\Organization\TokenGenerator:
+        class: Buddy\Repman\Tests\Doubles\FakeTokenGenerator

@@ -56,6 +56,11 @@
                                         Packages
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ url('organization_tokens', {"organization":organization.alias}) }}">
+                                        Tokens
+                                    </a>
+                                </li>
                             {% else %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ path('index') }}">
