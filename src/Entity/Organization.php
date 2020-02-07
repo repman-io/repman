@@ -93,12 +93,24 @@ class Organization
         $this->tokens->add($token);
     }
 
+    public function regenerateToken(string $value, string $newValue): void
+    {
+        foreach ($this->tokens as $token) {
+            if ($token->isEqual($value)) {
+                $token->regenerate($newValue);
+
+                return;
+            }
+        }
+    }
+
     public function removeToken(string $value): void
     {
         foreach ($this->tokens as $token) {
             if ($token->isEqual($value)) {
                 $this->tokens->removeElement($token);
-                break;
+
+                return;
             }
         }
     }

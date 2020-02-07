@@ -7,6 +7,8 @@ namespace Buddy\Repman\Tests\Integration\Security;
 use Buddy\Repman\Security\Model\Organization;
 use Buddy\Repman\Security\OrganizationProvider;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 final class OrganizationProviderTest extends IntegrationTestCase
 {
@@ -32,5 +34,8 @@ final class OrganizationProviderTest extends IntegrationTestCase
         self::assertEquals('org1-token', $organization->getUsername());
 
         self::assertEquals($organization, $provider->refreshUser($organization));
+
+        $this->expectException(UsernameNotFoundException::class);
+        $provider->refreshUser(new Organization(Uuid::uuid4()->toString(), 'evil', 'not-exist'));
     }
 }

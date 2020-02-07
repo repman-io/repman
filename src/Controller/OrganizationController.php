@@ -11,6 +11,7 @@ use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\OrganizationQuery;
@@ -147,6 +148,21 @@ final class OrganizationController extends AbstractController
             'tokens' => $this->organizationQuery->findAllTokens($organization->id()),
             'organization' => $organization,
         ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/token/{token}/regenerate", name="organization_token_regenerate", methods={"POST"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function regenerateToken(Organization $organization, string $token): Response
+    {
+        $this->dispatchMessage(new RegenerateToken(
+            $organization->id(),
+            $token
+        ));
+
+        $this->addFlash('success', 'Token has been successfully regenerated');
+
+        return $this->redirectToRoute('organization_tokens', ['organization' => $organization->alias()]);
     }
 
     /**

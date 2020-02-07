@@ -28,6 +28,8 @@ final class OrganizationProvider implements UserProviderInterface
             throw new BadCredentialsException();
         }
 
+        $this->updateLastUsed($username);
+
         return $this->hydrateOrganization($data);
     }
 
@@ -45,6 +47,14 @@ final class OrganizationProvider implements UserProviderInterface
     public function supportsClass(string $class)
     {
         return $class === Organization::class;
+    }
+
+    private function updateLastUsed(string $token): void
+    {
+        $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
+            ':now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            ':value' => $token,
+        ]);
     }
 
     /**

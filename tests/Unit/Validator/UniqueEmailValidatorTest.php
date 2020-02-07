@@ -35,6 +35,9 @@ final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
 
         $this->validator->validate('test@buddy.works', new UniqueEmail());
         $this->assertNoViolation();
+
+        $this->validator->validate(null, new UniqueEmail());
+        $this->assertNoViolation();
     }
 
     public function testEmailExistViolation(): void

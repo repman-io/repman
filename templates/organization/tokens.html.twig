@@ -38,6 +38,9 @@
                         </div>
                     </td>
                     <td>
+                        <form class="d-inline" action="{{ path('organization_token_regenerate', {organization: organization.alias, token: token.value}) }}" method="POST">
+                            <button class="btn btn-warning btn-sm" type="submit">Regenerate</button>
+                        </form>
                         <form class="d-inline" action="{{ path('organization_token_remove', {organization: organization.alias, token: token.value}) }}" method="POST">
                             <input type="hidden" name="_method" value="DELETE">
                             <button class="btn btn-danger btn-sm" type="submit">Remove</button>

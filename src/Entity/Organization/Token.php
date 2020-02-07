@@ -55,6 +55,12 @@ class Token
         $this->organization = $organization;
     }
 
+    public function regenerate(string $value): void
+    {
+        $this->value = $value;
+        $this->lastUsedAt = null;
+    }
+
     public function isEqual(string $value): bool
     {
         return $this->value === $value;

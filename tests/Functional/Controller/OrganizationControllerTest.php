@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
+use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 
 final class OrganizationControllerTest extends FunctionalTestCase
@@ -145,6 +146,25 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $this->client->followRedirect();
         self::assertStringContainsString('Production Token', $this->lastResponseBody());
+    }
+
+    public function testRegenerateToken(): void
+    {
+        $this->fixtures->createToken(
+            $this->fixtures->createOrganization('buddy', $this->userId),
+            'secret-token'
+        );
+        $this->container()->get(TokenGenerator::class)->setNextToken('regenerated-token');
+        $this->client->request('POST', $this->urlTo('organization_token_regenerate', [
+            'organization' => 'buddy',
+            'token' => 'secret-token',
+        ]));
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy']))
+        );
+        $this->client->followRedirect();
+        self::assertStringContainsString('regenerated-token', $this->lastResponseBody());
     }
 
     public function testRemoveToken(): void
