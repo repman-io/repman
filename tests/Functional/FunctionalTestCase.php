@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional;
 
+use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\User\CreateUser;
@@ -92,6 +93,19 @@ abstract class FunctionalTestCase extends WebTestCase
                 'token'
             )
         );
+    }
+
+    public function addPackage(string $orgId, string $url): string
+    {
+        $this->container()->get(MessageBusInterface::class)->dispatch(
+            new AddPackage(
+                $id = Uuid::uuid4()->toString(),
+                $orgId,
+                $url
+            )
+        );
+
+        return $id;
     }
 
     protected function container(): ContainerInterface

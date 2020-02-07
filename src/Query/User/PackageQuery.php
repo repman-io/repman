@@ -12,9 +12,9 @@ interface PackageQuery
     /**
      * @return Package[]
      */
-    public function findAll(int $limit = 20, int $offset = 0): array;
+    public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array;
 
-    public function count(): int;
+    public function count(string $organizationId): int;
 
     /**
      * @return Option<Package>

@@ -75,8 +75,13 @@ final class OrganizationController extends AbstractController
     public function packages(Organization $organization, Request $request): Response
     {
         return $this->render('organization/packages.html.twig', [
-            'packages' => $this->packageQuery->findAll(20, (int) $request->get('offset', 0)),
-            'count' => $this->packageQuery->count(),
+            'packages' => $this->packageQuery->findAll(
+                $organization->id(),
+                20,
+                (int)
+                $request->get('offset', 0)
+            ),
+            'count' => $this->packageQuery->count($organization->id()),
             'organization' => $organization,
         ]);
     }

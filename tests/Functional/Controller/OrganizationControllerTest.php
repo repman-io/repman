@@ -92,10 +92,22 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testPackages(): void
     {
-        $this->createOrganization('buddy', $this->userId);
+        $anotherUserID = $this->createAdmin('another@user.com', 'secret');
+
+        $buddyId = $this->createOrganization('buddy', $this->userId);
+        $anotherOrgId = $this->createOrganization('google', $anotherUserID);
+
+        $this->addPackage($buddyId, 'https://buddy.com');
+        $this->addPackage($anotherOrgId, 'https://google.com');
+
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
 
         self::assertTrue($this->client->getResponse()->isOk());
+
+        self::assertStringContainsString(
+            'Showing 1 to 1 of 1 entries',
+            (string) $this->client->getResponse()->getContent()
+        );
     }
 
     public function testAddPackage(): void

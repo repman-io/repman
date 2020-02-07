@@ -21,23 +21,32 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return Package[]
      */
-    public function findAll(int $limit = 20, int $offset = 0): array
+    public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
             'SELECT id, repository_url, name, latest_released_version, latest_release_date, description
-            FROM "organization_package" LIMIT :limit OFFSET :offset', [
-            ':limit' => $limit,
-            ':offset' => $offset,
-        ]));
+            FROM "organization_package"
+            WHERE organization_id = :organization_id
+            LIMIT :limit OFFSET :offset', [
+                ':organization_id' => $organizationId,
+                ':limit' => $limit,
+                ':offset' => $offset,
+            ]));
     }
 
-    public function count(): int
+    public function count(string $organizationId): int
     {
         return (int) $this
             ->connection
-            ->fetchColumn('SELECT COUNT(id) FROM "organization_package"');
+            ->fetchColumn(
+                'SELECT COUNT(id) FROM "organization_package"
+                WHERE organization_id = :organization_id',
+                [
+                    ':organization_id' => $organizationId,
+                ]
+            );
     }
 
     /**
