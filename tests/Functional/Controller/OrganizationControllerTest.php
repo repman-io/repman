@@ -33,7 +33,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $this->client->submitForm('Save', ['name' => 'Acme Inc.']);
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_overview', ['organization' => 'acme-inc'])));
 
         $this->client->followRedirect();
 
@@ -66,9 +66,10 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testUniqueness(): void
     {
         $this->client->request('GET', $this->urlTo('organization_create'));
-
         $this->client->followRedirects();
         $this->client->submitForm('Save', ['name' => 'same']);
+
+        $this->client->request('GET', $this->urlTo('organization_create'));
         $this->client->submitForm('Save', ['name' => 'same']);
 
         self::assertTrue($this->client->getResponse()->isOk());

@@ -4,6 +4,39 @@
 
 {% block content %}
     <div class="markdown">
-        Place for composer instructions
+        {% if organization.token %}
+            <p>Configure authentication globally to access this organization packages:</p>
+        <div class="highlight"><pre>
+composer config --global --auth http-basic.{{ app.request.host }}{{ app.request.port != 443 ? ':' ~ app.request.port : '' }} token <span class="token d-none">{{ organization.token }}</span><button class="btn btn-primary btn-sm show-token">Show token</button></pre></div>
+            <p>Then add this lines to your composer.json file:</p>
+            <div class="highlight">
+        <pre>
+{
+    "repositories": [
+        {"type": "composer", "url": "{{ url('index') }}repo"},
+        {"packagist": false}
+    ]
+}</pre></div>
+
+            <p>And then update composer.lock file:</p>
+
+            <div class="highlight">
+        <pre>
+composer update mirrors</pre></div>
+
+        {% else %}
+            Missing authentication tokens,
+            <a class="btn btn-primary" href="{{ path('organization_token_new', {organization: organization.alias}) }}">
+                generate new token
+            </a> to allow users to access your organization packages
+        {% endif %}
     </div>
+    <script type="text/javascript">
+        window.onload = function() {
+            $('.show-token').click(function(){
+                $(this).parent().find('span.token').removeClass('d-none');
+                $(this).remove();
+            });
+        };
+    </script>
 {% endblock %}

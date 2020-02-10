@@ -23,7 +23,7 @@
                 <tr>
                     <td>{{ token.name }}</td>
                     <td>{{ token.createdAt|date('Y-m-d H:i:s')}}</td>
-                    <td>{{ token.lasUsedAt ? token.lasUsedAt|date('Y-m-d H:i:s') : 'never' }}</td>
+                    <td>{{ token.lasUsedAt ? token.lasUsedAt|time_diff : 'never' }}</td>
                     <td>
                         <button class="btn btn-primary btn-sm show-token">
                             Show token

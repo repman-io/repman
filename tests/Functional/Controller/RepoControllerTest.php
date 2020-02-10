@@ -28,15 +28,17 @@ final class RepoControllerTest extends FunctionalTestCase
 
     public function testPackagesAction(): void
     {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+
         $this->fixtures->createToken(
             $this->fixtures->createOrganization(
                 'buddy',
-                $this->fixtures->createAdmin('test@buddy.works', 'secret')
+                $adminId
             ),
             'secret-org-token'
         );
 
-        $this->client->request('GET', $this->urlTo('repo_packages'), [], [], [
+        $this->client->request('GET', 'repo/packages.json', [], [], [
             'PHP_AUTH_USER' => 'token',
             'PHP_AUTH_PW' => 'secret-org-token',
         ]);
@@ -44,8 +46,8 @@ final class RepoControllerTest extends FunctionalTestCase
         self::assertMatchesPattern('
         {
             "notify-batch": "https://packagist.org/downloads/",
-            "providers-url": "/repo/p/%package%$%hash%.json",
-            "metadata-url": "/repo/p2/%package%.json",
+            "providers-url": "/p/%package%$%hash%.json",
+            "metadata-url": "/p2/%package%.json",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
             "mirrors": [
                 {
@@ -53,8 +55,12 @@ final class RepoControllerTest extends FunctionalTestCase
                     "preferred": true
                 }
             ],
-            "providers-lazy-url": "/repo/p/%package%"
+            "providers-lazy-url": "/p/%package%"
         }
         ', $this->lastResponseBody());
+
+        // check if last update date is changed
+        $this->client->request('GET', $this->urlTo('organization_tokens', ['organization' => 'buddy']));
+        self::assertStringNotContainsString('never', $this->lastResponseBody());
     }
 }

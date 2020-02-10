@@ -19,6 +19,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,7 +40,7 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/new", name="organization_create", methods={"GET","POST"})
      */
-    public function create(Request $request): Response
+    public function create(Request $request, AliasGenerator $aliasGenerator): Response
     {
         $form = $this->createForm(RegisterType::class);
         $form->handleRequest($request);
@@ -49,14 +50,15 @@ final class OrganizationController extends AbstractController
             $user = $this->getUser();
 
             $this->dispatchMessage(new CreateOrganization(
-                Uuid::uuid4()->toString(),
+                $id = Uuid::uuid4()->toString(),
                 $user->id()->toString(),
                 $name = $form->get('name')->getData()
             ));
+            $this->dispatchMessage(new GenerateToken($id, 'default'));
 
             $this->addFlash('success', sprintf('Organization "%s" has been created', $name));
 
-            return $this->redirectToRoute('organization_create');
+            return $this->redirectToRoute('organization_overview', ['organization' => $aliasGenerator->generate($name)]);
         }
 
         return $this->render('admin/organization/register.html.twig', [

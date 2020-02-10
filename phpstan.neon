@@ -1,3 +1,5 @@
 parameters:
+    autoload_files:
+        - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:
         container_xml_path: '%rootDir%/../../../var/cache/test/Buddy_Repman_KernelTestDebugContainer.xml'

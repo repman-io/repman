@@ -28,9 +28,14 @@ final class OrganizationParamConverter implements ParamConverterInterface
 
     public function apply(Request $request, ParamConverter $configuration)
     {
-        if (null === $alias = $request->attributes->get('organization')) {
+        if (null === $alias = $request->attributes->get($configuration->getName())) {
             throw new BadRequestHttpException('Missing organization parameter in request');
         }
+
+        if ($request->attributes->get($configuration->getName()) instanceof Organization) {
+            return true;
+        }
+
         $request->attributes->set(
             $configuration->getName(),
             $this->organizationQuery->getByAlias($alias)->getOrElseThrow(new NotFoundHttpException(sprintf('Organization %s not found', $alias)))

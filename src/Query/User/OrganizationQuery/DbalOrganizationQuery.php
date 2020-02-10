@@ -25,15 +25,17 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, name, alias, owner_id FROM "organization" WHERE alias = :alias',
-            [
-                ':alias' => $alias,
-            ]
-        );
+            'SELECT id, name, alias, owner_id FROM "organization" WHERE alias = :alias', [
+            ':alias' => $alias,
+        ]);
 
         if ($data === false) {
             return Option::none();
         }
+
+        $data['token'] = $this->connection->fetchColumn('SELECT value FROM organization_token WHERE organization_id = :id', [
+            ':id' => $data['id'],
+        ]);
 
         return Option::some($this->hydrateOrganization($data));
     }
@@ -64,7 +66,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['id'],
             $data['name'],
             $data['alias'],
-            $data['owner_id']
+            $data['owner_id'],
+            $data['token'] !== false ? $data['token'] : null
         );
     }
 }

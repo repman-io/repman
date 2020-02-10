@@ -26,16 +26,16 @@ final class RepoController extends AbstractController
     {
         return new JsonResponse([
             'notify-batch' => 'https://packagist.org/downloads/',
-            'providers-url' => '/repo/p/%package%$%hash%.json',
-            'metadata-url' => '/repo/p2/%package%.json',
+            'providers-url' => '/p/%package%$%hash%.json',
+            'metadata-url' => '/p2/%package%.json',
             'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
             'mirrors' => [
                 [
-                    'dist-url' => $this->generateUrl('index', [], RouterInterface::ABSOLUTE_URL).'repo/dists/%package%/%version%/%reference%.%type%',
+                    'dist-url' => $this->generateUrl('index', [], RouterInterface::ABSOLUTE_URL).'dists/%package%/%version%/%reference%.%type%',
                     'preferred' => true,
                 ],
             ],
-            'providers-lazy-url' => '/repo/p/%package%',
+            'providers-lazy-url' => '/p/%package%',
         ]);
     }
 }

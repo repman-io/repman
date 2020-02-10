@@ -37,7 +37,11 @@ final class OrganizationVoter extends Voter
 
         return $this->organizationQuery
             ->getByAlias($subject->get('organization'))
-            ->map(fn (Organization $org) => $org->isOwnedBy($user->id()->toString()))
+            ->map(function (Organization $organization) use ($user, $subject) {
+                $subject->attributes->set('organization', $organization);
+
+                return $organization->isOwnedBy($user->id()->toString());
+            })
             ->getOrElse(false);
     }
 }
