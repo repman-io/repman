@@ -8,13 +8,19 @@ final class Package
 {
     private string $id;
     private string $url;
-    private string $name;
-    private string $latestReleasedVersion;
-    private \DateTimeImmutable $latestReleaseDate;
-    private string $description;
+    private ?string $name;
+    private ?string $latestReleasedVersion;
+    private ?\DateTimeImmutable $latestReleaseDate;
+    private ?string $description;
 
-    public function __construct(string $id, string $url, string $name, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, string $description)
-    {
+    public function __construct(
+        string $id,
+        string $url,
+        ?string $name = null,
+        ?string $latestReleasedVersion = null,
+        ?\DateTimeImmutable $latestReleaseDate = null,
+        ?string $description = null
+    ) {
         $this->id = $id;
         $this->url = $url;
         $this->name = $name;
@@ -33,22 +39,22 @@ final class Package
         return $this->url;
     }
 
-    public function name(): string
+    public function name(): ?string
     {
         return $this->name;
     }
 
-    public function latestReleasedVersion(): string
+    public function latestReleasedVersion(): ?string
     {
         return $this->latestReleasedVersion;
     }
 
-    public function latestReleaseDate(): \DateTimeImmutable
+    public function latestReleaseDate(): ?\DateTimeImmutable
     {
         return $this->latestReleaseDate;
     }
 
-    public function description(): string
+    public function description(): ?string
     {
         return $this->description;
     }

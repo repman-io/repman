@@ -14,6 +14,7 @@ use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
+use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\Organization\UpdatePackage;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
@@ -103,12 +104,14 @@ final class OrganizationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->dispatchMessage(new AddPackage(
-                Uuid::uuid4()->toString(),
+                $id = Uuid::uuid4()->toString(),
                 $organization->id(),
-                $form->get('url')->getData()
+                $form->get('url')->getData(),
+                $form->get('type')->getData()
             ));
+            $this->dispatchMessage(new SynchronizePackage($id));
 
-            $this->addFlash('success', 'Package has been added');
+            $this->addFlash('success', 'Package has been added and will be synchronized in the background');
 
             return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
         }

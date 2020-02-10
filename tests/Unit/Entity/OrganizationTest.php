@@ -33,7 +33,7 @@ final class OrganizationTest extends TestCase
 
     public function testOrganizationAddSamePackage(): void
     {
-        $package = new Package(Uuid::uuid4(), 'https://repman.buddy.works', 'repman', 'text', '1.2.0');
+        $package = new Package(Uuid::uuid4(), 'vcs', 'https://repman.buddy.works');
 
         $this->org->addPackage($package);
         $this->org->addPackage($package); // this should not throw exception
@@ -52,6 +52,13 @@ final class OrganizationTest extends TestCase
     public function testRemoveNonExistToken(): void
     {
         $this->org->removeToken('some-secret');
+        // exception should not be thrown
+        self::assertTrue(true);
+    }
+
+    public function testRemoveNonExsitPackage(): void
+    {
+        $this->org->removePackage(Uuid::uuid4());
         // exception should not be thrown
         self::assertTrue(true);
     }

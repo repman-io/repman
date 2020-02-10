@@ -26,10 +26,8 @@ final class AddPackageHandler implements MessageHandlerInterface
             ->addPackage(
                 new Package(
                     Uuid::fromString($message->id()),
-                    $message->url(),
-                    'name-'.Uuid::uuid4()->toString(),
-                    'description',
-                    'version number'
+                    $message->type(),
+                    $message->url()
                 )
             )
         ;

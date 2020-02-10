@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
+use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
 final class OrganizationControllerTest extends FunctionalTestCase
 {
@@ -122,11 +124,16 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $this->client->submitForm('Add', [
             'url' => 'http://guthib.com',
+            'type' => 'vcs',
         ]);
 
         self::assertTrue(
             $this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
         );
+        /** @var InMemoryTransport $transport */
+        $transport = $this->container()->get('messenger.transport.async');
+        self::assertCount(1, $transport->getSent());
+        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
 
         $this->client->followRedirect();
         self::assertStringContainsString('Package has been added', (string) $this->client->getResponse()->getContent());

@@ -21,18 +21,29 @@
         <tbody>
             {% for package in packages %}
                 <tr>
-                    <td>{{ package.name }}</td>
+                    <td>
+                        {% if package.name %}
+                            {{ package.name }}
+                        {% else %}
+                            Synchronizing from {{ package.url }}
+                            <div class="progress progress-sm">
+                                <div class="progress-bar progress-bar-indeterminate"></div>
+                            </div>
+                        {% endif %}
+                    </td>
                     <td>{{ package.latestReleasedVersion }}</td>
-                    <td>{{ package.latestReleaseDate | date('Y-m-d H:i:s') }}</td>
+                    <td>{{ package.latestReleaseDate ? package.latestReleaseDate | date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ package.description }}</td>
                     <td>
-                        <form class="d-inline" action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}" method="POST">
-                            <button class="btn btn-warning btn-sm" type="submit">Update</button>
-                        </form>
-                        <form class="d-inline" action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}" method="POST">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button class="btn btn-danger btn-sm" type="submit">Remove</button>
-                        </form>
+                        {% if package.name %}
+                            <form class="d-inline" action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}" method="POST">
+                                <button class="btn btn-warning btn-sm" type="submit">Update</button>
+                            </form>
+                            <form class="d-inline" action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}" method="POST">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

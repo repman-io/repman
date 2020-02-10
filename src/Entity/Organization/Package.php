@@ -6,11 +6,15 @@ namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="organization_package")
+ * @ORM\Table(
+ *     name="organization_package",
+ *     uniqueConstraints={@UniqueConstraint(name="package_name", columns={"organization_id", "name"})}
+ * )
  */
 class Package
 {
@@ -21,24 +25,24 @@ class Package
     private UuidInterface $id;
 
     /**
-     * @ORM\Column(type="string", unique=true, length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
-    private string $description;
+    private ?string $description = null;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private string $latestReleasedVersion;
+    private ?string $latestReleasedVersion = null;
 
     /**
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private \DateTimeImmutable $latestReleaseDate;
+    private ?\DateTimeImmutable $latestReleaseDate = null;
 
     /**
      * @ORM\Column(type="text")
@@ -46,19 +50,26 @@ class Package
     private string $repositoryUrl;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private string $type;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="packages")
      * @ORM\JoinColumn(nullable=false)
      */
     private Organization $organization;
 
-    public function __construct(UuidInterface $id, string $url, string $name, string $description, string $latestReleasedVersion)
+    /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private ?\DateTimeInterface $lastSyncAt;
+
+    public function __construct(UuidInterface $id, string $type, string $url)
     {
         $this->id = $id;
+        $this->type = $type;
         $this->repositoryUrl = $url;
-        $this->name = $name;
-        $this->description = $description;
-        $this->latestReleasedVersion = $latestReleasedVersion;
-        $this->latestReleaseDate = new \DateTimeImmutable();
     }
 
     public function id(): UuidInterface

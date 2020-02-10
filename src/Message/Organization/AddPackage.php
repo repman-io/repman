@@ -8,13 +8,15 @@ final class AddPackage
 {
     private string $id;
     private string $url;
+    private string $type;
     private string $organizationId;
 
-    public function __construct(string $id, string $organizationId, string $url)
+    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs')
     {
         $this->id = $id;
         $this->organizationId = $organizationId;
         $this->url = $url;
+        $this->type = $type;
     }
 
     public function id(): string
@@ -30,5 +32,10 @@ final class AddPackage
     public function url(): string
     {
         return $this->url;
+    }
+
+    public function type(): string
+    {
+        return $this->type;
     }
 }
