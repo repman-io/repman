@@ -12,8 +12,11 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\RegenerateToken;
+use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
+use Buddy\Repman\Message\Organization\UpdatePackage;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Ramsey\Uuid\Uuid;
@@ -112,6 +115,36 @@ final class OrganizationController extends AbstractController
             'organization' => $organization,
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}", name="organization_package_update", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function updatePackage(Organization $organization, Package $package): Response
+    {
+        $this->dispatchMessage(new UpdatePackage(
+            $package->id(),
+            $organization->id()
+        ));
+
+        $this->addFlash('success', 'Package will be updated in the background');
+
+        return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}", name="organization_package_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function removePackage(Organization $organization, Package $package): Response
+    {
+        $this->dispatchMessage(new RemovePackage(
+            $package->id(),
+            $organization->id()
+        ));
+
+        $this->addFlash('success', 'Package has been successfully removed');
+
+        return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
 
     /**

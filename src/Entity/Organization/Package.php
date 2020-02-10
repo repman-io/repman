@@ -61,6 +61,11 @@ class Package
         $this->latestReleaseDate = new \DateTimeImmutable();
     }
 
+    public function id(): UuidInterface
+    {
+        return $this->id;
+    }
+
     public function setOrganization(Organization $organization): void
     {
         if (isset($this->organization)) {

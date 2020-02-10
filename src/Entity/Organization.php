@@ -45,7 +45,7 @@ class Organization
 
     /**
      * @var Collection<int,Package>|Package[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $packages;
 
@@ -123,5 +123,16 @@ class Organization
 
         $package->setOrganization($this);
         $this->packages->add($package);
+    }
+
+    public function removePackage(UuidInterface $packageId): void
+    {
+        foreach ($this->packages as $package) {
+            if ($package->id()->equals($packageId)) {
+                $this->packages->removeElement($package);
+
+                return;
+            }
+        }
     }
 }

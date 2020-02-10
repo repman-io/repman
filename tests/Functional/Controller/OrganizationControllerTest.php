@@ -6,6 +6,7 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Ramsey\Uuid\Uuid;
 
 final class OrganizationControllerTest extends FunctionalTestCase
 {
@@ -106,7 +107,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isOk());
 
         self::assertStringContainsString(
-            'Showing 1 to 1 of 1 entries',
+            '1 entries',
             (string) $this->client->getResponse()->getContent()
         );
     }
@@ -130,6 +131,79 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Package has been added', (string) $this->client->getResponse()->getContent());
 
         self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testRemovePackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect(
+                $this->urlTo('organization_packages', ['organization' => 'buddy'])
+            )
+        );
+        $this->client->followRedirect();
+        self::assertStringNotContainsString(
+            '1 entries', $this->lastResponseBody()
+        );
+        self::assertStringContainsString(
+            'Package has been successfully removed',
+            $this->lastResponseBody()
+        );
+    }
+
+    public function testUpdatePackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('POST', $this->urlTo('organization_package_update', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect(
+                $this->urlTo('organization_packages', ['organization' => 'buddy'])
+            )
+        );
+        $this->client->followRedirect();
+        self::assertStringContainsString(
+            'Package will be updated in the background',
+            $this->lastResponseBody()
+        );
+    }
+
+    public function testUpdateNonExistingPackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('POST', $this->urlTo('organization_package_update', [
+            'organization' => 'buddy',
+            'package' => Uuid::uuid4()->toString(), // random
+        ]));
+
+        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testRemoveNonExistingPackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('DELETE', $this->urlTo('organization_package_update', [
+            'organization' => 'buddy',
+            'package' => Uuid::uuid4()->toString(), // random
+        ]));
+
+        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testGenerateNewToken(): void

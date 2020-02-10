@@ -25,7 +25,15 @@
                     <td>{{ package.latestReleasedVersion }}</td>
                     <td>{{ package.latestReleaseDate | date('Y-m-d H:i:s') }}</td>
                     <td>{{ package.description }}</td>
-                    <td></td>
+                    <td>
+                        <form class="d-inline" action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}" method="POST">
+                            <button class="btn btn-warning btn-sm" type="submit">Update</button>
+                        </form>
+                        <form class="d-inline" action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}" method="POST">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
