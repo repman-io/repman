@@ -23,7 +23,8 @@
                 <tr>
                     <td>
                         {% if package.name %}
-                            {{ package.name }}
+                            <strong>{{ package.name }}</strong><br />
+                            <small class="font-italic" style="font-size: 0.7em">{{ package.url }}</small>
                         {% else %}
                             Synchronizing from {{ package.url }}
                             <div class="progress progress-sm">

@@ -84,4 +84,22 @@ class Package
         }
         $this->organization = $organization;
     }
+
+    public function type(): string
+    {
+        return $this->type;
+    }
+
+    public function repositoryUrl(): string
+    {
+        return $this->repositoryUrl;
+    }
+
+    public function synchronize(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
+    {
+        $this->name = $name;
+        $this->description = $description;
+        $this->latestReleasedVersion = $latestReleasedVersion;
+        $this->latestReleaseDate = $latestReleaseDate;
+    }
 }

@@ -22,8 +22,13 @@ class PackageRepository extends ServiceEntityRepository
         parent::__construct($registry, Package::class);
     }
 
-    public function getById(UuidInterface $id, UuidInterface $organizationId): ?Package
+    public function getById(UuidInterface $id): Package
     {
-        return $this->findOneBy(['id' => $id, 'organization' => $organizationId]);
+        $package = $this->find($id);
+        if (!$package instanceof Package) {
+            throw new \InvalidArgumentException(sprintf('Package %s not found.', $id->toString()));
+        }
+
+        return $package;
     }
 }

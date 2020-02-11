@@ -67,13 +67,14 @@ final class FixturesManager
         );
     }
 
-    public function addPackage(string $orgId, string $url): string
+    public function addPackage(string $orgId, string $url, string $type = 'vcs'): string
     {
         $this->dispatchMessage(
             new AddPackage(
                 $id = Uuid::uuid4()->toString(),
                 $orgId,
-                $url
+                $url,
+                $type
             )
         );
 

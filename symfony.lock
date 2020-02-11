@@ -8,8 +8,17 @@
     "coduo/php-to-string": {
         "version": "3.0.0"
     },
+    "composer/ca-bundle": {
+        "version": "1.2.6"
+    },
+    "composer/composer": {
+        "version": "1.10-dev"
+    },
     "composer/semver": {
         "version": "1.5.0"
+    },
+    "composer/spdx-licenses": {
+        "version": "1.5.2"
     },
     "composer/xdebug-handler": {
         "version": "1.4.0"
@@ -134,6 +143,9 @@
     },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
+    },
+    "justinrainbow/json-schema": {
+        "version": "5.2.9"
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
@@ -296,6 +308,12 @@
     },
     "sebastian/version": {
         "version": "2.0.1"
+    },
+    "seld/jsonlint": {
+        "version": "1.7.2"
+    },
+    "seld/phar-utils": {
+        "version": "1.0.2"
     },
     "sensio/framework-extra-bundle": {
         "version": "5.2",

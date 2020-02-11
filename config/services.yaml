@@ -37,6 +37,11 @@ services:
         arguments:
             - '%dists_dir%'
 
+    Buddy\Repman\Service\PackageSynchronizer:
+        class: Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer
+        arguments:
+            - '%dists_dir%'
+
     Buddy\Repman\Service\Dist\Storage:
         class: Buddy\Repman\Service\Dist\Storage\FileStorage
 

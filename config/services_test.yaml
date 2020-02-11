@@ -10,3 +10,6 @@ services:
 
     Buddy\Repman\Service\Organization\TokenGenerator:
         class: Buddy\Repman\Tests\Doubles\FakeTokenGenerator
+
+    Buddy\Repman\Service\PackageSynchronizer:
+        class: Buddy\Repman\Tests\Doubles\FakePackageSynchronizer

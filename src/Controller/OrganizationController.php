@@ -127,9 +127,8 @@ final class OrganizationController extends AbstractController
      */
     public function updatePackage(Organization $organization, Package $package): Response
     {
-        $this->dispatchMessage(new UpdatePackage(
-            $package->id(),
-            $organization->id()
+        $this->dispatchMessage(new SynchronizePackage(
+            $package->id()
         ));
 
         $this->addFlash('success', 'Package will be updated in the background');

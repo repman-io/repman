@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "cbschuld/browser.php": "^1.9",
+        "composer/composer": "1.10.x-dev",
         "composer/semver": "^1.5",
         "munusphp/munus": "^0.1.0",
         "ramsey/uuid-doctrine": "^1.5",
