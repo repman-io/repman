@@ -9,12 +9,14 @@ final class Organization
     private string $id;
     private string $name;
     private string $alias;
+    private string $ownerEmail;
 
-    public function __construct(string $id, string $name, string $alias)
+    public function __construct(string $id, string $name, string $alias, string $ownerEmail)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
+        $this->ownerEmail = $ownerEmail;
     }
 
     public function id(): string
@@ -30,5 +32,10 @@ final class Organization
     public function alias(): string
     {
         return $this->alias;
+    }
+
+    public function ownerEmail(): string
+    {
+        return $this->ownerEmail;
     }
 }

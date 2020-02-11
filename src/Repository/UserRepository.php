@@ -7,6 +7,7 @@ namespace Buddy\Repman\Repository;
 use Buddy\Repman\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -49,6 +50,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user = $this->findOneBy(['emailConfirmToken' => $token]);
         if (!$user instanceof User) {
             throw new \InvalidArgumentException(sprintf('User with email confirm token %s not found', $token));
+        }
+
+        return $user;
+    }
+
+    public function getById(UuidInterface $id): User
+    {
+        $user = $this->find($id);
+        if (!$user instanceof User) {
+            throw new \InvalidArgumentException(sprintf('User with id %s not found', $id->toString()));
         }
 
         return $user;

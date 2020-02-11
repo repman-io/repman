@@ -112,10 +112,49 @@
             </div>
         </div>
     </div>
+
+    <!-- Confirmation modal -->
+    <div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Title</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to perform this action?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form id="modal-action-form" class="d-inline" action="action" method="POST">
+                    <input type="hidden" name="_method" value="method">
+                    <button type="submit" class="btn btn-primary" id="confirmation-btn">Ok</button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+
     {% block javascripts %}
         <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+        <script>
+            $('[data-target="confirmation"]').on('click', function() {
+                const confirmationModalId = '#confirmation-modal';
+                const $source = $(this);
+                const $modal = $(`${confirmationModalId}`);
+                const $modalForm = $(`${confirmationModalId} form`);
+                const $modalTitle = $(`${confirmationModalId} .modal-title`);
+
+                $modalForm.prop('action', $source.data('action'));
+                $modalForm.children('[name=_method]').val($source.data('method'));
+                $modalTitle.html($source.data('title') || 'Confirm action');
+
+                $modal.modal('show');
+            });
+        </script>
     {% endblock %}
     </body>
     {% endblock body %}

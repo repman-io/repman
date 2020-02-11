@@ -10,6 +10,7 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Alias</th>
+                <th>Owner</th>
                 <th>Options</th>
             </tr>
         </thead>
@@ -19,7 +20,18 @@
                     <td>{{ organization.id }}</td>
                     <td>{{ organization.name }}</td>
                     <td>{{ organization.alias }}</td>
-                    <td></td>
+                    <td>{{ organization.ownerEmail }}</td>
+                    <td>
+                        {# <button
+                            class="btn btn-danger btn-sm"
+                            type="button"
+                            data-target="confirmation"
+                            data-action="{{ path('admin_organization_remove', {organization: organization.id }) }}"
+                            data-method="DELETE"
+                        >
+                            Remove
+                        </button> #}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

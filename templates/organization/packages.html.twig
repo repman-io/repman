@@ -51,13 +51,24 @@
                     </td>
                     <td>
                         {% if package.name or package.lastSyncError %}
-                            <form class="d-inline" action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}" method="POST">
-                                <button class="btn btn-warning btn-sm" type="submit">Update</button>
-                            </form>
-                            <form class="d-inline" action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}" method="POST">
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button class="btn btn-danger btn-sm" type="submit">Remove</button>
-                            </form>
+                            <button
+                                class="btn btn-warning btn-sm"
+                                type="button"
+                                data-target="confirmation"
+                                data-action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}"
+                                data-method="POST"
+                            >
+                                Update
+                            </button>
+                            <button
+                                class="btn btn-danger btn-sm"
+                                type="button"
+                                data-target="confirmation"
+                                data-action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}"
+                                data-method="DELETE"
+                            >
+                                Remove
+                            </button>
                         {% endif %}
                     </td>
                 </tr>

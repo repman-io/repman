@@ -8,6 +8,8 @@ final class User
 {
     private string $id;
     private string $email;
+    private string $status;
+
     /**
      * @var string[]
      */
@@ -16,10 +18,11 @@ final class User
     /**
      * @param string[] $roles
      */
-    public function __construct(string $id, string $email, $roles)
+    public function __construct(string $id, string $email, string $status, array $roles)
     {
         $this->id = $id;
         $this->email = $email;
+        $this->status = $status;
         $this->roles = $roles;
     }
 
@@ -31,5 +34,18 @@ final class User
     public function email(): string
     {
         return $this->email;
+    }
+
+    public function status(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function roles(): array
+    {
+        return $this->roles;
     }
 }

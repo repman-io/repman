@@ -45,7 +45,7 @@ final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
         $this->userQueryMock
             ->expects($this->once())
             ->method('getByEmail')
-            ->willReturn(Option::some(new User('55fe42eb-d527-4a64-bd48-fb3f54372673', 'test@buddy.works', [])));
+            ->willReturn(Option::some(new User('55fe42eb-d527-4a64-bd48-fb3f54372673', 'test@buddy.works', 'enabled', [])));
 
         $this->validator->validate('test@buddy.works', new UniqueEmail());
 
