@@ -40,23 +40,12 @@
                                     <input type="password" name="password" id="inputPassword" class="form-control" required autocomplete="off">
                                 </div>
 
-                                {#
-                                    Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-                                    See https://symfony.com/doc/current/security/remember_me.html
-
-                                                            <div class="mb-2">
-                                                                <label class="custom-control custom-checkbox">
-                                                                    <input type="checkbox" class="custom-control-input" ./>
-                                                                    <span class="custom-control-label">Remember me</span>
-                                                                </label>
-                                                            </div>
-
-                                    <div class="checkbox mb-3">
-                                        <label>
-                                            <input type="checkbox" name="_remember_me"> Remember me
-                                        </label>
-                                    </div>
-                                #}
+                                <div class="mb-2">
+                                    <label class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" name="_remember_me"/>
+                                        <span class="custom-control-label">Remember me</span>
+                                    </label>
+                                </div>
 
                                 <div class="form-footer">
                                     <button type="submit" class="btn btn-primary btn-block">Sign in</button>

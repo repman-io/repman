@@ -31,6 +31,10 @@ security:
             logout:
                 path: app_logout
                 target: index
+            remember_me:
+                secret:   '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path:     /
 
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
