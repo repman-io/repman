@@ -12,6 +12,8 @@ final class Package
     private ?string $latestReleasedVersion;
     private ?\DateTimeImmutable $latestReleaseDate;
     private ?string $description;
+    private ?\DateTimeImmutable $lastSyncAt;
+    private ?string $lastSyncError;
 
     public function __construct(
         string $id,
@@ -19,7 +21,9 @@ final class Package
         ?string $name = null,
         ?string $latestReleasedVersion = null,
         ?\DateTimeImmutable $latestReleaseDate = null,
-        ?string $description = null
+        ?string $description = null,
+        ?\DateTimeImmutable $lastSyncAt = null,
+        ?string $lastSyncError = null
     ) {
         $this->id = $id;
         $this->url = $url;
@@ -27,6 +31,8 @@ final class Package
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
         $this->description = $description;
+        $this->lastSyncAt = $lastSyncAt;
+        $this->lastSyncError = $lastSyncError;
     }
 
     public function id(): string
@@ -57,5 +63,15 @@ final class Package
     public function description(): ?string
     {
         return $this->description;
+    }
+
+    public function lastSyncAt(): ?\DateTimeImmutable
+    {
+        return $this->lastSyncAt;
+    }
+
+    public function lastSyncError(): ?string
+    {
+        return $this->lastSyncError;
     }
 }

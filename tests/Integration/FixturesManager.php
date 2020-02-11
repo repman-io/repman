@@ -7,8 +7,12 @@ namespace Buddy\Repman\Tests\Integration;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
 use Buddy\Repman\Service\Organization\TokenGenerator;
+use Buddy\Repman\Service\PackageSynchronizer;
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -79,6 +83,20 @@ final class FixturesManager
         );
 
         return $id;
+    }
+
+    public function syncPackageWithError(string $packageId, string $error): void
+    {
+        $this->container->get(PackageSynchronizer::class)->setError($error);
+        $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
+        $this->container->get(EntityManagerInterface::class)->flush();
+    }
+
+    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
+    {
+        $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate);
+        $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
+        $this->container->get(EntityManagerInterface::class)->flush();
     }
 
     private function dispatchMessage(object $message): void

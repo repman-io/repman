@@ -13,6 +13,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
     private string $description = 'n/a';
     private string $latestReleasedVersion = '1.0.0';
     private \DateTimeImmutable $latestReleaseDate;
+    private ?string $error = null;
 
     public function __construct()
     {
@@ -25,11 +26,23 @@ final class FakePackageSynchronizer implements PackageSynchronizer
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
+        $this->error = null;
+    }
+
+    public function setError(string $error): void
+    {
+        $this->error = $error;
     }
 
     public function synchronize(Package $package): void
     {
-        $package->synchronize(
+        if ($this->error) {
+            $package->syncFailure($this->error);
+
+            return;
+        }
+
+        $package->syncSuccess(
             $this->name,
             $this->description,
             $this->latestReleasedVersion,

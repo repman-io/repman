@@ -19,6 +19,14 @@ cd repman
 composer install
 ```
 
+## Workers
+
+To process messages asynchronously you must run worker:
+```
+bin/console messenger:consume async
+```
+Read more: https://symfony.com/doc/current/messenger.html#deploying-to-production
+
 ## Usage
 
 Navigate your browser to instance address, you will see home page with usage instructions.
@@ -34,5 +42,5 @@ Navigate your browser to instance address, you will see home page with usage ins
  - [x] repman composer plugin for seamless integration with existing projects
  - [x] local metadata cache
  - [ ] support for docker (to allow to create repman instance with docker)
- - [ ] admin panel
- - [ ] support private packages
+ - [x] admin panel
+ - [x] support private packages

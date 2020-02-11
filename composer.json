@@ -7,6 +7,8 @@
         "php": "^7.4.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-zip": "*",
+        "ext-intl": "*",
         "cbschuld/browser.php": "^1.9",
         "composer/composer": "1.10.x-dev",
         "composer/semver": "^1.5",

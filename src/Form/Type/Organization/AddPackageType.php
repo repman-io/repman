@@ -11,7 +11,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
-use Symfony\Component\Validator\Constraints\Url;
 
 class AddPackageType extends AbstractType
 {
@@ -31,6 +30,7 @@ class AddPackageType extends AbstractType
                     'vcs (git,svn,hg)' => 'vcs',
                     'pear' => 'pear',
                     'artifact' => 'artifact',
+                    'path' => 'path',
                 ],
                 'constraints' => [
                     new NotNull(),
@@ -39,7 +39,6 @@ class AddPackageType extends AbstractType
             ->add('url', TextType::class, [
                 'constraints' => [
                     new NotBlank(),
-                    new Url(),
                 ],
             ])
             ->add('Add', SubmitType::class);

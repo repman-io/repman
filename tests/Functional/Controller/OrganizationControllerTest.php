@@ -176,16 +176,16 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect(
-                $this->urlTo('organization_packages', ['organization' => 'buddy'])
-            )
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect(
+            $this->urlTo('organization_packages', ['organization' => 'buddy'])
+        ));
+
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
+
         $this->client->followRedirect();
-        self::assertStringContainsString(
-            'Package will be updated in the background',
-            $this->lastResponseBody()
-        );
+        self::assertStringContainsString('Package will be updated in the background', $this->lastResponseBody());
+        self::assertStringContainsString('buddy-works/repman', $this->lastResponseBody());
+        self::assertStringContainsString('2.1.1', $this->lastResponseBody());
     }
 
     public function testUpdateNonExistingPackage(): void
@@ -199,6 +199,18 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSynchronizationError(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithError($packageId, 'Connection error: 503 service unavailable');
+
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
+
+        self::assertStringContainsString('Synchronization error', $this->lastResponseBody());
+        self::assertStringContainsString('Connection error: 503 service unavailable', $this->lastResponseBody());
     }
 
     public function testRemoveNonExistingPackage(): void

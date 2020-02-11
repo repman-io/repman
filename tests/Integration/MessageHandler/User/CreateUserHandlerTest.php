@@ -21,7 +21,7 @@ final class CreateUserHandlerTest extends IntegrationTestCase
             'ccd235dc-fce0-4c48-a40f-999aeb63710d'
         ));
 
-        $user = $this->container()->get(DbalUserQuery::class)->getById($id);
+        $user = $this->container()->get(DbalUserQuery::class)->getByEmail('test@buddy.works');
         self::assertInstanceOf(User::class, $user->get());
     }
 }

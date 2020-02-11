@@ -24,8 +24,9 @@
                     <td>
                         {% if package.name %}
                             <strong>{{ package.name }}</strong><br />
-                            <small class="font-italic" style="font-size: 0.7em">{{ package.url }}</small>
-                        {% else %}
+                            <small class="font-italic" style="font-size: 0.7em">{{ package.url }}</small><br />
+                            <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date('Y-m-d H:i:s') }}">synced: {{ package.lastSyncAt | time_diff }}</small>
+                        {% elseif package.lastSyncError is null %}
                             Synchronizing from {{ package.url }}
                             <div class="progress progress-sm">
                                 <div class="progress-bar progress-bar-indeterminate"></div>
@@ -33,10 +34,23 @@
                         {% endif %}
                     </td>
                     <td>{{ package.latestReleasedVersion }}</td>
-                    <td>{{ package.latestReleaseDate ? package.latestReleaseDate | date('Y-m-d H:i:s') : '' }}</td>
-                    <td>{{ package.description }}</td>
                     <td>
-                        {% if package.name %}
+                        {% if package.latestReleaseDate %}
+                            <span title="{{ package.latestReleaseDate | date('Y-m-d H:i:s') }}">{{ package.latestReleaseDate | time_diff }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if package.lastSyncError %}
+                            <div class="badge bg-danger">Synchronization error</div>
+                            <div class="highlight p-3 font-monospace" style="font-size: 0.6em;">
+                                {{ package.lastSyncError | nl2br }}
+                            </div>
+                        {% else %}
+                            {{ package.description }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if package.name or package.lastSyncError %}
                             <form class="d-inline" action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}" method="POST">
                                 <button class="btn btn-warning btn-sm" type="submit">Update</button>
                             </form>

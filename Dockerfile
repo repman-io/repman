@@ -17,6 +17,11 @@ RUN apt-get install -y libicu-dev && \
     docker-php-ext-configure intl && \
     docker-php-ext-install intl
 
+# zip
+RUN apt-get install -y unzip libzip-dev && \
+    docker-php-ext-configure zip && \
+    docker-php-ext-install zip
+
 # symfony tool
 RUN curl -sS https://get.symfony.com/cli/installer | bash
 RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony

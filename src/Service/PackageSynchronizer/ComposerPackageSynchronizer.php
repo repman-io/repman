@@ -19,40 +19,43 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class ComposerPackageSynchronizer implements PackageSynchronizer
 {
     private string $baseDir;
+    private ArrayDumper $dumper;
 
     public function __construct(string $baseDir)
     {
         $this->baseDir = $baseDir;
+        $this->dumper = new ArrayDumper();
     }
 
     public function synchronize(Package $package): void
     {
-        $io = new BufferIO('', OutputInterface::VERBOSITY_NORMAL);
+        $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE);
 
-        /** @var RepositoryInterface $repository */
-        $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package)));
-        $json = ['packages' => []];
-        $packages = $repository->getPackages();
-        $dumper = new ArrayDumper();
+        try {
+            /** @var RepositoryInterface $repository */
+            $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package)));
+            $json = ['packages' => []];
+            $packages = $repository->getPackages();
 
-        if ($packages !== []) {
             $latest = current($packages);
 
             foreach ($packages as $p) {
-                $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $dumper->dump($p);
+                $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->dumper->dump($p);
                 if ($p->getReleaseDate() > $latest->getReleaseDate()) {
-                    $latest = $packages;
+                    $latest = $p;
                 }
             }
 
-            $package->synchronize(
+            $package->syncSuccess(
                 $latest->getPrettyName(),
-                $latest instanceof CompletePackage ? $latest->getDescription() : 'n/a',
+                $latest instanceof CompletePackage ? ($latest->getDescription() ?? 'n/a') : 'n/a',
                 $latest->getPrettyVersion(),
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );
 
             $this->saveProvider($json, $latest);
+        } catch (\Throwable $exception) {
+            $package->syncFailure(sprintf("Error: %s\nLogs:\n%s", $exception->getMessage(), $io->getOutput()));
         }
     }
 

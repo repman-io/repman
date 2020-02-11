@@ -65,6 +65,11 @@ class Package
      */
     private ?\DateTimeInterface $lastSyncAt;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private ?string $lastSyncError = null;
+
     public function __construct(UuidInterface $id, string $type, string $url)
     {
         $this->id = $id;
@@ -95,11 +100,19 @@ class Package
         return $this->repositoryUrl;
     }
 
-    public function synchronize(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
+    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
     {
         $this->name = $name;
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
+        $this->lastSyncAt = new \DateTimeImmutable();
+        $this->lastSyncError = null;
+    }
+
+    public function syncFailure(string $error): void
+    {
+        $this->lastSyncAt = new \DateTimeImmutable();
+        $this->lastSyncError = $error;
     }
 }

@@ -26,7 +26,7 @@ final class DbalPackageQuery implements PackageQuery
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
-            'SELECT id, repository_url, name, latest_released_version, latest_release_date, description
+            'SELECT id, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error
             FROM "organization_package"
             WHERE organization_id = :organization_id
             LIMIT :limit OFFSET :offset', [
@@ -55,7 +55,7 @@ final class DbalPackageQuery implements PackageQuery
     public function getById(string $id): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, repository_url, name, latest_released_version, latest_release_date, description
+            'SELECT id, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error
             FROM "organization_package" WHERE id = :id', [
             ':id' => $id,
         ]);
@@ -78,6 +78,8 @@ final class DbalPackageQuery implements PackageQuery
             $data['latest_released_version'],
             $data['latest_release_date'] ? new \DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
+            $data['last_sync_at'] ? new \DateTimeImmutable($data['last_sync_at']) : null,
+            $data['last_sync_error']
         );
     }
 }

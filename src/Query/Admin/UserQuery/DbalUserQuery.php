@@ -31,21 +31,6 @@ final class DbalUserQuery implements UserQuery
     /**
      * @return Option<User>
      */
-    public function getById(string $id): Option
-    {
-        $data = $this->connection->fetchAssoc('SELECT id, email, roles FROM "user" WHERE id = :id', [
-            ':id' => $id,
-        ]);
-        if ($data === false) {
-            return Option::none();
-        }
-
-        return Option::some($this->hydrateUser($data));
-    }
-
-    /**
-     * @return Option<User>
-     */
     public function getByEmail(string $email): Option
     {
         $data = $this->connection->fetchAssoc('SELECT id, email, roles FROM "user" WHERE email = :email', [
