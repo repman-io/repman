@@ -16,6 +16,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class User implements UserInterface
 {
+    const STATUS_ENABLED = 'enabled';
+
+    const STATUS_DISABLED = 'disabled';
+
     /**
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -69,6 +73,11 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization", mappedBy="owner")
      */
     private Collection $organizations;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private string $status = self::STATUS_ENABLED;
 
     /**
      * @param array<string> $roles
@@ -205,6 +214,20 @@ class User implements UserInterface
             $this->organizations[] = $organization;
             $organization->setOwner($this);
         }
+
+        return $this;
+    }
+
+    public function disable(): self
+    {
+        $this->status = self::STATUS_DISABLED;
+
+        return $this;
+    }
+
+    public function enable(): self
+    {
+        $this->status = self::STATUS_ENABLED;
 
         return $this;
     }

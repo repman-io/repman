@@ -10,10 +10,15 @@
             {% for package in packages %}
                 <li class="mb-1">
                     {{ package }}
-                    <form class="d-inline" action="{{ path('admin_dist_remove', {packageName: package}) }}" method="POST">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button class="btn btn-danger btn-sm" type="submit">delete</button>
-                    </form>
+                    <button
+                        class="btn btn-danger btn-sm"
+                        type="button"
+                        data-target="confirmation"
+                        data-action="{{ path('admin_dist_remove', {packageName: package}) }}"
+                        data-method="DELETE"
+                    >
+                        Remove
+                    </button>
                 </li>
             {% endfor %}
         </ul>

@@ -9,6 +9,8 @@
             <tr>
                 <th>ID</th>
                 <th>E-mail</th>
+                <th>Roles</th>
+                <th>Status</th>
                 <th>Options</th>
             </tr>
         </thead>
@@ -17,7 +19,31 @@
                 <tr>
                     <td>{{ user.id }}</td>
                     <td>{{ user.email }}</td>
-                    <td></td>
+                    <td>{{ user.roles | join(', ') }}</td>
+                    <td>{{ user.status }}</td>
+                    <td>
+                        {% if user.status == 'enabled' %}
+                            <button
+                                class="btn btn-danger btn-sm"
+                                type="button"
+                                data-target="confirmation"
+                                data-action="{{ path('admin_user_disable', {user: user.id }) }}"
+                                data-method="POST"
+                            >
+                                Disable
+                            </button>
+                        {% elseif user.status == 'disabled' %}
+                            <button
+                                class="btn btn-success btn-sm"
+                                type="button"
+                                data-target="confirmation"
+                                data-action="{{ path('admin_user_enable', {user: user.id }) }}"
+                                data-method="POST"
+                            >
+                                Enable
+                            </button>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

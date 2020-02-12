@@ -24,10 +24,16 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return array_map(function (array $data): Organization {
             return $this->hydrateOrganization($data);
-        }, $this->connection->fetchAll('SELECT id, name, alias FROM "organization" LIMIT :limit OFFSET :offset', [
-            ':limit' => $limit,
-            ':offset' => $offset,
-        ]));
+        }, $this->connection->fetchAll(
+            'SELECT o.id, o.name, o.alias, u.email owner_email
+            FROM "organization" AS o
+            JOIN "user" AS u ON u.id = o.owner_id
+            LIMIT :limit OFFSET :offset',
+            [
+                ':limit' => $limit,
+                ':offset' => $offset,
+            ])
+        );
     }
 
     public function count(): int
@@ -46,6 +52,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['id'],
             $data['name'],
             $data['alias'],
+            $data['owner_email'],
         );
     }
 }
