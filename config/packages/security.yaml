@@ -14,7 +14,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         repo:
-            pattern: ^/repo/
+            host: '([a-z0-9_-]+)\.repo\.(.+)'
             anonymous: false
             logout: false
             stateless: true
@@ -40,4 +40,4 @@ security:
          - { path: ^/admin, roles: ROLE_ADMIN }
          - { path: ^/organization/new, roles: ROLE_USER }
          - { path: ^/organization/.+/.+, roles: ROLE_ORGANIZATION_MEMBER }
-         - { path: ^/repo, roles: ROLE_ORGANIZATION }
+         - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }

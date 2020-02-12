@@ -10,7 +10,9 @@ final class ProxyControllerTest extends FunctionalTestCase
 {
     public function testPackagesAction(): void
     {
-        $this->client->request('GET', '/packages.json');
+        $this->client->request('GET', '/packages.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
 
         self::assertMatchesPattern('
         {
@@ -31,7 +33,9 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testProviderAction(): void
     {
-        $this->client->request('GET', '/p/buddy-works/repman');
+        $this->client->request('GET', '/p/buddy-works/repman', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
 
         self::assertMatchesPattern('
         {
@@ -45,7 +49,9 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testProviderActionEmptyPackagesWhenNotExist(): void
     {
-        $this->client->request('GET', '/p/buddy-works/example-app');
+        $this->client->request('GET', '/p/buddy-works/example-app', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
 
         self::assertMatchesPattern('
         {
@@ -56,7 +62,9 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testDistributionAction(): void
     {
-        $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip');
+        $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
 
         self::assertTrue($this->client->getResponse()->isOk());
     }

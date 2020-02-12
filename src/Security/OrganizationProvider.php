@@ -35,7 +35,7 @@ final class OrganizationProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        $data = $this->getUserDataByToken($user->getUsername());
+        $data = $this->getUserDataByToken((string) $user->getPassword());
 
         if ($data === false) {
             throw new UsernameNotFoundException();
@@ -63,7 +63,7 @@ final class OrganizationProvider implements UserProviderInterface
     private function getUserDataByToken(string $token)
     {
         return $this->connection->fetchAssoc('
-            SELECT t.value, o.name, o.id FROM organization_token t 
+            SELECT t.value, o.name, o.alias, o.id FROM organization_token t 
             JOIN organization o ON o.id = t.organization_id 
             WHERE t.value = :token',
             [
@@ -79,6 +79,7 @@ final class OrganizationProvider implements UserProviderInterface
         return new Organization(
             $data['id'],
             $data['name'],
+            $data['alias'],
             $data['value']
         );
     }

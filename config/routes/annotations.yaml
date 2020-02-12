@@ -4,3 +4,19 @@ controllers:
 
 app_logout:
     path: /logout
+
+proxy_repo_url:
+    path: ''
+    host: 'repo.{domain}'
+    defaults:
+        domain: '%domain%'
+    requirements:
+        domain: "%domain%"
+
+organization_repo_url:
+    path: ''
+    host: '{organization}.repo.{domain}'
+    defaults:
+        domain: '%domain%'
+    requirements:
+        domain: "%domain%"

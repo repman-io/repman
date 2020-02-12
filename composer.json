@@ -127,6 +127,11 @@
         ],
         "security": [
             "bin/console security:check"
+        ],
+        "proxy-setup": [
+            "symfony proxy:start",
+            "symfony proxy:domain:attach repman",
+            "symfony proxy:domain:attach repo.repman"
         ]
     }
 }

@@ -25,7 +25,7 @@ final class ProxyController extends AbstractController
     }
 
     /**
-     * @Route("/packages.json", name="packages", methods={"GET"})
+     * @Route("/packages.json", host="repo.{domain}", name="packages", methods={"GET"}, defaults={"domain"="%domain%"}, requirements={"domain"="%domain%"})
      */
     public function packages(): JsonResponse
     {

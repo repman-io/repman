@@ -10,12 +10,14 @@ final class Organization implements UserInterface
 {
     private string $id;
     private string $name;
+    private string $alias;
     private string $token;
 
-    public function __construct(string $id, string $name, string $token)
+    public function __construct(string $id, string $name, string $alias, string $token)
     {
         $this->id = $id;
         $this->name = $name;
+        $this->alias = $alias;
         $this->token = $token;
     }
 
@@ -29,11 +31,6 @@ final class Organization implements UserInterface
         return $this->name;
     }
 
-    public function token(): string
-    {
-        return $this->token;
-    }
-
     public function getRoles()
     {
         return ['ROLE_ORGANIZATION'];
@@ -41,7 +38,7 @@ final class Organization implements UserInterface
 
     public function getPassword()
     {
-        return null;
+        return $this->token;
     }
 
     public function getSalt()
@@ -51,7 +48,7 @@ final class Organization implements UserInterface
 
     public function getUsername()
     {
-        return $this->token;
+        return $this->alias;
     }
 
     public function eraseCredentials(): void

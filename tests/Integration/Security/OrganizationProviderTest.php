@@ -28,14 +28,13 @@ final class OrganizationProviderTest extends IntegrationTestCase
 
         self::assertEquals('buddy', $organization->name());
         self::assertEquals($org1Id, $organization->id());
-        self::assertEquals('org1-token', $organization->token());
-        self::assertEquals(null, $organization->getPassword());
+        self::assertEquals('org1-token', $organization->getPassword());
         self::assertEquals('', $organization->getSalt());
-        self::assertEquals('org1-token', $organization->getUsername());
+        self::assertEquals('buddy', $organization->getUsername());
 
         self::assertEquals($organization, $provider->refreshUser($organization));
 
         $this->expectException(UsernameNotFoundException::class);
-        $provider->refreshUser(new Organization(Uuid::uuid4()->toString(), 'evil', 'not-exist'));
+        $provider->refreshUser(new Organization(Uuid::uuid4()->toString(), 'evil', 'evil', 'not-exist'));
     }
 }

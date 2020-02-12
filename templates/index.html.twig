@@ -15,7 +15,7 @@ composer global require buddy-works/repman-composer-plugin</pre>
         <pre>
 {
     "repositories": [
-        {"type": "composer", "url": "{{ indexUrl }}"},
+        {"type": "composer", "url": "{{ url('proxy_repo_url') | trim('/') }}"},
         {"packagist": false}
     ]
 }</pre></div>

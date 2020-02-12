@@ -7,7 +7,6 @@ namespace Buddy\Repman\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class IndexController extends AbstractController
 {
@@ -16,6 +15,6 @@ final class IndexController extends AbstractController
      */
     public function index(): Response
     {
-        return $this->render('index.html.twig', ['indexUrl' => $this->generateUrl('index', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
+        return $this->render('index.html.twig');
     }
 }
