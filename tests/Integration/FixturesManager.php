@@ -9,6 +9,7 @@ use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
@@ -83,6 +84,11 @@ final class FixturesManager
         );
 
         return $id;
+    }
+
+    public function disableUser(string $id): void
+    {
+        $this->dispatchMessage(new DisableUser($id));
     }
 
     public function syncPackageWithError(string $packageId, string $error): void

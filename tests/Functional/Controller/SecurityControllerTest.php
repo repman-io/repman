@@ -59,6 +59,40 @@ final class SecurityControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Invalid CSRF token.', $this->lastResponseBody());
     }
 
+    public function testDisabledUserLogin(): void
+    {
+        $id = $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->fixtures->disableUser($id);
+
+        $this->client->request('GET', $this->urlTo('app_login'));
+        $this->client->submitForm('Sign in', [
+            'email' => $email,
+            'password' => $password,
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+        $this->client->followRedirect();
+        self::assertStringContainsString('Account is disabled.', $this->lastResponseBody());
+    }
+
+    public function testDisabledUserHasNoAccess(): void
+    {
+        $id = $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
+
+        $this->client->request('GET', $this->urlTo('app_login'));
+        $this->client->submitForm('Sign in', [
+            'email' => $email,
+            'password' => $password,
+        ]);
+
+        $this->client->followRedirect();
+        $this->fixtures->disableUser($id);
+        $this->client->request('GET', '/admin/dist');
+
+        // redirected back to login screen
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+    }
+
     public function testSuccessfulLogin(): void
     {
         $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');

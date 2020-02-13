@@ -158,6 +158,11 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
+        // deny all access
+        if ($this->isDisabled()) {
+            return [];
+        }
+
         $roles = $this->roles;
         // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
@@ -230,5 +235,10 @@ class User implements UserInterface
         $this->status = self::STATUS_ENABLED;
 
         return $this;
+    }
+
+    public function isDisabled(): bool
+    {
+        return $this->status === self::STATUS_DISABLED;
     }
 }
