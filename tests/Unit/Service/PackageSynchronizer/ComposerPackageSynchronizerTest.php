@@ -4,22 +4,34 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
-use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Service\Dist\Storage\FileStorage;
+use Buddy\Repman\Service\Organization\PackageManager;
+use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
+use Buddy\Repman\Tests\Doubles\FakeDownloader;
+use Buddy\Repman\Tests\MotherObject\PackageMother;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
+    private ComposerPackageSynchronizer $synchronizer;
+    private string $baseDir;
+
+    protected function setUp(): void
+    {
+        $this->baseDir = sys_get_temp_dir().'/repman';
+        $this->synchronizer = new ComposerPackageSynchronizer(
+            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
+            new PackageNormalizer()
+        );
+    }
+
     public function testSynchronizePackageFromLocalPath(): void
     {
-        $dir = sys_get_temp_dir().'/repman';
-        $path = $dir.'/local/buddy-works/repman.json';
+        $path = $this->baseDir.'/buddy/p/buddy-works/repman.json';
         @unlink($path);
-        $synchronizer = new ComposerPackageSynchronizer($dir);
 
-        $package = new Package(Uuid::uuid4(), 'path', __DIR__.'/../../../../');
-        $synchronizer->synchronize($package);
+        $this->synchronizer->synchronize(PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy'));
 
         self::assertFileExists($path);
 
@@ -30,24 +42,17 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
     public function testSynchronizeError(): void
     {
-        $dir = sys_get_temp_dir().'/repman';
-        $synchronizer = new ComposerPackageSynchronizer($dir);
-
-        $package = new Package(Uuid::uuid4(), 'artifact', '/non/exist/path');
-        $synchronizer->synchronize($package);
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', '/non/exist/path', 'buddy'));
         // exception was not throw
         self::assertTrue(true);
     }
 
     public function testSynchronizePackageFromArtifacts(): void
     {
-        $dir = sys_get_temp_dir().'/repman';
-        $path = $dir.'/local/buddy-works/alpha.json';
+        $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($path);
-        $synchronizer = new ComposerPackageSynchronizer($dir);
 
-        $package = new Package(Uuid::uuid4(), 'artifact', __DIR__.'/../../../Resources/artifacts');
-        $synchronizer->synchronize($package);
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
 
         self::assertFileExists($path);
 

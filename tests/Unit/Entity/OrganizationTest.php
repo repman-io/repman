@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Entity;
 
 use Buddy\Repman\Entity\Organization;
-use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
 use Buddy\Repman\Entity\User;
+use Buddy\Repman\Tests\MotherObject\PackageMother;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -33,7 +33,7 @@ final class OrganizationTest extends TestCase
 
     public function testOrganizationAddSamePackage(): void
     {
-        $package = new Package(Uuid::uuid4(), 'vcs', 'https://repman.buddy.works');
+        $package = PackageMother::some();
 
         $this->org->addPackage($package);
         $this->org->addPackage($package); // this should not throw exception

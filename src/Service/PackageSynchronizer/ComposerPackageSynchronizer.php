@@ -5,26 +5,26 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Service\Organization\PackageManager;
+use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Composer\Config;
 use Composer\Factory;
 use Composer\IO\BufferIO;
 use Composer\Package\CompletePackage;
-use Composer\Package\Dumper\ArrayDumper;
-use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class ComposerPackageSynchronizer implements PackageSynchronizer
 {
-    private string $baseDir;
-    private ArrayDumper $dumper;
+    private PackageManager $packageManager;
+    private PackageNormalizer $packageNormalizer;
 
-    public function __construct(string $baseDir)
+    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer)
     {
-        $this->baseDir = $baseDir;
-        $this->dumper = new ArrayDumper();
+        $this->packageManager = $packageManager;
+        $this->packageNormalizer = $packageNormalizer;
     }
 
     public function synchronize(Package $package): void
@@ -40,7 +40,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $latest = current($packages);
 
             foreach ($packages as $p) {
-                $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->dumper->dump($p);
+                $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->packageNormalizer->normalize($p);
                 if ($p->getReleaseDate() > $latest->getReleaseDate()) {
                     $latest = $p;
                 }
@@ -53,7 +53,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );
 
-            $this->saveProvider($json, $latest);
+            $this->packageManager->saveProvider($json, $package->organizationAlias(), $latest->getPrettyName());
         } catch (\Throwable $exception) {
             $package->syncFailure(sprintf("Error: %s\nLogs:\n%s", $exception->getMessage(), $io->getOutput()));
         }
@@ -68,21 +68,5 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         ]]);
 
         return $config;
-    }
-
-    /**
-     * @param mixed[] $json
-     */
-    private function saveProvider(array $json, PackageInterface $latest): void
-    {
-        $host = parse_url((string) $latest->getSourceUrl(), PHP_URL_HOST) ?? 'local';
-        $filepath = $this->baseDir.'/'.$host.'/'.$latest->getPrettyName().'.json';
-
-        $dir = dirname($filepath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-
-        file_put_contents($filepath, serialize($json));
     }
 }

@@ -60,7 +60,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/dists/{package}/{version}/{ref}.{type}",
      *     name="package_dist",
-     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar"},
+     *     host="repo.{domain}",
+     *     defaults={"domain"="%domain%"},
+     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%"},
      *     methods={"GET"})
      */
     public function distribution(string $package, string $version, string $ref, string $type): BinaryFileResponse

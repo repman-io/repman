@@ -131,7 +131,8 @@
         "proxy-setup": [
             "symfony proxy:start",
             "symfony proxy:domain:attach repman",
-            "symfony proxy:domain:attach repo.repman"
+            "symfony proxy:domain:attach repo.repman",
+            "export HTTPS_PROXY=http://127.0.0.1:7080"
         ]
     }
 }

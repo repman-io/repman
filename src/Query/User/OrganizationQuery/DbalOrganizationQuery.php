@@ -52,7 +52,11 @@ final class DbalOrganizationQuery implements OrganizationQuery
                 new \DateTimeImmutable($data['created_at']),
                 $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
             );
-        }, $this->connection->fetchAll('SELECT name, value, created_at, last_used_at FROM organization_token WHERE organization_id = :id', [
+        }, $this->connection->fetchAll('
+            SELECT name, value, created_at, last_used_at 
+            FROM organization_token 
+            WHERE organization_id = :id
+            ORDER BY name ASC', [
             ':id' => $organizationId,
         ]));
     }

@@ -29,6 +29,7 @@ final class DbalPackageQuery implements PackageQuery
             'SELECT id, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error
             FROM "organization_package"
             WHERE organization_id = :organization_id
+            ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
                 ':organization_id' => $organizationId,
                 ':limit' => $limit,

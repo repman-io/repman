@@ -45,11 +45,6 @@ This will create `repman.wip` domain. Then you can add other domains with:
 symfony proxy:domain:attach your-organization.repman
 ```
 
-To test it with composer, you must use `HTTPS_PROXY` env variable:
-```
-HTTPS_PROXY=http://127.0.0.1:7080 composer update mirrors
-```
-
 ### CLI commands
 
  - `bin/console repman:metadata:clear-cache` - clear packages metadata cache (json files)

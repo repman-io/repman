@@ -7,7 +7,8 @@ parameters:
     package_name_pattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?'
     organization_pattern: '[a-z0-9_-]+' # remember to change in security.yaml (access_control)
     uuid_pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
-    dists_dir: '%kernel.project_dir%/var/repo'
+    dists_dir: '%kernel.project_dir%/var/proxy'
+    repo_dir: '%kernel.project_dir%/var/repo'
     domain: '%env(resolve:APP_HOST)%'
 
 services:
@@ -38,14 +39,19 @@ services:
         arguments:
             - '%dists_dir%'
 
-    Buddy\Repman\Service\PackageSynchronizer:
-        class: Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer
-        arguments:
-            - '%dists_dir%'
-
     Buddy\Repman\Service\Dist\Storage:
         class: Buddy\Repman\Service\Dist\Storage\FileStorage
+
+    repman.organization.dist_storage:
+        class: Buddy\Repman\Service\Dist\Storage\FileStorage
+        arguments:
+            $distsDir: '%repo_dir%'
 
     Buddy\Repman\Service\Mailer\SymfonyMailer:
         arguments:
             $sender: '%env(resolve:MAILER_SENDER)%'
+
+    Buddy\Repman\Service\Organization\PackageManager:
+        arguments:
+            $baseDir: '%repo_dir%'
+            $distStorage: '@repman.organization.dist_storage'

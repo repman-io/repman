@@ -115,4 +115,9 @@ class Package
         $this->lastSyncAt = new \DateTimeImmutable();
         $this->lastSyncError = $error;
     }
+
+    public function organizationAlias(): string
+    {
+        return $this->organization->alias();
+    }
 }

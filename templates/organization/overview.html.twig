@@ -8,13 +8,12 @@
             <p>Configure authentication globally to access this organization packages:</p>
         <div class="highlight"><pre>
 composer config --global --auth http-basic.{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }} token <span class="token d-none">{{ organization.token }}</span><button class="btn btn-primary btn-sm show-token">Show token</button></pre></div>
-            <p>Then add this lines to your composer.json file:</p>
+            <p>Then add this lines to your composer.json file (or add new repository url if you already have one or more):</p>
             <div class="highlight">
         <pre>
 {
     "repositories": [
-        {"type": "composer", "url": "{{ url('organization_repo_url', {organization: organization.alias}) | trim('/') }}"},
-        {"packagist": false}
+        {"type": "composer", "url": "{{ url('organization_repo_url', {organization: organization.alias}) | trim('/') }}"}
     ]
 }</pre></div>
 
