@@ -12,6 +12,7 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\RegenerateToken;
+use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
@@ -215,5 +216,26 @@ final class OrganizationController extends AbstractController
         $this->addFlash('success', 'Token has been successfully removed');
 
         return $this->redirectToRoute('organization_tokens', ['organization' => $organization->alias()]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/settings", name="organization_settings", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function settings(Organization $organization): Response
+    {
+        return $this->render('organization/settings.html.twig', [
+            'organization' => $organization,
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}", name="organization_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function removeOrganization(Organization $organization, Request $request): Response
+    {
+        $this->dispatchMessage(new RemoveOrganization($organization->id()));
+        $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));
+
+        return $this->redirectToRoute('index');
     }
 }

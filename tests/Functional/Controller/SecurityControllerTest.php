@@ -103,7 +103,7 @@ final class SecurityControllerTest extends FunctionalTestCase
             'password' => $password,
         ]);
 
-        self::assertTrue($this->client->getResponse()->isRedirect('/'));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
 
         $this->client->request('GET', '/admin/dist');
         self::assertTrue($this->client->getResponse()->isOk());

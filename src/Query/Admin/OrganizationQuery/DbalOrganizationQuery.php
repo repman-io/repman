@@ -25,9 +25,12 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return array_map(function (array $data): Organization {
             return $this->hydrateOrganization($data);
         }, $this->connection->fetchAll(
-            'SELECT o.id, o.name, o.alias, u.email owner_email
-            FROM "organization" AS o
-            JOIN "user" AS u ON u.id = o.owner_id
+            'SELECT o.id, o.name, o.alias, u.email owner_email, COUNT(p.id) packages_count
+            FROM "organization" o
+            JOIN "user" u ON u.id = o.owner_id
+            LEFT JOIN "organization_package" p ON p.organization_id = o.id
+            GROUP BY o.id, u.email
+            ORDER BY o.alias
             LIMIT :limit OFFSET :offset',
             [
                 ':limit' => $limit,
@@ -53,6 +56,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['name'],
             $data['alias'],
             $data['owner_email'],
+            $data['packages_count'],
         );
     }
 }

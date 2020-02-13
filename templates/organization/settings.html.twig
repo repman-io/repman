@@ -1,0 +1,20 @@
+{% extends "base.html.twig" %}
+
+{% block header %} {{ organization.name }} settings:{% endblock %}
+
+{% block content %}
+<div class="markdown">
+    <div class="alert alert-danger" role="alert">
+        This action is irreversible, all your data (packages, tokens etc.) will be permanently deleted.
+    </div>
+    <button
+        class="btn btn-danger"
+        type="button"
+        data-target="confirmation"
+        data-action="{{ path('organization_remove', {organization: organization.alias }) }}"
+        data-method="DELETE"
+    >
+        Delete Organization
+    </button>
+</div>
+{% endblock %}

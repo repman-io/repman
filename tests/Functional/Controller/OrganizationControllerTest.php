@@ -278,4 +278,37 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
         self::assertStringNotContainsString('secret-token', $this->lastResponseBody());
     }
+
+    public function testSettings(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testRemoveOrganization(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->request('DELETE', $this->urlTo('organization_remove', [
+            'organization' => 'buddy',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->client->followRedirect();
+
+        self::assertStringContainsString('Organization buddy has been successfully removed', $this->lastResponseBody());
+    }
+
+    public function testRemoveForbiddenOrganization(): void
+    {
+        $otherId = $this->fixtures->createAdmin('cto@buddy.works', 'strong');
+        $this->fixtures->createOrganization('buddy', $otherId);
+
+        $this->client->request('DELETE', $this->urlTo('organization_remove', [
+            'organization' => 'buddy',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isForbidden());
+    }
 }

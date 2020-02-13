@@ -10,18 +10,15 @@ final class Organization
     private string $name;
     private string $alias;
     private string $ownerEmail;
+    private int $packagesCount;
 
-    public function __construct(string $id, string $name, string $alias, string $ownerEmail)
+    public function __construct(string $id, string $name, string $alias, string $ownerEmail, int $packagesCount)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
         $this->ownerEmail = $ownerEmail;
-    }
-
-    public function id(): string
-    {
-        return $this->id;
+        $this->packagesCount = $packagesCount;
     }
 
     public function name(): string
@@ -37,5 +34,10 @@ final class Organization
     public function ownerEmail(): string
     {
         return $this->ownerEmail;
+    }
+
+    public function packagesCount(): int
+    {
+        return $this->packagesCount;
     }
 }

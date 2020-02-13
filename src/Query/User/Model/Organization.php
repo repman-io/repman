@@ -41,11 +41,6 @@ final class Organization
         return $this->token;
     }
 
-    public function hasToken(): bool
-    {
-        return $this->token !== null;
-    }
-
     public function isOwnedBy(string $userId): bool
     {
         return $this->ownerId === $userId;

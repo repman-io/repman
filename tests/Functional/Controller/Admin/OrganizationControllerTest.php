@@ -26,4 +26,16 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Organizations', $this->lastResponseBody());
         self::assertStringContainsString('Acme', $this->lastResponseBody());
     }
+
+    public function testRemoveOrganization(): void
+    {
+        $this->client->request('DELETE', $this->urlTo('admin_organization_remove', [
+            'organization' => 'acme',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_organization_list')));
+        $this->client->followRedirect();
+
+        self::assertStringContainsString('Organization Acme has been successfully removed', $this->lastResponseBody());
+    }
 }
