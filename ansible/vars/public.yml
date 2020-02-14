@@ -1,0 +1,56 @@
+---
+server:
+    packages: [curl, wget, git, vim, acl, bzip2, software-properties-common]
+    timezone: Europe/Warsaw
+    locale: en_US en_US.UTF-8 pl_PL pl_PL.UTF-8
+
+system_user: repman
+app_git_repo: 'buddy@sls.io:beta/repman'
+app_git_branch: master
+app_version: "{{ app_git_branch }}"
+app_root: /var/www/repman
+app_secret: 'c6bd0523-77dd-4201-9c62-47a71234d0a5'
+nginx_servername: 'repman.io'
+
+nginx_client_max_body_size: 200M
+php_owner: "{{ system_user }}"
+php_group: "{{ system_user }}"
+php_fastcgi_listen: "/run/php-fpm/www.sock"
+
+# Database
+db_host: localhost
+db_port: 5432
+db_name: main
+db_user: repman
+db_password: password
+
+# Postgres
+postgresql_version: 11
+postgresql_port: "{{ db_port }}"
+postgresql_encoding: 'UTF-8'
+postgresql_locale: 'en_US.UTF-8'
+postgresql_ctype: 'en_US.UTF-8'
+
+postgresql_admin_user: "postgres"
+postgresql_default_auth_method: "trust"
+
+postgresql_service_enabled: true
+
+postgresql_cluster_name: "main"
+postgresql_cluster_reset: false
+
+postgresql_databases:
+  - name: "{{ db_name }}"
+    owner: "{{ db_user }}"
+    uuid_ossp: yes
+
+postgresql_users:
+  - name: "{{ db_user }}"
+    pass: "{{ db_password }}"
+
+postgresql_user_privileges:
+  - name: "{{ db_user }}"
+    db: "{{ db_name }}"
+    priv: "ALL"                 # privilege string format: example: INSERT,UPDATE/table:SELECT/anothertable:ALL
+    role_attr_flags: "CREATEDB" # role attribute flags
+

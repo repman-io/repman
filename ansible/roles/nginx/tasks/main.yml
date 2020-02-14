@@ -1,0 +1,23 @@
+---
+- name: Install Nginx
+  become: yes
+  apt:
+    name: nginx
+    state: present
+
+- name: Ensure nginx is running
+  become: yes
+  service:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: Change default nginx site
+  become: yes
+  template: src=nginx.conf dest=/etc/nginx/nginx.conf
+  notify: restart nginx
+
+- name: The Diffie-Hellman parameter file is generated
+  command: "openssl dhparam -out '{{ dhparam_file }}' {{ dhparam_size }}"
+  args:
+    creates: "{{ dhparam_file }}"

@@ -1,0 +1,83 @@
+- name: Make sure openssl exists
+  yum:
+    name: openssl
+    state: present
+
+- name: Configure openssl
+  template:
+    src: openssl.cnf
+    dest: /etc/pki/tls/openssl.cnf
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Create index.txt file for CA
+  template:
+    src: index.txt
+    dest: /etc/pki/CA/index.txt
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Create serial file for CA
+  template:
+    src: serial
+    dest: /etc/pki/CA/serial
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Creating self-signed Certificate Authority (CA)
+  command: >
+    openssl req
+      -batch -sha256 -new -x509
+      -days 365
+      -extensions v3_ca
+      -passout pass:{{ openssl_ca_cert_password }}
+      -subj "/{{ openssl_ca_cert_location }}/CN={{ openssl_ca_cert_common_name }}/"
+      -keyout {{ openssl_cert_path }}{{ openssl_ca_cert_name }}.key
+      -out {{ openssl_cert_path }}{{ openssl_ca_cert_name }}.crt
+      creates={{ openssl_cert_path }}{{ openssl_ca_cert_name }}.crt
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Generate RSA key
+  command: >
+    openssl genrsa
+      -out {{ openssl_cert_path }}{{ openssl_cert_name }}.key
+      2048
+      creates={{ openssl_cert_path }}{{ openssl_cert_name }}.key
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Generate CSR
+  command: >
+    openssl req
+      -new -sha256
+      -subj "/{{ openssl_selfsigned_cert_location }}/CN={{ openssl_selfsigned_cert_common_name }}/"
+      -key {{ openssl_cert_path }}{{ openssl_cert_name }}.key
+      -out {{ openssl_cert_path }}{{ openssl_cert_name }}.csr
+      creates={{ openssl_cert_path }}{{ openssl_cert_name }}.csr
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Generate certificate signed with CA
+  command: >
+    openssl ca
+      -batch
+      -keyfile {{ openssl_cert_path }}{{ openssl_ca_cert_name }}.key
+      -cert {{ openssl_cert_path }}{{ openssl_ca_cert_name }}.crt
+      -out {{ openssl_cert_path }}{{ openssl_cert_name }}.pem
+      -in {{ openssl_cert_path }}{{ openssl_cert_name }}.csr
+      -passin pass:{{ openssl_ca_cert_password }}
+      creates={{ openssl_cert_path }}{{ openssl_cert_name }}.pem
+  when: openssl_generate_selfsigned_cert == true
+
+- name: Create ssl crt from template
+  copy:
+    content: "{{ openssl_cert_template_crt }}"
+    dest: "{{ openssl_cert_path }}{{ openssl_cert_name }}.pem"
+  when: openssl_cert_template_crt != ""
+
+- name: Create ssl key from template
+  copy:
+    content: "{{ openssl_cert_template_key }}"
+    dest: "{{ openssl_cert_path }}{{ openssl_cert_name }}.key"
+  when: openssl_cert_template_key != ""
+
+- name: Create ssl chain crt from template
+  copy:
+    content: "{{ openssl_cert_template_chain_crt }}"
+    dest: "{{ openssl_cert_path }}{{ openssl_cert_name }}.ca.pem"
+  when: openssl_cert_template_chain_crt != ""

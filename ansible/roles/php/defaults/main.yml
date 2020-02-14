@@ -1,0 +1,26 @@
+php_owner: 'nginx'
+php_group: 'nginx'
+
+php_listen_owner: 'nginx'
+php_listen_group: 'nginx'
+
+php_fastcgi_listen: "/run/php-fpm/www.sock"
+php_upload_max_filesize: "{{ nginx_client_max_body_size }}"
+php_post_max_size: "{{ nginx_client_max_body_size }}"
+php_memory_limit: "256M"
+php_max_execution_time: 30
+
+php_version: "7.4"
+
+php_packages:
+  - php{{ php_version }}-cli
+  - php{{ php_version }}-common
+  - php{{ php_version }}-fpm
+  - php{{ php_version }}-json
+  - php{{ php_version }}-opcache
+  - php{{ php_version }}-pdo
+  - php{{ php_version }}-pgsql
+  - php{{ php_version }}-xml
+  - php{{ php_version }}-intl
+  - php{{ php_version }}-mbstring
+  - php{{ php_version }}-zip

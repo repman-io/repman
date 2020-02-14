@@ -1,0 +1,105 @@
+- name: Disable port listen
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?listen = 127.0.0.1:9000'
+    line=';listen = 127.0.0.1:9000'
+    state=present
+  notify: restart php7-fpm
+
+- name: Enable socket listen
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?listen = /run/php-fpm/www.sock'
+    line='listen = {{ php_fastcgi_listen }}'
+    state=present
+  notify: restart php7-fpm
+
+- name: Set php-fpm user
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?user'
+    line='user = {{ php_owner }}'
+    state=present
+  notify: restart php7-fpm
+
+- name: Set php-fpm group
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?group'
+    line='group = {{ php_group }}'
+    state=present
+  notify: restart php7-fpm
+
+- name: Set permissions on socket - owner
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?listen.owner'
+    line='listen.owner = {{ php_listen_owner }}'
+    state=present
+  notify: restart php7-fpm
+
+- name: Set permissions on socket - group
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?listen.group'
+    line='listen.group = {{ php_listen_group }}'
+    state=present
+  notify: restart php7-fpm
+
+- name: Set permissions on socket - mode
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php-fpm.conf
+    regexp='^;?listen.mode'
+    line='listen.mode = 0660'
+    state=present
+  notify: restart php7-fpm
+
+- name: Set post_max_size
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php.ini
+    regexp='post_max_size(\s)?='
+    line='post_max_size = {{ php_post_max_size }}'
+  notify: restart php7-fpm
+
+- name: Set upload_max_filesize
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php.ini
+    regexp='upload_max_filesize(\s)?='
+    line='upload_max_filesize = {{ php_upload_max_filesize }}'
+  notify: restart php7-fpm
+
+- name: Set memory_limit
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php.ini
+    regexp='memory_limit(\s)?='
+    line='memory_limit = {{ php_memory_limit }}'
+  notify: restart php7-fpm
+
+- name: Set max_execution_time
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php.ini
+    regexp='max_execution_time(\s)?='
+    line='max_execution_time = {{ php_max_execution_time }}'
+  notify: restart php7-fpm
+
+- name: Set default timezone
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php.ini
+    regexp='^;?date.timezone(\s)?='
+    line='date.timezone = {{ server.timezone }}'
+  notify: restart php7-fpm
+
+- name: Hide X-Powered-By in reponse header
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/php.ini
+    regexp='expose_php(\s)?='
+    line='expose_php = off'
+  notify: restart php7-fpm
+
+- name: Set session dir permissions
+  file:
+    path: /var/lib/php/sessions
+    owner: "{{ php_owner }}"
+    group: "{{ php_group }}"
+    state: directory
+  notify: restart php7-fpm

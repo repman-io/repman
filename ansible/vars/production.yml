@@ -1,0 +1,5 @@
+---
+server_hostname: ''
+nginx_servername: "{{ server_hostname }}"
+nginx_vhost_ssl_key_path: /etc/ssl/{{ server_hostname }}.key
+nginx_vhost_ssl_crt_path: /etc/ssl/{{ server_hostname }}.pem
