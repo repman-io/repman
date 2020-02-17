@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dca116a176cee6329bef53ddb1d6ecbb",
+    "content-hash": "f586f3a0e0ed98780332acc394427090",
     "packages": [
         {
             "name": "cbschuld/browser.php",
@@ -2588,6 +2588,59 @@
                 "controllers"
             ],
             "time": "2019-12-27T08:57:19+00:00"
+        },
+        {
+            "name": "symfony/amazon-mailer",
+            "version": "v5.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/amazon-mailer.git",
+                "reference": "7c03667778e8529d9f681412345677a41096e2ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/amazon-mailer/zipball/7c03667778e8529d9f681412345677a41096e2ed",
+                "reference": "7c03667778e8529d9f681412345677a41096e2ed",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2.5",
+                "symfony/mailer": "^4.4|^5.0"
+            },
+            "require-dev": {
+                "symfony/http-client": "^4.4|^5.0"
+            },
+            "type": "symfony-bridge",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Mailer\\Bridge\\Amazon\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Amazon Mailer Bridge",
+            "homepage": "https://symfony.com",
+            "time": "2020-01-31T09:13:47+00:00"
         },
         {
             "name": "symfony/asset",
@@ -8721,8 +8774,8 @@
         "php": "^7.4.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "ext-zip": "*",
-        "ext-intl": "*"
+        "ext-intl": "*",
+        "ext-zip": "*"
     },
     "platform-dev": []
 }

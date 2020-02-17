@@ -339,6 +339,15 @@
             "config/packages/security_checker.yaml"
         ]
     },
+    "symfony/amazon-mailer": {
+        "version": "4.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.4",
+            "ref": "9648db3ecae5c8a6b1a5f74715d3907124348815"
+        }
+    },
     "symfony/asset": {
         "version": "v5.0.2"
     },
