@@ -1,0 +1,11 @@
+- name: Add PHP apt repository
+  apt_repository:
+    repo: 'ppa:ondrej/php'
+    state: present
+
+- name: Install PHP Packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_nested: "{{ php_packages }}"
+  notify: restart php7-fpm

@@ -1,0 +1,31 @@
+- name: Install Supervisor
+  become: yes
+  apt:
+    name: supervisor
+    state: present
+
+- name: Start Supervisor
+  become: yes
+  service:
+    state: started
+    name: supervisor
+    enabled: yes
+
+- name: Add supervisor config
+  become: yes
+  template:
+    src: "{{ item }}.conf"
+    dest: "/etc/supervisor/conf.d/{{ item }}.conf"
+  with_items:
+    - "{{ app_message_consumers_name }}"
+  notify: reload supervisor
+
+- meta: flush_handlers
+
+- name: Add message consumers
+  become: yes
+  supervisorctl:
+    name: "{{ item }}:"
+    state: present
+  with_items:
+    - "{{ app_message_consumers_name }}"

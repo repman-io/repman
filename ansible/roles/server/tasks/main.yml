@@ -1,0 +1,14 @@
+---
+- name: Install Packages
+  apt:
+    name: "{{ server.packages }}"
+    state: present
+  when: server.packages is defined
+
+#- name: Configure the timezone
+#  template: src=timezone.tpl dest=/etc/timezone
+
+- name: Create main system user
+  user:
+    name: "{{ system_user }}"
+    shell: /bin/bash

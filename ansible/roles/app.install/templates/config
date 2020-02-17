@@ -1,0 +1,4 @@
+host sls.io
+ HostName sls.io
+ IdentityFile ~/.ssh/deploy_key
+ User git

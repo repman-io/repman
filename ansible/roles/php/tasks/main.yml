@@ -1,0 +1,18 @@
+---
+- name: Run setup stage
+  include_tasks: setup.yml
+  tags: setup
+
+- name: Run configure stage
+  include_tasks: configure.yml
+  tags: config
+
+- name: Ensure php-fpm is running
+  become: yes
+  service:
+    name: php7.4-fpm
+    state: started
+    enabled: yes
+
+- name: Install composer
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer creates=/usr/local/bin/composer

@@ -1,0 +1,13 @@
+---
+- name: Fetch files from git
+  git:
+    repo: "{{ app_git_repo }}"
+    dest: "{{ app_root }}"
+    version: master
+    accept_hostkey: yes
+    force: yes
+  register: git_result
+
+- name: Overwrite app version with git sha-1
+  set_fact:
+    app_version: "{{ git_result.after }}"
