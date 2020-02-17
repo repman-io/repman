@@ -27,9 +27,8 @@
             <header class="topnav">
                 <div class="container">
                     <div class="navbar navbar-expand-lg navbar-light">
-                        <a href="{{ path('index') }}" class="navbar-brand mr-4">
-                            <h2 class="d-inline">Repman</h2>
-                            <small>PHP Repository Manager</small>
+                        <a href="{{ path('index') }}" class="logo">
+                            <img src="{{ asset('repman-horizontal.svg') }}" style="height: 3rem;" alt="Repman - PHP Repository manager" />
                         </a>
                         {% block user %}
                             {% include 'component/user.html.twig' %}

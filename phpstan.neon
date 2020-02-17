@@ -1,3 +1,5 @@
+includes:
+	- vendor/phpstan/phpstan/conf/bleedingEdge.neon
 parameters:
     autoload_files:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions

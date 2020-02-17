@@ -1,64 +1,49 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-card.html.twig' %}
 
 {% block title %}Log in! - Repman{% endblock %}
 
-{% block body %}
-<body class="antialiased border-top-wide border-primary">
-    <div class="d-flex h-auto min-h-full justify-content-center">
-        <div class="d-flex align-items-center justify-content-center flex-fill">
-            <div class="container">
-                <div class="row">
-                    <div class="col col-login mx-auto">
-                        <div class="text-center mb-4">
-                            <h2>Repman</h2>
-                        </div>
-                        <form class="card" method="post">
-                            <div class="card-body p-6">
-                                <div class="card-title">Login to your account</div>
+{% block card %}
+<form class="card" method="post">
+    <div class="card-body p-6">
+        <div class="card-title">Login to your account</div>
 
-                                {% include 'component/flash.html.twig' %}
+        {% include 'component/flash.html.twig' %}
 
-                                {% if error %}
-                                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                                {% endif %}
+        {% if error %}
+            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
 
-                                {% if app.user %}
-                                    <div class="mb-3">
-                                        You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
-                                    </div>
-                                {% endif %}
-
-                                <div class="mb-2">
-                                    <label for="inputEmail" class="form-label">Email address</label>
-                                    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Enter email" required autofocus>
-                                </div>
-                                <div class="mb-2">
-                                    <a href="{{ path('app_send_reset_password_link') }}" class="float-right small">I forgot password</a>
-                                    <label for="inputPassword" class="form-label">
-                                        Password
-                                    </label>
-                                    <input type="password" name="password" id="inputPassword" class="form-control" required autocomplete="off">
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" name="_remember_me"/>
-                                        <span class="custom-control-label">Remember me</span>
-                                    </label>
-                                </div>
-
-                                <div class="form-footer">
-                                    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-                                </div>
-
-                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                            </div>
-                        </form>
-                        {% include 'component/signUpLink.html.twig' %}
-                    </div>
-                </div>
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
             </div>
+        {% endif %}
+
+        <div class="mb-2">
+            <label for="inputEmail" class="form-label">Email address</label>
+            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Enter email" required autofocus>
         </div>
+        <div class="mb-2">
+            <a href="{{ path('app_send_reset_password_link') }}" class="float-right small">I forgot password</a>
+            <label for="inputPassword" class="form-label">
+                Password
+            </label>
+            <input type="password" name="password" id="inputPassword" class="form-control" required autocomplete="off">
+        </div>
+
+        <div class="mb-2">
+            <label class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" name="_remember_me"/>
+                <span class="custom-control-label">Remember me</span>
+            </label>
+        </div>
+
+        <div class="form-footer">
+            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+        </div>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
     </div>
-</body>
+</form>
+{% include 'component/signUpLink.html.twig' %}
 {% endblock %}

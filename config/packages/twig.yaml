@@ -1,3 +1,5 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
     form_themes: ['form/bootstrap_4_layout.html.twig']
+    paths:
+        '%kernel.project_dir%/public': public

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in! - Repman{% endblock %}
+
+{% block body %}
+    <body class="antialiased border-top-wide border-primary">
+    <div class="d-flex h-auto min-h-full justify-content-center">
+        <div class="d-flex align-items-center justify-content-center flex-fill">
+            <div class="container">
+                <div class="row">
+                    <div class="col col-login mx-auto">
+                        <div class="text-center mb-4">
+                            <a href="{{ url('index') }}">
+                                <img src="{{ asset('repman-vertical.svg') }}" style="height: 10rem;" alt="Repman - PHP Repository manager" />
+                            </a>
+                        </div>
+                        {% block card %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+{% endblock %}
