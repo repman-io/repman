@@ -1,15 +1,7 @@
-- name: Disable port listen
-  lineinfile: >
-    dest=/etc/php/7.4/fpm/php-fpm.conf
-    regexp='^;?listen = 127.0.0.1:9000'
-    line=';listen = 127.0.0.1:9000'
-    state=present
-  notify: restart php7-fpm
-
 - name: Enable socket listen
   lineinfile: >
     dest=/etc/php/7.4/fpm/php-fpm.conf
-    regexp='^;?listen = /run/php-fpm/www.sock'
+    regexp='^;?listen = '
     line='listen = {{ php_fastcgi_listen }}'
     state=present
   notify: restart php7-fpm

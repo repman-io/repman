@@ -1,10 +1,10 @@
-php_owner: 'nginx'
-php_group: 'nginx'
+php_owner: "{{ system_user }}"
+php_group: "{{ system_user }}"
 
-php_listen_owner: 'nginx'
-php_listen_group: 'nginx'
+php_listen_owner: 'www-data'
+php_listen_group: 'www-data'
 
-php_fastcgi_listen: "/run/php-fpm/www.sock"
+php_fastcgi_listen: "/run/php/www.sock"
 php_upload_max_filesize: "{{ nginx_client_max_body_size }}"
 php_post_max_size: "{{ nginx_client_max_body_size }}"
 php_memory_limit: "256M"

@@ -10,12 +10,10 @@ app_git_branch: master
 app_version: "{{ app_git_branch }}"
 app_root: /var/www/repman
 app_secret: 'c6bd0523-77dd-4201-9c62-47a71234d0a5'
-nginx_servername: 'repman.io'
+server_hostname: 'repman.io'
 
 nginx_client_max_body_size: 200M
-php_owner: "{{ system_user }}"
-php_group: "{{ system_user }}"
-php_fastcgi_listen: "/run/php-fpm/www.sock"
+app_message_consumers_name: message-consumer
 
 # Database
 db_host: localhost

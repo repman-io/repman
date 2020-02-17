@@ -8,16 +8,24 @@
   become: yes
   service:
     state: started
-    name: supervisord
+    name: supervisor
     enabled: yes
 
 - name: Add supervisor config
   become: yes
   template:
-    src: "{{ item }}.ini"
-    dest: "/etc/supervisord.d/{{ item }}.ini"
+    src: "{{ item }}.conf"
+    dest: "/etc/supervisor/conf.d/{{ item }}.conf"
   with_items:
     - "{{ app_message_consumers_name }}"
   notify: reload supervisor
 
 - meta: flush_handlers
+
+- name: Add message consumers
+  become: yes
+  supervisorctl:
+    name: "{{ item }}:"
+    state: present
+  with_items:
+    - "{{ app_message_consumers_name }}"

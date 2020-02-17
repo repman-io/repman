@@ -42,4 +42,4 @@
 
 - name: Install composer dependencies
   become_user: "{{ system_user }}"
-  composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes
+  composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes no_scripts=yes

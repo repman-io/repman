@@ -4,17 +4,18 @@
   become: true
   vars_files:
     - vars/public.yml
-    - vars/production.yml
   roles:
-#    - server
-#    - postgresql
-#    - nginx
-#    - php
+    - server
+    - postgresql
+    - openssl
+    - nginx
+    - php
     - app.install
+    - app.env
     - supervisor
   tasks:
     - name: Stop message consumers
-      become_user: ubuntu
+      become: true
       supervisorctl:
         name: "{{ item }}:"
         state: stopped
@@ -45,8 +46,14 @@
       args:
         chdir: "{{ app_root }}"
 
+    - name: Setup messenger transports
+      become_user: "{{ system_user }}"
+      command: bin/console messenger:setup-transports --no-interaction --env=prod
+      args:
+        chdir: "{{ app_root }}"
+
     - name: Start message consumers
-      become_user: root
+      become: true
       supervisorctl:
         name: "{{ item }}:"
         state: started

@@ -39,13 +39,13 @@ default_ca	= CA_default		# The default ca section
 ####################################################################
 [ CA_default ]
 
-dir		= /etc/pki/CA		# Where everything is kept
+dir		= /etc/ssl		# Where everything is kept
 certs		= $dir/certs		# Where the issued certs are kept
 crl_dir		= $dir/crl		# Where the issued crl are kept
 database	= $dir/index.txt	# database index file.
 #unique_subject	= no			# Set to 'no' to allow creation of
-					# several ctificates with same subject.
-new_certs_dir	= $dir/newcerts		# default place for new certs.
+					# several certs with same subject.
+new_certs_dir	= $dir/certs		# default place for new certs.
 
 certificate	= $dir/cacert.pem 	# The CA certificate
 serial		= $dir/serial 		# The current serial number
@@ -55,7 +55,7 @@ crl		= $dir/crl.pem 		# The current CRL
 private_key	= $dir/private/cakey.pem# The private key
 RANDFILE	= $dir/private/.rand	# private random number file
 
-x509_extensions	= v3_ca		# The extentions to add to the cert
+x509_extensions	= usr_cert		# The extensions to add to the cert
 
 # Comment out the following two lines for the "traditional"
 # (and highly broken) format.
@@ -63,7 +63,7 @@ name_opt 	= ca_default		# Subject Name options
 cert_opt 	= ca_default		# Certificate field options
 
 # Extension copying option: use with caution.
-copy_extensions = copy
+# copy_extensions = copy
 
 # Extensions to add to a CRL. Note: Netscape communicator chokes on V2 CRLs
 # so this is commented out by default to leave a V1 CRL.
@@ -72,7 +72,7 @@ copy_extensions = copy
 
 default_days	= 365			# how long to certify for
 default_crl_days= 30			# how long before next CRL
-default_md	= sha256		# use SHA-256 by default
+default_md	= default		# use public key default MD
 preserve	= no			# keep passed DN ordering
 
 # A few difference way of specifying how similar the request should look
@@ -104,11 +104,10 @@ emailAddress		= optional
 ####################################################################
 [ req ]
 default_bits		= 2048
-default_md		= sha256
 default_keyfile 	= privkey.pem
 distinguished_name	= req_distinguished_name
 attributes		= req_attributes
-x509_extensions	= v3_ca	# The extentions to add to the self signed cert
+x509_extensions	= v3_ca	# The extensions to add to the self signed cert
 
 # Passwords for private keys if not present they will be prompted for
 # input_password = secret
@@ -123,22 +122,21 @@ x509_extensions	= v3_ca	# The extentions to add to the self signed cert
 # WARNING: ancient versions of Netscape crash on BMPStrings or UTF8Strings.
 string_mask = utf8only
 
-req_extensions = v3_req # The extensions to add to a certificate request
+# req_extensions = v3_req # The extensions to add to a certificate request
 
 [ req_distinguished_name ]
 countryName			= Country Name (2 letter code)
-countryName_default		= XX
+countryName_default		= AU
 countryName_min			= 2
 countryName_max			= 2
 
 stateOrProvinceName		= State or Province Name (full name)
-#stateOrProvinceName_default	= Default Province
+stateOrProvinceName_default	= Some-State
 
 localityName			= Locality Name (eg, city)
-localityName_default		= Default City
 
 0.organizationName		= Organization Name (eg, company)
-0.organizationName_default	= Default Company Ltd
+0.organizationName_default	= Internet Widgits Pty Ltd
 
 # we can do this but it is not needed normally :-)
 #1.organizationName		= Second Organization Name (eg, company)
@@ -147,7 +145,7 @@ localityName_default		= Default City
 organizationalUnitName		= Organizational Unit Name (eg, section)
 #organizationalUnitName_default	=
 
-commonName			= Common Name (eg, your name or your server\'s hostname)
+commonName			= Common Name (e.g. server FQDN or YOUR name)
 commonName_max			= 64
 
 emailAddress			= Email Address
@@ -222,13 +220,11 @@ authorityKeyIdentifier=keyid,issuer
 
 basicConstraints = CA:FALSE
 keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-subjectAltName = @alternate_names
 
 [ v3_ca ]
 
-# Extensions for a typical CA
 
-subjectAltName = @alternate_names
+# Extensions for a typical CA
 
 
 # PKIX recommendation.
@@ -237,10 +233,6 @@ subjectKeyIdentifier=hash
 
 authorityKeyIdentifier=keyid:always,issuer
 
-# This is what PKIX recommends but some broken software chokes on critical
-# extensions.
-#basicConstraints = critical,CA:true
-# So we do this instead.
 basicConstraints = CA:true
 
 # Key usage: this is typical for a CA certificate. However since it will
@@ -339,11 +331,11 @@ signer_cert	= $dir/tsacert.pem 	# The TSA signing certificate
 certs		= $dir/cacert.pem	# Certificate chain to include in reply
 					# (optional)
 signer_key	= $dir/private/tsakey.pem # The TSA private key (optional)
-
+signer_digest  = sha256			# Signing digest to use. (Optional)
 default_policy	= tsa_policy1		# Policy if request did not specify it
 					# (optional)
 other_policies	= tsa_policy2, tsa_policy3	# acceptable policies (optional)
-digests		= sha1, sha256, sha384, sha512	# Acceptable message digests (mandatory)
+digests     = sha1, sha256, sha384, sha512  # Acceptable message digests (mandatory)
 accuracy	= secs:1, millisecs:500, microsecs:100	# (optional)
 clock_precision_digits  = 0	# number of digits after dot. (optional)
 ordering		= yes	# Is ordering defined for timestamps?
@@ -352,6 +344,3 @@ tsa_name		= yes	# Must the TSA name be included in the reply?
 				# (optional, default: no)
 ess_cert_id_chain	= no	# Must the ESS cert id chain be included?
 				# (optional, default: no)
-
-[ alternate_names ]
-DNS.0       = {{ server_hostname }}

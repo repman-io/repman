@@ -6,14 +6,13 @@
 
   vars_files:
     - vars/public.yml
-    - vars/staging.yml
   roles:
     - app.deploy
-    - app.setup
+    - app.env
   tasks:
     - name: Stop message consumers
       become: yes
-      become_user: ubuntu
+      become_user: root
       supervisorctl:
         name: "{{ item }}:"
         state: stopped
@@ -21,7 +20,7 @@
         - "{{ app_message_consumers_name }}"
 
     - name: Install composer dependencies
-      composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes
+      composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes no_scripts=yes
 
     - name: Clear doctrine metadata cache
       command: bin/console doctrine:cache:clear-metadata --env=prod --no-debug --flush
@@ -45,7 +44,7 @@
 
     - name: Start message consumers
       become: yes
-      become_user: ubuntu
+      become_user: root
       supervisorctl:
         name: "{{ item }}:"
         state: started

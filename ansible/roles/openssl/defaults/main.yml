@@ -1,7 +1,7 @@
 ---
 openssl_generate_selfsigned_cert: false
 
-openssl_selfsigned_cert_location: "C=US/ST=New York/L=New York City/O=Repman"
+openssl_selfsigned_cert_location: "C=PL/ST=Silesian/L=Bielsko Biala/O=Repman"
 openssl_selfsigned_cert_common_name: "example.com"
 
 openssl_ca_cert_location: "C=PL/ST=Silesian/L=Bielsko Biala/O=Repman"
@@ -9,7 +9,7 @@ openssl_ca_cert_common_name: "Buddy"
 openssl_ca_cert_password: "password"
 
 openssl_ca_cert_name: "ca_cert"
-openssl_cert_name: "self_signed_cert"
+openssl_cert_name: "{{ nginx_servername }}"
 openssl_cert_path: "/etc/ssl/"
 
 openssl_cert_template_chain_crt: ""

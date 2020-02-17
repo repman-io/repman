@@ -1,6 +1,0 @@
----
-nginx_servername: 'repman.lan'
-
-nginx_vhost_ssl_key_path: /etc/ssl/{{ nginx_servername }}.key
-nginx_vhost_ssl_crt_path: /etc/ssl/{{ nginx_servername }}.pem
-openssl_ca_cert_password: ""
