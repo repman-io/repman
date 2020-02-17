@@ -11,11 +11,18 @@ use Twig\Loader\ArrayLoader;
 
 final class DateExtensionTest extends TestCase
 {
+    private DateExtension $extension;
+    private Environment $env;
+
+    protected function setUp(): void
+    {
+        $this->extension = new DateExtension();
+        $this->env = new Environment(new ArrayLoader());
+    }
+
     public function testGetFilters(): void
     {
-        $extension = new DateExtension();
-
-        self::assertEquals('time_diff', $extension->getFilters()[0]->getName());
+        self::assertEquals('time_diff', $this->extension->getFilters()[0]->getName());
     }
 
     /**
@@ -23,10 +30,7 @@ final class DateExtensionTest extends TestCase
      */
     public function testTimeDiff(string $excpeted, \DateTimeImmutable $dateTime): void
     {
-        $extension = new DateExtension();
-        $env = new Environment(new ArrayLoader());
-
-        self::assertEquals($excpeted, $extension->diff($env, $dateTime));
+        self::assertEquals($excpeted, $this->extension->diff($this->env, $dateTime));
     }
 
     /**

@@ -20,7 +20,7 @@
         - "{{ app_message_consumers_name }}"
 
     - name: Install composer dependencies
-      composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes no_scripts=yes
+      composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes
 
     - name: Clear doctrine metadata cache
       command: bin/console doctrine:cache:clear-metadata --env=prod --no-debug --flush
