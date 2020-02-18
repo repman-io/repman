@@ -55,7 +55,10 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             $this->packageManager->saveProvider($json, $package->organizationAlias(), $latest->getPrettyName());
         } catch (\Throwable $exception) {
-            $package->syncFailure(sprintf("Error: %s\nLogs:\n%s", $exception->getMessage(), $io->getOutput()));
+            $package->syncFailure(sprintf('Error: %s%s',
+                $exception->getMessage(),
+                strlen($io->getOutput()) > 1 ? "\nLogs:\n".$io->getOutput() : ''
+            ));
         }
     }
 

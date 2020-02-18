@@ -74,12 +74,18 @@
     line='max_execution_time = {{ php_max_execution_time }}'
   notify: restart php7-fpm
 
-- name: Set default timezone
+- name: Set default timezone for FPM
   lineinfile: >
     dest=/etc/php/7.4/fpm/php.ini
     regexp='^;?date.timezone(\s)?='
     line='date.timezone = {{ server.timezone }}'
   notify: restart php7-fpm
+
+- name: Set default timezone for CLI
+  lineinfile: >
+    dest=/etc/php/7.4/cli/php.ini
+    regexp='^;?date.timezone(\s)?='
+    line='date.timezone = {{ server.timezone }}'
 
 - name: Hide X-Powered-By in reponse header
   lineinfile: >

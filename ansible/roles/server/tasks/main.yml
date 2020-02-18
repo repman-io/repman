@@ -5,8 +5,9 @@
     state: present
   when: server.packages is defined
 
-#- name: Configure the timezone
-#  template: src=timezone.tpl dest=/etc/timezone
+- name: Configure the timezone
+  timezone:
+    name: "{{ server.timezone }}"
 
 - name: Create main system user
   user:

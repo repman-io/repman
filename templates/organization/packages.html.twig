@@ -42,6 +42,7 @@
                     <td>
                         {% if package.lastSyncError %}
                             <div class="badge bg-danger">Synchronization error</div>
+                            <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date('Y-m-d H:i:s') }}">{{ package.lastSyncAt | time_diff }}</small>
                             <div class="highlight p-3 font-monospace" style="font-size: 0.6em;">
                                 {{ package.lastSyncError | nl2br }}
                             </div>
