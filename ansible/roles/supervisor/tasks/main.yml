@@ -18,9 +18,6 @@
     dest: "/etc/supervisor/conf.d/{{ item }}.conf"
   with_items:
     - "{{ app_message_consumers_name }}"
-  notify: reload supervisor
-
-- meta: flush_handlers
 
 - name: Add message consumers
   become: yes

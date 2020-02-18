@@ -1,3 +1,0 @@
-- name: reload supervisor
-  become: yes
-  command: supervisorctl reload
