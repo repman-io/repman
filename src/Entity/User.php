@@ -70,7 +70,7 @@ class User implements UserInterface
 
     /**
      * @var Collection<int,Organization>|Organization[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization", mappedBy="owner")
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization", mappedBy="owner", orphanRemoval=true)
      */
     private Collection $organizations;
 
@@ -240,5 +240,10 @@ class User implements UserInterface
     public function isDisabled(): bool
     {
         return $this->status === self::STATUS_DISABLED;
+    }
+
+    public function changePassword(string $password): void
+    {
+        $this->password = $password;
     }
 }

@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block header %}Profile{% endblock %}
+
+{% block content %}
+<h3>Change password</h3>
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        {{ form(form) }}
+    </div>
+</div>
+
+<hr/>
+
+<h3>Delete Account</h3>
+<div class="alert alert-danger" role="alert">
+    This action is irreversible, all your data (organizations, packages, tokens etc.) will be permanently deleted.
+</div>
+<button
+    class="btn btn-danger"
+    type="button"
+    data-target="confirmation"
+    data-action="{{ url('user_profile') }}"
+    data-method="DELETE"
+>
+    Delete Account
+</button>
+{% endblock %}
