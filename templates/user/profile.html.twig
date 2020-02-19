@@ -3,6 +3,24 @@
 {% block header %}Profile{% endblock %}
 
 {% block content %}
+
+{% if not is_user_confirmed %}
+    <h3>Verify your email address</h3>
+    <div class="alert alert-warning">
+        Please click the activation link for <strong>{{ "asd@asd.pl" }}</strong> to verify your email.
+    </div>
+    <button
+        class="btn btn-warning"
+        type="button"
+        data-target="confirmation"
+        data-action="{{ url('user_resend_verification') }}"
+        data-method="POST"
+    >
+        Resend verification email
+    </button>
+    <hr/>
+{% endif %}
+
 <h3>Change password</h3>
 <div class="row">
     <div class="col-md-6 col-lg-4">
@@ -20,7 +38,7 @@
     class="btn btn-danger"
     type="button"
     data-target="confirmation"
-    data-action="{{ url('user_profile') }}"
+    data-action="{{ url('user_remove') }}"
     data-method="DELETE"
 >
     Delete Account

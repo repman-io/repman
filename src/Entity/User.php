@@ -131,6 +131,16 @@ class User implements UserInterface
         return $this->emailConfirmedAt;
     }
 
+    public function emailConfirmToken(): string
+    {
+        return $this->emailConfirmToken;
+    }
+
+    public function isEmailConfirmed(): bool
+    {
+        return !is_null($this->emailConfirmedAt());
+    }
+
     public function id(): UuidInterface
     {
         return $this->id;

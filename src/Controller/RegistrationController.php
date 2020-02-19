@@ -52,6 +52,7 @@ class RegistrationController extends AbstractController
                 $confirmToken
             ));
 
+            $this->addFlash('warning', "Please click the activation link for {$email} to verify your email.");
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');
             $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getByEmail($email), 'main'), $request);
 

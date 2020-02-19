@@ -7,12 +7,12 @@ namespace Buddy\Repman\Message\User;
 final class ChangePassword
 {
     private string $userId;
-    private string $password;
+    private string $plainPassword;
 
-    public function __construct(string $userId, string $password)
+    public function __construct(string $userId, string $plainPassword)
     {
         $this->userId = $userId;
-        $this->password = $password;
+        $this->plainPassword = $plainPassword;
     }
 
     public function userId(): string
@@ -20,8 +20,8 @@ final class ChangePassword
         return $this->userId;
     }
 
-    public function password(): string
+    public function plainPassword(): string
     {
-        return $this->password;
+        return $this->plainPassword;
     }
 }

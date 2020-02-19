@@ -46,8 +46,19 @@ final class UserControllerTest extends FunctionalTestCase
     public function testRemoveAccount(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);
-        $this->client->request('DELETE', $this->urlTo('user_profile'));
+        $this->client->request('DELETE', $this->urlTo('user_remove'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+    }
+
+    public function testResendEmailVerification(): void
+    {
+        $this->client->request('POST', $this->urlTo('user_resend_verification'));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_profile')));
+
+        $this->client->followRedirect();
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Email sent successfully', $this->lastResponseBody());
     }
 }

@@ -25,7 +25,7 @@ final class ChangePasswordHandler implements MessageHandlerInterface
     {
         $user = $this->users->getById(Uuid::fromString($message->userId()));
         $user->changePassword(
-            $this->encoder->encodePassword($user, $message->password())
+            $this->encoder->encodePassword($user, $message->plainPassword())
         );
     }
 }
