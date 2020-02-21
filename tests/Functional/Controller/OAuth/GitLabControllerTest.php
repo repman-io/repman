@@ -4,33 +4,33 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\OAuth;
 
-use Buddy\Repman\Tests\Doubles\GitHubOAuth;
+use Buddy\Repman\Tests\Doubles\GitLabOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use GuzzleHttp\Psr7\Response;
 
-final class GitHubControllerTest extends FunctionalTestCase
+final class GitLabControllerTest extends FunctionalTestCase
 {
-    public function testStartRegisterWithGitHub(): void
+    public function testStartRegisterWithGitLab(): void
     {
-        $this->client->request('GET', $this->urlTo('register_github_start'));
+        $this->client->request('GET', $this->urlTo('register_gitlab_start'));
         $response = $this->client->getResponse();
 
-        self::assertStringContainsString('github.com', (string) $response->headers->get('location'));
+        self::assertStringContainsString('gitlab.com', (string) $response->headers->get('location'));
     }
 
-    public function testStartAuthWithGitHub(): void
+    public function testStartAuthWithGitLab(): void
     {
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request('GET', $this->urlTo('auth_gitlab_start'));
         $response = $this->client->getResponse();
 
-        self::assertStringContainsString('github.com', (string) $response->headers->get('location'));
+        self::assertStringContainsString('gitlab.com', (string) $response->headers->get('location'));
     }
 
     public function testRedirectToIndexWhenAlreadyLogged(): void
     {
         $this->createAndLoginAdmin();
-        $this->client->request('GET', $this->urlTo('register_github_check'));
+        $this->client->request('GET', $this->urlTo('register_gitlab_check'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
     }
@@ -39,13 +39,11 @@ final class GitHubControllerTest extends FunctionalTestCase
     {
         $this->fixtures->createUser($email = 'test@buddy.works');
 
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request('GET', $this->urlTo('auth_gitlab_start'));
         $params = $this->getQueryParamsFromLastResponse();
+        $this->mockTokenAndUserResponse($email);
 
-        $this->client->disableReboot();
-        GitHubOAuth::mockTokenResponse($email, $this->container());
-
-        $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request('GET', $this->urlTo('register_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
         $this->client->followRedirect();
@@ -56,13 +54,12 @@ final class GitHubControllerTest extends FunctionalTestCase
     public function testCreateUserIfNotExistsExist(): void
     {
         $email = 'test@buddy.works';
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request('GET', $this->urlTo('auth_gitlab_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
-        $this->client->disableReboot();
-        GitHubOAuth::mockTokenResponse($email, $this->container());
+        $this->mockTokenAndUserResponse($email);
 
-        $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request('GET', $this->urlTo('register_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
         $this->client->followRedirect();
@@ -70,16 +67,15 @@ final class GitHubControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Your account has been created', $this->lastResponseBody());
     }
 
-    public function testSuccessfulLoginWithGithub(): void
+    public function testSuccessfulLoginWithGitLab(): void
     {
         $this->fixtures->createOAuthUser($email = 'test@buddy.works');
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request('GET', $this->urlTo('auth_gitlab_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
-        $this->client->disableReboot();
-        GitHubOAuth::mockTokenResponse($email, $this->container());
+        $this->mockTokenAndUserResponse($email);
 
-        $this->client->request('GET', $this->urlTo('login_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request('GET', $this->urlTo('login_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
         $this->client->followRedirect();
@@ -88,13 +84,13 @@ final class GitHubControllerTest extends FunctionalTestCase
 
     public function testDisplayErrorIfSomethingGoesWrongDuringRegister(): void
     {
-        $this->client->request('GET', $this->urlTo('register_github_start'));
+        $this->client->request('GET', $this->urlTo('register_gitlab_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         $this->container()->get(HttpClientStub::class)->setNextResponses([new Response(200, [], '{"error":"invalid scope provided"}')]);
 
-        $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request('GET', $this->urlTo('register_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_register')));
         $this->client->followRedirect();
@@ -110,5 +106,11 @@ final class GitHubControllerTest extends FunctionalTestCase
         parse_str((string) parse_url((string) $this->client->getResponse()->headers->get('location'), PHP_URL_QUERY), $params);
 
         return $params;
+    }
+
+    private function mockTokenAndUserResponse(string $email): void
+    {
+        $this->client->disableReboot();
+        GitLabOAuth::mockTokenAndUserResponse($email, $this->container());
     }
 }

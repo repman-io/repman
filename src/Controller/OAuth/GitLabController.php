@@ -7,18 +7,16 @@ namespace Buddy\Repman\Controller\OAuth;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\LoginFormAuthenticator;
-use Buddy\Repman\Service\GitHubApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\Provider\GithubClient;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
-final class GitHubController extends AbstractController
+final class GitLabController extends AbstractController
 {
     private UserRepository $users;
     private GuardAuthenticatorHandler $guardHandler;
@@ -32,47 +30,47 @@ final class GitHubController extends AbstractController
     }
 
     /**
-     * @Route("/register/github", name="register_github_start")
+     * @Route("/register/gitlab", name="register_gitlab_start")
      */
     public function register(ClientRegistry $clientRegistry): Response
     {
         return $clientRegistry
-            ->getClient('github')
-            ->redirect(['user:email'], [])
+            ->getClient('gitlab-register')
+            ->redirect(['read_user'], [])
         ;
     }
 
     /**
-     * @Route("/auth/github", name="auth_github_start")
+     * @Route("/auth/gitlab", name="auth_gitlab_start")
      */
     public function auth(ClientRegistry $clientRegistry): Response
     {
         return $clientRegistry
-            ->getClient('github')
-            ->redirect(['user:email'], ['redirect_uri' => $this->generateUrl('login_github_check', [], UrlGeneratorInterface::ABSOLUTE_URL)])
-            ;
+            ->getClient('gitlab-auth')
+            ->redirect(['read_user'], [])
+        ;
     }
 
     /**
-     * @Route("/register/github/check", name="register_github_check")
+     * @Route("/register/gitlab/check", name="register_gitlab_check")
      */
-    public function registerCheck(Request $request, ClientRegistry $clientRegistry, GitHubApi $api): Response
+    public function registerCheck(Request $request, ClientRegistry $clientRegistry): Response
     {
         if ($this->getUser() !== null) {
             return $this->redirectToRoute('index');
         }
 
         try {
-            /** @var GithubClient $oauthClient */
-            $oauthClient = $clientRegistry->getClient('github');
-            $email = $api->primaryEmail($oauthClient->getAccessToken()->getToken());
-            if ($this->users->findOneBy(['email' => $email]) === null) {
-                $this->dispatchMessage(new CreateOAuthUser($email));
+            /** @var GitlabResourceOwner $user */
+            $user = $clientRegistry->getClient('gitlab-register')->fetchUser();
+
+            if ($this->users->findOneBy(['email' => $user->getEmail()]) === null) {
+                $this->dispatchMessage(new CreateOAuthUser($user->getEmail()));
                 $this->addFlash('success', 'Your account has been created. Please create a new organization.');
             } else {
                 $this->addFlash('success', 'Your account already exists. You have been logged in automatically');
             }
-            $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getByEmail($email), 'main'), $request);
+            $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getByEmail($user->getEmail()), 'main'), $request);
 
             return $this->redirectToRoute('organization_create');
         } catch (IdentityProviderException $e) {

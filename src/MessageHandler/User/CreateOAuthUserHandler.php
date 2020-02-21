@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Message\User\CreateGitHubUser;
+use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-final class CreateGitHubUserHandler implements MessageHandlerInterface
+final class CreateOAuthUserHandler implements MessageHandlerInterface
 {
     private UserRepository $users;
     private UserPasswordEncoderInterface $encoder;
@@ -22,7 +22,7 @@ final class CreateGitHubUserHandler implements MessageHandlerInterface
         $this->encoder = $encoder;
     }
 
-    public function __invoke(CreateGitHubUser $message): void
+    public function __invoke(CreateOAuthUser $message): void
     {
         $user = new User(
             Uuid::uuid4(),

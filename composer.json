@@ -16,6 +16,7 @@
         "knpuniversity/oauth2-client-bundle": "^1.33",
         "league/oauth2-github": "^2.0",
         "munusphp/munus": "^0.1.0",
+        "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
         "sensio/framework-extra-bundle": "^5.5",
         "sentry/sentry-symfony": "^3.4",

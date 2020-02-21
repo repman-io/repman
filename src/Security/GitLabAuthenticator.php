@@ -9,7 +9,7 @@ use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\GitHubApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
-use League\OAuth2\Client\Token\AccessToken;
+use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +18,9 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-final class GitHubAuthenticator extends SocialAuthenticator
+final class GitLabAuthenticator extends SocialAuthenticator
 {
     private ClientRegistry $clientRegistry;
     private UserRepository $users;
@@ -40,18 +39,20 @@ final class GitHubAuthenticator extends SocialAuthenticator
 
     public function supports(Request $request)
     {
-        return $request->attributes->get('_route') === 'login_github_check';
+        return $request->attributes->get('_route') === 'login_gitlab_check';
     }
 
     public function getCredentials(Request $request)
     {
-        return $this->fetchAccessToken($this->clientRegistry->getClient('github'));
+        return $this->fetchAccessToken($this->clientRegistry->getClient('gitlab-auth'));
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider): UserInterface
+    public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        /** @var AccessToken $credentials */
-        $user = $this->users->findOneBy(['email' => $this->gitHubApi->primaryEmail($credentials->getToken())]);
+        /** @var GitlabResourceOwner $gitLabUser */
+        $gitLabUser = $this->clientRegistry->getClient('gitlab-auth')->fetchUserFromToken($credentials);
+
+        $user = $this->users->findOneBy(['email' => $gitLabUser->getEmail()]);
         if (!$user instanceof User) {
             throw new UsernameNotFoundException();
         }

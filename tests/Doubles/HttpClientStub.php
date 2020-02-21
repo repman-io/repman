@@ -13,16 +13,17 @@ use Psr\Http\Message\ResponseInterface;
 
 final class HttpClientStub implements ClientInterface
 {
-    private ResponseInterface $nextResponse;
+    /**
+     * @var ResponseInterface[];
+     */
+    private array $nextResponses = [];
 
-    public function __construct()
+    /**
+     * @param ResponseInterface[] $nextResponses
+     */
+    public function setNextResponses(array $nextResponses): void
     {
-        $this->nextResponse = new Response(200, [], 'Sample response');
-    }
-
-    public function setNextResponse(ResponseInterface $nextResponse): void
-    {
-        $this->nextResponse = $nextResponse;
+        $this->nextResponses = $nextResponses;
     }
 
     /**
@@ -30,7 +31,7 @@ final class HttpClientStub implements ClientInterface
      */
     public function send(RequestInterface $request, array $options = []): ResponseInterface
     {
-        return $this->nextResponse;
+        return $this->getNextResponse();
     }
 
     /**
@@ -38,7 +39,7 @@ final class HttpClientStub implements ClientInterface
      */
     public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
-        return new FulfilledPromise($this->nextResponse);
+        return new FulfilledPromise($this->getNextResponse());
     }
 
     /**
@@ -48,7 +49,7 @@ final class HttpClientStub implements ClientInterface
      */
     public function request($method, $uri, array $options = []): ResponseInterface
     {
-        return $this->nextResponse;
+        return $this->getNextResponse();
     }
 
     /**
@@ -58,7 +59,7 @@ final class HttpClientStub implements ClientInterface
      */
     public function requestAsync($method, $uri, array $options = []): PromiseInterface
     {
-        return new FulfilledPromise($this->nextResponse);
+        return new FulfilledPromise($this->getNextResponse());
     }
 
     /**
@@ -69,5 +70,10 @@ final class HttpClientStub implements ClientInterface
     public function getConfig($option = null)
     {
         return [];
+    }
+
+    private function getNextResponse(): ResponseInterface
+    {
+        return array_shift($this->nextResponses) ?? new Response(200, [], 'Sample response');
     }
 }

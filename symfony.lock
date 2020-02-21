@@ -219,6 +219,9 @@
     "ocramius/proxy-manager": {
         "version": "2.6.0"
     },
+    "omines/oauth2-gitlab": {
+        "version": "3.2.0"
+    },
     "openlss/lib-array2xml": {
         "version": "1.0.0"
     },

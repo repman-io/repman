@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\User;
 
-final class CreateGitHubUser
+final class CreateOAuthUser
 {
     private string $email;
 

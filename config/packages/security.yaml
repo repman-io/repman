@@ -29,6 +29,7 @@ security:
                 authenticators:
                     - Buddy\Repman\Security\LoginFormAuthenticator
                     - Buddy\Repman\Security\GitHubAuthenticator
+                    - Buddy\Repman\Security\GitLabAuthenticator
                 entry_point: Buddy\Repman\Security\LoginFormAuthenticator
             logout:
                 path: app_logout
