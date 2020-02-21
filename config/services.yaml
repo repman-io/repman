@@ -55,3 +55,7 @@ services:
         arguments:
             $baseDir: '%repo_dir%'
             $distStorage: '@repman.organization.dist_storage'
+
+    Buddy\Repman\Security\GitHubAuthenticator:
+        arguments:
+            $session: '@session'

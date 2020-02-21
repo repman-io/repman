@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Buddy\Repman\Security;
+
+use Buddy\Repman\Entity\User;
+use Buddy\Repman\Repository\UserRepository;
+use Buddy\Repman\Service\GitHubApi;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
+use League\OAuth2\Client\Token\AccessToken;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+
+final class GitHubAuthenticator extends SocialAuthenticator
+{
+    private ClientRegistry $clientRegistry;
+    private UserRepository $users;
+    private GitHubApi $gitHubApi;
+    private RouterInterface $router;
+    private Session $session;
+
+    public function __construct(ClientRegistry $clientRegistry, UserRepository $users, GitHubApi $gitHubApi, RouterInterface $router, Session $session)
+    {
+        $this->clientRegistry = $clientRegistry;
+        $this->users = $users;
+        $this->gitHubApi = $gitHubApi;
+        $this->router = $router;
+        $this->session = $session;
+    }
+
+    public function supports(Request $request)
+    {
+        return $request->attributes->get('_route') === 'login_github_check';
+    }
+
+    public function getCredentials(Request $request)
+    {
+        return $this->fetchAccessToken($this->clientRegistry->getClient('github'));
+    }
+
+    public function getUser($credentials, UserProviderInterface $userProvider)
+    {
+        /** @var AccessToken $credentials */
+        $user = $this->users->findOneBy(['email' => $this->gitHubApi->primaryEmail($credentials->getToken())]);
+        if (!$user instanceof User) {
+            throw new BadCredentialsException();
+        }
+
+        return $user;
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    {
+        $this->session->getFlashBag()->add('danger', strtr($exception->getMessageKey(), $exception->getMessageData()));
+
+        return new RedirectResponse($this->router->generate('app_login'));
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
+    {
+        return new RedirectResponse($this->router->generate('index'));
+    }
+
+    /**
+     * @codeCoverageIgnore auth is started in LoginFormAuthenticator, see security.yml -> entry_point
+     */
+    public function start(Request $request, AuthenticationException $authException = null): Response
+    {
+        return new RedirectResponse($this->router->generate('app_login'));
+    }
+}

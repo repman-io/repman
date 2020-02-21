@@ -8,6 +8,7 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\User\CreateGitHubUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
@@ -41,6 +42,11 @@ final class FixturesManager
         ));
 
         return $id;
+    }
+
+    public function createGithubUser(string $email = 'test@buddy.works'): void
+    {
+        $this->dispatchMessage(new CreateGitHubUser($email));
     }
 
     public function createAdmin(string $email, string $password): string

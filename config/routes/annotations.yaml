@@ -20,3 +20,6 @@ organization_repo_url:
         domain: '%domain%'
     requirements:
         domain: "%domain%"
+
+login_github_check:
+    path: /auth/github/check

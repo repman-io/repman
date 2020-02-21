@@ -11,7 +11,7 @@ final class RegistrationControllerTest extends FunctionalTestCase
     public function testSuccessfulRegistration(): void
     {
         $this->client->request('GET', $this->urlTo('app_register'));
-        $this->client->submitForm('Register', [
+        $this->client->submitForm('Sign up', [
             'email' => 'test@buddy.works',
             'plainPassword[first]' => 'secret123',
             'plainPassword[second]' => 'secret123',

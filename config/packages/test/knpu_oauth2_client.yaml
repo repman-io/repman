@@ -1,0 +1,2 @@
+knpu_oauth2_client:
+    http_client: Buddy\Repman\Tests\Doubles\HttpClientStub

@@ -14,3 +14,9 @@ services:
 
     Buddy\Repman\Service\PackageSynchronizer:
         class: Buddy\Repman\Tests\Doubles\FakePackageSynchronizer
+
+    Buddy\Repman\Service\GitHubApi:
+        public: true
+        class: Buddy\Repman\Tests\Doubles\FakeGitHubApi
+
+    Buddy\Repman\Tests\Doubles\HttpClientStub:
