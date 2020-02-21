@@ -7,18 +7,22 @@ namespace Buddy\Repman\Tests\Unit\Service\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
+use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 final class PackageManagerTest extends TestCase
 {
     private PackageManager $manager;
+    private string $baseDir;
 
     protected function setUp(): void
     {
         $this->manager = new PackageManager(new InMemoryStorage(), __DIR__.'/../../../Resources');
+        $this->baseDir = sys_get_temp_dir().'/repman';
     }
 
     public function testFindProvidersForPackage(): void
@@ -74,5 +78,39 @@ final class PackageManagerTest extends TestCase
             '1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip',
             $manager->distFilename('buddy', 'buddy-works/repman', '1.2.3.0', 'ac7dcaf888af2324cd14200769362129c8dd8550', 'zip')->get()
         );
+    }
+
+    public function testRemoveProvider(): void
+    {
+        $manager = new PackageManager(
+            new FileStorage($this->baseDir, new FakeDownloader()),
+            $this->baseDir
+        );
+
+        $org = 'buddy';
+        $package = 'hello/world';
+
+        $manager->saveProvider([], $org, $package);
+        $manager->removeProvider($org, $package);
+
+        self::assertTrue(is_dir($this->baseDir.'/buddy'));
+        self::assertFalse(is_dir($this->baseDir.'/buddy/p/hello'));
+    }
+
+    public function testRemoveOrganizationDir(): void
+    {
+        $manager = new PackageManager(
+            new FileStorage($this->baseDir, new FakeDownloader()),
+            $this->baseDir
+        );
+
+        $org = 'buddy';
+        $package = 'hello/world';
+
+        $manager->saveProvider([], $org, $package);
+        $manager->removeProvider($org, $package)
+            ->removeOrganizationDir($org);
+
+        self::assertFalse(is_dir($this->baseDir.'/buddy'));
     }
 }

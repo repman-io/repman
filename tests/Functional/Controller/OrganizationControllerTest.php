@@ -145,6 +145,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
@@ -289,15 +290,18 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testRemoveOrganization(): void
     {
-        $this->fixtures->createOrganization('buddy', $this->userId);
+        $buddyId = $this->fixtures->createOrganization('buddy inc', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
+
         $this->client->request('DELETE', $this->urlTo('organization_remove', [
-            'organization' => 'buddy',
+            'organization' => 'buddy-inc',
         ]));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('Organization buddy has been successfully removed', $this->lastResponseBody());
+        self::assertStringContainsString('Organization buddy inc has been successfully removed', $this->lastResponseBody());
     }
 
     public function testRemoveForbiddenOrganization(): void

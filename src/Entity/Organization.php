@@ -115,6 +115,14 @@ class Organization
         }
     }
 
+    /**
+     * @return Collection<int,Package>|Package[]
+     */
+    public function synchronizedPackages(): Collection
+    {
+        return $this->packages->filter(fn ($package) => $package->isSynchronized());
+    }
+
     public function addPackage(Package $package): void
     {
         if ($this->packages->contains($package)) {

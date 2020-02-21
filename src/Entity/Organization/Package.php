@@ -120,4 +120,14 @@ class Package
     {
         return $this->organization->alias();
     }
+
+    public function name(): ?string
+    {
+        return $this->name;
+    }
+
+    public function isSynchronized(): bool
+    {
+        return !empty($this->name());
+    }
 }

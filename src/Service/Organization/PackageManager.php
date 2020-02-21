@@ -61,6 +61,30 @@ final class PackageManager
         file_put_contents($filepath, serialize($json));
     }
 
+    public function removeProvider(string $organizationAlias, string $packageName): self
+    {
+        $file = $this->filepath($organizationAlias, $packageName);
+
+        if (is_file($file)) {
+            unlink($file);
+            rmdir(dirname($file));
+        }
+
+        return $this;
+    }
+
+    public function removeOrganizationDir(string $organizationAlias): self
+    {
+        $base = $this->baseDir.'/'.$organizationAlias;
+
+        if (is_dir($dir = $base.'/p/')) {
+            rmdir($dir);
+            rmdir($base);
+        }
+
+        return $this;
+    }
+
     /**
      * @return Option<string>
      */
