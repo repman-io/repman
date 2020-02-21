@@ -9,6 +9,7 @@ use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\GitHubApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -49,8 +51,12 @@ final class GitLabAuthenticator extends SocialAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        /** @var GitlabResourceOwner $gitLabUser */
-        $gitLabUser = $this->clientRegistry->getClient('gitlab-auth')->fetchUserFromToken($credentials);
+        try {
+            /** @var GitlabResourceOwner $gitLabUser */
+            $gitLabUser = $this->clientRegistry->getClient('gitlab-auth')->fetchUserFromToken($credentials);
+        } catch (IdentityProviderException $exception) {
+            throw new CustomUserMessageAuthenticationException($exception->getMessage());
+        }
 
         $user = $this->users->findOneBy(['email' => $gitLabUser->getEmail()]);
         if (!$user instanceof User) {

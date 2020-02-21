@@ -7,6 +7,7 @@ namespace Buddy\Repman\Security;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\GitHubApi;
+use Github\Exception\ExceptionInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use League\OAuth2\Client\Token\AccessToken;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -50,8 +52,13 @@ final class GitHubAuthenticator extends SocialAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider): UserInterface
     {
-        /** @var AccessToken $credentials */
-        $user = $this->users->findOneBy(['email' => $this->gitHubApi->primaryEmail($credentials->getToken())]);
+        /* @var AccessToken $credentials */
+        try {
+            $user = $this->users->findOneBy(['email' => $this->gitHubApi->primaryEmail($credentials->getToken())]);
+        } catch (ExceptionInterface $exception) {
+            throw new CustomUserMessageAuthenticationException($exception->getMessage());
+        }
+
         if (!$user instanceof User) {
             throw new UsernameNotFoundException();
         }

@@ -8,6 +8,7 @@ use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\LoginFormAuthenticator;
 use Buddy\Repman\Service\GitHubApi;
+use Github\Exception\ExceptionInterface as GitHubApiExceptionInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\Provider\GithubClient;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -75,7 +76,7 @@ final class GitHubController extends AbstractController
             $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getByEmail($email), 'main'), $request);
 
             return $this->redirectToRoute('organization_create');
-        } catch (IdentityProviderException $e) {
+        } catch (IdentityProviderException | GitHubApiExceptionInterface $e) {
             $this->addFlash('danger', $e->getMessage());
 
             return $this->redirectToRoute('app_register');
