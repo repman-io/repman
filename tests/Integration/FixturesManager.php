@@ -78,12 +78,12 @@ final class FixturesManager
         );
     }
 
-    public function createPackage(string $id): void
+    public function createPackage(string $id, string $organization = 'buddy'): void
     {
         $this->dispatchMessage(
             new AddPackage(
                 $id,
-                $this->createOrganization('buddy', $this->createUser()),
+                $this->createOrganization($organization, $this->createUser()),
                 'https://github.com/buddy-works/repman',
                 'vcs'
             )

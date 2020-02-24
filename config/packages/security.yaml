@@ -15,7 +15,7 @@ security:
             security: false
         repo:
             host: '([a-z0-9_-]+)\.repo\.(.+)'
-            anonymous: false
+            anonymous: true
             logout: false
             stateless: true
             provider: organization_provider
@@ -45,4 +45,5 @@ security:
          - { path: ^/user, roles: ROLE_USER }
          - { path: ^/organization/new, roles: ROLE_USER }
          - { path: ^/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
+         - { path: ^/downloads, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
          - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\PackageQuery;
 
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
@@ -35,6 +36,22 @@ final class DbalPackageQuery implements PackageQuery
                 ':limit' => $limit,
                 ':offset' => $offset,
             ]));
+    }
+
+    /**
+     * @return PackageName[]
+     */
+    public function getAllNames(string $organizationId): array
+    {
+        return array_map(function (array $data): PackageName {
+            return new PackageName($data['id'], $data['name']);
+        }, $this->connection->fetchAll(
+            'SELECT id, name
+            FROM "organization_package"
+            WHERE organization_id = :organization_id AND name IS NOT NULL',
+            [
+            ':organization_id' => $organizationId,
+        ]));
     }
 
     public function count(string $organizationId): int

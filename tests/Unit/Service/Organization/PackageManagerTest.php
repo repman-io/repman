@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
-use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
@@ -28,9 +28,8 @@ final class PackageManagerTest extends TestCase
     public function testFindProvidersForPackage(): void
     {
         $providers = $this->manager->findProviders('buddy', [
-            new Package('id', 'without-name'),
-            new Package('id', 'https://github.com/buddy-works/repman', 'buddy-works/repman'),
-            new Package('id', 'https://github.com/not-exist/missing', 'not-exist/missing'),
+            new PackageName('id', 'buddy-works/repman'),
+            new PackageName('id', 'not-exist/missing'),
         ]);
 
         self::assertEquals(['buddy-works/repman' => ['1.2.3' => [

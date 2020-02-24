@@ -75,7 +75,7 @@ class User implements UserInterface
     private Collection $organizations;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=20)
      */
     private string $status = self::STATUS_ENABLED;
 

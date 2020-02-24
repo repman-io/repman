@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 final class RepoController extends AbstractController
@@ -31,8 +34,10 @@ final class RepoController extends AbstractController
     public function packages(Organization $organization): JsonResponse
     {
         return new JsonResponse([
-            'packages' => $this->packageManager->findProviders($organization->alias(), $this->packageQuery->findAll($organization->id(), 99999)),
-            'notify-batch' => 'https://packagist.org/downloads/',
+            'packages' => $this->packageManager->findProviders($organization->alias(), $this->packageQuery->getAllNames($organization->id())),
+            'notify-batch' => $this->generateUrl('repo_package_downloads', [
+                'organization' => $organization->alias(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL),
             'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
             'mirrors' => [
                 [
@@ -61,5 +66,55 @@ final class RepoController extends AbstractController
             ->distFilename($organization->alias(), $package, $version, $ref, $type)
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
         );
+    }
+
+    /**
+     * @Route("/downloads",
+     *     name="repo_package_downloads",
+     *     host="{organization}.repo.{domain}",
+     *     defaults={"domain":"%domain%"},
+     *     requirements={"domain"="%domain%"},
+     *     methods={"POST"})
+     */
+    public function download(Request $request, Organization $organization): JsonResponse
+    {
+        $contents = json_decode($request->getContent(), true);
+        if (empty($contents['downloads']) || !is_array($contents['downloads'])) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Invalid request format, must be a json object containing a downloads key filled with an array of name/version objects',
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $packageMap = $this->getPackageNameMap($organization->id());
+        foreach ($contents['downloads'] as $package) {
+            if (empty($package['name']) || empty($package['version'])) {
+                continue;
+            }
+
+            if (isset($packageMap[$package['name']])) {
+                $this->dispatchMessage(new AddDownload(
+                    $packageMap[$package['name']],
+                    $package['version'],
+                    $request->getClientIp(),
+                    $request->headers->get('User-Agent')
+                ));
+            }
+        }
+
+        return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getPackageNameMap(string $organizationId): array
+    {
+        $map = [];
+        foreach ($this->packageQuery->getAllNames($organizationId) as $package) {
+            $map[$package->name()] = $package->id();
+        }
+
+        return $map;
     }
 }

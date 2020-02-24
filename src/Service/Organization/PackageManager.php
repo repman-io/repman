@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Organization;
 
-use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
@@ -22,7 +22,7 @@ final class PackageManager
     }
 
     /**
-     * @param Package[] $packages
+     * @param PackageName[] $packages
      *
      * @return mixed[]
      */
@@ -30,10 +30,6 @@ final class PackageManager
     {
         $data = [];
         foreach ($packages as $package) {
-            if ($package->name() === null) {
-                continue;
-            }
-
             $filepath = $this->filepath($organizationAlias, $package->name());
             if (!is_readable($filepath)) {
                 continue;

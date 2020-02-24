@@ -71,7 +71,7 @@ final class RepoControllerTest extends FunctionalTestCase
         self::assertMatchesPattern('
         {
             "packages": {},
-            "notify-batch": "https://packagist.org/downloads/",
+            "notify-batch": "http://buddy.repo.repman.wip/downloads",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
             "mirrors": [
                 {
@@ -109,5 +109,37 @@ final class RepoControllerTest extends FunctionalTestCase
         ]);
 
         self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
+    public function testOrganizationTrackDownloads(): void
+    {
+        $this->fixtures->createPackage('c75b535f-5817-41a2-9424-e05476e7958f', 'buddy');
+        $this->fixtures->syncPackageWithData('c75b535f-5817-41a2-9424-e05476e7958f', 'buddy-works/repman', 'desc', '1.2.0', new \DateTimeImmutable());
+
+        $this->client->request('POST', '/downloads', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+        ], (string) json_encode([
+            'downloads' => [
+                [
+                    'name' => 'buddy-works/repman',
+                    'version' => '1.2.0.0',
+                ],
+                [
+                    'name' => 'not-exist',
+                    'version' => 'should-not-throw-error',
+                ],
+                [
+                    'name' => 'missing version',
+                ],
+            ],
+        ]));
+
+        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+
+        $this->client->request('POST', '/downloads', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+        ], (string) json_encode([]));
+
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 }

@@ -171,12 +171,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "4f59162827f7bb928d9e91b67da3f625d2e9c493"
+                "reference": "f154d5c09d69a6338d6a955bf51cc264d0448b3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/4f59162827f7bb928d9e91b67da3f625d2e9c493",
-                "reference": "4f59162827f7bb928d9e91b67da3f625d2e9c493",
+                "url": "https://api.github.com/repos/composer/composer/zipball/f154d5c09d69a6338d6a955bf51cc264d0448b3d",
+                "reference": "f154d5c09d69a6338d6a955bf51cc264d0448b3d",
                 "shasum": ""
             },
             "require": {
@@ -243,7 +243,7 @@
                 "dependency",
                 "package"
             ],
-            "time": "2020-02-14T16:03:22+00:00"
+            "time": "2020-02-18T17:03:27+00:00"
         },
         {
             "name": "composer/semver",
@@ -3608,16 +3608,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "3.9.2",
+            "version": "3.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "7779489a47d443f845271badbdcedfe4df8e06fb"
+                "reference": "7e1633a6964b48589b142d60542f9ed31bd37a92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/7779489a47d443f845271badbdcedfe4df8e06fb",
-                "reference": "7779489a47d443f845271badbdcedfe4df8e06fb",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/7e1633a6964b48589b142d60542f9ed31bd37a92",
+                "reference": "7e1633a6964b48589b142d60542f9ed31bd37a92",
                 "shasum": ""
             },
             "require": {
@@ -3691,7 +3691,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2019-12-17T08:18:51+00:00"
+            "time": "2020-02-21T04:36:14+00:00"
         },
         {
             "name": "ramsey/uuid-doctrine",

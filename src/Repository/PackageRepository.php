@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Repository;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Download;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
@@ -30,5 +31,10 @@ class PackageRepository extends ServiceEntityRepository
         }
 
         return $package;
+    }
+
+    public function addDownload(Download $download): void
+    {
+        $this->_em->persist($download);
     }
 }
