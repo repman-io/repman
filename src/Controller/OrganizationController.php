@@ -153,6 +153,18 @@ final class OrganizationController extends AbstractController
     }
 
     /**
+     * @Route("/organization/{organization}/package/{package}/stats", name="organization_package_stats", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function packageStats(Organization $organization, Package $package): Response
+    {
+        return $this->render('organization/package/stats.html.twig', [
+            'organization' => $organization,
+            'package' => $package,
+            'installs' => $this->packageQuery->getInstalls($package->id()),
+        ]);
+    }
+
+    /**
      * @Route("/organization/{organization}/token/new", name="organization_token_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function generateToken(Organization $organization, Request $request): Response
@@ -237,5 +249,16 @@ final class OrganizationController extends AbstractController
         $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));
 
         return $this->redirectToRoute('index');
+    }
+
+    /**
+     * @Route("/organization/{organization}/stats", name="organizations_stats")
+     */
+    public function stats(Organization $organization): Response
+    {
+        return $this->render('organization/stats.html.twig', [
+            'organization' => $organization,
+            'installs' => $this->organizationQuery->getInstalls($organization->id()),
+        ]);
     }
 }

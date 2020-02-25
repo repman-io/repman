@@ -96,6 +96,7 @@ final class RepoController extends AbstractController
                 $this->dispatchMessage(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
+                    new \DateTimeImmutable(),
                     $request->getClientIp(),
                     $request->headers->get('User-Agent')
                 ));

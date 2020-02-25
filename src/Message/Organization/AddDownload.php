@@ -8,13 +8,15 @@ final class AddDownload
 {
     private string $packageId;
     private string $version;
+    private \DateTimeImmutable $date;
     private ?string $ip;
     private ?string $userAgent;
 
-    public function __construct(string $packageId, string $version, ?string $ip, ?string $userAgent)
+    public function __construct(string $packageId, string $version, \DateTimeImmutable $date, ?string $ip, ?string $userAgent)
     {
         $this->packageId = $packageId;
         $this->version = $version;
+        $this->date = $date;
         $this->ip = $ip;
         $this->userAgent = $userAgent;
     }
@@ -27,6 +29,11 @@ final class AddDownload
     public function version(): string
     {
         return $this->version;
+    }
+
+    public function date(): \DateTimeImmutable
+    {
+        return $this->date;
     }
 
     public function ip(): ?string

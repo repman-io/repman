@@ -6,6 +6,7 @@ namespace Buddy\Repman\Query\Admin\OrganizationQuery;
 
 use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Query\User\Model\Installs;
 use Doctrine\DBAL\Connection;
 
 final class DbalOrganizationQuery implements OrganizationQuery
@@ -44,6 +45,19 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return (int) $this
             ->connection
             ->fetchColumn('SELECT COUNT(id) FROM "organization"');
+    }
+
+    public function getInstalls(int $lastDays = 30): Installs
+    {
+        return new Installs(
+            array_map(function (array $row): Installs\Day {
+                return new Installs\Day($row['date'], $row['count']);
+            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
+                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            ])),
+            $lastDays,
+            (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download')
+        );
     }
 
     /**

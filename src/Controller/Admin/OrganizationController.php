@@ -42,4 +42,14 @@ final class OrganizationController extends AbstractController
 
         return $this->redirectToRoute('admin_organization_list');
     }
+
+    /**
+     * @Route("/admin/stats", name="admin_stats", methods={"GET"})
+     */
+    public function stats(): Response
+    {
+        return $this->render('admin/stats.html.twig', [
+            'installs' => $this->organizationQuery->getInstalls(),
+        ]);
+    }
 }

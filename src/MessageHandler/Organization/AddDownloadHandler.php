@@ -24,7 +24,7 @@ final class AddDownloadHandler implements MessageHandlerInterface
         $this->packages->addDownload(new Download(
             Uuid::uuid4(),
             Uuid::fromString($message->packageId()),
-            new \DateTimeImmutable(),
+            $message->date(),
             $message->version(),
             $message->ip(),
             $message->userAgent() !== null ? substr($message->userAgent(), 0, 255) : null

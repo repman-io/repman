@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}{{ organization.name }} package installs (last 30 days){% endblock %}
+
+{% block content %}
+    <div id="chart-installs" ></div>
+
+    <hr />
+
+    <h3>Summary:</h3>
+    <p>
+        Today installs: {{ (installs.days | last).installs }}<br />
+        Last 30 days installs: {{ installs.daysTotal }}<br />
+        <strong>Total installs: {{ installs.total }}</strong>
+    </p>
+
+    <script type="text/javascript" src="{{ asset('dist/js/apexcharts.min.js') }}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-installs'), {
+                chart: {
+                    type: "area",
+                    fontFamily: 'inherit',
+                    height: 440,
+                    parentHeightOffset: 0,
+                    toolbar: {
+                        show: false,
+                    },
+                    animations: {
+                        enabled: false
+                    },
+                },
+                fill: {
+                    opacity: .16,
+                    type: 'solid'
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                stroke: {
+                    width: 2,
+                    lineCap: "round",
+                    curve: "smooth",
+                },
+                series: [{
+                    name: "Installs",
+                    data: [{{ installs.days | map(day => day.installs) | join(',') }}]
+                }],
+                xaxis: {
+                    type: 'datetime',
+                },
+                labels: [{{ installs.days | map(day => "'#{day.date}'") | join(',') | raw }}],
+                colors: ["#206bc4"],
+                legend: {
+                    show: false,
+                },
+            })).render();
+        });
+    </script>
+{% endblock %}

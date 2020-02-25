@@ -7,6 +7,7 @@
     <table class="table">
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Name</th>
                 <th>Alias</th>
                 <th>Owner</th>
@@ -17,6 +18,7 @@
         <tbody>
             {% for organization in organizations %}
                 <tr>
+                    <td>{{ organization.id }}</td>
                     <td>{{ organization.name }}</td>
                     <td>{{ organization.alias }}</td>
                     <td>{{ organization.ownerEmail }}</td>

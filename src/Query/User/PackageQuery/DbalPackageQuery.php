@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
+use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
@@ -82,6 +83,20 @@ final class DbalPackageQuery implements PackageQuery
         }
 
         return Option::some($this->hydratePackage($data));
+    }
+
+    public function getInstalls(string $packageId, int $lastDays = 30): Installs
+    {
+        return new Installs(
+            array_map(function (array $row): Installs\Day {
+                return new Installs\Day($row['date'], $row['count']);
+            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id = :package GROUP BY date) AS installs ORDER BY date ASC', [
+                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                ':package' => $packageId,
+            ])),
+            $lastDays,
+            (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', [':package' => $packageId])
+        );
     }
 
     /**

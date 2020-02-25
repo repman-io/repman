@@ -227,6 +227,35 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertEquals(404, $this->client->getResponse()->getStatusCode());
     }
 
+    public function testPackageStats(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->addPackageDownload(3, $packageId);
+
+        $this->client->request('GET', $this->urlTo('organization_package_stats', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Total installs: 3', $this->lastResponseBody());
+    }
+
+    public function testOrganizationStats(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->addPackageDownload(3, $packageId);
+
+        $this->client->request('GET', $this->urlTo('organizations_stats', [
+            'organization' => 'buddy',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Total installs: 3', $this->lastResponseBody());
+    }
+
     public function testGenerateNewToken(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);

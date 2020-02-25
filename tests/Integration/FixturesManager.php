@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration;
 
+use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
@@ -15,6 +16,7 @@ use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Doctrine\ORM\EntityManagerInterface;
+use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -102,6 +104,19 @@ final class FixturesManager
         );
 
         return $id;
+    }
+
+    public function addPackageDownload(int $count, string $packageId): void
+    {
+        Stream::range(1, $count)->forEach(function (int $index) use ($packageId): void {
+            $this->dispatchMessage(new AddDownload(
+                $packageId,
+                '1.0.0',
+                new \DateTimeImmutable(),
+                '192.168.0.1',
+                'Composer 19.10'
+            ));
+        });
     }
 
     public function disableUser(string $id): void

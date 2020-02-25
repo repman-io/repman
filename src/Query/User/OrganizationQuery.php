@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User;
 
+use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Munus\Control\Option;
@@ -19,4 +20,6 @@ interface OrganizationQuery
      * @return Token[]
      */
     public function findAllTokens(string $organizationId): array;
+
+    public function getInstalls(string $organizationId, int $lastDays = 30): Installs;
 }

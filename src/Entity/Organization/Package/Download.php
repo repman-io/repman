@@ -12,7 +12,10 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity
  * @ORM\Table(
  *     name="organization_package_download",
- *     indexes={@Index(name="package_id_idx", columns={"package_id"})}
+ *     indexes={
+ *      @Index(name="package_id_idx", columns={"package_id"}),
+ *      @Index(name="download_date_idx", columns={"date"})
+ *     }
  * )
  */
 class Download

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\OrganizationQuery;
 
+use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
@@ -59,6 +60,22 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ORDER BY name ASC', [
             ':id' => $organizationId,
         ]));
+    }
+
+    public function getInstalls(string $organizationId, int $lastDays = 30): Installs
+    {
+        $packagesId = array_column($this->connection->fetchAll('SELECT id FROM organization_package WHERE organization_id = :id', [':id' => $organizationId]), 'id');
+
+        return new Installs(
+            array_map(function (array $row): Installs\Day {
+                return new Installs\Day($row['date'], $row['count']);
+            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
+                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                ':packages' => $packagesId,
+            ], [':packages' => Connection::PARAM_STR_ARRAY])),
+            $lastDays,
+            (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id IN (:packages)', [':packages' => $packagesId], 0, [':packages' => Connection::PARAM_STR_ARRAY])
+        );
     }
 
     /**

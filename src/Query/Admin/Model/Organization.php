@@ -21,6 +21,11 @@ final class Organization
         $this->packagesCount = $packagesCount;
     }
 
+    public function id(): string
+    {
+        return $this->id;
+    }
+
     public function name(): string
     {
         return $this->name;

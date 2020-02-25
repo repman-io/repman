@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User;
 
+use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Munus\Control\Option;
@@ -26,4 +27,6 @@ interface PackageQuery
      * @return Option<Package>
      */
     public function getById(string $id): Option;
+
+    public function getInstalls(string $packageId, int $lastDays = 30): Installs;
 }

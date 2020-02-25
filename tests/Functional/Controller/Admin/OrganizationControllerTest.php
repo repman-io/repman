@@ -38,4 +38,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertStringContainsString('Organization Acme has been successfully removed', $this->lastResponseBody());
     }
+
+    public function testStats(): void
+    {
+        $this->client->request('GET', $this->urlTo('admin_stats'));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Total installs:', $this->lastResponseBody());
+    }
 }
