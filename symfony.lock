@@ -1,4 +1,7 @@
 {
+    "bitbucket/client": {
+        "version": "v2.1.1"
+    },
     "cbschuld/browser.php": {
         "version": "1.9.4"
     },
@@ -261,6 +264,9 @@
     "php-http/message-factory": {
         "version": "v1.0.2"
     },
+    "php-http/multipart-stream-builder": {
+        "version": "1.1.0"
+    },
     "php-http/promise": {
         "version": "v1.0.0"
     },
@@ -443,6 +449,9 @@
         "files": [
             "config/packages/sentry.yaml"
         ]
+    },
+    "stevenmaguire/oauth2-bitbucket": {
+        "version": "3.0.0"
     },
     "symfony/amazon-mailer": {
         "version": "4.4",

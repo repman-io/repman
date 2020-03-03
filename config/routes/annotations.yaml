@@ -26,3 +26,6 @@ login_github_check:
 
 login_gitlab_check:
     path: /auth/gitlab/check
+
+login_bitbucket_check:
+    path: /auth/bitbucket/check

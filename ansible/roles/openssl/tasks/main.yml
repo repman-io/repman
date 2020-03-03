@@ -12,7 +12,7 @@
 - name: Create index.txt file for CA
   template:
     src: index.txt
-    dest: /etc/ssl/index.txt.attr
+    dest: /etc/ssl/index.txt
   when: openssl_generate_selfsigned_cert == true
 
 - name: Create serial file for CA
