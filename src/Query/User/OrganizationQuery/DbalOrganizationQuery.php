@@ -44,7 +44,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     /**
      * @return Token[]
      */
-    public function findAllTokens(string $organizationId): array
+    public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): Token {
             return new Token(
@@ -57,9 +57,22 @@ final class DbalOrganizationQuery implements OrganizationQuery
             SELECT name, value, created_at, last_used_at 
             FROM organization_token 
             WHERE organization_id = :id
-            ORDER BY name ASC', [
+            ORDER BY UPPER(name) ASC
+            LIMIT :limit OFFSET :offset', [
             ':id' => $organizationId,
+            ':limit' => $limit,
+            ':offset' => $offset,
         ]));
+    }
+
+    public function tokenCount(string $organizationId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(value) FROM organization_token WHERE organization_id = :id',
+                [':id' => $organizationId]
+            );
     }
 
     public function getInstalls(string $organizationId, int $lastDays = 30): Installs

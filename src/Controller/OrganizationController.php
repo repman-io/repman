@@ -84,12 +84,7 @@ final class OrganizationController extends AbstractController
     public function packages(Organization $organization, Request $request): Response
     {
         return $this->render('organization/packages.html.twig', [
-            'packages' => $this->packageQuery->findAll(
-                $organization->id(),
-                20,
-                (int)
-                $request->get('offset', 0)
-            ),
+            'packages' => $this->packageQuery->findAll($organization->id(), 20, (int) $request->get('offset', 0)),
             'count' => $this->packageQuery->count($organization->id()),
             'organization' => $organization,
         ]);
@@ -192,10 +187,11 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/token", name="organization_tokens", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function tokens(Organization $organization): Response
+    public function tokens(Organization $organization, Request $request): Response
     {
         return $this->render('organization/tokens.html.twig', [
-            'tokens' => $this->organizationQuery->findAllTokens($organization->id()),
+            'tokens' => $this->organizationQuery->findAllTokens($organization->id(), 20, (int) $request->get('offset', 0)),
+            'count' => $this->organizationQuery->tokenCount($organization->id()),
             'organization' => $organization,
         ]);
     }

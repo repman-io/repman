@@ -19,7 +19,9 @@ interface OrganizationQuery
     /**
      * @return Token[]
      */
-    public function findAllTokens(string $organizationId): array;
+    public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array;
+
+    public function tokenCount(string $organizationId): int;
 
     public function getInstalls(string $organizationId, int $lastDays = 30): Installs;
 }
