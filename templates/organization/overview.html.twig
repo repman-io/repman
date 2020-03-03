@@ -23,13 +23,7 @@ composer config --global --auth http-basic.{{ url('organization_repo_url', {orga
         {"type": "composer", "url": "{{ url('organization_repo_url', {organization: organization.alias}) | trim('/') }}"}
     ]
 }</pre></div>
-
-            <p>And then update composer.lock file:</p>
-
-            <div class="highlight">
-        <pre>
-composer update mirrors</pre></div>
-
+            
         {% else %}
             Missing authentication tokens,
             <a class="btn btn-primary" href="{{ path('organization_token_new', {organization: organization.alias}) }}">
