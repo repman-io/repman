@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
+use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
@@ -22,7 +23,8 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $this->baseDir = sys_get_temp_dir().'/repman';
         $this->synchronizer = new ComposerPackageSynchronizer(
             new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
-            new PackageNormalizer()
+            new PackageNormalizer(),
+            $this->createMock(PackageRepository::class)
         );
     }
 
@@ -31,7 +33,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/buddy-works/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('path', __DIR__.'/../../../../', 'buddy'));
 
         self::assertFileExists($path);
 

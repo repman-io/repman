@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
+use Buddy\Repman\Entity\User\OauthToken;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
+use Buddy\Repman\Message\Organization\AddHook;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
@@ -17,16 +19,24 @@ use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\Organization\UpdatePackage;
+use Buddy\Repman\Message\User\CreateOauthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\AliasGenerator;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Client\Provider\GithubClient;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 final class OrganizationController extends AbstractController
 {
@@ -98,7 +108,7 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/new", name="organization_package_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packageNew(Organization $organization, Request $request): Response
+    public function packageNew(Organization $organization, Request $request, GithubApi $api): Response
     {
         $form = $this->createForm(AddPackageType::class);
         $form->handleRequest($request);
@@ -120,7 +130,126 @@ final class OrganizationController extends AbstractController
         return $this->render('organization/addPackage.html.twig', [
             'organization' => $organization,
             'form' => $form->createView(),
+            'vcsType' => 'GitHub',
         ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/new-from-github", name="organization_package_new_from_github", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packageNewFromGithub(Organization $organization, Request $request, ClientRegistry $clientRegistry, GithubApi $api): Response
+    {
+        $tokenType = OauthToken::TYPE_GITHUB;
+        /** @var User */
+        $user = $this->getUser();
+        $userId = $user->id()->toString();
+        $oauthToken = $user->oauthToken($tokenType);
+
+        if (empty($oauthToken)) {
+            /** @var GithubClient $oauthClient */
+            $oauthClient = $clientRegistry->getClient('github');
+            $tokenValue = $oauthClient->getAccessToken()->getToken();
+
+            $this->dispatchMessage(
+                new CreateOauthToken(
+                    $oauthTokenId = Uuid::uuid4()->toString(),
+                    $userId,
+                    $tokenType,
+                    $tokenValue
+                )
+            );
+        } else {
+            $tokenValue = $oauthToken->value();
+            $oauthTokenId = $oauthToken->id()->toString();
+        }
+
+        $form = $this
+            ->createFormBuilder()
+            ->setAction($this->generateUrl(
+                'organization_package_new_from_github',
+                ['organization' => $organization->alias()]
+            ));
+
+        $choices = $api->repositories($tokenValue);
+
+        $form->add('repos', ChoiceType::class, [
+            'choices' => $choices,
+            'label' => false,
+            'expanded' => true,
+            'multiple' => true,
+            'data' => array_values($choices),
+        ]);
+
+        $form->add('save', SubmitType::class, ['label' => 'Import selected']);
+        $form = $form->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($form->get('repos')->getData() as $repo) {
+                $this->dispatchMessage(new AddPackage(
+                    $id = Uuid::uuid4()->toString(),
+                    $organization->id(),
+                    "https://github.com/{$repo}",
+                    'vcs',
+                    $oauthTokenId
+                ));
+                $this->dispatchMessage(new SynchronizePackage($id));
+
+                $this->dispatchMessage(
+                    new AddHook(
+                        $id,
+                        $repo,
+                        $tokenValue,
+                        $this->generateUrl(
+                            'package_webhook',
+                            ['package' => $id], RouterInterface::ABSOLUTE_URL
+                        )
+                    )
+                );
+            }
+
+            $this->addFlash('success', 'Packages has been added and will be synchronized in the background');
+
+            return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+        }
+
+        return $this->render('organization/addPackageFromVcs.html.twig', [
+            'organization' => $organization,
+            'form' => $form->createView(),
+            'type' => $tokenType,
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/add-from-github", name="organization_package_add_from_github", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packageAddFromGithub(Organization $organization, Request $request, ClientRegistry $clientRegistry, GithubApi $api): Response
+    {
+        /** @var User */
+        $user = $this->getUser();
+        $oauthToken = $user->oauthToken(OauthToken::TYPE_GITHUB);
+
+        if ($oauthToken) {
+            return $this->redirectToRoute(
+                'organization_package_new_from_github',
+                ['organization' => $organization->alias()]
+            );
+        }
+
+        /** @var GithubClient $oauthClient */
+        $oauthClient = $clientRegistry->getClient('github');
+
+        return $oauthClient
+            ->redirect(
+                ['read:org', 'repo'],
+                [
+                    'redirect_uri' => $this->generateUrl(
+                        'organization_package_new_from_github',
+                        ['organization' => $organization->alias()],
+                        UrlGeneratorInterface::ABSOLUTE_URL
+                    ),
+                ]
+            );
     }
 
     /**
@@ -128,9 +257,7 @@ final class OrganizationController extends AbstractController
      */
     public function updatePackage(Organization $organization, Package $package): Response
     {
-        $this->dispatchMessage(new SynchronizePackage(
-            $package->id()
-        ));
+        $this->dispatchMessage(new SynchronizePackage($package->id()));
 
         $this->addFlash('success', 'Package will be updated in the background');
 
@@ -243,7 +370,7 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}", name="organization_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function removeOrganization(Organization $organization, Request $request): Response
+    public function removeOrganization(Organization $organization): Response
     {
         $this->dispatchMessage(new RemoveOrganization($organization->id()));
         $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));

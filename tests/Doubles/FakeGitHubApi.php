@@ -29,4 +29,16 @@ final class FakeGitHubApi implements GitHubApi
     {
         $this->exception = $exception;
     }
+
+    public function repositories(string $accessToken): array
+    {
+        return [
+            'buddy/repman' => 'buddy/repman',
+        ];
+    }
+
+    public function addHook(string $accessToken, string $repo, string $url): self
+    {
+        return $this;
+    }
 }

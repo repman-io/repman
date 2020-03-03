@@ -7,6 +7,8 @@ namespace Buddy\Repman\Tests\Unit\Service\GitHubApi;
 use Buddy\Repman\Service\GitHubApi\KnpGitHubApi;
 use Github\Api\CurrentUser;
 use Github\Api\CurrentUser\Emails;
+use Github\Api\CurrentUser\Memberships;
+use Github\Api\Organization;
 use Github\Client;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -63,5 +65,37 @@ final class KnpGitHubApiTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->api->primaryEmail('token');
+    }
+
+    public function testReturnRepository(): void
+    {
+        $currentUser = $this->getMockBuilder(CurrentUser::class)->disableOriginalConstructor()->getMock();
+        $memberships = $this->getMockBuilder(Memberships::class)->disableOriginalConstructor()->getMock();
+        $organization = $this->getMockBuilder(Organization::class)->disableOriginalConstructor()->getMock();
+
+        $organization->method('repositories')->willReturn([
+            ['full_name' => 'buddy/repman'],
+        ]);
+
+        $currentUser->method('memberships')->willReturn($memberships);
+        $memberships->method('all')->willReturn([
+            [
+                'organization' => [
+                    'login' => 'buddy',
+                ],
+            ],
+        ]);
+
+        $currentUser->method('repositories')->willReturn([
+            ['full_name' => 'private/repman'],
+        ]);
+
+        $this->clientMock->method('__call')->with('currentUser')->willReturn($currentUser);
+        $this->clientMock->method('api')->with('organization')->willReturn($organization);
+
+        self::assertEquals([
+            'buddy/repman' => 'buddy/repman',
+            'private/repman' => 'private/repman',
+        ], $this->api->repositories('token'));
     }
 }

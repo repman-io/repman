@@ -9,6 +9,7 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\User\CreateOauthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
@@ -136,6 +137,18 @@ final class FixturesManager
         $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate);
         $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
+    }
+
+    public function createOauthToken(string $id, string $userId, string $type, string $value = 'secret'): void
+    {
+        $this->dispatchMessage(
+            new CreateOauthToken(
+                $id,
+                $userId,
+                $type,
+                $value
+            )
+        );
     }
 
     private function dispatchMessage(object $message): void

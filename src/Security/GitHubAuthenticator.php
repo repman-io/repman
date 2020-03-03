@@ -10,7 +10,6 @@ use Buddy\Repman\Service\GitHubApi;
 use Github\Exception\ExceptionInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
-use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,7 +51,6 @@ final class GitHubAuthenticator extends SocialAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider): UserInterface
     {
-        /* @var AccessToken $credentials */
         try {
             $user = $this->users->findOneBy(['email' => $this->gitHubApi->primaryEmail($credentials->getToken())]);
         } catch (ExceptionInterface $exception) {
