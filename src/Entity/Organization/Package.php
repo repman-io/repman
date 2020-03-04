@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
+use Buddy\Repman\Entity\User\OauthToken;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Ramsey\Uuid\UuidInterface;
@@ -66,15 +67,27 @@ class Package
     private ?\DateTimeInterface $lastSyncAt;
 
     /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private ?\DateTimeImmutable $webhookCreatedAt = null;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private ?string $lastSyncError = null;
 
-    public function __construct(UuidInterface $id, string $type, string $url)
+    /**
+     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User\OauthToken", inversedBy="packages")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private ?OauthToken $oauthToken = null;
+
+    public function __construct(UuidInterface $id, string $type, string $url, ?OauthToken $oauthToken = null)
     {
         $this->id = $id;
         $this->type = $type;
         $this->repositoryUrl = $url;
+        $this->oauthToken = $oauthToken;
     }
 
     public function id(): UuidInterface
@@ -129,5 +142,22 @@ class Package
     public function isSynchronized(): bool
     {
         return !empty($this->name());
+    }
+
+    public function oauthToken(): ?OauthToken
+    {
+        return $this->oauthToken;
+    }
+
+    public function webhookCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->webhookCreatedAt;
+    }
+
+    public function setWebhookCreated(): self
+    {
+        $this->webhookCreatedAt = new \DateTimeImmutable();
+
+        return $this;
     }
 }

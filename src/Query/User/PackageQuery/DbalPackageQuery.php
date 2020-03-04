@@ -75,7 +75,8 @@ final class DbalPackageQuery implements PackageQuery
     {
         $data = $this->connection->fetchAssoc(
             'SELECT id, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error
-            FROM "organization_package" WHERE id = :id', [
+            FROM "organization_package"
+            WHERE id = :id', [
             ':id' => $id,
         ]);
         if ($data === false) {
@@ -112,7 +113,7 @@ final class DbalPackageQuery implements PackageQuery
             $data['latest_release_date'] ? new \DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
             $data['last_sync_at'] ? new \DateTimeImmutable($data['last_sync_at']) : null,
-            $data['last_sync_error']
+            $data['last_sync_error'],
         );
     }
 }

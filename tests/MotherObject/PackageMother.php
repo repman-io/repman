@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\MotherObject;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
+use Buddy\Repman\Entity\User\OauthToken;
 use Ramsey\Uuid\Uuid;
 
 final class PackageMother
@@ -21,7 +22,30 @@ final class PackageMother
         $package = new Package(Uuid::uuid4(), $type, $url);
         $package->setOrganization(new Organization(
             Uuid::uuid4(),
-            new User(Uuid::uuid4(), 'test@buddy.works', 'confir-token', []),
+            new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
+            'Buddy',
+            $organizationAlias
+        ));
+
+        return $package;
+    }
+
+    public static function withOrganizationAndToken(string $type, string $url, string $organizationAlias): Package
+    {
+        $package = new Package(
+            Uuid::uuid4(),
+            $type,
+            $url,
+            new OauthToken(
+                Uuid::uuid4(),
+                new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
+                'GitHub',
+                'secret'
+            )
+        );
+        $package->setOrganization(new Organization(
+            Uuid::uuid4(),
+            new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
             'Buddy',
             $organizationAlias
         ));
