@@ -77,3 +77,13 @@ services:
             - '@?Http\Client\HttpClient'
             - '@?Http\Message\RequestFactory'
             - '@?Http\Message\StreamFactory'
+
+    Gitlab\Client:
+        arguments:
+            - '@Gitlab\HttpClient\Builder'
+
+    Gitlab\HttpClient\Builder:
+        arguments:
+            - '@?Http\Client\HttpClient'
+            - '@?Http\Message\RequestFactory'
+            - '@?Http\Message\StreamFactory'

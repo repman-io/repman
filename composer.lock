@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0724e8390c0e77a9371ced3a09a003ca",
+    "content-hash": "362bda1652c0398cd728d6c74697c09d",
     "packages": [
         {
             "name": "bitbucket/client",
@@ -2496,6 +2496,74 @@
                 "oauth2"
             ],
             "time": "2017-01-26T01:14:51+00:00"
+        },
+        {
+            "name": "m4tthumphrey/php-gitlab-api",
+            "version": "9.17.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/m4tthumphrey/php-gitlab-api.git",
+                "reference": "a4c3d1638fc35a76cc276f53773d6c74820c0f29"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/m4tthumphrey/php-gitlab-api/zipball/a4c3d1638fc35a76cc276f53773d6c74820c0f29",
+                "reference": "a4c3d1638fc35a76cc276f53773d6c74820c0f29",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "php": "^5.6 || ^7.0",
+                "php-http/client-common": "^1.6 || ^2.0",
+                "php-http/client-implementation": "^1.0",
+                "php-http/discovery": "^1.2",
+                "php-http/httplug": "^1.1 || ^2.0",
+                "php-http/multipart-stream-builder": "^1.0",
+                "symfony/options-resolver": "^2.6 || ^3.0 || ^4.0 || ^5.0"
+            },
+            "require-dev": {
+                "guzzlehttp/psr7": "^1.2",
+                "php-http/guzzle6-adapter": "^1.0 || ^2.0",
+                "php-http/mock-client": "^1.2",
+                "phpunit/phpunit": "^5.7.27 || ^7.5.15"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "9.16-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Gitlab\\": "lib/Gitlab/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Humphrey",
+                    "homepage": "http://m4tt.io"
+                },
+                {
+                    "name": "KnpLabs Team",
+                    "homepage": "http://knplabs.com"
+                },
+                {
+                    "name": "Thibault Duplessis",
+                    "email": "thibault.duplessis@gmail.com",
+                    "homepage": "http://ornicar.github.com"
+                }
+            ],
+            "description": "GitLab API client",
+            "homepage": "https://github.com/m4tthumphrey/php-gitlab-api",
+            "keywords": [
+                "api",
+                "gitlab"
+            ],
+            "time": "2020-02-17T09:36:49+00:00"
         },
         {
             "name": "monolog/monolog",

@@ -58,3 +58,12 @@ symfony proxy:domain:attach your-organization.repman
  - [ ] support for docker (to allow to create repman instance with docker)
  - [x] admin panel
  - [x] support private packages
+
+
+## Integration
+
+### Gitlab
+
+Scopes:
+ - registration: `read_user`
+ - repositories: `api`
