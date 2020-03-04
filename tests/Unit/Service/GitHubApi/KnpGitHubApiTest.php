@@ -94,8 +94,8 @@ final class KnpGitHubApiTest extends TestCase
         $this->clientMock->method('api')->with('organization')->willReturn($organization);
 
         self::assertEquals([
-            'buddy/repman' => 'buddy/repman',
-            'private/repman' => 'private/repman',
+            'private/repman',
+            'buddy/repman',
         ], $this->api->repositories('token'));
     }
 }

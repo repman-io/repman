@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\User;
 
-final class CreateOauthToken
+final class AddOauthToken
 {
     private string $id;
     private string $userId;

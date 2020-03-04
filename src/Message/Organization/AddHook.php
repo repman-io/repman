@@ -8,14 +8,12 @@ final class AddHook
 {
     private string $packageId;
     private string $repoName;
-    private string $oauthToken;
     private string $url;
 
-    public function __construct(string $packageId, string $repoName, string $oauthToken, string $url)
+    public function __construct(string $packageId, string $repoName, string $url)
     {
         $this->packageId = $packageId;
         $this->repoName = $repoName;
-        $this->oauthToken = $oauthToken;
         $this->url = $url;
     }
 
@@ -27,11 +25,6 @@ final class AddHook
     public function repoName(): string
     {
         return $this->repoName;
-    }
-
-    public function oauthToken(): string
-    {
-        return $this->oauthToken;
     }
 
     public function url(): string

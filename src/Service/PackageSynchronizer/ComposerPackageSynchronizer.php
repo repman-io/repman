@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
-use Buddy\Repman\Entity\User\OauthToken;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
@@ -75,30 +74,30 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     {
         unset(Config::$defaultRepositories['packagist.org']);
         $config = Factory::createConfig();
+
+        $map = [
+            'github-oauth' => [
+                'domain' => 'github.com',
+            ],
+            'gitlab-oauth' => [
+                'domain' => 'gitlab.com',
+            ],
+        ];
+
+        $type = array_key_exists($package->type(), $map) ? 'vcs' : $package->type();
+
         $params = [
             'repositories' => [
                 [
-                    'type' => $package->type(),
+                    'type' => $type,
                     'url' => $package->repositoryUrl(),
                 ],
             ],
             'config' => [],
         ];
 
-        $map = [
-            OauthToken::TYPE_GITHUB => [
-                'key' => 'github-oauth',
-                'domain' => 'github.com',
-            ],
-            OauthToken::TYPE_GITLAB => [
-                'key' => 'gitlab-oauth',
-                'domain' => 'gitlab.com',
-            ],
-        ];
-
         if ($token = $package->oauthToken()) {
-            $type = $token->type();
-            $params['config'][$map[$type]['key']] = [$map[$type]['domain'] => $token->value()];
+            $params['config'][$package->type()] = [$map[$package->type()]['domain'] => $token->value()];
         }
 
         $config->merge($params);

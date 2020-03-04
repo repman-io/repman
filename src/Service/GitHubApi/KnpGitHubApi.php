@@ -30,35 +30,31 @@ final class KnpGitHubApi implements GitHubApi
     }
 
     /**
-     * @return array<int|string,mixed>
+     * @return string[]
      */
     public function repositories(string $accessToken): array
     {
         $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
         $memberships = $this->memberships();
         $privateRepos = $this->privateRepos();
-
-        $choices = [];
-        foreach ($privateRepos as $repo) {
-            $choices[$repo['full_name']] = $repo['full_name'];
-        }
+        $result = array_map(fn ($repo) => $repo['full_name'], $privateRepos);
 
         foreach ($memberships as $membership) {
             $organizationLogin = $membership['organization']['login'];
             $repos = $this->organizationRepos($organizationLogin);
 
             foreach ($repos as $repo) {
-                $choices[$repo['full_name']] = $repo['full_name'];
+                $result[] = $repo['full_name'];
             }
         }
 
-        return $choices;
+        return $result;
     }
 
     /**
      * @codeCoverageIgnore
      */
-    public function addHook(string $accessToken, string $repo, string $url): self
+    public function addHook(string $accessToken, string $repo, string $url): void
     {
         list($owner, $repo) = explode('/', $repo);
         $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
@@ -69,8 +65,6 @@ final class KnpGitHubApi implements GitHubApi
                 'content_type' => 'json',
             ],
         ]);
-
-        return $this;
     }
 
     /**

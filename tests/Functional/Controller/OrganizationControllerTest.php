@@ -349,10 +349,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testNewPackageFromGithub(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);
-        $this->fixtures->createOauthToken(Uuid::uuid4()->toString(), $this->userId, 'GitHub');
+        $this->fixtures->createOauthToken($this->userId, 'github');
 
         $this->client->request('GET', $this->urlTo('organization_package_new_from_github', ['organization' => 'buddy']));
-        $this->client->submitForm('Import selected');
+        $this->client->submitForm('Import', [
+            'repositories' => ['buddy/repman'],
+        ]);
 
         self::assertTrue(
             $this->client
@@ -387,7 +389,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testAddPackageFromGithubWithToken(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);
-        $this->fixtures->createOauthToken(Uuid::uuid4()->toString(), $this->userId, 'GitHub');
+        $this->fixtures->createOauthToken($this->userId, 'github');
 
         $this->client->request('GET', $this->urlTo('organization_package_add_from_github', ['organization' => 'buddy']));
 

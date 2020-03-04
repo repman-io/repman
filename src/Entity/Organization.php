@@ -73,6 +73,11 @@ class Organization
         return $this;
     }
 
+    public function owner(): User
+    {
+        return $this->owner;
+    }
+
     public function name(): string
     {
         return $this->name;
@@ -128,6 +133,10 @@ class Organization
         if ($this->packages->contains($package)) {
             return;
         }
+
+        $package->setOauthToken(
+            $this->owner()->oauthToken(rtrim($package->type(), '-oauth'))
+        );
 
         $package->setOrganization($this);
         $this->packages->add($package);

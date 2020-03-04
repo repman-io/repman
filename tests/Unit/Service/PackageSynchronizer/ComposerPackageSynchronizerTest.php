@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
+use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
@@ -33,7 +34,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/buddy-works/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('path', __DIR__.'/../../../../', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy'));
 
         self::assertFileExists($path);
 
@@ -61,5 +62,33 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $json = unserialize((string) file_get_contents($path));
         self::assertCount(4, $json['packages']['buddy-works/alpha']);
         @unlink($path);
+    }
+
+    public function testSynchronizePackageThatAlreadyExists(): void
+    {
+        $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
+        @unlink($path);
+
+        $packageMock = $this->createMock(Package::class);
+        $packagesMock = $this->createMock(PackageRepository::class);
+        $packagesMock->method('findOneBy')->willReturn($packageMock);
+
+        $synchronizer = new ComposerPackageSynchronizer(
+            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
+            new PackageNormalizer(),
+            $packagesMock
+        );
+
+        $synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+
+        self::assertFileNotExists($path);
+    }
+
+    public function testSynchronizePackageWithToken(): void
+    {
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+
+        // exception was not throw
+        self::assertTrue(true);
     }
 }

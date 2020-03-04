@@ -82,12 +82,11 @@ class Package
      */
     private ?OauthToken $oauthToken = null;
 
-    public function __construct(UuidInterface $id, string $type, string $url, ?OauthToken $oauthToken = null)
+    public function __construct(UuidInterface $id, string $type, string $url)
     {
         $this->id = $id;
         $this->type = $type;
         $this->repositoryUrl = $url;
-        $this->oauthToken = $oauthToken;
     }
 
     public function id(): UuidInterface
@@ -144,17 +143,19 @@ class Package
         return !empty($this->name());
     }
 
+    public function setOauthToken(?OauthToken $oauthToken): self
+    {
+        $this->oauthToken = $oauthToken;
+
+        return $this;
+    }
+
     public function oauthToken(): ?OauthToken
     {
         return $this->oauthToken;
     }
 
-    public function webhookCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->webhookCreatedAt;
-    }
-
-    public function setWebhookCreated(): self
+    public function webhookWasCreated(): self
     {
         $this->webhookCreatedAt = new \DateTimeImmutable();
 

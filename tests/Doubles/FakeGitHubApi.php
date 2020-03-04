@@ -37,8 +37,7 @@ final class FakeGitHubApi implements GitHubApi
         ];
     }
 
-    public function addHook(string $accessToken, string $repo, string $url): self
+    public function addHook(string $accessToken, string $repo, string $url): void
     {
-        return $this;
     }
 }

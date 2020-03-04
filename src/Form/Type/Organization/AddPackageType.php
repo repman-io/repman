@@ -27,10 +27,14 @@ class AddPackageType extends AbstractType
         $builder
             ->add('type', ChoiceType::class, [
                 'choices' => [
-                    'vcs (git,svn,hg)' => 'vcs',
+                    'vcs (git, svn, hg)' => 'vcs',
                     'pear' => 'pear',
                     'artifact' => 'artifact',
                     'path' => 'path',
+                ],
+                'attr' => [
+                    'class' => 'form-control selectpicker',
+                    'data-style' => 'btn-info',
                 ],
                 'constraints' => [
                     new NotNull(),

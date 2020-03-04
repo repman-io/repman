@@ -18,6 +18,7 @@
                 <th>Version</th>
                 <th>Released</th>
                 <th>Description</th>
+                <th>Webhook created</th>
                 <th>Options</th>
             </tr>
         </thead>
@@ -53,6 +54,7 @@
                             {{ package.description }}
                         {% endif %}
                     </td>
+                    <td>{{ package.webhookCreatedAt is empty ? 'no' : package.webhookCreatedAt | date('Y-m-d H:i:s') }}</td>
                     <td>
                         {% if package.name %}
                             <a href="{{ url('organization_package_stats', {organization: organization.alias, package: package.id}) }}"

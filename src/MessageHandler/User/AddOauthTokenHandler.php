@@ -6,12 +6,12 @@ namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OauthToken;
-use Buddy\Repman\Message\User\CreateOauthToken;
+use Buddy\Repman\Message\User\AddOauthToken;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-final class CreateOauthTokenHandler implements MessageHandlerInterface
+final class AddOauthTokenHandler implements MessageHandlerInterface
 {
     private EntityManagerInterface $em;
 
@@ -20,18 +20,20 @@ final class CreateOauthTokenHandler implements MessageHandlerInterface
         $this->em = $em;
     }
 
-    public function __invoke(CreateOauthToken $message): void
+    public function __invoke(AddOauthToken $message): void
     {
         /** @var User */
         $user = $this->em
             ->getRepository(User::class)
             ->find($message->userId());
 
-        $token = new OauthToken(
-            Uuid::fromString($message->id()),
-            $user,
-            $message->type(),
-            $message->value()
+        $user->addOauthToken(
+            new OauthToken(
+                Uuid::fromString($message->id()),
+                $user,
+                $message->type(),
+                $message->value()
+            )
         );
     }
 }

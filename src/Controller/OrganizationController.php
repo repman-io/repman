@@ -6,6 +6,7 @@ namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Form\Type\Organization\AddPackageFromVcsType;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
@@ -19,7 +20,7 @@ use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\Organization\UpdatePackage;
-use Buddy\Repman\Message\User\CreateOauthToken;
+use Buddy\Repman\Message\User\AddOauthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
@@ -30,8 +31,6 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\Provider\GithubClient;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -125,7 +124,6 @@ final class OrganizationController extends AbstractController
         return $this->render('organization/addPackage.html.twig', [
             'organization' => $organization,
             'form' => $form->createView(),
-            'vcsType' => 'GitHub',
         ]);
     }
 
@@ -146,8 +144,8 @@ final class OrganizationController extends AbstractController
             $tokenValue = $oauthClient->getAccessToken()->getToken();
 
             $this->dispatchMessage(
-                new CreateOauthToken(
-                    $oauthTokenId = Uuid::uuid4()->toString(),
+                new AddOauthToken(
+                    Uuid::uuid4()->toString(),
                     $userId,
                     $tokenType,
                     $tokenValue
@@ -155,38 +153,21 @@ final class OrganizationController extends AbstractController
             );
         } else {
             $tokenValue = $oauthToken->value();
-            $oauthTokenId = $oauthToken->id()->toString();
         }
 
-        $form = $this
-            ->createFormBuilder()
-            ->setAction($this->generateUrl(
-                'organization_package_new_from_github',
-                ['organization' => $organization->alias()]
-            ));
-
-        $choices = $api->repositories($tokenValue);
-
-        $form->add('repos', ChoiceType::class, [
-            'choices' => $choices,
-            'label' => false,
-            'expanded' => true,
-            'multiple' => true,
-            'data' => array_values($choices),
+        $form = $this->createForm(AddPackageFromVcsType::class, null, [
+            'repositories' => $api->repositories($tokenValue),
         ]);
 
-        $form->add('save', SubmitType::class, ['label' => 'Import selected']);
-        $form = $form->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($form->get('repos')->getData() as $repo) {
+            foreach ($form->get('repositories')->getData() as $repo) {
                 $this->dispatchMessage(new AddPackage(
                     $id = Uuid::uuid4()->toString(),
                     $organization->id(),
                     "https://github.com/{$repo}",
-                    'vcs',
-                    $oauthTokenId
+                    'github-oauth'
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
 
@@ -194,10 +175,10 @@ final class OrganizationController extends AbstractController
                     new AddHook(
                         $id,
                         $repo,
-                        $tokenValue,
                         $this->generateUrl(
                             'package_webhook',
-                            ['package' => $id], RouterInterface::ABSOLUTE_URL
+                            ['package' => $id],
+                            RouterInterface::ABSOLUTE_URL
                         )
                     )
                 );

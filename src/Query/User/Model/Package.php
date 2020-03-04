@@ -14,6 +14,7 @@ final class Package
     private ?string $description;
     private ?\DateTimeImmutable $lastSyncAt;
     private ?string $lastSyncError;
+    private ?\DateTimeImmutable $webhookCreatedAt;
 
     public function __construct(
         string $id,
@@ -23,7 +24,8 @@ final class Package
         ?\DateTimeImmutable $latestReleaseDate = null,
         ?string $description = null,
         ?\DateTimeImmutable $lastSyncAt = null,
-        ?string $lastSyncError = null
+        ?string $lastSyncError = null,
+        ?\DateTimeImmutable $webhookCreatedAt = null
     ) {
         $this->id = $id;
         $this->url = $url;
@@ -33,6 +35,7 @@ final class Package
         $this->description = $description;
         $this->lastSyncAt = $lastSyncAt;
         $this->lastSyncError = $lastSyncError;
+        $this->webhookCreatedAt = $webhookCreatedAt;
     }
 
     public function id(): string
@@ -73,5 +76,10 @@ final class Package
     public function lastSyncError(): ?string
     {
         return $this->lastSyncError;
+    }
+
+    public function webhookCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->webhookCreatedAt;
     }
 }
