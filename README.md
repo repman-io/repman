@@ -67,3 +67,9 @@ symfony proxy:domain:attach your-organization.repman
 Scopes:
  - registration: `read_user`
  - repositories: `api`
+
+### Bitbucket
+
+Scopes:
+ - registration: `email`
+ - repositories: `repository`, `webhook`
