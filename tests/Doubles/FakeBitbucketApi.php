@@ -29,4 +29,14 @@ final class FakeBitbucketApi implements BitbucketApi
     {
         $this->exception = $exception;
     }
+
+    public function repositories(string $accessToken): array
+    {
+        return [];
+    }
+
+    public function addHook(string $accessToken, string $fullName, string $hookUrl): void
+    {
+        // TODO: Implement addHook() method.
+    }
 }
