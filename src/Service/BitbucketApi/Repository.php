@@ -14,14 +14,4 @@ final class Repository
         $this->name = $name;
         $this->url = $url;
     }
-
-    public function name(): string
-    {
-        return $this->name;
-    }
-
-    public function url(): string
-    {
-        return $this->url;
-    }
 }
