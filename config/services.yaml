@@ -57,6 +57,10 @@ services:
             $baseDir: '%repo_dir%'
             $distStorage: '@repman.organization.dist_storage'
 
+    Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer:
+        arguments:
+            $distStorage: '@repman.organization.dist_storage'
+
     ### Vendor
     Github\Client:
         arguments:

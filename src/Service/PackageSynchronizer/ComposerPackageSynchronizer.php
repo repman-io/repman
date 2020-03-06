@@ -6,6 +6,8 @@ namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Repository\PackageRepository;
+use Buddy\Repman\Service\Dist;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer;
@@ -22,12 +24,14 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageManager $packageManager;
     private PackageNormalizer $packageNormalizer;
     private PackageRepository $packageRepository;
+    private Storage $distStorage;
 
-    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository)
+    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage)
     {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;
         $this->packageRepository = $packageRepository;
+        $this->distStorage = $distStorage;
     }
 
     public function synchronize(Package $package): void
@@ -50,8 +54,18 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             }
 
             $name = $latest->getPrettyName();
-            if (!$package->isSynchronized() & $this->packageExist($name)) {
+            if (!$package->isSynchronized() && $this->packageRepository->packageExist($name, $package->organizationId())) {
                 throw new \RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
+            }
+
+            foreach ($packages as $p) {
+                if ($p->getDistUrl() !== null) {
+                    $this->distStorage->download(
+                        $p->getDistUrl(),
+                        new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType()),
+                        $this->getAuthHeaders($package)
+                    );
+                }
             }
 
             $package->syncSuccess(
@@ -68,6 +82,18 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 strlen($io->getOutput()) > 1 ? "\nLogs:\n".$io->getOutput() : ''
             ));
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getAuthHeaders(Package $package): array
+    {
+        if ($package->oauthToken() === null) {
+            return [];
+        }
+
+        return [sprintf('Authorization: Bearer %s', $package->oauthToken()->value())];
     }
 
     private function createConfig(Package $package): Config
@@ -96,17 +122,12 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             'config' => [],
         ];
 
-        if ($token = $package->oauthToken()) {
+        if (isset($map[$package->type()]) && $token = $package->oauthToken()) {
             $params['config'][$package->type()] = [$map[$package->type()]['domain'] => $token->value()];
         }
 
         $config->merge($params);
 
         return $config;
-    }
-
-    private function packageExist(string $name): bool
-    {
-        return $this->packageRepository->findOneBy(['name' => $name]) instanceof Package;
     }
 }

@@ -76,7 +76,7 @@ final class RepoController extends AbstractController
      *     requirements={"domain"="%domain%"},
      *     methods={"POST"})
      */
-    public function download(Request $request, Organization $organization): JsonResponse
+    public function downloads(Request $request, Organization $organization): JsonResponse
     {
         $contents = json_decode($request->getContent(), true);
         if (empty($contents['downloads']) || !is_array($contents['downloads'])) {

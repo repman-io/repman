@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\GitHubApi;
 
 use Buddy\Repman\Service\GitHubApi;
-use Github\Api\Organization;
 use Github\Client;
+use Github\ResultPager;
 
 final class KnpGitHubApi implements GitHubApi
 {
@@ -72,7 +72,9 @@ final class KnpGitHubApi implements GitHubApi
      */
     private function privateRepos(): array
     {
-        return $this->client->currentUser()->repositories();
+        $paginator = new ResultPager($this->client);
+
+        return $paginator->fetchAll($this->client->currentUser(), 'repositories');
     }
 
     /**
@@ -80,10 +82,9 @@ final class KnpGitHubApi implements GitHubApi
      */
     private function organizationRepos(string $organization): array
     {
-        /** @var Organization */
-        $org = $this->client->api('organization');
+        $paginator = new ResultPager($this->client);
 
-        return $org->repositories($organization);
+        return $paginator->fetchAll($this->client->organization(), 'repositories', [$organization]);
     }
 
     /**

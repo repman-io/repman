@@ -33,6 +33,14 @@ class PackageRepository extends ServiceEntityRepository
         return $package;
     }
 
+    public function packageExist(string $name, UuidInterface $organizationId): bool
+    {
+        return false !== $this->_em->getConnection()->fetchColumn('SELECT id FROM organization_package WHERE name = :name AND organization_id = :organizationId', [
+            ':name' => $name,
+            ':organizationId' => $organizationId->toString(),
+        ]);
+    }
+
     public function addDownload(Download $download): void
     {
         $this->_em->persist($download);

@@ -27,7 +27,10 @@ final class FileStorage implements Storage
         return is_readable($this->filename($dist));
     }
 
-    public function download(string $url, Dist $dist): void
+    /**
+     * @param string[] $headers
+     */
+    public function download(string $url, Dist $dist, array $headers = []): void
     {
         if ($this->has($dist)) {
             return;
@@ -38,7 +41,7 @@ final class FileStorage implements Storage
 
         file_put_contents(
             $filename,
-            $this->downloader->getContents($url)->getOrElseThrow(
+            $this->downloader->getContents($url, $headers)->getOrElseThrow(
                 new \RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))
             )
         );

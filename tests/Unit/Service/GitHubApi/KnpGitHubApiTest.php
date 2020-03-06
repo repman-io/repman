@@ -10,6 +10,7 @@ use Github\Api\CurrentUser\Emails;
 use Github\Api\CurrentUser\Memberships;
 use Github\Api\Organization;
 use Github\Client;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -24,8 +25,14 @@ final class KnpGitHubApiTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->clientMock = $this->getMockBuilder(Client::class)->getMock();
+        $this->clientMock = $this->getMockBuilder(Client::class)
+            ->addMethods(['currentUser', 'organization'])
+            ->onlyMethods(['authenticate', 'getLastResponse'])
+            ->getMock()
+        ;
         $this->clientMock->expects($this->once())->method('authenticate');
+        // mock pagination
+        $this->clientMock->method('getLastResponse')->willReturn(new Response());
 
         $this->api = new KnpGitHubApi($this->clientMock);
     }
@@ -49,7 +56,7 @@ final class KnpGitHubApiTest extends TestCase
                 'visibility' => 'public',
             ],
         ]);
-        $this->clientMock->method('__call')->with('currentUser')->willReturn($currentUser);
+        $this->clientMock->method('currentUser')->willReturn($currentUser);
 
         self::assertEquals('test@buddy.works', $this->api->primaryEmail('token'));
     }
@@ -61,7 +68,7 @@ final class KnpGitHubApiTest extends TestCase
 
         $currentUser->method('emails')->willReturn($emails);
         $emails->method('all')->willReturn([]);
-        $this->clientMock->method('__call')->with('currentUser')->willReturn($currentUser);
+        $this->clientMock->method('currentUser')->willReturn($currentUser);
 
         $this->expectException(\RuntimeException::class);
         $this->api->primaryEmail('token');
@@ -75,6 +82,7 @@ final class KnpGitHubApiTest extends TestCase
 
         $organization->method('repositories')->willReturn([
             ['full_name' => 'buddy/repman'],
+            ['full_name' => 'buddy/left-pad'],
         ]);
 
         $currentUser->method('memberships')->willReturn($memberships);
@@ -90,12 +98,13 @@ final class KnpGitHubApiTest extends TestCase
             ['full_name' => 'private/repman'],
         ]);
 
-        $this->clientMock->method('__call')->with('currentUser')->willReturn($currentUser);
-        $this->clientMock->method('api')->with('organization')->willReturn($organization);
+        $this->clientMock->method('currentUser')->willReturn($currentUser);
+        $this->clientMock->method('organization')->willReturn($organization);
 
         self::assertEquals([
             'private/repman',
             'buddy/repman',
+            'buddy/left-pad',
         ], $this->api->repositories('token'));
     }
 }

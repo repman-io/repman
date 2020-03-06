@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
-use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
+use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
     private ComposerPackageSynchronizer $synchronizer;
+    /** @var PackageRepository|MockObject */
+    private $repoMock;
     private string $baseDir;
 
     protected function setUp(): void
@@ -25,7 +28,8 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $this->synchronizer = new ComposerPackageSynchronizer(
             new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
             new PackageNormalizer(),
-            $this->createMock(PackageRepository::class)
+            $this->repoMock = $this->createMock(PackageRepository::class),
+            new InMemoryStorage()
         );
     }
 
@@ -68,27 +72,24 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($path);
+        $this->repoMock->method('packageExist')->willReturn(true);
 
-        $packageMock = $this->createMock(Package::class);
-        $packagesMock = $this->createMock(PackageRepository::class);
-        $packagesMock->method('findOneBy')->willReturn($packageMock);
-
-        $synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
-            new PackageNormalizer(),
-            $packagesMock
-        );
-
-        $synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
 
         self::assertFileNotExists($path);
     }
 
     public function testSynchronizePackageWithToken(): void
     {
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $path = $this->baseDir.'/buddy/p/buddy-works/repman.json';
+        @unlink($path);
 
-        // exception was not throw
-        self::assertTrue(true);
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+
+        self::assertFileExists($path);
+
+        $json = unserialize((string) file_get_contents($path));
+        self::assertTrue($json['packages']['buddy-works/repman'] !== []);
+        @unlink($path);
     }
 }

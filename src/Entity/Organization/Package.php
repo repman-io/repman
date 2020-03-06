@@ -128,6 +128,11 @@ class Package
         $this->lastSyncError = $error;
     }
 
+    public function organizationId(): UuidInterface
+    {
+        return $this->organization->id();
+    }
+
     public function organizationAlias(): string
     {
         return $this->organization->alias();

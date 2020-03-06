@@ -16,7 +16,12 @@ final class FakeDownloader implements Downloader
         $this->basePath = __DIR__.'/../Resources';
     }
 
-    public function getContents(string $url): Option
+    /**
+     * @param string[] $headers
+     *
+     * @return Option<string>
+     */
+    public function getContents(string $url, array $headers = []): Option
     {
         $path = $this->basePath.parse_url($url, PHP_URL_PATH);
         if (file_exists($path)) {

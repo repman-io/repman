@@ -23,7 +23,10 @@ final class InMemoryStorage implements Storage
         return isset($this->dists[$dist->ref()]);
     }
 
-    public function download(string $url, Dist $dist): void
+    /**
+     * @param string[] $headers
+     */
+    public function download(string $url, Dist $dist, array $headers = []): void
     {
         $this->dists[$dist->ref()] = $url;
     }

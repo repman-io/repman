@@ -39,6 +39,7 @@ final class PackageManagerTest extends TestCase
                 'url' => '/path/to/reference.zip',
                 'reference' => 'ac7dcaf888af2324cd14200769362129c8dd8550',
             ],
+            'version_normalized' => '1.2.3.0',
         ]]], $providers);
     }
 
@@ -51,25 +52,6 @@ final class PackageManagerTest extends TestCase
         $storage->filename(Argument::type(Dist::class))->willReturn(
             __DIR__.'/../../../Resources/buddy/dist/buddy-works/repman/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip'
         );
-
-        $manager = new PackageManager($storage->reveal(), __DIR__.'/../../../Resources');
-
-        self::assertStringContainsString(
-            '1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip',
-            $manager->distFilename('buddy', 'buddy-works/repman', '1.2.3.0', 'ac7dcaf888af2324cd14200769362129c8dd8550', 'zip')->get()
-        );
-    }
-
-    public function testDownloadDistribution(): void
-    {
-        $distFilepath = __DIR__.'/../../../Resources/buddy/dist/buddy-works/repman/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip';
-
-        /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(Storage::class);
-        $storage->has(Argument::type(Dist::class))->willReturn(false);
-        $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
-        $storage->download('/path/to/reference.zip', Argument::type(Dist::class))
-            ->shouldBeCalledOnce();
 
         $manager = new PackageManager($storage->reveal(), __DIR__.'/../../../Resources');
 

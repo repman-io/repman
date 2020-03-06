@@ -11,7 +11,10 @@ interface Storage
 {
     public function has(Dist $dist): bool;
 
-    public function download(string $url, Dist $dist): void;
+    /**
+     * @param string[] $headers
+     */
+    public function download(string $url, Dist $dist, array $headers = []): void;
 
     public function filename(Dist $dist): string;
 

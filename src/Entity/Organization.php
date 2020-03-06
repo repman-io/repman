@@ -66,6 +66,11 @@ class Organization
         $this->tokens = new ArrayCollection();
     }
 
+    public function id(): UuidInterface
+    {
+        return $this->id;
+    }
+
     public function setOwner(User $owner): self
     {
         $this->owner = $owner;

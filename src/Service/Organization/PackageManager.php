@@ -7,7 +7,6 @@ namespace Buddy\Repman\Service\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
-use Composer\Semver\VersionParser;
 use Munus\Control\Option;
 
 final class PackageManager
@@ -88,26 +87,10 @@ final class PackageManager
     {
         $dist = new Dist($organizationAlias, $package, $version, $ref, $format);
         if (!$this->distStorage->has($dist)) {
-            $filepath = $this->filepath($organizationAlias, $package);
-            if (!is_readable($filepath)) {
-                return Option::none();
-            }
-            $json = unserialize((string) file_get_contents($filepath));
-            $parser = new VersionParser();
-            foreach ($json['packages'][$package] as $packageVersion) {
-                if (!isset($packageVersion['version_normalized'])) {
-                    $packageVersion['version_normalized'] = $parser->normalize($packageVersion['version']);
-                }
-
-                if ($packageVersion['version_normalized'] === $version && isset($packageVersion['dist']['url'])) {
-                    $this->distStorage->download($packageVersion['dist']['url'], $dist);
-                }
-            }
+            return Option::none();
         }
 
-        $distFilename = $this->distStorage->filename($dist);
-
-        return Option::when(file_exists($distFilename), $distFilename);
+        return Option::of($this->distStorage->filename($dist));
     }
 
     private function filepath(string $organizationAlias, string $packageName): string
