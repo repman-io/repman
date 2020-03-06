@@ -199,7 +199,7 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/add-from-github", name="organization_package_add_from_github", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packageAddFromGithub(Organization $organization, Request $request, ClientRegistry $clientRegistry, GithubApi $api): Response
+    public function packageAddFromGithub(Organization $organization, ClientRegistry $clientRegistry): Response
     {
         /** @var User */
         $user = $this->getUser();
