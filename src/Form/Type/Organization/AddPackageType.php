@@ -34,7 +34,7 @@ class AddPackageType extends AbstractType
                 ],
                 'attr' => [
                     'class' => 'form-control selectpicker',
-                    'data-style' => 'btn-info',
+                    'data-style' => 'btn-secondary',
                 ],
                 'constraints' => [
                     new NotNull(),

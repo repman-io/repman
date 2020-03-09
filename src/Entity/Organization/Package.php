@@ -77,16 +77,21 @@ class Package
     private ?string $lastSyncError = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User\OauthToken", inversedBy="packages")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\Column(type="json")
+     *
+     * @var mixed[]
      */
-    private ?OauthToken $oauthToken = null;
+    private array $metadata;
 
-    public function __construct(UuidInterface $id, string $type, string $url)
+    /**
+     * @param mixed[] $metadata
+     */
+    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [])
     {
         $this->id = $id;
         $this->type = $type;
         $this->repositoryUrl = $url;
+        $this->metadata = $metadata;
     }
 
     public function id(): UuidInterface
@@ -148,16 +153,19 @@ class Package
         return !empty($this->name());
     }
 
-    public function setOauthToken(?OauthToken $oauthToken): self
+    public function oauthToken(): string
     {
-        $this->oauthToken = $oauthToken;
+        $token = $this->organization->owner()->oauthToken(rtrim($this->type, '-oauth'));
+        if ($token === null) {
+            throw new \RuntimeException('Oauth token not found');
+        }
 
-        return $this;
+        return $token->value();
     }
 
-    public function oauthToken(): ?OauthToken
+    public function hasOAuthToken(): bool
     {
-        return $this->oauthToken;
+        return strpos($this->type, 'oauth') !== false;
     }
 
     public function webhookWasCreated(): self
@@ -165,5 +173,17 @@ class Package
         $this->webhookCreatedAt = new \DateTimeImmutable();
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function metadata(string $key)
+    {
+        if (!isset($this->metadata[$key])) {
+            throw new \RuntimeException(sprintf('Metadata %s not found for project %s', $key, $this->id->toString()));
+        }
+
+        return $this->metadata[$key];
     }
 }

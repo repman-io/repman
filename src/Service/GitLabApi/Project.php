@@ -16,4 +16,19 @@ final class Project
         $this->name = $name;
         $this->url = $url;
     }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function url(): string
+    {
+        return $this->url;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
 }

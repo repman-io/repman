@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
-use Buddy\Repman\Message\Organization\AddHook;
+use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -366,7 +366,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(2, $transport->getSent());
         self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
-        self::assertInstanceOf(AddHook::class, $transport->getSent()[1]->getMessage());
+        self::assertInstanceOf(AddGitHubHook::class, $transport->getSent()[1]->getMessage());
 
         $this->client->followRedirect();
         self::assertStringContainsString('Packages has been added and will be synchronized in the background', (string) $this->client->getResponse()->getContent());

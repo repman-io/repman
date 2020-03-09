@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\User;
 
-use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Ramsey\Uuid\UuidInterface;
@@ -52,12 +49,6 @@ class OauthToken
      */
     private string $value;
 
-    /**
-     * @var Collection<int,Package>|Package[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="oauthToken")
-     */
-    private Collection $packages;
-
     public function __construct(UuidInterface $id, User $user, string $type, string $value)
     {
         $this->id = $id;
@@ -65,7 +56,6 @@ class OauthToken
         $this->type = $type;
         $this->value = $value;
         $this->createdAt = new \DateTimeImmutable();
-        $this->packages = new ArrayCollection();
     }
 
     public function setUser(User $user): self

@@ -21,6 +21,13 @@ knpu_oauth2_client:
             redirect_route: login_gitlab_check
             redirect_params: {}
             use_state: true
+        gitlab-package:
+            type: gitlab
+            client_id: '%env(OAUTH_GITLAB_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_GITLAB_CLIENT_SECRET)%'
+            redirect_route: package_gitlab_check
+            redirect_params: {}
+            use_state: true
         bitbucket-auth:
             type: bitbucket
             client_id: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'

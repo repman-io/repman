@@ -139,10 +139,6 @@ class Organization
             return;
         }
 
-        $package->setOauthToken(
-            $this->owner()->oauthToken(rtrim($package->type(), '-oauth'))
-        );
-
         $package->setOrganization($this);
         $this->packages->add($package);
     }

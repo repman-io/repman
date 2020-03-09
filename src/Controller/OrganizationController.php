@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OauthToken;
 use Buddy\Repman\Form\Type\Organization\AddPackageFromVcsType;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
-use Buddy\Repman\Message\Organization\AddHook;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
-use Buddy\Repman\Message\Organization\UpdatePackage;
 use Buddy\Repman\Message\User\AddOauthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
@@ -35,7 +35,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 final class OrganizationController extends AbstractController
 {
@@ -130,7 +129,7 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/new-from-github", name="organization_package_new_from_github", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packageNewFromGithub(Organization $organization, Request $request, ClientRegistry $clientRegistry, GithubApi $api): Response
+    public function packageNewFromGitHub(Organization $organization, Request $request, ClientRegistry $clientRegistry, GithubApi $api): Response
     {
         $tokenType = OauthToken::TYPE_GITHUB;
         /** @var User */
@@ -155,10 +154,8 @@ final class OrganizationController extends AbstractController
             $tokenValue = $oauthToken->value();
         }
 
-        $form = $this->createForm(AddPackageFromVcsType::class, null, [
-            'repositories' => $api->repositories($tokenValue),
-        ]);
-
+        $repos = $api->repositories($tokenValue);
+        $form = $this->createForm(AddPackageFromVcsType::class, null, ['repositories' => array_combine($repos, $repos)]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -167,21 +164,11 @@ final class OrganizationController extends AbstractController
                     $id = Uuid::uuid4()->toString(),
                     $organization->id(),
                     "https://github.com/{$repo}",
-                    'github-oauth'
+                    'github-oauth',
+                    [Metadata::GITHUB_REPO_NAME => $repo]
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
-
-                $this->dispatchMessage(
-                    new AddHook(
-                        $id,
-                        $repo,
-                        $this->generateUrl(
-                            'package_webhook',
-                            ['package' => $id],
-                            RouterInterface::ABSOLUTE_URL
-                        )
-                    )
-                );
+                $this->dispatchMessage(new AddGitHubHook($id));
             }
 
             $this->addFlash('success', 'Packages has been added and will be synchronized in the background');

@@ -6,7 +6,8 @@ namespace Buddy\Repman\Tests\Unit\Service\GitLabApi;
 
 use Buddy\Repman\Service\GitLabApi\MattGitLabApi;
 use Buddy\Repman\Service\GitLabApi\Project;
-use Gitlab\Api\Projects;
+use Buddy\Repman\Service\GitLabApi\Projects;
+use Gitlab\Api\Projects as ProjectsApi;
 use Gitlab\Client;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +31,7 @@ final class MattGitLabApiTest extends TestCase
 
     public function testFetchUserProjects(): void
     {
-        $projects = $this->getMockBuilder(Projects::class)->disableOriginalConstructor()->getMock();
+        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
         $projects->method('all')->willReturn([
             [
                 'id' => 17275574,
@@ -55,15 +56,15 @@ final class MattGitLabApiTest extends TestCase
         ]);
         $this->clientMock->method('projects')->willReturn($projects);
 
-        self::assertEquals([
+        self::assertEquals(new Projects([
             new Project(17275574, 'repman/left-pad', 'https://gitlab.com/repman/left-pad'),
             new Project(17275573, 'repman/right-pad', 'https://gitlab.com/repman/right-pad'),
-        ], $this->api->projects('gitlab-token'));
+        ]), $this->api->projects('gitlab-token'));
     }
 
     public function testAddHookWhenNotExist(): void
     {
-        $projects = $this->getMockBuilder(Projects::class)->disableOriginalConstructor()->getMock();
+        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
         $projects->method('hooks')->willReturn([
             [
                 'id' => 1834838,
@@ -81,7 +82,7 @@ final class MattGitLabApiTest extends TestCase
 
     public function testDoNotAddHookWhenExist(): void
     {
-        $projects = $this->getMockBuilder(Projects::class)->disableOriginalConstructor()->getMock();
+        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
         $projects->method('hooks')->willReturn([
             [
                 'id' => 1834838,

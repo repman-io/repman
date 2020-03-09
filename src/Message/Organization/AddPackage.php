@@ -10,13 +10,21 @@ final class AddPackage
     private string $url;
     private string $type;
     private string $organizationId;
+    /**
+     * @var mixed[]
+     */
+    private array $metadata;
 
-    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs')
+    /**
+     * @param mixed[] $metadata
+     */
+    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs', array $metadata = [])
     {
         $this->id = $id;
         $this->organizationId = $organizationId;
         $this->url = $url;
         $this->type = $type;
+        $this->metadata = $metadata;
     }
 
     public function id(): string
@@ -37,5 +45,13 @@ final class AddPackage
     public function type(): string
     {
         return $this->type;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function metadata(): array
+    {
+        return $this->metadata;
     }
 }

@@ -16,14 +16,11 @@ final class MattGitLabApi implements GitLabApi
         $this->client = $client;
     }
 
-    /**
-     * @return Project[]
-     */
-    public function projects(string $accessToken): array
+    public function projects(string $accessToken): Projects
     {
         $this->client->authenticate($accessToken, Client::AUTH_OAUTH_TOKEN);
 
-        return array_map(function (array $project): Project {
+        return new Projects(array_map(function (array $project): Project {
             return new Project(
                 $project['id'],
                 $project['path_with_namespace'],
@@ -34,7 +31,7 @@ final class MattGitLabApi implements GitLabApi
             'owned' => true,
             'membership' => true,
             'order_by' => 'path',
-        ]));
+        ])));
     }
 
     public function addHook(string $accessToken, int $projectId, string $hookUrl): void

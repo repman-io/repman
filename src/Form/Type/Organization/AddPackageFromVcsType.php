@@ -22,21 +22,17 @@ class AddPackageFromVcsType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $choices = [];
-        foreach ($options['repositories'] as $repo) {
-            $choices[$repo] = $repo;
-        }
-
         $builder
             ->add('repositories', ChoiceType::class, [
-                'choices' => $choices,
+                'choices' => $options['repositories'],
                 'label' => false,
                 'expanded' => false,
                 'multiple' => true,
                 'attr' => [
                     'class' => 'form-control selectpicker',
                     'data-live-search' => 'true',
-                    'data-style' => 'btn-info',
+                    'data-style' => 'btn-secondary',
+                    'title' => 'Select repository',
                 ],
             ])
             ->add('Import', SubmitType::class);

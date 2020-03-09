@@ -89,11 +89,11 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
      */
     private function getAuthHeaders(Package $package): array
     {
-        if ($package->oauthToken() === null) {
+        if (!$package->hasOAuthToken()) {
             return [];
         }
 
-        return [sprintf('Authorization: Bearer %s', $package->oauthToken()->value())];
+        return [sprintf('Authorization: Bearer %s', $package->oauthToken())];
     }
 
     private function createConfig(Package $package): Config
@@ -122,8 +122,8 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             'config' => [],
         ];
 
-        if (isset($map[$package->type()]) && $token = $package->oauthToken()) {
-            $params['config'][$package->type()] = [$map[$package->type()]['domain'] => $token->value()];
+        if (isset($map[$package->type()]) && $package->hasOAuthToken()) {
+            $params['config'][$package->type()] = [$map[$package->type()]['domain'] => $package->oauthToken()];
         }
 
         $config->merge($params);

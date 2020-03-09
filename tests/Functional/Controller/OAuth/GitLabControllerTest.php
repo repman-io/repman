@@ -98,6 +98,23 @@ final class GitLabControllerTest extends FunctionalTestCase
         self::assertStringContainsString('invalid scope provided', $this->lastResponseBody());
     }
 
+    public function testAddOAuthTokenToUser(): void
+    {
+        $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->client->request('GET', $this->urlTo('organization_package_add_from_gitlab', ['organization' => 'buddy']));
+        $params = $this->getQueryParamsFromLastResponse();
+
+        $this->mockTokenAndUserResponse($email);
+
+        $this->client->request('GET', $this->urlTo('package_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_gitlab', ['organization' => 'buddy'])));
+        $this->client->followRedirect();
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
     /**
      * @return mixed[]
      */

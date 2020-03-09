@@ -18,6 +18,9 @@ services:
     Buddy\Repman\Service\GitHubApi:
         class: Buddy\Repman\Tests\Doubles\FakeGitHubApi
 
+    Buddy\Repman\Service\GitLabApi:
+        class: Buddy\Repman\Tests\Doubles\FakeGitLabApi
+
     Buddy\Repman\Service\BitbucketApi:
         class: Buddy\Repman\Tests\Doubles\FakeBitbucketApi
 

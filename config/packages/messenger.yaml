@@ -12,4 +12,5 @@ framework:
 
         routing:
             'Buddy\Repman\Message\Organization\SynchronizePackage': async
-            'Buddy\Repman\Message\Organization\AddHook': async
+            'Buddy\Repman\Message\Organization\Package\AddGitHubHook': async
+            'Buddy\Repman\Message\Organization\Package\AddGitLabHook': async

@@ -39,18 +39,16 @@ final class PackageMother
         );
         $package->setOrganization(new Organization(
             Uuid::uuid4(),
-            new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
+            $user = new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
             'Buddy',
             $organizationAlias
         ));
-        $package->setOauthToken(
-            new OauthToken(
-                Uuid::uuid4(),
-                new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
-                'github',
-                'secret'
-            )
-        );
+        $user->addOauthToken(new OauthToken(
+            Uuid::uuid4(),
+            new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
+            rtrim($type, '-oauth'),
+            'secret'
+        ));
 
         return $package;
     }

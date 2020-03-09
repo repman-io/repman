@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
-use Buddy\Repman\Service\GitLabApi\Project;
+use Buddy\Repman\Service\GitLabApi\Projects;
 
 interface GitLabApi
 {
-    /**
-     * @return Project[]
-     */
-    public function projects(string $accessToken): array;
+    public function projects(string $accessToken): Projects;
 
     public function addHook(string $accessToken, int $projectId, string $hookUrl): void;
 }
