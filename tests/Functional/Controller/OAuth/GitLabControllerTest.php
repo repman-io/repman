@@ -102,7 +102,7 @@ final class GitLabControllerTest extends FunctionalTestCase
     {
         $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
         $this->fixtures->createOrganization('buddy', $userId);
-        $this->client->request('GET', $this->urlTo('organization_package_add_from_gitlab', ['organization' => 'buddy']));
+        $this->client->request('GET', $this->urlTo('fetch_gitlab_package_token', ['organization' => 'buddy']));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->mockTokenAndUserResponse($email);
@@ -113,6 +113,30 @@ final class GitLabControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
 
         self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testAddPackageFromGitLabWithoutToken(): void
+    {
+        $userId = $this->createAndLoginAdmin();
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->client->request('GET', $this->urlTo('fetch_gitlab_package_token', ['organization' => 'buddy']));
+
+        self::assertStringContainsString('gitlab.com', (string) $this->client->getResponse()->headers->get('Location'));
+    }
+
+    public function testAddPackageFromGitLabWithToken(): void
+    {
+        $userId = $this->createAndLoginAdmin();
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->fixtures->createOauthToken($userId, 'gitlab');
+
+        $this->client->request('GET', $this->urlTo('fetch_gitlab_package_token', ['organization' => 'buddy']));
+
+        self::assertTrue(
+            $this->client
+                ->getResponse()
+                ->isRedirect($this->urlTo('organization_package_new_from_gitlab', ['organization' => 'buddy']))
+        );
     }
 
     /**

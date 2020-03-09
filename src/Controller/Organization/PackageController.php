@@ -9,9 +9,11 @@ use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OauthToken;
 use Buddy\Repman\Form\Type\Organization\AddPackageFromVcsType;
 use Buddy\Repman\Message\Organization\AddPackage;
+use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\GitLabApi;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,10 +28,9 @@ final class PackageController extends AbstractController
      */
     public function packageNewFromGitLab(Organization $organization, Request $request, GitLabApi $api): Response
     {
-        // TODO: check redirection exception and use Option::getOrElseThrow
         $token = $this->getUser()->oauthToken(OauthToken::TYPE_GITLAB);
         if ($token === null) {
-            return $this->redirectToRoute('organization_package_add_from_gitlab', ['organization' => $organization->alias()]);
+            return $this->redirectToRoute('fetch_gitlab_package_token', ['organization' => $organization->alias()]);
         }
 
         $projects = $api->projects($token->value());
@@ -58,6 +59,45 @@ final class PackageController extends AbstractController
             'organization' => $organization,
             'form' => $form->createView(),
             'type' => 'GitLab',
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/new-from-github", name="organization_package_new_from_github", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packageNewFromGitHub(Organization $organization, Request $request, GithubApi $api): Response
+    {
+        $token = $this->getUser()->oauthToken(OauthToken::TYPE_GITHUB);
+        if ($token === null) {
+            return $this->redirectToRoute('fetch_github_package_token', ['organization' => $organization->alias()]);
+        }
+
+        $repos = $api->repositories($token->value());
+        $form = $this->createForm(AddPackageFromVcsType::class, null, ['repositories' => array_combine($repos, $repos)]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($form->get('repositories')->getData() as $repo) {
+                $this->dispatchMessage(new AddPackage(
+                    $id = Uuid::uuid4()->toString(),
+                    $organization->id(),
+                    "https://github.com/{$repo}",
+                    'github-oauth',
+                    [Metadata::GITHUB_REPO_NAME => $repo]
+                ));
+                $this->dispatchMessage(new SynchronizePackage($id));
+                $this->dispatchMessage(new AddGitHubHook($id));
+            }
+
+            $this->addFlash('success', 'Packages has been added and will be synchronized in the background');
+
+            return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+        }
+
+        return $this->render('organization/addPackageFromVcs.html.twig', [
+            'organization' => $organization,
+            'form' => $form->createView(),
+            'type' => 'GitHub',
         ]);
     }
 

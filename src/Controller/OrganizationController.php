@@ -4,37 +4,29 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Entity\User\OauthToken;
-use Buddy\Repman\Form\Type\Organization\AddPackageFromVcsType;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
-use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
-use Buddy\Repman\Message\User\AddOauthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\AliasGenerator;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\Provider\GithubClient;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class OrganizationController extends AbstractController
 {
@@ -124,95 +116,6 @@ final class OrganizationController extends AbstractController
             'organization' => $organization,
             'form' => $form->createView(),
         ]);
-    }
-
-    /**
-     * @Route("/organization/{organization}/package/new-from-github", name="organization_package_new_from_github", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
-     */
-    public function packageNewFromGitHub(Organization $organization, Request $request, ClientRegistry $clientRegistry, GithubApi $api): Response
-    {
-        $tokenType = OauthToken::TYPE_GITHUB;
-        /** @var User */
-        $user = $this->getUser();
-        $userId = $user->id()->toString();
-        $oauthToken = $user->oauthToken($tokenType);
-
-        if (empty($oauthToken)) {
-            /** @var GithubClient $oauthClient */
-            $oauthClient = $clientRegistry->getClient('github');
-            $tokenValue = $oauthClient->getAccessToken()->getToken();
-
-            $this->dispatchMessage(
-                new AddOauthToken(
-                    Uuid::uuid4()->toString(),
-                    $userId,
-                    $tokenType,
-                    $tokenValue
-                )
-            );
-        } else {
-            $tokenValue = $oauthToken->value();
-        }
-
-        $repos = $api->repositories($tokenValue);
-        $form = $this->createForm(AddPackageFromVcsType::class, null, ['repositories' => array_combine($repos, $repos)]);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($form->get('repositories')->getData() as $repo) {
-                $this->dispatchMessage(new AddPackage(
-                    $id = Uuid::uuid4()->toString(),
-                    $organization->id(),
-                    "https://github.com/{$repo}",
-                    'github-oauth',
-                    [Metadata::GITHUB_REPO_NAME => $repo]
-                ));
-                $this->dispatchMessage(new SynchronizePackage($id));
-                $this->dispatchMessage(new AddGitHubHook($id));
-            }
-
-            $this->addFlash('success', 'Packages has been added and will be synchronized in the background');
-
-            return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
-        }
-
-        return $this->render('organization/addPackageFromVcs.html.twig', [
-            'organization' => $organization,
-            'form' => $form->createView(),
-            'type' => $tokenType,
-        ]);
-    }
-
-    /**
-     * @Route("/organization/{organization}/package/add-from-github", name="organization_package_add_from_github", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
-    public function packageAddFromGithub(Organization $organization, ClientRegistry $clientRegistry): Response
-    {
-        /** @var User */
-        $user = $this->getUser();
-        $oauthToken = $user->oauthToken(OauthToken::TYPE_GITHUB);
-
-        if ($oauthToken) {
-            return $this->redirectToRoute(
-                'organization_package_new_from_github',
-                ['organization' => $organization->alias()]
-            );
-        }
-
-        /** @var GithubClient $oauthClient */
-        $oauthClient = $clientRegistry->getClient('github');
-
-        return $oauthClient
-            ->redirect(
-                ['read:org', 'repo'],
-                [
-                    'redirect_uri' => $this->generateUrl(
-                        'organization_package_new_from_github',
-                        ['organization' => $organization->alias()],
-                        UrlGeneratorInterface::ABSOLUTE_URL
-                    ),
-                ]
-            );
     }
 
     /**

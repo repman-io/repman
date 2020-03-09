@@ -102,6 +102,52 @@ final class GitHubControllerTest extends FunctionalTestCase
         self::assertStringContainsString('invalid scope provided', $this->lastResponseBody());
     }
 
+    public function testAddOAuthTokenToUser(): void
+    {
+        $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->client->request('GET', $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
+        $params = $this->getQueryParamsFromLastResponse();
+
+        $this->client->disableReboot();
+        GitHubOAuth::mockTokenResponse($email, $this->container());
+
+        $this->client->request('GET', $this->urlTo('package_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_github', ['organization' => 'buddy'])));
+        $this->client->followRedirect();
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testAddPackageFromGithubWithoutToken(): void
+    {
+        $userId = $this->createAndLoginAdmin();
+        $this->fixtures->createOrganization('buddy', $userId);
+
+        $this->client->request('GET', $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
+
+        self::assertStringContainsString(
+            'https://github.com/login/oauth/authorize?redirect_uri',
+            (string) $this->client->getResponse()->headers->get('Location')
+        );
+    }
+
+    public function testAddPackageFromGithubWithToken(): void
+    {
+        $userId = $this->createAndLoginAdmin();
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->fixtures->createOauthToken($userId, 'github');
+
+        $this->client->request('GET', $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
+
+        self::assertTrue(
+            $this->client
+                ->getResponse()
+                ->isRedirect($this->urlTo('organization_package_new_from_github', ['organization' => 'buddy']))
+        );
+    }
+
     /**
      * @return mixed[]
      */

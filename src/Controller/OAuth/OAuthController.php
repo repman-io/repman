@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
+use Buddy\Repman\Entity\User;
+use Buddy\Repman\Message\User\AddOauthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\UserGuardHelper;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Munus\Collection\Set;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class OAuthController extends AbstractController
 {
@@ -36,5 +41,24 @@ abstract class OAuthController extends AbstractController
         $this->guard->authenticateUser($email, $request);
 
         return $this->redirectToRoute('organization_create');
+    }
+
+    protected function storeRepoToken(string $type, string $token, string $route): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $this->dispatchMessage(
+            new AddOauthToken(
+                Uuid::uuid4()->toString(),
+                $user->id()->toString(),
+                $type,
+                $token
+            )
+        );
+
+        return $this->redirectToRoute($route, [
+            'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
+        ]);
     }
 }

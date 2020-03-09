@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
+use Buddy\Repman\Entity\User;
+use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\GitHubApi;
 use Github\Exception\ExceptionInterface as GitHubApiExceptionInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -51,5 +54,36 @@ final class GitHubController extends OAuthController
 
             return $this->redirectToRoute('app_register');
         }
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/add-from-github", name="fetch_github_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packageAddFromGithub(Organization $organization): Response
+    {
+        /** @var User */
+        $user = $this->getUser();
+        if ($user->oauthToken(OauthToken::TYPE_GITHUB)) {
+            return $this->redirectToRoute('organization_package_new_from_github', ['organization' => $organization->alias()]);
+        }
+        $this->session->set('organization', $organization->alias());
+
+        return $this->oauth->getClient('github')
+            ->redirect(
+                ['read:org', 'repo'],
+                ['redirect_uri' => $this->generateUrl('package_github_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]
+            );
+    }
+
+    /**
+     * @Route("/user/token/github/check", name="package_github_check", methods={"GET"})
+     */
+    public function storeGitHubRepoToken(): Response
+    {
+        return $this->storeRepoToken(
+            OauthToken::TYPE_GITHUB,
+            $this->oauth->getClient('github')->getAccessToken()->getToken(),
+            'organization_package_new_from_github'
+        );
     }
 }

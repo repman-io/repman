@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
-use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -344,59 +343,5 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertTrue($this->client->getResponse()->isForbidden());
-    }
-
-    public function testNewPackageFromGithub(): void
-    {
-        $this->fixtures->createOrganization('buddy', $this->userId);
-        $this->fixtures->createOauthToken($this->userId, 'github');
-
-        $this->client->request('GET', $this->urlTo('organization_package_new_from_github', ['organization' => 'buddy']));
-        $this->client->submitForm('Import', [
-            'repositories' => ['buddy/repman'],
-        ]);
-
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
-
-        /** @var InMemoryTransport $transport */
-        $transport = $this->container()->get('messenger.transport.async');
-        self::assertCount(2, $transport->getSent());
-        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
-        self::assertInstanceOf(AddGitHubHook::class, $transport->getSent()[1]->getMessage());
-
-        $this->client->followRedirect();
-        self::assertStringContainsString('Packages has been added and will be synchronized in the background', (string) $this->client->getResponse()->getContent());
-
-        self::assertTrue($this->client->getResponse()->isOk());
-    }
-
-    public function testAddPackageFromGithubWithoutToken(): void
-    {
-        $this->fixtures->createOrganization('buddy', $this->userId);
-
-        $this->client->request('GET', $this->urlTo('organization_package_add_from_github', ['organization' => 'buddy']));
-
-        self::assertStringContainsString(
-            'https://github.com/login/oauth/authorize?redirect_uri',
-            (string) $this->client->getResponse()->headers->get('Location')
-        );
-    }
-
-    public function testAddPackageFromGithubWithToken(): void
-    {
-        $this->fixtures->createOrganization('buddy', $this->userId);
-        $this->fixtures->createOauthToken($this->userId, 'github');
-
-        $this->client->request('GET', $this->urlTo('organization_package_add_from_github', ['organization' => 'buddy']));
-
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('organization_package_new_from_github', ['organization' => 'buddy']))
-        );
     }
 }
