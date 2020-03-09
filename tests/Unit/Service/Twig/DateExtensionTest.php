@@ -28,9 +28,9 @@ final class DateExtensionTest extends TestCase
     /**
      * @dataProvider timeDiffProvider
      */
-    public function testTimeDiff(string $excpeted, \DateTimeImmutable $dateTime): void
+    public function testTimeDiff(string $excpeted, \DateTimeImmutable $dateTime, \DateTimeImmutable $now): void
     {
-        self::assertEquals($excpeted, $this->extension->diff($this->env, $dateTime));
+        self::assertEquals($excpeted, $this->extension->diff($this->env, $dateTime, $now));
     }
 
     /**
@@ -41,9 +41,9 @@ final class DateExtensionTest extends TestCase
         $dateTime = new \DateTimeImmutable();
 
         return [
-            ['5 seconds ago', $dateTime->modify('-5 second')],
-            ['1 second ago', $dateTime->modify('-1 second')],
-            ['1 day ago', $dateTime->modify('-1 day')],
+            ['5 seconds ago', $dateTime->modify('-5 second'), $dateTime],
+            ['1 second ago', $dateTime->modify('-1 second'), $dateTime],
+            ['1 day ago', $dateTime->modify('-1 day'), $dateTime],
         ];
     }
 }
