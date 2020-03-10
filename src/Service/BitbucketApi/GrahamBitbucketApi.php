@@ -28,19 +28,21 @@ final class GrahamBitbucketApi implements BitbucketApi
         throw new \RuntimeException('Primary e-mail not found.');
     }
 
-    public function repositories(string $accessToken): array
+    public function repositories(string $accessToken): Repositories
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
 
-        return array_map(function (array $repo): Repository {
+        // TODO: handle pagination
+        return new Repositories(array_map(function (array $repo): Repository {
             return new Repository(
+                $repo['uuid'],
                 $repo['full_name'],
-                $repo['links']['self']
+                $repo['links']['html']['href'].'.git'
             );
         }, $this->client->repositories()->list([
             'role' => 'member',
             'pagelen' => 100,
-        ]));
+        ])['values'] ?? []));
     }
 
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void
@@ -50,6 +52,7 @@ final class GrahamBitbucketApi implements BitbucketApi
 
         $hooks = $this->client->repositories()->users($username)->hooks($repo);
 
+        // TODO: handle pagination
         foreach ($hooks->list(['pagelen' => 100])['values'] ?? [] as $hook) {
             if ($hook['url'] === $hookUrl) {
                 return;

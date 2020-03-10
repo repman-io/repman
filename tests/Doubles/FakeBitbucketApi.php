@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Doubles;
 
 use Buddy\Repman\Service\BitbucketApi;
+use Buddy\Repman\Service\BitbucketApi\Repositories;
 
 final class FakeBitbucketApi implements BitbucketApi
 {
@@ -30,9 +31,11 @@ final class FakeBitbucketApi implements BitbucketApi
         $this->exception = $exception;
     }
 
-    public function repositories(string $accessToken): array
+    public function repositories(string $accessToken): Repositories
     {
-        return [];
+        return new Repositories([
+            new BitbucketApi\Repository('{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}', 'buddy-works/repman', 'https://bitbucket.org/buddy-works/repman.git'),
+        ]);
     }
 
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void

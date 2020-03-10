@@ -4,6 +4,7 @@ Repman is a PHP repository manager. Main features:
  - work as proxy for packagist.org (speed up your local builds)
  - host your private packages
  - allow to create individual access tokens
+ - import private packages from GitHub, GitLab and Bitbucket with one click
 
 ## Requirements
 
@@ -52,17 +53,23 @@ symfony proxy:domain:attach your-organization.repman
 
 ## Roadmap
 
- - [x] proxy for packagist.org
- - [x] repman composer plugin for seamless integration with existing projects
- - [x] local metadata cache
  - [ ] support for docker (to allow to create repman instance with docker)
- - [x] admin panel
- - [x] support private packages
-
+ - [ ] manual webook installation
 
 ## Integration
 
-### Gitlab
+Callbacks:
+ - `/auth/{provider}/check`
+ - `/register/{provider}/check`
+ - `/user/token/{provider}/check`
+
+### GitHub
+
+Scopes:
+ - registration: `user:email`
+ - repositories: `read:org`, `repo`
+
+### GitLab
 
 Scopes:
  - registration: `read_user`

@@ -102,6 +102,48 @@ final class BitbucketControllerTest extends FunctionalTestCase
         self::assertStringContainsString('invalid scope provided', $this->lastResponseBody());
     }
 
+    public function testAddOAuthTokenToUser(): void
+    {
+        $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->client->request('GET', $this->urlTo('fetch_bitbucket_package_token', ['organization' => 'buddy']));
+        $params = $this->getQueryParamsFromLastResponse();
+
+        $this->client->disableReboot();
+        BitbucketOAuth::mockTokenResponse($email, $this->container());
+
+        $this->client->request('GET', $this->urlTo('package_bitbucket_check', ['state' => $params['state'], 'code' => 'secret-token']));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_bitbucket', ['organization' => 'buddy'])));
+        $this->client->followRedirect();
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testAddPackageFromBitbucketWithoutToken(): void
+    {
+        $userId = $this->createAndLoginAdmin();
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->client->request('GET', $this->urlTo('fetch_bitbucket_package_token', ['organization' => 'buddy']));
+
+        self::assertStringContainsString('bitbucket.org', (string) $this->client->getResponse()->headers->get('Location'));
+    }
+
+    public function testAddPackageFromBitbucketWithToken(): void
+    {
+        $userId = $this->createAndLoginAdmin();
+        $this->fixtures->createOrganization('buddy', $userId);
+        $this->fixtures->createOauthToken($userId, 'bitbucket');
+
+        $this->client->request('GET', $this->urlTo('fetch_bitbucket_package_token', ['organization' => 'buddy']));
+
+        self::assertTrue(
+            $this->client
+                ->getResponse()
+                ->isRedirect($this->urlTo('organization_package_new_from_bitbucket', ['organization' => 'buddy']))
+        );
+    }
+
     /**
      * @return mixed[]
      */

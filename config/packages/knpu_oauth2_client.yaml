@@ -42,3 +42,10 @@ knpu_oauth2_client:
             redirect_route: register_bitbucket_check
             redirect_params: {}
             use_state: true
+        bitbucket-package:
+            type: bitbucket
+            client_id: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_BITBUCKET_CLIENT_SECRET)%'
+            redirect_route: package_bitbucket_check
+            redirect_params: {}
+            use_state: true

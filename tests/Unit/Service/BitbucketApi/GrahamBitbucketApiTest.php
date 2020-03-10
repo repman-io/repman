@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\BitbucketApi;
 
 use Bitbucket\Api\CurrentUser;
-use Bitbucket\Api\Repositories;
+use Bitbucket\Api\Repositories as RepositoriesApi;
 use Bitbucket\Client;
 use Buddy\Repman\Service\BitbucketApi\GrahamBitbucketApi;
+use Buddy\Repman\Service\BitbucketApi\Repositories;
 use Buddy\Repman\Service\BitbucketApi\Repository;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -70,30 +71,34 @@ final class GrahamBitbucketApiTest extends TestCase
 
     public function testFetchRepositories(): void
     {
-        $repos = $this->getMockBuilder(Repositories::class)->disableOriginalConstructor()->getMock();
+        $repos = $this->getMockBuilder(RepositoriesApi::class)->disableOriginalConstructor()->getMock();
         $repos->method('list')->willReturn([
-            [
-                'full_name' => 'repman/left-pad',
-                'links' => ['self' => 'https://gitlab.com/repman/left-pad'],
-            ],
-            [
-                'full_name' => 'repman/right-pad',
-                'links' => ['self' => 'https://gitlab.com/repman/right-pad'],
+            'values' => [
+                [
+                    'uuid' => '099acebd-5158-459e-b05c-30e51b49a1a8',
+                    'full_name' => 'repman/left-pad',
+                    'links' => ['html' => ['href' => 'https://gitlab.com/repman/left-pad']],
+                ],
+                [
+                    'uuid' => '74fb57b9-0820-4165-bba0-892eef8f69b8',
+                    'full_name' => 'repman/right-pad',
+                    'links' => ['html' => ['href' => 'https://gitlab.com/repman/right-pad']],
+                ],
             ],
         ]);
         $this->clientMock->method('repositories')->willReturn($repos);
 
-        self::assertEquals([
-            new Repository('repman/left-pad', 'https://gitlab.com/repman/left-pad'),
-            new Repository('repman/right-pad', 'https://gitlab.com/repman/right-pad'),
-        ], $this->api->repositories('token'));
+        self::assertEquals(new Repositories([
+            new Repository('099acebd-5158-459e-b05c-30e51b49a1a8', 'repman/left-pad', 'https://gitlab.com/repman/left-pad.git'),
+            new Repository('74fb57b9-0820-4165-bba0-892eef8f69b8', 'repman/right-pad', 'https://gitlab.com/repman/right-pad.git'),
+        ]), $this->api->repositories('token'));
     }
 
     public function testAddHookWhenNotExist(): void
     {
-        $repos = $this->getMockBuilder(Repositories::class)->disableOriginalConstructor()->getMock();
-        $users = $this->getMockBuilder(Repositories\Users::class)->disableOriginalConstructor()->getMock();
-        $hooks = $this->getMockBuilder(Repositories\Users\Hooks::class)->disableOriginalConstructor()->getMock();
+        $repos = $this->getMockBuilder(RepositoriesApi::class)->disableOriginalConstructor()->getMock();
+        $users = $this->getMockBuilder(RepositoriesApi\Users::class)->disableOriginalConstructor()->getMock();
+        $hooks = $this->getMockBuilder(RepositoriesApi\Users\Hooks::class)->disableOriginalConstructor()->getMock();
         $hooks->method('list')->willReturn([
             'values' => [
                 ['url' => 'https://bitbucket-pipelines.prod.public.atl-paas.net/rest/bitbucket/event/connect/onpush'],
@@ -110,9 +115,9 @@ final class GrahamBitbucketApiTest extends TestCase
 
     public function testDoNotAddHookWhenExist(): void
     {
-        $repos = $this->getMockBuilder(Repositories::class)->disableOriginalConstructor()->getMock();
-        $users = $this->getMockBuilder(Repositories\Users::class)->disableOriginalConstructor()->getMock();
-        $hooks = $this->getMockBuilder(Repositories\Users\Hooks::class)->disableOriginalConstructor()->getMock();
+        $repos = $this->getMockBuilder(RepositoriesApi::class)->disableOriginalConstructor()->getMock();
+        $users = $this->getMockBuilder(RepositoriesApi\Users::class)->disableOriginalConstructor()->getMock();
+        $hooks = $this->getMockBuilder(RepositoriesApi\Users\Hooks::class)->disableOriginalConstructor()->getMock();
         $hooks->method('list')->willReturn([
             'values' => [
                 ['url' => 'https://bitbucket-pipelines.prod.public.atl-paas.net/rest/bitbucket/event/connect/onpush'],

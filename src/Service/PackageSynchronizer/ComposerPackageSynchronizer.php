@@ -14,6 +14,7 @@ use Buddy\Repman\Service\PackageSynchronizer;
 use Composer\Config;
 use Composer\Factory;
 use Composer\IO\BufferIO;
+use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
@@ -36,11 +37,11 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
     public function synchronize(Package $package): void
     {
-        $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $io = $this->createIO($package);
 
         try {
             /** @var RepositoryInterface $repository */
-            $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package)));
+            $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package, $io)));
             $json = ['packages' => []];
             $packages = $repository->getPackages();
 
@@ -96,37 +97,37 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         return [sprintf('Authorization: Bearer %s', $package->oauthToken())];
     }
 
-    private function createConfig(Package $package): Config
+    private function createIO(Package $package): BufferIO
+    {
+        $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE);
+
+        if ($package->type() === 'github-oauth') {
+            $io->setAuthentication('github.com', $package->oauthToken(), 'x-oauth-basic');
+        }
+
+        if ($package->type() === 'gitlab-oauth') {
+            $io->setAuthentication('gitlab.com', $package->oauthToken(), 'oauth2');
+        }
+
+        if ($package->type() === 'bitbucket-oauth') {
+            $io->setAuthentication('bitbucket.org', 'x-token-auth', $package->oauthToken());
+        }
+
+        return $io;
+    }
+
+    private function createConfig(Package $package, IOInterface $io): Config
     {
         unset(Config::$defaultRepositories['packagist.org']);
-        $config = Factory::createConfig();
-
-        $map = [
-            'github-oauth' => [
-                'domain' => 'github.com',
-            ],
-            'gitlab-oauth' => [
-                'domain' => 'gitlab.com',
-            ],
-        ];
-
-        $type = array_key_exists($package->type(), $map) ? 'vcs' : $package->type();
-
-        $params = [
+        $config = Factory::createConfig($io);
+        $config->merge([
             'repositories' => [
                 [
-                    'type' => $type,
+                    'type' => strpos($package->type(), '-oauth') !== false ? 'vcs' : $package->type(),
                     'url' => $package->repositoryUrl(),
                 ],
             ],
-            'config' => [],
-        ];
-
-        if (isset($map[$package->type()]) && $package->hasOAuthToken()) {
-            $params['config'][$package->type()] = [$map[$package->type()]['domain'] => $package->oauthToken()];
-        }
-
-        $config->merge($params);
+        ]);
 
         return $config;
     }

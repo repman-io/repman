@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller\OAuth;
 
 use Bitbucket\Exception\ExceptionInterface as BitbucketApiExceptionInterface;
+use Buddy\Repman\Entity\User;
+use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\BitbucketApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -48,5 +51,32 @@ final class BitbucketController extends OAuthController
 
             return $this->redirectToRoute('app_register');
         }
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/add-from-bitbucket", name="fetch_bitbucket_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function packageAddFromBitbucket(Organization $organization): Response
+    {
+        /** @var User */
+        $user = $this->getUser();
+        if ($user->oauthToken(OauthToken::TYPE_BITBUCKET)) {
+            return $this->redirectToRoute('organization_package_new_from_bitbucket', ['organization' => $organization->alias()]);
+        }
+        $this->session->set('organization', $organization->alias());
+
+        return $this->oauth->getClient('bitbucket-package')->redirect(['repository', 'webhook'], []);
+    }
+
+    /**
+     * @Route("/user/token/bitbucket/check", name="package_bitbucket_check", methods={"GET"})
+     */
+    public function storeGitLabRepoToken(): Response
+    {
+        return $this->storeRepoToken(
+            OauthToken::TYPE_BITBUCKET,
+            $this->oauth->getClient('bitbucket-package')->getAccessToken()->getToken(),
+            'organization_package_new_from_bitbucket'
+        );
     }
 }
