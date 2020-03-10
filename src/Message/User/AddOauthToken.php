@@ -9,14 +9,16 @@ final class AddOauthToken
     private string $id;
     private string $userId;
     private string $type;
-    private string $value;
+    private string $accessToken;
+    private ?string $refreshToken = null;
 
-    public function __construct(string $id, string $userId, string $type, string $value)
+    public function __construct(string $id, string $userId, string $type, string $accessToken, ?string $refreshToken = null)
     {
         $this->id = $id;
         $this->userId = $userId;
         $this->type = $type;
-        $this->value = $value;
+        $this->accessToken = $accessToken;
+        $this->refreshToken = $refreshToken;
     }
 
     public function id(): string
@@ -34,8 +36,13 @@ final class AddOauthToken
         return $this->type;
     }
 
-    public function value(): string
+    public function accessToken(): string
     {
-        return $this->value;
+        return $this->accessToken;
+    }
+
+    public function refreshToken(): ?string
+    {
+        return $this->refreshToken;
     }
 }

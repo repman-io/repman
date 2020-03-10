@@ -75,7 +75,7 @@ final class GitLabController extends OAuthController
     {
         return $this->storeRepoToken(
             OauthToken::TYPE_GITLAB,
-            $this->oauth->getClient('gitlab-package')->getAccessToken()->getToken(),
+            $this->oauth->getClient('gitlab-package'),
             'organization_package_new_from_gitlab'
         );
     }

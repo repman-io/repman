@@ -82,7 +82,7 @@ final class GitHubController extends OAuthController
     {
         return $this->storeRepoToken(
             OauthToken::TYPE_GITHUB,
-            $this->oauth->getClient('github')->getAccessToken()->getToken(),
+            $this->oauth->getClient('github'),
             'organization_package_new_from_github'
         );
     }

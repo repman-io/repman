@@ -35,7 +35,7 @@ final class PackageController extends AbstractController
             return $this->redirectToRoute('fetch_gitlab_package_token', ['organization' => $organization->alias()]);
         }
 
-        $projects = $api->projects($token->value());
+        $projects = $api->projects($token->accessToken());
         $form = $this->createForm(AddPackageFromVcsType::class, null, ['repositories' => array_flip($projects->names())]);
         $form->handleRequest($request);
 
@@ -74,7 +74,7 @@ final class PackageController extends AbstractController
             return $this->redirectToRoute('fetch_github_package_token', ['organization' => $organization->alias()]);
         }
 
-        $repos = $api->repositories($token->value());
+        $repos = $api->repositories($token->accessToken());
         $form = $this->createForm(AddPackageFromVcsType::class, null, ['repositories' => array_combine($repos, $repos)]);
         $form->handleRequest($request);
 
@@ -113,7 +113,7 @@ final class PackageController extends AbstractController
             return $this->redirectToRoute('fetch_bitbucket_package_token', ['organization' => $organization->alias()]);
         }
 
-        $repos = $api->repositories($token->value());
+        $repos = $api->repositories($token->accessToken());
         $form = $this->createForm(AddPackageFromVcsType::class, null, ['repositories' => array_flip($repos->names())]);
         $form->handleRequest($request);
 

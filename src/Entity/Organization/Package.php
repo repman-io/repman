@@ -160,7 +160,7 @@ class Package
             throw new \RuntimeException('Oauth token not found');
         }
 
-        return $token->value();
+        return $token->accessToken();
     }
 
     public function hasOAuthToken(): bool

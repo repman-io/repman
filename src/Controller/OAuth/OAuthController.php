@@ -9,6 +9,9 @@ use Buddy\Repman\Message\User\AddOauthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\UserGuardHelper;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
+use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Munus\Collection\Set;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,22 +46,31 @@ abstract class OAuthController extends AbstractController
         return $this->redirectToRoute('organization_create');
     }
 
-    protected function storeRepoToken(string $type, string $token, string $route): Response
+    protected function storeRepoToken(string $type, OAuth2ClientInterface $client, string $route): Response
     {
         /** @var User $user */
         $user = $this->getUser();
+        try {
+            $token = $client->getAccessToken();
+            $this->dispatchMessage(
+                new AddOauthToken(
+                    Uuid::uuid4()->toString(),
+                    $user->id()->toString(),
+                    $type,
+                    $token->getToken(),
+                    $token->getRefreshToken()
+                )
+            );
 
-        $this->dispatchMessage(
-            new AddOauthToken(
-                Uuid::uuid4()->toString(),
-                $user->id()->toString(),
-                $type,
-                $token
-            )
-        );
+            return $this->redirectToRoute($route, [
+                'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
+            ]);
+        } catch (OAuth2ClientException | IdentityProviderException $e) {
+            $this->addFlash('danger', 'Error while getting oauth token: '.$e->getMessage());
 
-        return $this->redirectToRoute($route, [
-            'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
-        ]);
+            return $this->redirectToRoute('organization_package_new', [
+                'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
+            ]);
+        }
     }
 }

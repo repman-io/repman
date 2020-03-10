@@ -47,14 +47,20 @@ class OauthToken
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $value;
+    private string $accessToken;
 
-    public function __construct(UuidInterface $id, User $user, string $type, string $value)
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $refreshToken = null;
+
+    public function __construct(UuidInterface $id, User $user, string $type, string $accessToken, ?string $refreshToken = null)
     {
         $this->id = $id;
         $this->setUser($user->addOauthToken($this));
         $this->type = $type;
-        $this->value = $value;
+        $this->accessToken = $accessToken;
+        $this->refreshToken = $refreshToken;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -75,8 +81,8 @@ class OauthToken
         return $this->type() === $type;
     }
 
-    public function value(): string
+    public function accessToken(): string
     {
-        return $this->value;
+        return $this->accessToken;
     }
 }

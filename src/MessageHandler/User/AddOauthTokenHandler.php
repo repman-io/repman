@@ -32,7 +32,8 @@ final class AddOauthTokenHandler implements MessageHandlerInterface
                 Uuid::fromString($message->id()),
                 $user,
                 $message->type(),
-                $message->value()
+                $message->accessToken(),
+                $message->refreshToken()
             )
         );
     }
