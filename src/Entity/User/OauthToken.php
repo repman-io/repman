@@ -85,4 +85,23 @@ class OauthToken
     {
         return $this->accessToken;
     }
+
+    public function hasRefreshToken(): bool
+    {
+        return $this->refreshToken !== null;
+    }
+
+    public function refreshToken(): string
+    {
+        if ($this->refreshToken === null) {
+            throw new \RuntimeException(sprintf('No refresh token for %s token', $this->id->toString()));
+        }
+
+        return $this->refreshToken;
+    }
+
+    public function refresh(string $accessToken): void
+    {
+        $this->accessToken = $accessToken;
+    }
 }

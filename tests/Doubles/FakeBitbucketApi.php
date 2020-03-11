@@ -33,6 +33,10 @@ final class FakeBitbucketApi implements BitbucketApi
 
     public function repositories(string $accessToken): Repositories
     {
+        if ($this->exception !== null) {
+            throw $this->exception;
+        }
+
         return new Repositories([
             new BitbucketApi\Repository('{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}', 'buddy-works/repman', 'https://bitbucket.org/buddy-works/repman.git'),
         ]);

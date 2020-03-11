@@ -143,14 +143,15 @@ final class FixturesManager
         $this->container->get(EntityManagerInterface::class)->flush();
     }
 
-    public function createOauthToken(string $userId, string $type, string $value = 'secret'): string
+    public function createOauthToken(string $userId, string $type, string $accessToken = 'secret', ?string $refreshToken = null): string
     {
         $this->dispatchMessage(
             new AddOauthToken(
                 $id = Uuid::uuid4()->toString(),
                 $userId,
                 $type,
-                $value
+                $accessToken,
+                $refreshToken
             )
         );
 

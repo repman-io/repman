@@ -30,7 +30,7 @@ final class BitbucketAuthenticatorTest extends IntegrationTestCase
 
     public function testThrowExceptionIfUserWasNotFound(): void
     {
-        BitbucketOAuth::mockTokenResponse('some@buddy.works', $this->container());
+        BitbucketOAuth::mockAccessTokenResponse('some@buddy.works', $this->container());
         $this->expectException(UsernameNotFoundException::class);
 
         $this->container()->get(BitbucketAuthenticator::class)->getUser(
