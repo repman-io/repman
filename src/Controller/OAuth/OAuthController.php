@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller\OAuth;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Message\User\AddOauthToken;
+use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\UserGuardHelper;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -52,12 +52,13 @@ abstract class OAuthController extends AbstractController
         try {
             $token = $client->getAccessToken();
             $this->dispatchMessage(
-                new AddOauthToken(
+                new AddOAuthToken(
                     Uuid::uuid4()->toString(),
                     $user->id()->toString(),
                     $type,
                     $token->getToken(),
-                    $token->getRefreshToken()
+                    $token->getRefreshToken(),
+                    $token->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($token->getExpires()) : null
                 )
             );
 

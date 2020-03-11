@@ -9,7 +9,7 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
-use Buddy\Repman\Message\User\AddOauthToken;
+use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
@@ -146,7 +146,7 @@ final class FixturesManager
     public function createOauthToken(string $userId, string $type, string $accessToken = 'secret', ?string $refreshToken = null): string
     {
         $this->dispatchMessage(
-            new AddOauthToken(
+            new AddOAuthToken(
                 $id = Uuid::uuid4()->toString(),
                 $userId,
                 $type,

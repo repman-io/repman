@@ -35,6 +35,9 @@ final class RefreshOAuthTokenHandler implements MessageHandlerInterface
             ->getAccessToken(new RefreshToken(), ['refresh_token' => $token->refreshToken()])
         ;
 
-        $token->refresh($accessToken->getToken());
+        $token->refresh(
+            $accessToken->getToken(),
+            $accessToken->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($accessToken->getExpires()) : null
+        );
     }
 }

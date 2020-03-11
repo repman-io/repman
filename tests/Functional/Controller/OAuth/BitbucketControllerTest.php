@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\OAuth;
 
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Tests\Doubles\BitbucketOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
@@ -166,7 +166,7 @@ final class BitbucketControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('refresh_bitbucket_token'));
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_bitbucket', ['organization' => 'buddy'])));
 
-        /** @var OauthToken $token */
+        /** @var OAuthToken $token */
         $token = $this->container()
             ->get(UserRepository::class)
             ->getById(Uuid::fromString($userId))

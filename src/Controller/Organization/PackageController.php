@@ -6,7 +6,7 @@ namespace Buddy\Repman\Controller\Organization;
 
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Form\Type\Organization\AddPackageFromVcsType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
@@ -30,7 +30,7 @@ final class PackageController extends AbstractController
      */
     public function packageNewFromGitLab(Organization $organization, Request $request, GitLabApi $api): Response
     {
-        $token = $this->getUser()->oauthToken(OauthToken::TYPE_GITLAB);
+        $token = $this->getUser()->oauthToken(OAuthToken::TYPE_GITLAB);
         if ($token === null) {
             return $this->redirectToRoute('fetch_gitlab_package_token', ['organization' => $organization->alias()]);
         }
@@ -69,7 +69,7 @@ final class PackageController extends AbstractController
      */
     public function packageNewFromGitHub(Organization $organization, Request $request, GithubApi $api): Response
     {
-        $token = $this->getUser()->oauthToken(OauthToken::TYPE_GITHUB);
+        $token = $this->getUser()->oauthToken(OAuthToken::TYPE_GITHUB);
         if ($token === null) {
             return $this->redirectToRoute('fetch_github_package_token', ['organization' => $organization->alias()]);
         }
@@ -108,7 +108,7 @@ final class PackageController extends AbstractController
      */
     public function packageNewFromBitbucket(Organization $organization, Request $request, BitbucketApi $api): Response
     {
-        $token = $this->getUser()->oauthToken(OauthToken::TYPE_BITBUCKET);
+        $token = $this->getUser()->oauthToken(OAuthToken::TYPE_BITBUCKET);
         if ($token === null) {
             return $this->redirectToRoute('fetch_bitbucket_package_token', ['organization' => $organization->alias()]);
         }

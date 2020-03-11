@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller\OAuth;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\GitHubApi;
 use Github\Exception\ExceptionInterface as GitHubApiExceptionInterface;
@@ -63,7 +63,7 @@ final class GitHubController extends OAuthController
     {
         /** @var User */
         $user = $this->getUser();
-        if ($user->oauthToken(OauthToken::TYPE_GITHUB)) {
+        if ($user->oauthToken(OAuthToken::TYPE_GITHUB)) {
             return $this->redirectToRoute('organization_package_new_from_github', ['organization' => $organization->alias()]);
         }
         $this->session->set('organization', $organization->alias());
@@ -81,7 +81,7 @@ final class GitHubController extends OAuthController
     public function storeGitHubRepoToken(): Response
     {
         return $this->storeRepoToken(
-            OauthToken::TYPE_GITHUB,
+            OAuthToken::TYPE_GITHUB,
             $this->oauth->getClient('github'),
             'organization_package_new_from_github'
         );

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -82,8 +82,8 @@ class User implements UserInterface
     private string $status = self::STATUS_ENABLED;
 
     /**
-     * @var Collection<int,OauthToken>|OauthToken[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\User\OauthToken", mappedBy="user", orphanRemoval=true, cascade={"persist"})
+     * @var Collection<int,OAuthToken>|OAuthToken[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\User\OAuthToken", mappedBy="user", orphanRemoval=true, cascade={"persist"})
      */
     private Collection $oauthTokens;
 
@@ -266,17 +266,16 @@ class User implements UserInterface
         $this->password = $password;
     }
 
-    public function addOauthToken(OauthToken $oauthToken): self
+    public function addOAuthToken(OAuthToken $oauthToken): self
     {
         if (!$this->oauthTokens->contains($oauthToken)) {
             $this->oauthTokens[] = $oauthToken;
-            $oauthToken->setUser($this);
         }
 
         return $this;
     }
 
-    public function oauthToken(string $type): ?OauthToken
+    public function oauthToken(string $type): ?OAuthToken
     {
         foreach ($this->oauthTokens as $token) {
             if ($token->isType($type)) {

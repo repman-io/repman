@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Ramsey\Uuid\UuidInterface;

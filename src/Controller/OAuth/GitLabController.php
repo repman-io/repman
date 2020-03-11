@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller\OAuth;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
@@ -60,7 +60,7 @@ final class GitLabController extends OAuthController
     {
         /** @var User */
         $user = $this->getUser();
-        if ($user->oauthToken(OauthToken::TYPE_GITLAB)) {
+        if ($user->oauthToken(OAuthToken::TYPE_GITLAB)) {
             return $this->redirectToRoute('organization_package_new_from_gitlab', ['organization' => $organization->alias()]);
         }
         $this->session->set('organization', $organization->alias());
@@ -74,7 +74,7 @@ final class GitLabController extends OAuthController
     public function storeGitLabRepoToken(): Response
     {
         return $this->storeRepoToken(
-            OauthToken::TYPE_GITLAB,
+            OAuthToken::TYPE_GITLAB,
             $this->oauth->getClient('gitlab-package'),
             'organization_package_new_from_gitlab'
         );

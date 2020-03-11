@@ -6,7 +6,7 @@ namespace Buddy\Repman\Controller\OAuth;
 
 use Bitbucket\Exception\ExceptionInterface as BitbucketApiExceptionInterface;
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\User\RefreshOAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\BitbucketApi;
@@ -62,7 +62,7 @@ final class BitbucketController extends OAuthController
     {
         /** @var User */
         $user = $this->getUser();
-        if ($user->oauthToken(OauthToken::TYPE_BITBUCKET)) {
+        if ($user->oauthToken(OAuthToken::TYPE_BITBUCKET)) {
             return $this->redirectToRoute('organization_package_new_from_bitbucket', ['organization' => $organization->alias()]);
         }
         $this->session->set('organization', $organization->alias());
@@ -76,7 +76,7 @@ final class BitbucketController extends OAuthController
     public function storeGitLabRepoToken(): Response
     {
         return $this->storeRepoToken(
-            OauthToken::TYPE_BITBUCKET,
+            OAuthToken::TYPE_BITBUCKET,
             $this->oauth->getClient('bitbucket-package'),
             'organization_package_new_from_bitbucket'
         );
@@ -89,7 +89,7 @@ final class BitbucketController extends OAuthController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $this->dispatchMessage(new RefreshOAuthToken($user->id()->toString(), OauthToken::TYPE_BITBUCKET));
+        $this->dispatchMessage(new RefreshOAuthToken($user->id()->toString(), OAuthToken::TYPE_BITBUCKET));
 
         return $this->redirectToRoute('organization_package_new_from_bitbucket', [
             'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),

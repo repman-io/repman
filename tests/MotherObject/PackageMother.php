@@ -7,7 +7,7 @@ namespace Buddy\Repman\Tests\MotherObject;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Entity\User\OauthToken;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Ramsey\Uuid\Uuid;
 
 final class PackageMother
@@ -43,7 +43,7 @@ final class PackageMother
             'Buddy',
             $organizationAlias
         ));
-        $user->addOauthToken(new OauthToken(
+        $user->addOAuthToken(new OAuthToken(
             Uuid::uuid4(),
             new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
             rtrim($type, '-oauth'),
