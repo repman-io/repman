@@ -12,7 +12,6 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\BitbucketApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Munus\Collection\Set;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -93,7 +92,7 @@ final class BitbucketController extends OAuthController
         $this->dispatchMessage(new RefreshOAuthToken($user->id()->toString(), OauthToken::TYPE_BITBUCKET));
 
         return $this->redirectToRoute('organization_package_new_from_bitbucket', [
-            'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
+            'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
         ]);
     }
 }

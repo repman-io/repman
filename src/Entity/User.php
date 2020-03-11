@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\User\OauthToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Munus\Control\Option;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -284,5 +285,18 @@ class User implements UserInterface
         }
 
         return null;
+    }
+
+    /**
+     * @return Option<string>
+     */
+    public function firstOrganizationAlias(): Option
+    {
+        $first = $this->organizations->first();
+        if ($first === false) {
+            return Option::none();
+        }
+
+        return Option::some($first->alias());
     }
 }

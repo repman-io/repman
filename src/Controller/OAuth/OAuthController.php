@@ -12,7 +12,6 @@ use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Munus\Collection\Set;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,13 +62,13 @@ abstract class OAuthController extends AbstractController
             );
 
             return $this->redirectToRoute($route, [
-                'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
+                'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
             ]);
         } catch (OAuth2ClientException | IdentityProviderException $e) {
             $this->addFlash('danger', 'Error while getting oauth token: '.$e->getMessage());
 
             return $this->redirectToRoute('organization_package_new', [
-                'organization' => $this->session->get('organization', Set::ofAll($user->getOrganizations()->toArray())->getOrElseThrow(new NotFoundHttpException())->alias()),
+                'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
             ]);
         }
     }
