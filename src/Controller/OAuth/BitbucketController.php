@@ -7,14 +7,12 @@ namespace Buddy\Repman\Controller\OAuth;
 use Bitbucket\Exception\ExceptionInterface as BitbucketApiExceptionInterface;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
-use Buddy\Repman\Message\User\RefreshOAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\BitbucketApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class BitbucketController extends OAuthController
@@ -80,19 +78,5 @@ final class BitbucketController extends OAuthController
             $this->oauth->getClient('bitbucket-package'),
             'organization_package_new_from_bitbucket'
         );
-    }
-
-    /**
-     * @Route("/user/token/bitbucket/refresh", name="refresh_bitbucket_token", methods={"GET"})
-     */
-    public function refreshRepoToken(): Response
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        $this->dispatchMessage(new RefreshOAuthToken($user->id()->toString(), OAuthToken::TYPE_BITBUCKET));
-
-        return $this->redirectToRoute('organization_package_new_from_bitbucket', [
-            'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
-        ]);
     }
 }

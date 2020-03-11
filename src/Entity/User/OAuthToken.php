@@ -90,7 +90,7 @@ class OAuthToken
     public function accessToken(): string
     {
         if ($this->expiresAt !== null && (new \DateTimeImmutable()) > $this->expiresAt->modify('-1 min')) {
-            throw new ExpiredOAuthTokenException();
+            throw new ExpiredOAuthTokenException($this->type);
         }
 
         return $this->accessToken;

@@ -145,13 +145,11 @@ final class BitbucketControllerTest extends FunctionalTestCase
     {
         $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
         $this->fixtures->createOrganization('buddy', $userId);
-        $this->fixtures->createOauthToken($userId, 'bitbucket', 'old');
+        $this->fixtures->createOauthToken($userId, 'bitbucket', 'old', 'refresh', (new \DateTimeImmutable())->modify('-1 hour'));
 
-        $this->client->disableReboot();
-        BitbucketOAuth::mockTokenExpireResponse($this->container());
         $this->client->request('GET', $this->urlTo('organization_package_new_from_bitbucket', ['organization' => 'buddy']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('refresh_bitbucket_token')));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('refresh_oauth_token', ['type' => 'bitbucket'])));
     }
 
     public function testRefreshOauthToken(): void
@@ -163,7 +161,7 @@ final class BitbucketControllerTest extends FunctionalTestCase
         $this->client->disableReboot();
         BitbucketOAuth::mockRefreshTokenResponse('new-token', $this->container());
 
-        $this->client->request('GET', $this->urlTo('refresh_bitbucket_token'));
+        $this->client->request('GET', $this->urlTo('refresh_oauth_token', ['type' => 'bitbucket']));
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_bitbucket', ['organization' => 'buddy'])));
 
         /** @var OAuthToken $token */

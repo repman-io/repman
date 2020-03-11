@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Symfony;
 
-use Bitbucket\Exception\ClientErrorException;
+use Buddy\Repman\Entity\User\OAuthToken\ExpiredOAuthTokenException;
 use Buddy\Repman\Query\User\Model\Organization;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-final class RefreshBitbucketOAuthTokenListener implements EventSubscriberInterface
+final class RefreshOAuthTokenListener implements EventSubscriberInterface
 {
     private UrlGeneratorInterface $router;
     private SessionInterface $session;
@@ -28,7 +28,7 @@ final class RefreshBitbucketOAuthTokenListener implements EventSubscriberInterfa
     {
         $exception = $event->getThrowable();
 
-        if (!$exception instanceof ClientErrorException || $exception->getCode() !== 401) {
+        if (!$exception instanceof ExpiredOAuthTokenException) {
             return;
         }
 
@@ -37,7 +37,7 @@ final class RefreshBitbucketOAuthTokenListener implements EventSubscriberInterfa
             $this->session->set('organization', $organization->alias());
         }
 
-        $event->setResponse(new RedirectResponse($this->router->generate('refresh_bitbucket_token')));
+        $event->setResponse(new RedirectResponse($this->router->generate('refresh_oauth_token', ['type' => $exception->type()])));
     }
 
     public static function getSubscribedEvents()

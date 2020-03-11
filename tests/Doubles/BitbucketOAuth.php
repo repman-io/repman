@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Bitbucket\Exception\ClientErrorException;
 use Buddy\Repman\Service\BitbucketApi;
 use GuzzleHttp\Psr7\Response;
 use Psr\Container\ContainerInterface;
@@ -25,10 +24,5 @@ final class BitbucketOAuth
     public static function mockRefreshTokenResponse(string $newAccessToken, ContainerInterface $container): void
     {
         $container->get(HttpClientStub::class)->setNextResponses([new Response(200, [], '{"access_token":"'.$newAccessToken.'", "scope":"email", "token_type":"bearer"}')]);
-    }
-
-    public static function mockTokenExpireResponse(ContainerInterface $container): void
-    {
-        $container->get(BitbucketApi::class)->setExceptionOnNextCall(new ClientErrorException('Expired token', 401));
     }
 }
