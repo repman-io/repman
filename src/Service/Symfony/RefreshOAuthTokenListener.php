@@ -40,7 +40,12 @@ final class RefreshOAuthTokenListener implements EventSubscriberInterface
         $event->setResponse(new RedirectResponse($this->router->generate('refresh_oauth_token', ['type' => $exception->type()])));
     }
 
-    public static function getSubscribedEvents()
+    /**
+     * @codeCoverageIgnore
+     *
+     * @return string[]
+     */
+    public static function getSubscribedEvents(): array
     {
         return [KernelEvents::EXCEPTION => 'onKernelException'];
     }

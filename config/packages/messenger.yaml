@@ -3,6 +3,7 @@ framework:
         buses:
             messenger.bus.default:
                 middleware:
+                    - 'Buddy\Repman\Service\Symfony\RefreshOAuthTokenMiddleware'
                     - doctrine_transaction
         failure_transport: failed
 
