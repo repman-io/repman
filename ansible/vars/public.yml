@@ -9,8 +9,8 @@ app_git_repo: 'buddy@sls.io:beta/repman'
 app_git_branch: master
 app_version: "{{ app_git_branch }}"
 app_root: /var/www/repman
-app_secret: 'c6bd0523-77dd-4201-9c62-47a71234d0a5'
-server_hostname: 'repman.io'
+app_secret: {{ lookup('env', 'REPMAN_APP_SECRET') or 'c6bd0523-77dd-4201-9c62-47a71234d0a5' }}
+server_hostname: 'app.repman.io'
 
 nginx_client_max_body_size: 200M
 app_message_consumers_name: message-consumer
@@ -20,7 +20,7 @@ db_host: localhost
 db_port: 5432
 db_name: main
 db_user: repman
-db_password: password
+db_password: {{ lookup('env', 'REPMAN_DB_PASSWORD') or 'password' }}
 
 # Postgres
 postgresql_version: 11

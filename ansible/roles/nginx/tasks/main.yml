@@ -12,12 +12,20 @@
     enabled: yes
     state: started
 
+- name: Change default nginx site - self-signed
+  become: yes
+  template: src=nginx-ssl.conf dest=/etc/nginx/nginx.conf
+  when: openssl_generate_selfsigned_cert == true
+  notify: restart nginx
+
 - name: Change default nginx site
   become: yes
   template: src=nginx.conf dest=/etc/nginx/nginx.conf
+  when: openssl_generate_selfsigned_cert == false
   notify: restart nginx
 
 - name: The Diffie-Hellman parameter file is generated
   command: "openssl dhparam -out '{{ dhparam_file }}' {{ dhparam_size }}"
+  when: openssl_generate_selfsigned_cert == true
   args:
     creates: "{{ dhparam_file }}"

@@ -168,7 +168,7 @@
     docker_image_name: "library/ubuntu"
     docker_image_tag: "19.10"
     execute_commands:
-    - "ansible-playbook ansible/setup.yml -i ansible/inventories/staging --extra-vars '{\"server_hostname\":\"repman.lan\",\"openssl_generate_selfsigned_cert\":true}'"
+    - "ansible-playbook ansible/setup.yml -i ansible/inventories/stage --extra-vars '{\"server_hostname\":\"repman.lan\",\"openssl_generate_selfsigned_cert\":true}'"
     setup_commands:
     - "apt-get update && apt-get -y install ansible ssh python3-distutils"
     - "mkdir ~/.ssh && ssh-keyscan -p 6464 192.168.5.231 >> ~/.ssh/known_hosts"
@@ -188,7 +188,7 @@
     docker_image_name: "library/ubuntu"
     docker_image_tag: "19.10"
     execute_commands:
-    - "ansible-playbook ansible/deploy.yml -i ansible/inventories/staging --extra-vars '{\"server_hostname\":\"repman.lan\"}'"
+    - "ansible-playbook ansible/deploy.yml -i ansible/inventories/stage --extra-vars '{\"server_hostname\":\"repman.lan\"}'"
     setup_commands:
     - "apt-get update && apt-get -y install ansible ssh python3-distutils"
     - "mkdir ~/.ssh && ssh-keyscan -p 6464 192.168.5.231 >> ~/.ssh/known_hosts"
