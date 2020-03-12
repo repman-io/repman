@@ -131,7 +131,7 @@
         - "ansible-playbook ansible/setup.yml -i ansible/inventories/$REPMAN_ANSIBLE_INVENTORY"
       setup_commands:
         - "apt-get update && apt-get -y install ansible ssh python3-distutils"
-        - "mkdir ~/.ssh && ssh-keyscan 3.12.164.54 >> ~/.ssh/known_hosts"
+        - "mkdir ~/.ssh && ssh-keyscan 3.136.55.89 >> ~/.ssh/known_hosts"
       volume_mappings:
         - "/:/buddy/repman"
       shell: "BASH"
@@ -153,7 +153,7 @@
         - "ansible-playbook ansible/deploy.yml -i ansible/inventories/$REPMAN_ANSIBLE_INVENTORY"
       setup_commands:
         - "apt-get update && apt-get -y install ansible ssh python3-distutils"
-        - "mkdir ~/.ssh && ssh-keyscan 3.12.164.54 >> ~/.ssh/known_hosts"
+        - "mkdir ~/.ssh && ssh-keyscan 3.136.55.89 >> ~/.ssh/known_hosts"
       volume_mappings:
         - "/:/buddy/repman"
       shell: "BASH"
