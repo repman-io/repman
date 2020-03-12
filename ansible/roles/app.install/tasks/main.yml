@@ -1,26 +1,3 @@
-- name: Create ssh directory
-  become_user: "{{ system_user }}"
-  file:
-    path: "~/.ssh"
-    state: directory
-    owner: "{{ system_user }}"
-    group: "{{ system_user }}"
-    mode: 0700
-
-- name: Install deploy key
-  become_user: "{{ system_user }}"
-  template:
-    src: ~/.ssh/id_rsa
-    dest: ~/.ssh/deploy_key
-    mode: 0400
-
-- name: Install ssh config
-  become_user: "{{ system_user }}"
-  template:
-    src: config
-    dest: ~/.ssh/config
-    mode: 0644
-
 - name: Create project directory
   file:
     path: "{{ app_root }}"
@@ -37,8 +14,6 @@
     version: "{{ app_git_branch }}"
     accept_hostkey: yes
     force: yes
-    key_file: ~/.ssh/deploy_key
-    ssh_opts: "-o StrictHostKeyChecking=no"
 
 - name: Install composer dependencies
   become_user: "{{ system_user }}"
