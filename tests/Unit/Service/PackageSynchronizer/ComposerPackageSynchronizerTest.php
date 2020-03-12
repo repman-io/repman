@@ -35,7 +35,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
     public function testSynchronizePackageFromLocalPath(): void
     {
-        $path = $this->baseDir.'/buddy/p/buddy-works/repman.json';
+        $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
         $this->synchronizer->synchronize(PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy'));
@@ -43,7 +43,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
-        self::assertTrue($json['packages']['buddy-works/repman'] !== []);
+        self::assertTrue($json['packages']['repman-io/repman'] !== []);
         @unlink($path);
     }
 
@@ -81,7 +81,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
     public function testSynchronizePackageWithToken(): void
     {
-        $path = $this->baseDir.'/buddy/p/buddy-works/repman.json';
+        $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
         $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', __DIR__.'/../../../Resources/artifacts', 'buddy'));
@@ -89,7 +89,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
-        self::assertTrue($json['packages']['buddy-works/repman'] !== []);
+        self::assertTrue($json['packages']['repman-io/repman'] !== []);
         @unlink($path);
     }
 }
