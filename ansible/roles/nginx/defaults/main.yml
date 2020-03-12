@@ -12,3 +12,4 @@ dhparam_file: "/etc/ssl/dhparam.pem"
 nginx_vhost_ssl_key_path: '/etc/ssl/{{ nginx_servername }}.key'
 nginx_vhost_ssl_crt_path: '/etc/ssl/{{ nginx_servername }}.pem'
 php_fastcgi_listen: "/run/php/www.sock"
+openssl_generate_selfsigned_cert: false
