@@ -10,7 +10,7 @@ app_git_branch: master
 app_version: "{{ app_git_branch }}"
 app_root: /var/www/repman
 app_secret: "{{ lookup('env', 'REPMAN_APP_SECRET') or 'c6bd0523-77dd-4201-9c62-47a71234d0a5' }}"
-server_hostname: 'app.repman.io'
+server_hostname: 'repman.io'
 
 nginx_client_max_body_size: 200M
 app_message_consumers_name: message-consumer
