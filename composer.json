@@ -1,8 +1,8 @@
 {
-    "name": "buddy-works/repman",
+    "name": "repman-io/repman",
     "type": "project",
     "description": "PHP Repository Manager - fast packagist proxy",
-    "license": "proprietary",
+    "license": "MIT",
     "require": {
         "php": "^7.4.1",
         "ext-ctype": "*",
