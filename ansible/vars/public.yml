@@ -5,7 +5,7 @@ server:
     locale: en_US en_US.UTF-8 pl_PL pl_PL.UTF-8
 
 system_user: repman
-app_git_repo: 'git@github.com:repman-io/repman.git'
+app_git_repo: 'https://github.com/repman-io/repman.git'
 app_git_branch: master
 app_version: "{{ app_git_branch }}"
 app_root: /var/www/repman
