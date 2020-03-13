@@ -22,8 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class ComposerPackageSynchronizer implements PackageSynchronizer
 {
-    const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
-
     private PackageManager $packageManager;
     private PackageNormalizer $packageNormalizer;
     private PackageRepository $packageRepository;
@@ -47,6 +45,10 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $json = ['packages' => []];
             $packages = $repository->getPackages();
 
+            if (!count($packages)) {
+                throw new \RuntimeException('Package not found');
+            }
+
             $latest = current($packages);
 
             foreach ($packages as $p) {
@@ -56,13 +58,9 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 }
             }
 
-            if (!$latest) {
-                throw new \RuntimeException('Package not found');
-            }
-
             $name = $latest->getPrettyName();
 
-            if (!preg_match(self::NAME_PATTERN, $name, $matches) || empty($matches)) {
+            if (!preg_match(Package::NAME_PATTERN, $name, $matches) || empty($matches)) {
                 throw new \RuntimeException("Package name {$name} is invalid");
             }
 

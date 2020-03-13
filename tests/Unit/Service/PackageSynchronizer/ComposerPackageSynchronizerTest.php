@@ -14,6 +14,7 @@ use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
@@ -27,7 +28,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
+            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage()
@@ -97,15 +98,26 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
     public function testSynchronizePackageWithInvalidName(): void
     {
-        $this->synchronizer->synchronize(PackageMother::withOrganization('path', $this->resourcesDir.'path/invalid-name', 'buddy'));
-        // exception was not thrown
-        self::assertTrue(true);
+        $package = PackageMother::withOrganization('path', $this->resourcesDir.'path/invalid-name', 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        $reflection = new \ReflectionObject($package);
+        $property = $reflection->getProperty('lastSyncError');
+        $property->setAccessible(true);
+
+        self::assertEquals($property->getValue($package), 'Error: Package name ../other/package is invalid');
     }
 
     public function testSynchronizePackageWithInvalidPath(): void
     {
-        $this->synchronizer->synchronize(PackageMother::withOrganization('path', $this->resourcesDir, 'buddy'));
-        // exception was not thrown
-        self::assertTrue(true);
+        $package = PackageMother::withOrganization('path', $this->resourcesDir, 'buddy');
+
+        $this->synchronizer->synchronize($package);
+
+        $reflection = new \ReflectionObject($package);
+        $property = $reflection->getProperty('lastSyncError');
+        $property->setAccessible(true);
+
+        self::assertEquals($property->getValue($package), 'Error: Package not found');
     }
 }

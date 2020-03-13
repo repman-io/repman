@@ -16,11 +16,11 @@ final class PackageManager
     private string $baseDir;
     private Filesystem $filesystem;
 
-    public function __construct(Storage $distStorage, string $baseDir)
+    public function __construct(Storage $distStorage, string $baseDir, Filesystem $filesystem)
     {
         $this->distStorage = $distStorage;
         $this->baseDir = $baseDir;
-        $this->filesystem = new Filesystem();
+        $this->filesystem = $filesystem;
     }
 
     /**

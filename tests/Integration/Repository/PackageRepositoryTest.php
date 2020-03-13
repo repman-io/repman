@@ -14,10 +14,10 @@ final class PackageRepositoryTest extends IntegrationTestCase
     {
         $orgId = $this->fixtures->createOrganization('buddy', $this->fixtures->createUser());
         $packageId = $this->fixtures->addPackage($orgId, 'http://new.package');
-        $this->fixtures->syncPackageWithData($packageId, 'new-package', 'desc', '1.0.0', new \DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy/new-package', 'desc', '1.0.0', new \DateTimeImmutable());
 
         $repo = $this->container()->get(PackageRepository::class);
 
-        self::assertTrue($repo->packageExist('new-package', Uuid::fromString($orgId)));
+        self::assertTrue($repo->packageExist('buddy/new-package', Uuid::fromString($orgId)));
     }
 }

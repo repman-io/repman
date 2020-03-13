@@ -19,6 +19,8 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Package
 {
+    const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
+
     /**
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
@@ -119,7 +121,7 @@ class Package
 
     public function syncSuccess(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
     {
-        $this->name = $name;
+        $this->setName($name);
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
@@ -185,5 +187,14 @@ class Package
         }
 
         return $this->metadata[$key];
+    }
+
+    private function setName(string $name): void
+    {
+        if (!preg_match(self::NAME_PATTERN, $name, $matches) || empty($matches)) {
+            throw new \RuntimeException("Package name {$name} is invalid");
+        }
+
+        $this->name = $name;
     }
 }
