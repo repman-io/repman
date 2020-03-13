@@ -1,12 +1,15 @@
 controllers:
     resource: ../../src/Controller/
     type: annotation
+    schemes: ['%url_scheme%']
 
 app_logout:
+    schemes: ['%url_scheme%']
     path: /logout
 
 proxy_repo_url:
     path: ''
+    schemes: ['%url_scheme%']
     host: 'repo.{domain}'
     defaults:
         domain: '%domain%'
@@ -15,6 +18,7 @@ proxy_repo_url:
 
 organization_repo_url:
     path: ''
+    schemes: ['%url_scheme%']
     host: '{organization}.repo.{domain}'
     defaults:
         domain: '%domain%'
@@ -23,9 +27,12 @@ organization_repo_url:
 
 login_github_check:
     path: /auth/github/check
+    schemes: ['%url_scheme%']
 
 login_gitlab_check:
     path: /auth/gitlab/check
+    schemes: ['%url_scheme%']
 
 login_bitbucket_check:
     path: /auth/bitbucket/check
+    schemes: ['%url_scheme%']
