@@ -10,6 +10,7 @@ parameters:
     dists_dir: '%kernel.project_dir%/var/proxy'
     repo_dir: '%kernel.project_dir%/var/repo'
     domain: '%env(resolve:APP_HOST)%'
+    url_scheme: '%env(resolve:APP_URL_SCHEME)%'
 
 services:
     # default configuration for services in *this* file
