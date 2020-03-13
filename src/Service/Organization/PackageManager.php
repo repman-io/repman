@@ -8,16 +8,19 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Munus\Control\Option;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class PackageManager
 {
     private Storage $distStorage;
     private string $baseDir;
+    private Filesystem $filesystem;
 
     public function __construct(Storage $distStorage, string $baseDir)
     {
         $this->distStorage = $distStorage;
         $this->baseDir = $baseDir;
+        $this->filesystem = new Filesystem();
     }
 
     /**
@@ -59,10 +62,15 @@ final class PackageManager
     public function removeProvider(string $organizationAlias, string $packageName): self
     {
         $file = $this->filepath($organizationAlias, $packageName);
+        $names = explode('/', $packageName) ?: [];
+        $distDir = $this->baseDir.'/'.$organizationAlias.'/dist/'.$names[0];
 
         if (is_file($file)) {
-            unlink($file);
-            rmdir(dirname($file));
+            $this->filesystem->remove(dirname($file));
+        }
+
+        if (is_dir($distDir)) {
+            $this->filesystem->remove($distDir);
         }
 
         return $this;
@@ -70,11 +78,8 @@ final class PackageManager
 
     public function removeOrganizationDir(string $organizationAlias): self
     {
-        $base = $this->baseDir.'/'.$organizationAlias;
-
-        if (is_dir($dir = $base.'/p/')) {
-            rmdir($dir);
-            rmdir($base);
+        if (is_dir($base = $this->baseDir.'/'.$organizationAlias)) {
+            $this->filesystem->remove($base);
         }
 
         return $this;

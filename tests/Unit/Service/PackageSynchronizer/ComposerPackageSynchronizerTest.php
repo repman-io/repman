@@ -21,6 +21,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
     /** @var PackageRepository|MockObject */
     private $repoMock;
     private string $baseDir;
+    private string $resourcesDir;
 
     protected function setUp(): void
     {
@@ -31,6 +32,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage()
         );
+        $this->resourcesDir = __DIR__.'/../../../Resources/';
     }
 
     public function testSynchronizePackageFromLocalPath(): void
@@ -59,7 +61,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileExists($path);
 
@@ -74,7 +76,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         @unlink($path);
         $this->repoMock->method('packageExist')->willReturn(true);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileNotExists($path);
     }
@@ -84,12 +86,26 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
         self::assertTrue($json['packages']['repman-io/repman'] !== []);
         @unlink($path);
+    }
+
+    public function testSynchronizePackageWithInvalidName(): void
+    {
+        $this->synchronizer->synchronize(PackageMother::withOrganization('path', $this->resourcesDir.'path/invalid-name', 'buddy'));
+        // exception was not thrown
+        self::assertTrue(true);
+    }
+
+    public function testSynchronizePackageWithInvalidPath(): void
+    {
+        $this->synchronizer->synchronize(PackageMother::withOrganization('path', $this->resourcesDir, 'buddy'));
+        // exception was not thrown
+        self::assertTrue(true);
     }
 }

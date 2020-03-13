@@ -89,6 +89,7 @@ final class RepoControllerTest extends FunctionalTestCase
 
     public function testOrganizationPackageDistDownload(): void
     {
+        $this->fixtures->prepareRepoFiles();
         $this->fixtures->createToken(
             $this->fixtures->createOrganization('buddy', $this->fixtures->createUser()),
             'secret-org-token'

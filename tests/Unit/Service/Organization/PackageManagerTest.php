@@ -21,7 +21,7 @@ final class PackageManagerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->manager = new PackageManager(new InMemoryStorage(), __DIR__.'/../../../Resources');
+        $this->manager = new PackageManager(new InMemoryStorage(), __DIR__.'/../../../Resources/fixtures');
         $this->baseDir = sys_get_temp_dir().'/repman';
     }
 
@@ -72,6 +72,9 @@ final class PackageManagerTest extends TestCase
         $package = 'hello/world';
 
         $manager->saveProvider([], $org, $package);
+
+        self::assertTrue(is_dir($this->baseDir.'/buddy/p/hello'));
+
         $manager->removeProvider($org, $package);
 
         self::assertTrue(is_dir($this->baseDir.'/buddy'));
@@ -89,6 +92,9 @@ final class PackageManagerTest extends TestCase
         $package = 'hello/world';
 
         $manager->saveProvider([], $org, $package);
+
+        self::assertTrue(is_dir($this->baseDir.'/buddy/p/hello'));
+
         $manager->removeProvider($org, $package)
             ->removeOrganizationDir($org);
 
