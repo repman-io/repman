@@ -40,16 +40,12 @@ class SecurityController extends AbstractController
         $form = $this->createForm(SendResetPasswordLinkType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $browser = new \Browser();
-                $this->dispatchMessage(new SendPasswordResetLink(
-                    $form->get('email')->getData(),
-                    $browser->getPlatform(),
-                    $browser->getBrowser().' '.$browser->getVersion()
-                ));
-            } catch (HandlerFailedException $exception) {
-                // do nothing if user not exists
-            }
+            $browser = new \Browser();
+            $this->dispatchMessage(new SendPasswordResetLink(
+                $form->get('email')->getData(),
+                $browser->getPlatform(),
+                $browser->getBrowser().' '.$browser->getVersion()
+            ));
             $this->addFlash('success', 'An email has been sent to your address');
 
             return $this->redirectToRoute('app_send_reset_password_link');

@@ -1,10 +1,8 @@
 controllers:
     resource: ../../src/Controller/
     type: annotation
-    schemes: ['%url_scheme%']
 
 app_logout:
-    schemes: ['%url_scheme%']
     path: /logout
 
 proxy_repo_url:

@@ -25,6 +25,11 @@ final class SendPasswordResetLinkHandler implements MessageHandlerInterface
 
     public function __invoke(SendPasswordResetLink $message): void
     {
+        // return, to prevent checking if account exist for given email (security)
+        if (!$this->users->emailExist($message->email())) {
+            return;
+        }
+
         $token = $this->generator->generate();
         $this->users->getByEmail($message->email())->setResetPasswordToken($token);
         $this->mailer->sendPasswordResetLink($message->email(), $token, $message->operatingSystem(), $message->browser());

@@ -2,3 +2,7 @@ framework:
     messenger:
         transports:
             async: 'in-memory:///'
+            sync: 'sync://'
+        routing:
+            'Buddy\Repman\Message\User\SendPasswordResetLink': sync
+            'Buddy\Repman\Message\User\SendConfirmToken': sync

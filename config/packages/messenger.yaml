@@ -16,3 +16,5 @@ framework:
             'Buddy\Repman\Message\Organization\Package\AddGitHubHook': async
             'Buddy\Repman\Message\Organization\Package\AddGitLabHook': async
             'Buddy\Repman\Message\Organization\Package\AddBitbucketHook': async
+            'Buddy\Repman\Message\User\SendPasswordResetLink': async
+            'Buddy\Repman\Message\User\SendConfirmToken': async

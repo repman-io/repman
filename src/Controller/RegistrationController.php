@@ -8,26 +8,20 @@ use Buddy\Repman\Form\Type\User\RegisterType;
 use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
-use Buddy\Repman\Repository\UserRepository;
-use Buddy\Repman\Security\LoginFormAuthenticator;
+use Buddy\Repman\Security\UserGuardHelper;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class RegistrationController extends AbstractController
 {
-    private UserRepository $users;
-    private GuardAuthenticatorHandler $guardHandler;
-    private LoginFormAuthenticator $authenticator;
+    private UserGuardHelper $guard;
 
-    public function __construct(UserRepository $users, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator)
+    public function __construct(UserGuardHelper $guard)
     {
-        $this->users = $users;
-        $this->guardHandler = $guardHandler;
-        $this->authenticator = $authenticator;
+        $this->guard = $guard;
     }
 
     /**
@@ -46,7 +40,6 @@ class RegistrationController extends AbstractController
                 $confirmToken = Uuid::uuid4()->toString(),
                 ['ROLE_USER']
             ));
-            // TODO: move to async queue
             $this->dispatchMessage(new SendConfirmToken(
                 $email,
                 $confirmToken
@@ -54,7 +47,7 @@ class RegistrationController extends AbstractController
 
             $this->addFlash('warning', "Please click the activation link for {$email} to verify your email.");
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');
-            $this->guardHandler->authenticateWithToken($this->authenticator->createAuthenticatedToken($this->users->getByEmail($email), 'main'), $request);
+            $this->guard->authenticateUser($email, $request);
 
             return $this->redirectToRoute('organization_create');
         }
