@@ -72,7 +72,6 @@ final class UserController extends AbstractController
         /** @var User */
         $user = $this->getUser();
 
-        // TODO: move to async queue
         $this->dispatchMessage(new SendConfirmToken(
             $user->getEmail(),
             $user->emailConfirmToken()

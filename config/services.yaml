@@ -11,6 +11,8 @@ parameters:
     repo_dir: '%kernel.project_dir%/var/repo'
     domain: '%env(resolve:APP_HOST)%'
     url_scheme: '%env(resolve:APP_URL_SCHEME)%'
+    router.request_context.scheme: '%env(resolve:APP_URL_SCHEME)%'
+    router.request_context.host: '%env(default:domain:APP_PUBLIC_HOST)%'
 
 services:
     # default configuration for services in *this* file
