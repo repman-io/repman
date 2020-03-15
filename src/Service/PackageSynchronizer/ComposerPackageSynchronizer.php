@@ -45,6 +45,10 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $json = ['packages' => []];
             $packages = $repository->getPackages();
 
+            if (!count($packages)) {
+                throw new \RuntimeException('Package not found');
+            }
+
             $latest = current($packages);
 
             foreach ($packages as $p) {
@@ -55,6 +59,11 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             }
 
             $name = $latest->getPrettyName();
+
+            if (!preg_match(Package::NAME_PATTERN, $name, $matches) || empty($matches)) {
+                throw new \RuntimeException("Package name {$name} is invalid");
+            }
+
             if (!$package->isSynchronized() && $this->packageRepository->packageExist($name, $package->organizationId())) {
                 throw new \RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
             }

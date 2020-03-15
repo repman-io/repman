@@ -20,15 +20,18 @@ use Doctrine\ORM\EntityManagerInterface;
 use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class FixturesManager
 {
     private TestContainer $container;
+    private Filesystem $filesystem;
 
     public function __construct(TestContainer $container)
     {
         $this->container = $container;
+        $this->filesystem = new Filesystem();
     }
 
     /**
@@ -162,6 +165,14 @@ final class FixturesManager
         );
 
         return $id;
+    }
+
+    public function prepareRepoFiles(string $organization = 'buddy'): void
+    {
+        $this->filesystem->mirror(
+            __DIR__.'/../Resources/fixtures/'.$organization,
+            __DIR__.'/../Resources/'.$organization
+        );
     }
 
     private function dispatchMessage(object $message): void

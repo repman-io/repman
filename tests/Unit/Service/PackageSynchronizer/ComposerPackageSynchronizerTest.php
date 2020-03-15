@@ -14,6 +14,7 @@ use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
@@ -21,16 +22,18 @@ final class ComposerPackageSynchronizerTest extends TestCase
     /** @var PackageRepository|MockObject */
     private $repoMock;
     private string $baseDir;
+    private string $resourcesDir;
 
     protected function setUp(): void
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir),
+            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage()
         );
+        $this->resourcesDir = __DIR__.'/../../../Resources/';
     }
 
     public function testSynchronizePackageFromLocalPath(): void
@@ -59,7 +62,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileExists($path);
 
@@ -74,7 +77,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         @unlink($path);
         $this->repoMock->method('packageExist')->willReturn(true);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileNotExists($path);
     }
@@ -84,12 +87,37 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', __DIR__.'/../../../Resources/artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
         self::assertTrue($json['packages']['repman-io/repman'] !== []);
         @unlink($path);
+    }
+
+    public function testSynchronizePackageWithInvalidName(): void
+    {
+        $package = PackageMother::withOrganization('path', $this->resourcesDir.'path/invalid-name', 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        $reflection = new \ReflectionObject($package);
+        $property = $reflection->getProperty('lastSyncError');
+        $property->setAccessible(true);
+
+        self::assertEquals($property->getValue($package), 'Error: Package name ../other/package is invalid');
+    }
+
+    public function testSynchronizePackageWithInvalidPath(): void
+    {
+        $package = PackageMother::withOrganization('path', $this->resourcesDir, 'buddy');
+
+        $this->synchronizer->synchronize($package);
+
+        $reflection = new \ReflectionObject($package);
+        $property = $reflection->getProperty('lastSyncError');
+        $property->setAccessible(true);
+
+        self::assertEquals($property->getValue($package), 'Error: Package not found');
     }
 }
