@@ -66,7 +66,7 @@ class RegistrationController extends AbstractController
             $this->dispatchMessage(new ConfirmEmail($token));
             $this->addFlash('success', 'E-mail address was confirmed. Enjoy your Repman account.');
         } catch (\RuntimeException | \InvalidArgumentException $exception) {
-            $this->addFlash('success', 'Invalid or expired e-mail confirm token');
+            $this->addFlash('danger', 'Invalid or expired e-mail confirm token');
         }
 
         return $this->redirectToRoute('index');
