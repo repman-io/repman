@@ -64,6 +64,10 @@ services:
         arguments:
             $distStorage: '@repman.organization.dist_storage'
 
+    Buddy\Repman\Form\Type\Organization\AddPackageType:
+        arguments:
+            $allowedTypes: '%env(csv:APP_ALLOWED_PACKAGE_TYPES)%'
+
     ### Vendor
     Github\Client:
         arguments:

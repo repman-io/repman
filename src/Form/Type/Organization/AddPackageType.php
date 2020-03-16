@@ -14,6 +14,19 @@ use Symfony\Component\Validator\Constraints\NotNull;
 
 class AddPackageType extends AbstractType
 {
+    /**
+     * @var string[]
+     */
+    private array $allowedTypes;
+
+    /**
+     * @param string[] $allowedTypes
+     */
+    public function __construct(array $allowedTypes = [])
+    {
+        $this->allowedTypes = $allowedTypes;
+    }
+
     public function getBlockPrefix(): string
     {
         return '';
@@ -26,12 +39,12 @@ class AddPackageType extends AbstractType
     {
         $builder
             ->add('type', ChoiceType::class, [
-                'choices' => [
+                'choices' => array_filter([
                     'vcs (git, svn, hg)' => 'vcs',
                     'pear' => 'pear',
                     'artifact' => 'artifact',
                     'path' => 'path',
-                ],
+                ], fn (string $type): bool => in_array($type, $this->allowedTypes, true)),
                 'attr' => [
                     'class' => 'form-control selectpicker',
                     'data-style' => 'btn-secondary',
