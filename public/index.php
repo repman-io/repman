@@ -13,6 +13,7 @@ if ($_SERVER['APP_DEBUG']) {
 }
 
 if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false) {
+    $_SERVER['HTTP_X_FORWARDED_PROTO'] = $_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] ?? $_ENV['APP_URL_SCHEME'];
     Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
 }
 
