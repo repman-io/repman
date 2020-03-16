@@ -15,7 +15,6 @@ final class RegistrationControllerTest extends FunctionalTestCase
             'email' => 'test@buddy.works',
             'plainPassword[first]' => 'secret123',
             'plainPassword[second]' => 'secret123',
-            'agreeTerms' => true,
         ]);
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
