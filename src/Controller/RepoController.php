@@ -8,6 +8,7 @@ use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,6 +60,7 @@ final class RepoController extends AbstractController
      *     defaults={"domain":"%domain%"},
      *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%"},
      *     methods={"GET"})
+     * @Cache(public=false)
      */
     public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): BinaryFileResponse
     {
