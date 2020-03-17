@@ -53,7 +53,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             foreach ($packages as $p) {
                 $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->packageNormalizer->normalize($p);
-                if ($p->getReleaseDate() > $latest->getReleaseDate()) {
+                if ($p->getReleaseDate() > $latest->getReleaseDate() && $latest->getStability() !== 'stable') {
                     $latest = $p;
                 }
             }
@@ -81,7 +81,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $package->syncSuccess(
                 $name,
                 $latest instanceof CompletePackage ? ($latest->getDescription() ?? 'n/a') : 'n/a',
-                $latest->getPrettyVersion(),
+                $latest->getStability() === 'stable' ? $latest->getPrettyVersion() : 'no stable release',
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );
 

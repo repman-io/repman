@@ -17,6 +17,13 @@ final class PackageTest extends TestCase
         $this->package = PackageMother::withOrganization('vcs', 'https://url.to/package', 'buddy');
     }
 
+    public function testCheckNameOnSuccessSync(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $this->package->syncSuccess('../invalid/name', 'desc', '1.2.0.0', new \DateTimeImmutable());
+    }
+
     public function testOuathTokenNotFound(): void
     {
         $this->expectException(\RuntimeException::class);

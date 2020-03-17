@@ -52,9 +52,9 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
     public function testSynchronizeError(): void
     {
-        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', '/non/exist/path', 'buddy'));
-        // exception was not throw
-        self::assertTrue(true);
+        $this->synchronizer->synchronize($package = PackageMother::withOrganization('artifact', '/non/exist/path', 'buddy'));
+
+        self::assertEquals('Error: RecursiveDirectoryIterator::__construct(/non/exist/path): failed to open dir: No such file or directory', $this->getProperty($package, 'lastSyncError'));
     }
 
     public function testSynchronizePackageFromArtifacts(): void
@@ -99,13 +99,10 @@ final class ComposerPackageSynchronizerTest extends TestCase
     public function testSynchronizePackageWithInvalidName(): void
     {
         $package = PackageMother::withOrganization('path', $this->resourcesDir.'path/invalid-name', 'buddy');
+
         $this->synchronizer->synchronize($package);
 
-        $reflection = new \ReflectionObject($package);
-        $property = $reflection->getProperty('lastSyncError');
-        $property->setAccessible(true);
-
-        self::assertEquals($property->getValue($package), 'Error: Package name ../other/package is invalid');
+        self::assertEquals('Error: Package name ../other/package is invalid', $this->getProperty($package, 'lastSyncError'));
     }
 
     public function testSynchronizePackageWithInvalidPath(): void
@@ -114,10 +111,28 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
         $this->synchronizer->synchronize($package);
 
-        $reflection = new \ReflectionObject($package);
-        $property = $reflection->getProperty('lastSyncError');
+        self::assertEquals('Error: Package not found', $this->getProperty($package, 'lastSyncError'));
+    }
+
+    public function testSynchronizePackageWithNoStableRelease(): void
+    {
+        $package = PackageMother::withOrganization('path', $this->resourcesDir.'path/unstable', 'buddy');
+
+        $this->synchronizer->synchronize($package);
+
+        self::assertEquals('no stable release', $this->getProperty($package, 'latestReleasedVersion'));
+        @unlink($this->baseDir.'/buddy/p/some/package.json');
+    }
+
+    /**
+     * @return mixed
+     */
+    private function getProperty(object $object, string $property)
+    {
+        $reflection = new \ReflectionObject($object);
+        $property = $reflection->getProperty($property);
         $property->setAccessible(true);
 
-        self::assertEquals($property->getValue($package), 'Error: Package not found');
+        return $property->getValue($object);
     }
 }
