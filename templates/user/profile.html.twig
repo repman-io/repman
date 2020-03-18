@@ -7,7 +7,7 @@
 {% if not is_user_confirmed %}
     <h3>Verify your email address</h3>
     <div class="alert alert-warning">
-        Please click the activation link for <strong>{{ "asd@asd.pl" }}</strong> to verify your email.
+        Please click the activation link for <strong>{{ app.user.email }}</strong> to verify your email.
     </div>
     <button
         class="btn btn-warning"
