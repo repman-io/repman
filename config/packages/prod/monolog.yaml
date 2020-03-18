@@ -1,4 +1,5 @@
 monolog:
+    channels: ['consumer']
     handlers:
         main:
             type: fingers_crossed
@@ -21,3 +22,15 @@ monolog:
             handler: deprecation
             max_level: info
             channels: ["php"]
+        consumer:
+            type: stream
+            path: "%kernel.logs_dir%/consumer.log"
+            level: info
+            channels: ["consumer"]
+            formatter: monolog.formatter.message_consumer
+
+services:
+    monolog.formatter.message_consumer:
+        class: Monolog\Formatter\LineFormatter
+        arguments:
+            - "[%%datetime%%] \"%%message%%\" %%context.messageClass%% %%context.memoryBefore%% %%context.memoryAfter%% %%context.memoryDelta%% %%context.consumeTime%%\n"
