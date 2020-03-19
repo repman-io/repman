@@ -170,6 +170,11 @@
 
                 $modal.modal('show');
             });
+
+            $('.copy-to-clipboard').click(function() {
+                $($(this).data('clipboard-target')).select();
+                document.execCommand('copy');
+            });
         </script>
     {% endblock %}
     </body>
