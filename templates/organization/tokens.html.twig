@@ -72,11 +72,6 @@
                 $(this).parent().find('div.input-group').removeClass('d-none');
                 $(this).remove();
             });
-
-            $('.copy-to-clipboard').click(function() {
-                $($(this).data('clipboard-target')).select();
-                document.execCommand('copy');
-            });
         };
     </script>
 </div>
