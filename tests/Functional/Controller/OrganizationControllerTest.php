@@ -242,6 +242,20 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Total installs: 3', $this->lastResponseBody());
     }
 
+    public function testPackageWebhookPage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('GET', $this->urlTo('organization_package_webhook', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString($this->urlTo('package_webhook', ['package' => $packageId]), $this->lastResponseBody());
+    }
+
     public function testOrganizationStats(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);

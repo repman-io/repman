@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}Package: {{ package.name }} webhook{% endblock %}
+{% block header_btn %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
+        Package list
+    </a>
+{% endblock %}
+
+{% block content %}
+
+    <p>Webhook allows for automatic package synchronization.
+        For packages added from GitHub, GitLab or Bitbucket, the webhook is added automatically.
+        In other cases, you can configure it manually.
+    </p>
+
+    <p>To manually configure the webhook, all you have to do is make a POST request to the url below.</p>
+
+    <p><strong>Webhook URL [POST]:</strong></p>
+
+    <div class="row mb-4">
+        <div class="input-group col-6">
+            <input id="webhook" type="text" class="form-control" readonly value="{{ url('package_webhook', {package: package.id}) }}" />
+            <span class="input-group-append">
+              <button data-clipboard-target="#webhook" class="copy-to-clipboard btn btn-primary p-2" type="button" title="Copy to clipboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-md m-0"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+              </button>
+            </span>
+        </div>
+    </div>
+
+    <p>Each time a Repman receives this type of request, the package will start synchronizing.
+        The synchronization result will be visible on your organization's package list.</p>
+
+{% endblock %}
