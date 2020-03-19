@@ -158,6 +158,17 @@ final class OrganizationController extends AbstractController
     }
 
     /**
+     * @Route("/organization/{organization}/package/{package}/webhook", name="organization_package_webhook", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function packageWebhook(Organization $organization, Package $package): Response
+    {
+        return $this->render('organization/package/webhook.html.twig', [
+            'organization' => $organization,
+            'package' => $package,
+        ]);
+    }
+
+    /**
      * @Route("/organization/{organization}/token/new", name="organization_token_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function generateToken(Organization $organization, Request $request): Response

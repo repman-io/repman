@@ -54,7 +54,15 @@
                             {{ package.description }}
                         {% endif %}
                     </td>
-                    <td>{{ package.webhookCreatedAt is empty ? 'no' : package.webhookCreatedAt | date('Y-m-d H:i:s') }}</td>
+                    <td>
+                        {% if package.webhookCreatedAt is empty %}
+                            <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="btn btn-sm btn-secondary">
+                                Setup webhook
+                            </a>
+                        {% else %}
+                            {{ package.webhookCreatedAt | date('Y-m-d H:i:s') }}
+                        {% endif %}
+                    </td>
                     <td>
                         {% if package.name %}
                             <a href="{{ url('organization_package_stats', {organization: organization.alias, package: package.id}) }}"
