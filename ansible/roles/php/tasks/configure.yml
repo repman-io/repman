@@ -101,3 +101,10 @@
     group: "{{ php_group }}"
     state: directory
   notify: restart php7-fpm
+
+- name: Set php-fpm max_children
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/pool.d/www.conf
+    regexp='^;?pm.max_children'
+    line='pm.max_children = {{ php_fpm_max_children }}'
+  notify: restart php7-fpm

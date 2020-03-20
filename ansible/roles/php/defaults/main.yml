@@ -24,3 +24,5 @@ php_packages:
   - php{{ php_version }}-intl
   - php{{ php_version }}-mbstring
   - php{{ php_version }}-zip
+
+php_fpm_max_children: 25
