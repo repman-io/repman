@@ -14,6 +14,7 @@ use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
+use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -112,6 +113,13 @@ final class FixturesManager
         );
 
         return $id;
+    }
+
+    public function setWebhookCreated(string $packageId): void
+    {
+        $package = $this->container->get(PackageRepository::class)->getById(Uuid::fromString($packageId));
+        $package->webhookWasCreated();
+        $this->container->get('doctrine.orm.entity_manager')->flush($package);
     }
 
     public function addPackageDownload(int $count, string $packageId): void

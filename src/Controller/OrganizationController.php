@@ -11,6 +11,9 @@ use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\Package\RemoveBitbucketHook;
+use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
+use Buddy\Repman\Message\Organization\Package\RemoveGitLabHook;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
@@ -135,6 +138,17 @@ final class OrganizationController extends AbstractController
      */
     public function removePackage(Organization $organization, Package $package): Response
     {
+        switch ($package->type()) {
+            case 'github-oauth':
+                $this->dispatchMessage(new RemoveGitHubHook($package->id()));
+                break;
+            case 'gitlab-oauth':
+                $this->dispatchMessage(new RemoveGitLabHook($package->id()));
+                break;
+            case 'bitbucket-oauth':
+                $this->dispatchMessage(new RemoveBitbucketHook($package->id()));
+                break;
+        }
         $this->dispatchMessage(new RemovePackage(
             $package->id(),
             $organization->id()

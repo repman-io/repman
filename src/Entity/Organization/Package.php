@@ -170,11 +170,14 @@ class Package
         return strpos($this->type, 'oauth') !== false;
     }
 
-    public function webhookWasCreated(): self
+    public function webhookWasCreated(): void
     {
         $this->webhookCreatedAt = new \DateTimeImmutable();
+    }
 
-        return $this;
+    public function webhookWasRemoved(): void
+    {
+        $this->webhookCreatedAt = null;
     }
 
     /**

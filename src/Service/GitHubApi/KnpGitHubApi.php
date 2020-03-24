@@ -58,6 +58,13 @@ final class KnpGitHubApi implements GitHubApi
     {
         list($owner, $repo) = explode('/', $repo);
         $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
+
+        foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
+            if ($hook['config']['url'] === $url) {
+                return;
+            }
+        }
+
         $this->client->repositories()->hooks()->create($owner, $repo, [
             'name' => 'web',
             'config' => [
@@ -65,6 +72,21 @@ final class KnpGitHubApi implements GitHubApi
                 'content_type' => 'json',
             ],
         ]);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public function removeHook(string $accessToken, string $repo, string $url): void
+    {
+        list($owner, $repo) = explode('/', $repo);
+        $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
+
+        foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
+            if ($hook['config']['url'] === $url) {
+                $this->client->repositories()->hooks()->remove($owner, $repo, $hook['id']);
+            }
+        }
     }
 
     /**

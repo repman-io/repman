@@ -97,4 +97,40 @@ final class MattGitLabApiTest extends TestCase
 
         $this->api->addHook('token', 123, 'https://webhook.url');
     }
+
+    public function testRemoveHookWhenExist(): void
+    {
+        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
+        $projects->method('hooks')->willReturn([
+            [
+                'id' => 1834838,
+                'url' => 'https://webhook.url',
+                'created_at' => '2020-03-04T10:26:45.746Z',
+                'push_events' => true,
+            ],
+        ]);
+
+        $projects->expects($this->once())->method('removeHook')->with(123, 1834838);
+        $this->clientMock->method('projects')->willReturn($projects);
+
+        $this->api->removeHook('token', 123, 'https://webhook.url');
+    }
+
+    public function testRemoveHookWhenNotExist(): void
+    {
+        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
+        $projects->method('hooks')->willReturn([
+            [
+                'id' => 1834838,
+                'url' => 'https://other.url',
+                'created_at' => '2020-03-04T10:26:45.746Z',
+                'push_events' => true,
+            ],
+        ]);
+
+        $projects->expects($this->never())->method('removeHook');
+        $this->clientMock->method('projects')->willReturn($projects);
+
+        $this->api->removeHook('token', 123, 'https://webhook.url');
+    }
 }

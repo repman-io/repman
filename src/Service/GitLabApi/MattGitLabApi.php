@@ -49,4 +49,15 @@ final class MattGitLabApi implements GitLabApi
             'tag_push_events' => true,
         ]);
     }
+
+    public function removeHook(string $accessToken, int $projectId, string $hookUrl): void
+    {
+        $this->client->authenticate($accessToken, Client::AUTH_OAUTH_TOKEN);
+
+        foreach ($this->client->projects()->hooks($projectId) as $hook) {
+            if ($hook['url'] === $hookUrl) {
+                $this->client->projects()->removeHook($projectId, $hook['id']);
+            }
+        }
+    }
 }

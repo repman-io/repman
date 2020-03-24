@@ -11,4 +11,6 @@ interface GitLabApi
     public function projects(string $accessToken): Projects;
 
     public function addHook(string $accessToken, int $projectId, string $hookUrl): void;
+
+    public function removeHook(string $accessToken, int $projectId, string $hookUrl): void;
 }

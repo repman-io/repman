@@ -14,4 +14,6 @@ interface GitHubApi
     public function repositories(string $accessToken): array;
 
     public function addHook(string $accessToken, string $repo, string $url): void;
+
+    public function removeHook(string $accessToken, string $repo, string $url): void;
 }
