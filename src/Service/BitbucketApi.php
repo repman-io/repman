@@ -13,4 +13,6 @@ interface BitbucketApi
     public function repositories(string $accessToken): Repositories;
 
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void;
+
+    public function removeHook(string $accessToken, string $fullName, string $hookUrl): void;
 }

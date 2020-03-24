@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Integration;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 abstract class IntegrationTestCase extends KernelTestCase
 {
@@ -24,8 +25,11 @@ abstract class IntegrationTestCase extends KernelTestCase
         return self::$kernel->getContainer()->get('test.service_container');
     }
 
-    protected function dispatchMessage(object $message): void
+    /**
+     * @param StampInterface[] $stamps
+     */
+    protected function dispatchMessage(object $message, array $stamps = []): void
     {
-        $this->container()->get(MessageBusInterface::class)->dispatch($message);
+        $this->container()->get(MessageBusInterface::class)->dispatch($message, $stamps);
     }
 }

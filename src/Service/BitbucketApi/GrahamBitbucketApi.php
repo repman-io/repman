@@ -66,4 +66,19 @@ final class GrahamBitbucketApi implements BitbucketApi
             'events' => ['repo:push'],
         ]);
     }
+
+    public function removeHook(string $accessToken, string $fullName, string $hookUrl): void
+    {
+        $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
+        [$username, $repo] = explode('/', $fullName);
+
+        $hooks = $this->client->repositories()->users($username)->hooks($repo);
+
+        // TODO: handle pagination
+        foreach ($hooks->list(['pagelen' => 100])['values'] ?? [] as $hook) {
+            if ($hook['url'] === $hookUrl) {
+                $hooks->remove($hook['uuid']);
+            }
+        }
+    }
 }

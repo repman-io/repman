@@ -46,4 +46,9 @@ final class FakeBitbucketApi implements BitbucketApi
     {
         // TODO: Implement addHook() method.
     }
+
+    public function removeHook(string $accessToken, string $fullName, string $hookUrl): void
+    {
+        // TODO: Implement removeHook() method.
+    }
 }

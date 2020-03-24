@@ -132,4 +132,48 @@ final class GrahamBitbucketApiTest extends TestCase
 
         $this->api->addHook('token', 'repman/left-pad', 'https://webhook.url');
     }
+
+    public function testRemoveHookWhenExist(): void
+    {
+        $repos = $this->getMockBuilder(RepositoriesApi::class)->disableOriginalConstructor()->getMock();
+        $users = $this->getMockBuilder(RepositoriesApi\Users::class)->disableOriginalConstructor()->getMock();
+        $hooks = $this->getMockBuilder(RepositoriesApi\Users\Hooks::class)->disableOriginalConstructor()->getMock();
+        $hooks->method('list')->willReturn([
+            'values' => [
+                [
+                    'uuid' => '1d2c6ec8-1294-4471-b703-1d050f86bdd5',
+                    'url' => 'https://webhook.url',
+                ],
+            ],
+        ]);
+        $this->clientMock->method('repositories')->willReturn($repos);
+        $repos->method('users')->willReturn($users);
+        $users->method('hooks')->willReturn($hooks);
+
+        $hooks->expects($this->once())->method('remove')->with('1d2c6ec8-1294-4471-b703-1d050f86bdd5');
+
+        $this->api->removeHook('token', 'repman/left-pad', 'https://webhook.url');
+    }
+
+    public function testRemoveHookWhenNotExist(): void
+    {
+        $repos = $this->getMockBuilder(RepositoriesApi::class)->disableOriginalConstructor()->getMock();
+        $users = $this->getMockBuilder(RepositoriesApi\Users::class)->disableOriginalConstructor()->getMock();
+        $hooks = $this->getMockBuilder(RepositoriesApi\Users\Hooks::class)->disableOriginalConstructor()->getMock();
+        $hooks->method('list')->willReturn([
+            'values' => [
+                [
+                    'uuid' => '1d2c6ec8-1294-4471-b703-1d050f86bdd5',
+                    'url' => 'https://other.url',
+                ],
+            ],
+        ]);
+        $this->clientMock->method('repositories')->willReturn($repos);
+        $repos->method('users')->willReturn($users);
+        $users->method('hooks')->willReturn($hooks);
+
+        $hooks->expects($this->never())->method('remove');
+
+        $this->api->removeHook('token', 'repman/left-pad', 'https://webhook.url');
+    }
 }

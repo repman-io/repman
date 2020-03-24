@@ -32,6 +32,8 @@ final class RefreshOAuthTokenMiddleware implements MiddlewareInterface
                     $firstException->userId(),
                     $firstException->type()
                 ));
+
+                return $stack->next()->handle($envelope, $stack);
             }
 
             throw $exception;

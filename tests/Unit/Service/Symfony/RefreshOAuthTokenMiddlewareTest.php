@@ -25,7 +25,7 @@ final class RefreshOAuthTokenMiddlewareTest extends TestCase
         ))->willReturn(new Envelope(new \stdClass()));
 
         $stack = $this->createMock(StackInterface::class);
-        $stack->method('next')->willThrowException(new HandlerFailedException(
+        $stack->expects($this->exactly(2))->method('next')->willThrowException(new HandlerFailedException(
             $envelope,
             [new ExpiredOAuthTokenException($userId, $type)]
         ));
@@ -43,7 +43,7 @@ final class RefreshOAuthTokenMiddlewareTest extends TestCase
         $messageBus->expects($this->never())->method('dispatch');
 
         $stack = $this->createMock(StackInterface::class);
-        $stack->method('next')->willThrowException(new HandlerFailedException(
+        $stack->expects($this->once())->method('next')->willThrowException(new HandlerFailedException(
             $envelope,
             [new \RuntimeException()]
         ));

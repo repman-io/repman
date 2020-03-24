@@ -39,5 +39,11 @@ final class FakeGitHubApi implements GitHubApi
 
     public function addHook(string $accessToken, string $repo, string $url): void
     {
+        // TODO: Implement addHook() method.
+    }
+
+    public function removeHook(string $accessToken, string $repo, string $url): void
+    {
+        // TODO: Implement removeHook() method.
     }
 }

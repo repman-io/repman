@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User\Model;
 final class Package
 {
     private string $id;
+    private string $type;
     private string $url;
     private ?string $name;
     private ?string $latestReleasedVersion;
@@ -18,6 +19,7 @@ final class Package
 
     public function __construct(
         string $id,
+        string $type,
         string $url,
         ?string $name = null,
         ?string $latestReleasedVersion = null,
@@ -28,6 +30,7 @@ final class Package
         ?\DateTimeImmutable $webhookCreatedAt = null
     ) {
         $this->id = $id;
+        $this->type = $type;
         $this->url = $url;
         $this->name = $name;
         $this->latestReleasedVersion = $latestReleasedVersion;
@@ -41,6 +44,11 @@ final class Package
     public function id(): string
     {
         return $this->id;
+    }
+
+    public function type(): string
+    {
+        return $this->type;
     }
 
     public function url(): string

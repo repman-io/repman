@@ -20,4 +20,9 @@ final class FakeGitLabApi implements GitLabApi
     {
         // TODO: Implement addHook() method.
     }
+
+    public function removeHook(string $accessToken, int $projectId, string $hookUrl): void
+    {
+        // TODO: Implement removeHook() method.
+    }
 }
