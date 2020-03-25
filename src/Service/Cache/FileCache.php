@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Cache;
 
+use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Cache;
 use Munus\Control\Option;
 use Munus\Control\TryTo;
@@ -36,7 +37,7 @@ final class FileCache implements Cache
         $this->ensureDirExist($filename);
 
         return TryTo::run($supplier)
-            ->onSuccess(fn ($value) => file_put_contents($filename, serialize($value)))
+            ->onSuccess(function ($value) use ($filename): void {AtomicFile::write($filename, serialize($value)); })
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());
     }
