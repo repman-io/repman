@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Cache;
 
 use Buddy\Repman\Service\Cache\FileCache;
+use Buddy\Repman\Tests\Doubles\InMemoryExceptionHandler;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -12,13 +13,15 @@ use Symfony\Component\Filesystem\Filesystem;
 final class FileCacheTest extends TestCase
 {
     private FileCache $cache;
+    private InMemoryExceptionHandler $exceptionHandler;
     private string $basePath;
     private string $packagesPath;
 
     protected function setUp(): void
     {
         $this->basePath = sys_get_temp_dir().'/repman';
-        $this->cache = new FileCache($this->basePath);
+        $this->exceptionHandler = new InMemoryExceptionHandler();
+        $this->cache = new FileCache($this->basePath, $this->exceptionHandler);
         $this->packagesPath = $this->basePath.'/packagist/packages.json';
     }
 
@@ -32,7 +35,7 @@ final class FileCacheTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new FileCache('/proc/new');
+        new FileCache('/proc/new', new InMemoryExceptionHandler());
     }
 
     public function testCacheHitAndExists(): void
@@ -49,6 +52,17 @@ final class FileCacheTest extends TestCase
         self::assertTrue($this->cache->exists('packagist/packages.json'));
     }
 
+    public function testHandleExceptionOnFailure(): void
+    {
+        $exception = new \LogicException('something goes wrong');
+
+        $this->cache->get('some.file', function () use ($exception): void {
+            throw $exception;
+        });
+
+        self::assertTrue($this->exceptionHandler->exist($exception));
+    }
+
     public function testCacheFind(): void
     {
         $file = '/p/buddy-works/repman$d1392374.json';
@@ -62,7 +76,7 @@ final class FileCacheTest extends TestCase
 
     public function testCacheHitExpire(): void
     {
-        $cache = new FileCache(__DIR__.'/../../../Resources');
+        $cache = new FileCache(__DIR__.'/../../../Resources', new InMemoryExceptionHandler());
 
         self::assertTrue(Option::none()->equals($cache->get('packages.json', function (): void {
             // to prevent overwrite packages.json
