@@ -16,7 +16,7 @@ interface Cache
     /**
      * @return Option<array<mixed>>
      */
-    public function find(string $path): Option;
+    public function find(string $path, int $expireTime = 0): Option;
 
     public function exists(string $path, int $expireTime = 0): bool;
 

@@ -74,6 +74,15 @@ final class FileCacheTest extends TestCase
         self::assertTrue(Option::none()->equals($this->cache->find('/p/buddy-works/missing-package')));
     }
 
+    public function testCacheFindExpire(): void
+    {
+        $file = '/p/buddy-works/repman$d1392374.json';
+        @mkdir(dirname($this->basePath.$file), 0777, true);
+        file_put_contents($this->basePath.$file, 'a:1:{s:4:"some";s:4:"json";}');
+
+        self::assertTrue(Option::none()->equals($this->cache->find('/p/buddy-works/repman', -2)));
+    }
+
     public function testCacheHitExpire(): void
     {
         $cache = new FileCache(__DIR__.'/../../../Resources', new InMemoryExceptionHandler());
