@@ -51,7 +51,7 @@ final class CacheableMetadataProvider implements MetadataProvider
             return Option::none();
         }
 
-        return $this->cache->find((string) parse_url($repoUrl, PHP_URL_HOST).'/p/'.$package);
+        return $this->cache->find((string) parse_url($repoUrl, PHP_URL_HOST).'/p/'.$package, $expireTime);
     }
 
     private function getPath(string $url): string

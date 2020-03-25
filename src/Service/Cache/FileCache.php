@@ -62,7 +62,7 @@ final class FileCache implements Cache
         }
     }
 
-    public function find(string $path): Option
+    public function find(string $path, int $expireTime = 0): Option
     {
         $dir = $this->getPath(dirname($path));
         if (!is_dir($dir)) {
@@ -76,7 +76,12 @@ final class FileCache implements Cache
             return Option::none();
         }
 
-        return Option::some(unserialize((string) file_get_contents(current($files)->getPathname())));
+        $filename = current($files)->getPathname();
+        if ($expireTime !== 0 && filemtime($filename) <= time() - $expireTime) {
+            return Option::none();
+        }
+
+        return Option::some(unserialize((string) file_get_contents($filename)));
     }
 
     public function exists(string $path, int $expireTime = 0): bool

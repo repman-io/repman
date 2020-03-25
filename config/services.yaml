@@ -42,6 +42,7 @@ services:
         class: Buddy\Repman\Service\Cache\FileCache
         arguments:
             - '%dists_dir%'
+            - '@Buddy\Repman\Service\Symfony\SentryExceptionHandler'
 
     Buddy\Repman\Service\Dist\Storage:
         class: Buddy\Repman\Service\Dist\Storage\FileStorage
