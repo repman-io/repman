@@ -60,7 +60,7 @@ final class BitbucketController extends OAuthController
     {
         /** @var User */
         $user = $this->getUser();
-        if ($user->oauthToken(OAuthToken::TYPE_BITBUCKET)) {
+        if ($user->oauthToken(OAuthToken::TYPE_BITBUCKET) !== null) {
             return $this->redirectToRoute('organization_package_new_from_bitbucket', ['organization' => $organization->alias()]);
         }
         $this->session->set('organization', $organization->alias());

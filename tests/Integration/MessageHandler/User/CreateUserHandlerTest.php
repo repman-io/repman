@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\MessageHandler\User;
 
 use Buddy\Repman\Message\User\CreateUser;
-use Buddy\Repman\Query\Admin\Model\User;
 use Buddy\Repman\Query\Admin\UserQuery\DbalUserQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -22,6 +21,6 @@ final class CreateUserHandlerTest extends IntegrationTestCase
         ));
 
         $user = $this->container()->get(DbalUserQuery::class)->getByEmail('test@buddy.works');
-        self::assertInstanceOf(User::class, $user->get());
+        self::assertFalse($user->isEmpty());
     }
 }

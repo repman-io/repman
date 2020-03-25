@@ -58,7 +58,7 @@ class OAuthToken
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $expiresAt;
+    private ?\DateTimeImmutable $expiresAt = null;
 
     public function __construct(
         UuidInterface $id,

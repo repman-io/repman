@@ -23,7 +23,7 @@ final class ConsumedMessageLoggerMiddlewareTest extends TestCase
         $stack->method('next')->willReturn($middleware);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('info');
+        $logger->expects(self::never())->method('info');
 
         $middleware = new ConsumedMessageLoggerMiddleware($logger);
         $middleware->handle($envelope, $stack);
@@ -38,7 +38,7 @@ final class ConsumedMessageLoggerMiddlewareTest extends TestCase
         $stack->method('next')->willReturn($middleware);
 
         $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('info')->with('Message consumed', $this->arrayHasKey('consumeTime'));
+        $logger->expects(self::once())->method('info')->with('Message consumed', self::arrayHasKey('consumeTime'));
 
         $middleware = new ConsumedMessageLoggerMiddleware($logger);
         $middleware->handle($envelope, $stack);

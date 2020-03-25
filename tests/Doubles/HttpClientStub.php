@@ -10,6 +10,7 @@ use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 final class HttpClientStub implements ClientInterface
 {
@@ -43,9 +44,9 @@ final class HttpClientStub implements ClientInterface
     }
 
     /**
-     * @param string  $method
-     * @param string  $uri
-     * @param mixed[] $options
+     * @param string              $method
+     * @param string|UriInterface $uri
+     * @param mixed[]             $options
      */
     public function request($method, $uri, array $options = []): ResponseInterface
     {
@@ -53,9 +54,9 @@ final class HttpClientStub implements ClientInterface
     }
 
     /**
-     * @param string  $method
-     * @param string  $uri
-     * @param mixed[] $options
+     * @param string              $method
+     * @param string|UriInterface $uri
+     * @param mixed[]             $options
      */
     public function requestAsync($method, $uri, array $options = []): PromiseInterface
     {

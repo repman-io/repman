@@ -28,18 +28,4 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         self::assertEquals($id, $organization->id());
         self::assertTrue($organization->isOwnedBy($ownerId));
     }
-
-    public function testOwnerDoesNotExist(): void
-    {
-        self::expectException('Symfony\Component\Messenger\Exception\HandlerFailedException');
-        self::expectExceptionMessage('User does not exist');
-
-        $this->dispatchMessage(
-            new CreateOrganization(
-                Uuid::uuid4()->toString(),
-                Uuid::uuid4()->toString(),
-                'Failure Inc.'
-            )
-        );
-    }
 }

@@ -152,7 +152,7 @@ class Package
 
     public function isSynchronized(): bool
     {
-        return !empty($this->name());
+        return $this->name !== null;
     }
 
     public function oauthToken(): string
@@ -194,7 +194,7 @@ class Package
 
     private function setName(string $name): void
     {
-        if (!preg_match(self::NAME_PATTERN, $name, $matches) || empty($matches)) {
+        if (preg_match(self::NAME_PATTERN, $name, $matches) !== 1) {
             throw new \RuntimeException("Package name {$name} is invalid");
         }
 

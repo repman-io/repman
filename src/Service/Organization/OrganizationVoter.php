@@ -26,18 +26,18 @@ final class OrganizationVoter extends Voter
     }
 
     /**
-     * @param Request $subject
+     * @param mixed|Request $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        if (!$user instanceof User) {
+        if (!$user instanceof User || !$subject instanceof Request) {
             return false;
         }
 
         return $this->organizationQuery
             ->getByAlias($subject->get('organization'))
-            ->map(function (Organization $organization) use ($user, $subject) {
+            ->map(function (Organization $organization) use ($user, $subject): bool {
                 $subject->attributes->set('organization', $organization);
 
                 return $organization->isOwnedBy($user->id()->toString());

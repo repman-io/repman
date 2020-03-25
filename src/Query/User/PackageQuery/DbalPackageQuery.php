@@ -111,11 +111,11 @@ final class DbalPackageQuery implements PackageQuery
             $data['repository_url'],
             $data['name'],
             $data['latest_released_version'],
-            $data['latest_release_date'] ? new \DateTimeImmutable($data['latest_release_date']) : null,
+            $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
-            $data['last_sync_at'] ? new \DateTimeImmutable($data['last_sync_at']) : null,
+            $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
-            $data['webhook_created_at'] ? new \DateTimeImmutable($data['webhook_created_at']) : null,
+            $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
         );
     }
 }

@@ -18,16 +18,16 @@ class AliasNotBlankValidator extends ConstraintValidator
     }
 
     /**
-     * @param string|null   $value
-     * @param AliasNotBlank $constraint
+     * @param mixed                    $value
+     * @param Constraint|AliasNotBlank $constraint
      */
     public function validate($value, Constraint $constraint): void
     {
-        if (null === $value || '' === $value) {
+        if (null === $value || '' === $value || !$constraint instanceof AliasNotBlank) {
             return;
         }
 
-        if (empty($this->aliasGenerator->generate($value))) {
+        if ($this->aliasGenerator->generate($value) === '') {
             $this->context->buildViolation($constraint->message)
                 ->addViolation();
         }

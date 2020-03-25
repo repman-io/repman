@@ -16,7 +16,7 @@ abstract class IntegrationTestCase extends KernelTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->bootKernel();
+        self::bootKernel();
         $this->fixtures = new FixturesManager(self::$kernel->getContainer()->get('test.service_container'));
     }
 

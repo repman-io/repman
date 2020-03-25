@@ -36,7 +36,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
 
     public function synchronize(Package $package): void
     {
-        if ($this->error) {
+        if ($this->error !== null) {
             $package->syncFailure($this->error);
 
             return;

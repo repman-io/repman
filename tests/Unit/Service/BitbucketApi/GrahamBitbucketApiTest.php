@@ -25,7 +25,7 @@ final class GrahamBitbucketApiTest extends TestCase
     protected function setUp(): void
     {
         $this->clientMock = $this->getMockBuilder(Client::class)->getMock();
-        $this->clientMock->expects($this->once())->method('authenticate');
+        $this->clientMock->expects(self::once())->method('authenticate');
 
         $this->api = new GrahamBitbucketApi($this->clientMock);
     }
@@ -108,7 +108,7 @@ final class GrahamBitbucketApiTest extends TestCase
         $repos->method('users')->willReturn($users);
         $users->method('hooks')->willReturn($hooks);
 
-        $hooks->expects($this->once())->method('create');
+        $hooks->expects(self::once())->method('create');
 
         $this->api->addHook('token', 'repman/left-pad', 'https://webhook.url');
     }
@@ -128,7 +128,7 @@ final class GrahamBitbucketApiTest extends TestCase
         $repos->method('users')->willReturn($users);
         $users->method('hooks')->willReturn($hooks);
 
-        $hooks->expects($this->never())->method('create');
+        $hooks->expects(self::never())->method('create');
 
         $this->api->addHook('token', 'repman/left-pad', 'https://webhook.url');
     }
@@ -150,7 +150,7 @@ final class GrahamBitbucketApiTest extends TestCase
         $repos->method('users')->willReturn($users);
         $users->method('hooks')->willReturn($hooks);
 
-        $hooks->expects($this->once())->method('remove')->with('1d2c6ec8-1294-4471-b703-1d050f86bdd5');
+        $hooks->expects(self::once())->method('remove')->with('1d2c6ec8-1294-4471-b703-1d050f86bdd5');
 
         $this->api->removeHook('token', 'repman/left-pad', 'https://webhook.url');
     }
@@ -172,7 +172,7 @@ final class GrahamBitbucketApiTest extends TestCase
         $repos->method('users')->willReturn($users);
         $users->method('hooks')->willReturn($hooks);
 
-        $hooks->expects($this->never())->method('remove');
+        $hooks->expects(self::never())->method('remove');
 
         $this->api->removeHook('token', 'repman/left-pad', 'https://webhook.url');
     }

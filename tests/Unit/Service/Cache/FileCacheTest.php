@@ -42,7 +42,7 @@ final class FileCacheTest extends TestCase
         file_put_contents($this->packagesPath, serialize($content));
 
         self::assertTrue(Option::some($content)->equals(
-            $this->cache->get('packagist/packages.json', function () {
+            $this->cache->get('packagist/packages.json', function (): void {
                 throw new \RuntimeException('This should not happen');
             })
         ));
@@ -64,7 +64,7 @@ final class FileCacheTest extends TestCase
     {
         $cache = new FileCache(__DIR__.'/../../../Resources');
 
-        self::assertTrue(Option::none()->equals($cache->get('packages.json', function () {
+        self::assertTrue(Option::none()->equals($cache->get('packages.json', function (): void {
             // to prevent overwrite packages.json
             throw new \LogicException();
         }, 60)));

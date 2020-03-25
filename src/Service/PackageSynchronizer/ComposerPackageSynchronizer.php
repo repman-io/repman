@@ -45,7 +45,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $json = ['packages' => []];
             $packages = $repository->getPackages();
 
-            if (!count($packages)) {
+            if ($packages === []) {
                 throw new \RuntimeException('Package not found');
             }
 
@@ -60,7 +60,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             $name = $latest->getPrettyName();
 
-            if (!preg_match(Package::NAME_PATTERN, $name, $matches) || empty($matches)) {
+            if (preg_match(Package::NAME_PATTERN, $name, $matches) !== 1) {
                 throw new \RuntimeException("Package name {$name} is invalid");
             }
 
