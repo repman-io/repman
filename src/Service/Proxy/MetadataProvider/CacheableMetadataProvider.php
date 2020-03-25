@@ -29,7 +29,7 @@ final class CacheableMetadataProvider implements MetadataProvider
     {
         $path = $this->getPath($url);
 
-        return $this->cache->get($path, function () use ($url, $path, $expireTime) {
+        return $this->cache->get($path, function () use ($url, $path, $expireTime): array {
             $content = $this->downloader->getContents($url)->getOrElseThrow(
                 new \RuntimeException(sprintf('Failed to download metadata from %s', $url))
             );

@@ -16,6 +16,8 @@ final class UserCheckerTest extends TestCase
         $organization = new Organization('a09aedb5-e2cc-4364-a978-ad58345314b3', 'buddy', 'buddy', 'token');
 
         $checker->checkPostAuth($organization);
-        self::assertTrue(true); //check if no exception was throw
+
+        // exception was not thrown
+        self::assertEquals('buddy', $organization->name());
     }
 }

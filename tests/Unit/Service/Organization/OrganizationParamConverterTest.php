@@ -26,7 +26,7 @@ final class OrganizationParamConverterTest extends TestCase
     public function testCheckIfOrganizationIsAlreadyConverted(): void
     {
         $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
-        $queryMock->expects($this->never())->method('getByAlias');
+        $queryMock->expects(self::never())->method('getByAlias');
 
         $converter = new OrganizationParamConverter($queryMock);
 
@@ -47,7 +47,7 @@ final class OrganizationParamConverterTest extends TestCase
             '9a1c9f23-23bf-4dc0-8d10-03848867d7f4'
         );
         $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
-        $queryMock->expects($this->once())->method('getByAlias')->with('buddy')->willReturn(Option::some($organization));
+        $queryMock->expects(self::once())->method('getByAlias')->with('buddy')->willReturn(Option::some($organization));
 
         $converter = new OrganizationParamConverter($queryMock);
 

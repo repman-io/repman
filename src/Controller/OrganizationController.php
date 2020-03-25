@@ -138,16 +138,18 @@ final class OrganizationController extends AbstractController
      */
     public function removePackage(Organization $organization, Package $package): Response
     {
-        switch ($package->type()) {
-            case 'github-oauth':
-                $this->dispatchMessage(new RemoveGitHubHook($package->id()));
-                break;
-            case 'gitlab-oauth':
-                $this->dispatchMessage(new RemoveGitLabHook($package->id()));
-                break;
-            case 'bitbucket-oauth':
-                $this->dispatchMessage(new RemoveBitbucketHook($package->id()));
-                break;
+        if ($package->webhookCreatedAt() !== null) {
+            switch ($package->type()) {
+                case 'github-oauth':
+                    $this->dispatchMessage(new RemoveGitHubHook($package->id()));
+                    break;
+                case 'gitlab-oauth':
+                    $this->dispatchMessage(new RemoveGitLabHook($package->id()));
+                    break;
+                case 'bitbucket-oauth':
+                    $this->dispatchMessage(new RemoveBitbucketHook($package->id()));
+                    break;
+            }
         }
         $this->dispatchMessage(new RemovePackage(
             $package->id(),

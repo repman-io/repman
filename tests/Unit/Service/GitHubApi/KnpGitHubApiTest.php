@@ -30,7 +30,7 @@ final class KnpGitHubApiTest extends TestCase
             ->onlyMethods(['authenticate', 'getLastResponse'])
             ->getMock()
         ;
-        $this->clientMock->expects($this->once())->method('authenticate');
+        $this->clientMock->expects(self::once())->method('authenticate');
         // mock pagination
         $this->clientMock->method('getLastResponse')->willReturn(new Response());
 

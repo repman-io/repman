@@ -81,7 +81,7 @@ final class RepoController extends AbstractController
     public function downloads(Request $request, Organization $organization): JsonResponse
     {
         $contents = json_decode($request->getContent(), true);
-        if (empty($contents['downloads']) || !is_array($contents['downloads'])) {
+        if (($contents['downloads'] ?? []) === []) {
             return new JsonResponse([
                 'status' => 'error',
                 'message' => 'Invalid request format, must be a json object containing a downloads key filled with an array of name/version objects',
@@ -90,7 +90,7 @@ final class RepoController extends AbstractController
 
         $packageMap = $this->getPackageNameMap($organization->id());
         foreach ($contents['downloads'] as $package) {
-            if (empty($package['name']) || empty($package['version'])) {
+            if (!isset($package['name']) || !isset($package['version'])) {
                 continue;
             }
 

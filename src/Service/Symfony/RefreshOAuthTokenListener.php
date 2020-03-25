@@ -43,7 +43,7 @@ final class RefreshOAuthTokenListener implements EventSubscriberInterface
     /**
      * @codeCoverageIgnore
      *
-     * @return string[]
+     * @return array<string,string>
      */
     public static function getSubscribedEvents(): array
     {

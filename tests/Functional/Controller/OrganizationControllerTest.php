@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
+use Buddy\Repman\Entity\Organization\Package\Metadata;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -165,6 +167,54 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'Package has been successfully removed',
             $this->lastResponseBody()
         );
+    }
+
+    public function testRemoveBitbucketPackage(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_BITBUCKET);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'some/repo']);
+        $this->fixtures->setWebhookCreated($packageId);
+
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
+    }
+
+    public function testRemoveGitHubPackage(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
+        $this->fixtures->setWebhookCreated($packageId);
+
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
+    }
+
+    public function testRemoveGitLabPackage(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITLAB);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'gitlab-oauth', [Metadata::GITLAB_PROJECT_ID => 123]);
+        $this->fixtures->setWebhookCreated($packageId);
+
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
     public function testUpdatePackage(): void

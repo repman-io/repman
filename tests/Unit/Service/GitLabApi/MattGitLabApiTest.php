@@ -24,7 +24,7 @@ final class MattGitLabApiTest extends TestCase
     protected function setUp(): void
     {
         $this->clientMock = $this->getMockBuilder(Client::class)->getMock();
-        $this->clientMock->expects($this->once())->method('authenticate');
+        $this->clientMock->expects(self::once())->method('authenticate');
 
         $this->api = new MattGitLabApi($this->clientMock);
     }
@@ -74,7 +74,7 @@ final class MattGitLabApiTest extends TestCase
             ],
         ]);
 
-        $projects->expects($this->once())->method('addHook');
+        $projects->expects(self::once())->method('addHook');
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->addHook('token', 123, 'https://webhook.url');
@@ -92,7 +92,7 @@ final class MattGitLabApiTest extends TestCase
             ],
         ]);
 
-        $projects->expects($this->never())->method('addHook');
+        $projects->expects(self::never())->method('addHook');
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->addHook('token', 123, 'https://webhook.url');
@@ -110,7 +110,7 @@ final class MattGitLabApiTest extends TestCase
             ],
         ]);
 
-        $projects->expects($this->once())->method('removeHook')->with(123, 1834838);
+        $projects->expects(self::once())->method('removeHook')->with(123, 1834838);
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->removeHook('token', 123, 'https://webhook.url');
@@ -128,7 +128,7 @@ final class MattGitLabApiTest extends TestCase
             ],
         ]);
 
-        $projects->expects($this->never())->method('removeHook');
+        $projects->expects(self::never())->method('removeHook');
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->removeHook('token', 123, 'https://webhook.url');

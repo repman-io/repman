@@ -108,8 +108,6 @@ class Organization
         foreach ($this->tokens as $token) {
             if ($token->isEqual($value)) {
                 $token->regenerate($newValue);
-
-                return;
             }
         }
     }
@@ -119,8 +117,6 @@ class Organization
         foreach ($this->tokens as $token) {
             if ($token->isEqual($value)) {
                 $this->tokens->removeElement($token);
-
-                return;
             }
         }
     }
@@ -148,8 +144,6 @@ class Organization
         foreach ($this->packages as $package) {
             if ($package->id()->equals($packageId)) {
                 $this->packages->removeElement($package);
-
-                return;
             }
         }
     }

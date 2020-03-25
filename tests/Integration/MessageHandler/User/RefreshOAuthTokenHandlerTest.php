@@ -13,13 +13,12 @@ final class RefreshOAuthTokenHandlerTest extends IntegrationTestCase
 {
     public function testUserWithoutRefreshToken(): void
     {
+        $this->expectNotToPerformAssertions();
+
         $userId = $this->fixtures->createUser();
         $this->fixtures->createOauthToken($userId, OAuthToken::TYPE_GITHUB, 'token');
 
         $handler = $this->container()->get(RefreshOAuthTokenHandler::class);
         $handler->__invoke(new RefreshOAuthToken($userId, OAuthToken::TYPE_GITHUB));
-
-        // no exception is thrown
-        self::assertTrue(true);
     }
 }

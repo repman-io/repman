@@ -30,25 +30,21 @@ final class KnpGitHubApi implements GitHubApi
     }
 
     /**
-     * @return string[]
+     * @return array<int,string>
      */
     public function repositories(string $accessToken): array
     {
         $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
-        $memberships = $this->memberships();
-        $privateRepos = $this->privateRepos();
-        $result = array_map(fn ($repo) => $repo['full_name'], $privateRepos);
 
-        foreach ($memberships as $membership) {
-            $organizationLogin = $membership['organization']['login'];
-            $repos = $this->organizationRepos($organizationLogin);
+        $repos = array_map(fn ($repo) => $repo['full_name'], $this->privateRepos());
 
-            foreach ($repos as $repo) {
-                $result[] = $repo['full_name'];
+        foreach ($this->memberships() as $membership) {
+            foreach ($this->organizationRepos($membership['organization']['login']) as $repo) {
+                $repos[] = $repo['full_name'];
             }
         }
 
-        return $result;
+        return $repos;
     }
 
     /**

@@ -32,6 +32,11 @@ class OrganizationRepository extends ServiceEntityRepository
         return $organization;
     }
 
+    public function add(Organization $organization): void
+    {
+        $this->_em->persist($organization);
+    }
+
     public function remove(UuidInterface $id): void
     {
         $this->_em->remove($this->getById($id));

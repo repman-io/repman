@@ -29,7 +29,7 @@ final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
     public function testNoViolation(): void
     {
         $this->userQueryMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getByEmail')
             ->willReturn(Option::none());
 
@@ -43,7 +43,7 @@ final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
     public function testEmailExistViolation(): void
     {
         $this->userQueryMock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getByEmail')
             ->willReturn(Option::some(new User('55fe42eb-d527-4a64-bd48-fb3f54372673', 'test@buddy.works', 'enabled', [])));
 

@@ -18,12 +18,12 @@ class UniqueEmailValidator extends ConstraintValidator
     }
 
     /**
-     * @param string|null $value
-     * @param UniqueEmail $constraint
+     * @param mixed                  $value
+     * @param Constraint|UniqueEmail $constraint
      */
     public function validate($value, Constraint $constraint): void
     {
-        if (null === $value || '' === $value) {
+        if (null === $value || '' === $value || !$constraint instanceof UniqueEmail) {
             return;
         }
 

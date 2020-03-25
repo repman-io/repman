@@ -30,10 +30,13 @@ final class FakeGitHubApi implements GitHubApi
         $this->exception = $exception;
     }
 
+    /**
+     * @return array<int,string>
+     */
     public function repositories(string $accessToken): array
     {
         return [
-            'buddy/repman' => 'buddy/repman',
+            'buddy/repman',
         ];
     }
 

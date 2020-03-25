@@ -9,7 +9,7 @@ interface GitHubApi
     public function primaryEmail(string $accessToken): string;
 
     /**
-     * @return array<int|string,mixed>
+     * @return array<int,string>
      */
     public function repositories(string $accessToken): array;
 

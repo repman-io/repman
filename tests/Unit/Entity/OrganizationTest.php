@@ -41,25 +41,4 @@ final class OrganizationTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $package->setOrganization($this->org);
     }
-
-    public function testRegenerateNonExistToken(): void
-    {
-        $this->org->regenerateToken('some-secret', 'new-secret');
-        // exception should not be thrown
-        self::assertTrue(true);
-    }
-
-    public function testRemoveNonExistToken(): void
-    {
-        $this->org->removeToken('some-secret');
-        // exception should not be thrown
-        self::assertTrue(true);
-    }
-
-    public function testRemoveNonExsitPackage(): void
-    {
-        $this->org->removePackage(Uuid::uuid4());
-        // exception should not be thrown
-        self::assertTrue(true);
-    }
 }

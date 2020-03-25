@@ -21,12 +21,12 @@ class UniqueOrganizationValidator extends ConstraintValidator
     }
 
     /**
-     * @param string|null        $value
-     * @param UniqueOrganization $constraint
+     * @param mixed                         $value
+     * @param Constraint|UniqueOrganization $constraint
      */
     public function validate($value, Constraint $constraint): void
     {
-        if (null === $value || '' === $value) {
+        if (null === $value || '' === $value || !$constraint instanceof UniqueOrganization) {
             return;
         }
 

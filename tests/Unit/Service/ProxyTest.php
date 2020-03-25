@@ -29,8 +29,8 @@ final class ProxyTest extends TestCase
     public function testPackageProviderFromCache(): void
     {
         $cache = new InMemoryCache();
-        $cache->get('packagist.org/packages.json', function () {return ['metadata']; });
-        $cache->get('packagist.org/p/buddy-works/repman', function () {return ['package-metadata']; });
+        $cache->get('packagist.org/packages.json', function (): array {return ['metadata']; });
+        $cache->get('packagist.org/p/buddy-works/repman', function (): array {return ['package-metadata']; });
         $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
 
         self::assertEquals(['package-metadata'], $proxy->providerData('buddy-works/repman')->get());

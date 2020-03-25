@@ -81,7 +81,7 @@ final class ProxyController extends AbstractController
     public function packagesList(): Response
     {
         return $this->render('packages.html.twig', [
-            'proxies' => $this->register->all()->fold([], function (array $packages, Proxy $proxy) {
+            'proxies' => $this->register->all()->fold([], function (array $packages, Proxy $proxy): array {
                 $packages[$proxy->name()] = $proxy->syncedPackages()->iterator()->toArray();
 
                 return $packages;

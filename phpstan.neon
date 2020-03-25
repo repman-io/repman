@@ -1,6 +1,26 @@
 includes:
 	- vendor/phpstan/phpstan/conf/bleedingEdge.neon
 parameters:
+    ignoreErrors:
+        -
+            message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
+            count: 1
+            path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+        -
+            message: "#^Variable property access on DateInterval\\.$#"
+            count: 1
+            path: src/Service/Twig/DateExtension.php
+
+        -
+            message: "#^Only booleans are allowed in a ternary operator condition, int given\\.$#"
+            count: 1
+            path: src/Service/Twig/DateExtension.php
+        -
+            message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+            count: 2
+            path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
     autoload_files:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:

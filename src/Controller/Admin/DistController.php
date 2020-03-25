@@ -27,7 +27,7 @@ final class DistController extends AbstractController
     public function list(): Response
     {
         return $this->render('admin/dist.html.twig', [
-            'proxies' => $this->register->all()->fold([], function (array $packages, Proxy $proxy) {
+            'proxies' => $this->register->all()->fold([], function (array $packages, Proxy $proxy): array {
                 $packages[$proxy->name()] = $proxy->syncedPackages()->iterator()->toArray();
 
                 return $packages;
