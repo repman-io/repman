@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Dist\Storage;
 
+use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
@@ -39,7 +40,7 @@ final class FileStorage implements Storage
         $filename = $this->filename($dist);
         $this->ensureDirExist($filename);
 
-        file_put_contents(
+        AtomicFile::write(
             $filename,
             $this->downloader->getContents($url, $headers)->getOrElseThrow(
                 new \RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
+use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Munus\Control\Option;
@@ -56,7 +57,7 @@ final class PackageManager
             mkdir($dir, 0777, true);
         }
 
-        file_put_contents($filepath, serialize($json));
+        AtomicFile::write($filepath, serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
