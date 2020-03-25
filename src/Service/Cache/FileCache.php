@@ -6,6 +6,7 @@ namespace Buddy\Repman\Service\Cache;
 
 use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Cache;
+use Buddy\Repman\Service\ExceptionHandler;
 use Munus\Control\Option;
 use Munus\Control\TryTo;
 use Symfony\Component\Finder\Finder;
@@ -14,8 +15,9 @@ use Symfony\Component\Finder\SplFileInfo;
 final class FileCache implements Cache
 {
     private string $basePath;
+    private ExceptionHandler $exceptionHandler;
 
-    public function __construct(string $basePath)
+    public function __construct(string $basePath, ExceptionHandler $exceptionHandler)
     {
         if (!is_dir($basePath)) {
             @mkdir($basePath, 0777, true);
@@ -25,6 +27,7 @@ final class FileCache implements Cache
             throw new \InvalidArgumentException(sprintf('Cache path %s must be writable', $basePath));
         }
         $this->basePath = $basePath;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     public function get(string $path, callable $supplier, int $expireTime = 0): Option
@@ -38,6 +41,7 @@ final class FileCache implements Cache
 
         return TryTo::run($supplier)
             ->onSuccess(function ($value) use ($filename): void {AtomicFile::write($filename, serialize($value)); })
+            ->onFailure(function (\Throwable $throwable): void {$this->exceptionHandler->handle($throwable); })
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());
     }
