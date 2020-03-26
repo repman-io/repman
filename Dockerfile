@@ -1,30 +1,31 @@
-FROM php:7.4.1
+FROM php:7.4-fpm
 
-RUN apt-get update && apt-get install -y git zip && \
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+ARG TIMEZONE
 
-# pdo_pgsql
-RUN apt-get install -y libpq-dev && \
+# install composer and extensions: pdo_pgsql, pcov, intl, zip
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git zip unzip libpq-dev libicu-dev libzip-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
+    pecl install pcov && \
+    docker-php-ext-enable pcov && \
     docker-php-ext-configure pdo_pgsql --with-pdo-pgsql && \
-    docker-php-ext-install pdo_pgsql
-
-# pcov
-RUN pecl install pcov && \
-    docker-php-ext-enable pcov
-
-# intl
-RUN apt-get install -y libicu-dev && \
     docker-php-ext-configure intl && \
-    docker-php-ext-install intl
-
-# zip
-RUN apt-get install -y unzip libzip-dev && \
     docker-php-ext-configure zip && \
+    docker-php-ext-install pdo_pgsql && \
+    docker-php-ext-install intl && \
     docker-php-ext-install zip
 
-# symfony tool
-RUN curl -sS https://get.symfony.com/cli/installer | bash
-RUN mv /root/.symfony/bin/symfony /usr/local/bin/symfony
+# set timezone
+RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
+    echo ${TIMEZONE} > /etc/timezone && \
+    printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini && "date"
 
-COPY . /app
+RUN mkdir /app
 WORKDIR /app
+
+COPY . .
+
+RUN composer install --optimize-autoloader

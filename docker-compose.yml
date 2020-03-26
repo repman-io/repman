@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  database:
+    restart: always
+    image: postgres:11-alpine
+    logging:
+      driver: none
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: main
+      POSTGRES_PASSWORD: main
+      POSTGRES_DB: main
+    ports: [5432]
+
+  app:
+    restart: always
+    image: repman_app
+    build:
+      context: .
+      args:
+        TIMEZONE: 'UTC'
+    command: >
+      bash -c 'bin/console cache:warmup &&
+      bin/console d:m:m --no-interaction &&
+      bin/console messenger:setup-transports --no-interaction &&
+      php-fpm'
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+    volumes:
+      - ./var:/app/var
+    depends_on:
+      - database
+
+  consumer:
+    restart: always
+    image: repman_app:latest
+    command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+    volumes:
+      - ./var:/app/var
+    depends_on:
+      - app
+
+  nginx:
+    restart: always
+    build:
+      context: ./docker/nginx
+      args:
+        DOMAIN: 'repman.wip'
+    ports:
+      - 443:443
+    depends_on:
+      - app
+    volumes:
+      - ./public:/app/public
+      - ./docker/logs/nginx/:/var/log/nginx
+
+  mailhog:
+    restart: always
+    image: mailhog/mailhog
+    logging:
+      driver: none
+    ports:
+      - 8025:8025
+
+volumes:
+  postgres-data:
