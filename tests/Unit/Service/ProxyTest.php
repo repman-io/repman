@@ -59,6 +59,7 @@ final class ProxyTest extends TestCase
         /** @phpstan-var mixed $storage */
         $storage = $this->prophesize(Storage::class);
         $storage->has(Argument::type(Dist::class))->willReturn(false);
+        $storage->filename(Argument::type(Dist::class))->willReturn('/not/exist');
         $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), $storage->reveal());
 
         self::assertTrue(Option::none()->equals(

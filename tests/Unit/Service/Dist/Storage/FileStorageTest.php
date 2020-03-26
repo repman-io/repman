@@ -6,7 +6,9 @@ namespace Buddy\Repman\Tests\Unit\Service\Dist\Storage;
 
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
+use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
+use Munus\Collection\GenericList;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -33,6 +35,26 @@ final class FileStorageTest extends TestCase
         self::assertFileNotExists($packagePath);
 
         $this->storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
+            'packagist.org',
+            'buddy-works/repman',
+            '0.1.2.0',
+            'f0c896',
+            'zip'
+        ));
+
+        self::assertFileExists($packagePath);
+    }
+
+    public function testNotDownloadWhenPackageExist(): void
+    {
+        $packagePath = $this->basePath.'/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896.zip';
+        $this->createTempFile($packagePath);
+
+        $downloader = $this->createMock(Downloader::class);
+        $downloader->expects(self::never())->method('getContents');
+
+        $storage = new FileStorage($this->basePath, $downloader);
+        $storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
             'packagist.org',
             'buddy-works/repman',
             '0.1.2.0',
@@ -76,6 +98,11 @@ final class FileStorageTest extends TestCase
 
         self::assertFileNotExists($packagePath);
         self::assertFileExists($otherPath);
+    }
+
+    public function testReturnEmptyPackagesListWhenDirNotExist(): void
+    {
+        self::assertTrue(GenericList::empty()->equals($this->storage->packages('not-exist')));
     }
 
     private function createTempFile(string $path): void
