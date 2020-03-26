@@ -12,6 +12,6 @@ final class HomeControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', $this->urlTo('index'));
 
-        self::assertStringContainsString('Usage', (string) $this->client->getResponse()->getContent());
+        self::assertStringContainsString('repman-io/composer-plugin', (string) $this->client->getResponse()->getContent());
     }
 }

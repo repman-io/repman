@@ -1,6 +1,6 @@
 {% extends "base.html.twig" %}
 
-{% block header %} {{ organization.name }} overview:{% endblock %}
+{% block header %}{{ organization.name }} overview: {% endblock %}
 
 {% block header_btn %}
     <a href="{{ url('organizations_stats', {"organization":organization.alias}) }}" class="btn btn-primary">
@@ -23,7 +23,10 @@ composer config --global --auth http-basic.{{ url('organization_repo_url', {orga
         {"type": "composer", "url": "{{ url('organization_repo_url', {organization: organization.alias}) | trim('/') }}"}
     ]
 }</pre></div>
-            
+
+            <p>You can also use <code>COMPOSER_AUTH</code> environment variable to authenticate Composer: </p>
+            <pre>COMPOSER_AUTH={"http-basic": {"{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }}": {"username": "token", "password": "<span class="token d-none">{{ organization.token }}</span><button class="btn btn-primary btn-sm show-token">Show token</button>"}}}</pre>
+
         {% else %}
             Missing authentication tokens,
             <a class="btn btn-primary" href="{{ path('organization_token_new', {organization: organization.alias}) }}">

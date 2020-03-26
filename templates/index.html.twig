@@ -1,17 +1,27 @@
 {% extends "base.html.twig" %}
 
-{% block header %}Usage{% endblock %}
+{% block page %}
+<div class="content-page">
+    <main class="container my-4 flex-fill">
 
-{% block content %}
-    Use this composer plugin:
-    <div class="highlight">
+        {% include 'component/flash.html.twig' %}
+
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title flex-grow-1">Proxy</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Repman work as proxy for packagist.org (speeds up your local builds). To speed up your build use this composer plugin:</p>
+                        <div class="highlight">
         <pre>
 composer global require repman-io/composer-plugin</pre>
-    </div>
+                        </div>
 
-    or add this lines to your composer.json file:<br />
+                        <p>or add this lines to your composer.json file:</p>
 
-<div class="highlight">
+                        <div class="highlight">
         <pre>
 {
     "repositories": [
@@ -20,10 +30,39 @@ composer global require repman-io/composer-plugin</pre>
     ]
 }</pre></div>
 
-    and then update composer.lock file:
+                        <p>and then update composer.lock file:</p>
 
-    <div class="highlight">
+                        <div class="highlight">
         <pre>
 composer update --lock</pre></div>
+                    </div>
+                </div>
+            </div>
 
-{% endblock %}
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title flex-grow-1">Private packages</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Repman is also a PHP repository manager. Main features:</p>
+                        <ul>
+                            <li>host your private packages</li>
+                            <li>allow to create individual access tokens</li>
+                            <li>you can import private packages from GitHub, GitLab and Bitbucket with one click</li>
+                        </ul>
+
+                        <p>Repman is an open source project. This means that you can use it without restrictions for your own use or in your organizations.</p>
+
+                        <p>You can also use our public instance completely free of charge.</p>
+
+                        <a href="{{ path('app_register') }}" class="btn btn-primary">Create free account</a>
+                        <a href="https://repman.io/docs" class="btn btn-secondary">Read docs</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock page %}
