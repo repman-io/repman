@@ -9,6 +9,9 @@ use function Sentry\captureException;
 
 final class SentryExceptionHandler implements ExceptionHandler
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function handle(\Throwable $throwable): void
     {
         captureException($throwable);

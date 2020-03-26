@@ -19,6 +19,7 @@ final class Proxy
     private string $name;
     private MetadataProvider $metadataProvider;
     private Storage $distStorage;
+    private VersionParser $versionParser;
 
     public function __construct(string $name, string $url, MetadataProvider $metadataProvider, Storage $distStorage)
     {
@@ -26,6 +27,7 @@ final class Proxy
         $this->url = rtrim($url, '/');
         $this->metadataProvider = $metadataProvider;
         $this->distStorage = $distStorage;
+        $this->versionParser = new VersionParser();
     }
 
     public function name(): string
@@ -40,20 +42,7 @@ final class Proxy
     {
         $dist = new Dist($this->name, $package, $version, $ref, $format);
         if (!$this->distStorage->has($dist)) {
-            $providerData = $this->providerData($package)->getOrElse([]);
-            if (!isset($providerData['packages'][$package])) {
-                return Option::none();
-            }
-            $parser = new VersionParser();
-            foreach ($providerData['packages'][$package] as $packageVersion) {
-                if (!isset($packageVersion['version_normalized'])) {
-                    $packageVersion['version_normalized'] = $parser->normalize($packageVersion['version']);
-                }
-
-                if ($packageVersion['version_normalized'] === $version && isset($packageVersion['dist']['url'])) {
-                    $this->distStorage->download($packageVersion['dist']['url'], $dist);
-                }
-            }
+            $this->tryToDownload($package, $version, $dist);
         }
         $distFilename = $this->distStorage->filename($dist);
 
@@ -63,9 +52,9 @@ final class Proxy
     /**
      * @return Option<array<mixed>>
      */
-    public function providerData(string $package): Option
+    public function providerData(string $package, int $expireTime = self::PACKAGES_EXPIRE_TIME): Option
     {
-        if (!($fromPath = $this->metadataProvider->fromPath($package, $this->url, self::PACKAGES_EXPIRE_TIME))->isEmpty()) {
+        if (!($fromPath = $this->metadataProvider->fromPath($package, $this->url, $expireTime))->isEmpty()) {
             return $fromPath;
         }
 
@@ -120,5 +109,22 @@ final class Proxy
     private function getUrl(string $path): string
     {
         return sprintf('%s/%s', $this->url, $path);
+    }
+
+    private function tryToDownload(string $package, string $version, Dist $dist, bool $fromCache = true): void
+    {
+        $providerData = $this->providerData($package, $fromCache ? 0 : -60)->getOrElse([]);
+        foreach ($providerData['packages'][$package] ?? [] as $packageData) {
+            $packageVersion = $packageData['version_normalized'] ?? $this->versionParser->normalize($packageData['version']);
+            if ($packageVersion === $version && isset($packageData['dist']['url'])) {
+                $this->distStorage->download($packageData['dist']['url'], $dist);
+
+                return;
+            }
+        }
+
+        if ($fromCache) {
+            $this->tryToDownload($package, $version, $dist, false);
+        }
     }
 }
