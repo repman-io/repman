@@ -20,7 +20,7 @@ services:
     build:
       context: .
       args:
-        TIMEZONE: 'UTC'
+        TIMEZONE: UTC
     command: >
       bash -c 'bin/console cache:warmup &&
       bin/console d:m:m --no-interaction &&
@@ -47,7 +47,8 @@ services:
     build:
       context: ./docker/nginx
       args:
-        DOMAIN: 'repman.wip'
+        DOMAIN: repman.wip
+        PHP_URL: app:9000
     ports:
       - 443:443
     depends_on:
