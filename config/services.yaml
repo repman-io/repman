@@ -90,6 +90,10 @@ services:
             - '@?Http\Message\RequestFactory'
             - '@?Http\Message\StreamFactory'
 
+    Bitbucket\ResultPager:
+        arguments:
+            - '@Bitbucket\Client'
+
     Gitlab\Client:
         arguments:
             - '@Gitlab\HttpClient\Builder'
@@ -99,3 +103,7 @@ services:
             - '@?Http\Client\HttpClient'
             - '@?Http\Message\RequestFactory'
             - '@?Http\Message\StreamFactory'
+
+    Gitlab\ResultPager:
+        arguments:
+            - '@Gitlab\Client'

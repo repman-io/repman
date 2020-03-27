@@ -4,35 +4,42 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\GitLabApi;
 
-use Buddy\Repman\Service\GitLabApi\MattGitLabApi;
 use Buddy\Repman\Service\GitLabApi\Project;
 use Buddy\Repman\Service\GitLabApi\Projects;
+use Buddy\Repman\Service\GitLabApi\RestGitLabApi;
 use Gitlab\Api\Projects as ProjectsApi;
 use Gitlab\Client;
+use Gitlab\ResultPager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-final class MattGitLabApiTest extends TestCase
+final class RestGitLabApiTest extends TestCase
 {
     /**
      * @var MockObject|Client
      */
     private $clientMock;
 
-    private MattGitLabApi $api;
+    /**
+     * @var MockObject|ResultPager
+     */
+    private $pagerMock;
+
+    private RestGitLabApi $api;
 
     protected function setUp(): void
     {
-        $this->clientMock = $this->getMockBuilder(Client::class)->getMock();
+        $this->clientMock = $this->createMock(Client::class);
         $this->clientMock->expects(self::once())->method('authenticate');
+        $this->pagerMock = $this->createMock(ResultPager::class);
 
-        $this->api = new MattGitLabApi($this->clientMock);
+        $this->api = new RestGitLabApi($this->clientMock, $this->pagerMock);
     }
 
     public function testFetchUserProjects(): void
     {
-        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
-        $projects->method('all')->willReturn([
+        $this->clientMock->method('projects')->willReturn($this->createMock(ProjectsApi::class));
+        $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'id' => 17275574,
                 'path' => 'left-pad',
@@ -54,7 +61,6 @@ final class MattGitLabApiTest extends TestCase
                 'web_url' => 'https://gitlab.com/repman/right-pad',
             ],
         ]);
-        $this->clientMock->method('projects')->willReturn($projects);
 
         self::assertEquals(new Projects([
             new Project(17275574, 'repman/left-pad', 'https://gitlab.com/repman/left-pad'),
@@ -64,8 +70,7 @@ final class MattGitLabApiTest extends TestCase
 
     public function testAddHookWhenNotExist(): void
     {
-        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
-        $projects->method('hooks')->willReturn([
+        $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'id' => 1834838,
                 'url' => 'https://repman.wip/hook',
@@ -73,7 +78,7 @@ final class MattGitLabApiTest extends TestCase
                 'push_events' => true,
             ],
         ]);
-
+        $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::once())->method('addHook');
         $this->clientMock->method('projects')->willReturn($projects);
 
@@ -82,8 +87,7 @@ final class MattGitLabApiTest extends TestCase
 
     public function testDoNotAddHookWhenExist(): void
     {
-        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
-        $projects->method('hooks')->willReturn([
+        $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'id' => 1834838,
                 'url' => 'https://webhook.url',
@@ -91,7 +95,7 @@ final class MattGitLabApiTest extends TestCase
                 'push_events' => true,
             ],
         ]);
-
+        $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::never())->method('addHook');
         $this->clientMock->method('projects')->willReturn($projects);
 
@@ -100,8 +104,7 @@ final class MattGitLabApiTest extends TestCase
 
     public function testRemoveHookWhenExist(): void
     {
-        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
-        $projects->method('hooks')->willReturn([
+        $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'id' => 1834838,
                 'url' => 'https://webhook.url',
@@ -109,7 +112,7 @@ final class MattGitLabApiTest extends TestCase
                 'push_events' => true,
             ],
         ]);
-
+        $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::once())->method('removeHook')->with(123, 1834838);
         $this->clientMock->method('projects')->willReturn($projects);
 
@@ -118,8 +121,7 @@ final class MattGitLabApiTest extends TestCase
 
     public function testRemoveHookWhenNotExist(): void
     {
-        $projects = $this->getMockBuilder(ProjectsApi::class)->disableOriginalConstructor()->getMock();
-        $projects->method('hooks')->willReturn([
+        $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'id' => 1834838,
                 'url' => 'https://other.url',
@@ -127,7 +129,7 @@ final class MattGitLabApiTest extends TestCase
                 'push_events' => true,
             ],
         ]);
-
+        $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::never())->method('removeHook');
         $this->clientMock->method('projects')->willReturn($projects);
 

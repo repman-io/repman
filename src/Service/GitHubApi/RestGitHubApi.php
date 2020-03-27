@@ -8,7 +8,7 @@ use Buddy\Repman\Service\GitHubApi;
 use Github\Client;
 use Github\ResultPager;
 
-final class KnpGitHubApi implements GitHubApi
+final class RestGitHubApi implements GitHubApi
 {
     private Client $client;
 

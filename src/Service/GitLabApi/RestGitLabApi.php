@@ -6,14 +6,17 @@ namespace Buddy\Repman\Service\GitLabApi;
 
 use Buddy\Repman\Service\GitLabApi;
 use Gitlab\Client;
+use Gitlab\ResultPager;
 
-final class MattGitLabApi implements GitLabApi
+final class RestGitLabApi implements GitLabApi
 {
     private Client $client;
+    private ResultPager $pager;
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, ResultPager $pager)
     {
         $this->client = $client;
+        $this->pager = $pager;
     }
 
     public function projects(string $accessToken): Projects
@@ -26,19 +29,19 @@ final class MattGitLabApi implements GitLabApi
                 $project['path_with_namespace'],
                 $project['web_url']
             );
-        }, $this->client->projects()->all([
+        }, $this->pager->fetchAll($this->client->projects(), 'all', [[
             'simple' => true,
             'owned' => true,
             'membership' => true,
             'order_by' => 'path',
-        ])));
+        ]])));
     }
 
     public function addHook(string $accessToken, int $projectId, string $hookUrl): void
     {
         $this->client->authenticate($accessToken, Client::AUTH_OAUTH_TOKEN);
 
-        foreach ($this->client->projects()->hooks($projectId) as $hook) {
+        foreach ($this->pager->fetchAll($this->client->projects(), 'hooks', [$projectId]) as $hook) {
             if ($hook['url'] === $hookUrl) {
                 return;
             }
@@ -54,7 +57,7 @@ final class MattGitLabApi implements GitLabApi
     {
         $this->client->authenticate($accessToken, Client::AUTH_OAUTH_TOKEN);
 
-        foreach ($this->client->projects()->hooks($projectId) as $hook) {
+        foreach ($this->pager->fetchAll($this->client->projects(), 'hooks', [$projectId]) as $hook) {
             if ($hook['url'] === $hookUrl) {
                 $this->client->projects()->removeHook($projectId, $hook['id']);
             }
