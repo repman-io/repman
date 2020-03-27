@@ -158,3 +158,70 @@
         - "/:/buddy/repman"
       shell: "BASH"
       trigger_condition: "ALWAYS"
+- pipeline: "app docker image"
+  trigger_mode: "ON_EVERY_PUSH"
+  ref_name: "refs/heads/*"
+  ref_type: "WILDCARD"
+  auto_clear_cache: true
+  trigger_condition: "ALWAYS"
+  actions:
+  - action: "Lint Dockerfile"
+    type: "DOCKERFILE_LINTER"
+    local_path: "Dockerfile"
+    shell_type: "bash"
+    trigger_condition: "ALWAYS"
+    ignore_errors: true
+  - action: "Build app Docker image"
+    type: "DOCKERFILE"
+    dockerfile_path: "Dockerfile"
+    build_args:
+    - "TIMEZONE=UTC"
+    trigger_condition: "ALWAYS"
+  - action: "Run scripts"
+    type: "RUN_DOCKER_CONTAINER"
+    use_image_from_action: true
+    docker_build_action_name: "Build app Docker image"
+    inline_commands: "bash -c 'php -e -r \"echo 0;\"  && bin/console cache:warmup'"
+    mount_filesystem_disable: true
+    trigger_condition: "ALWAYS"
+    shell: "SH"
+    variables:
+    - id: 336632
+      key: "APP_DEBUG"
+      value: "0"
+      description: ""
+    - id: 336633
+      key: "APP_ENV"
+      value: "prod"
+      description: ""
+    - id: 336634
+      key: "APP_SECRET"
+      value: "c7dbd995176e079f857b6649b60ccf68"
+      description: ""
+- pipeline: "nginx docker image"
+  trigger_mode: "ON_EVERY_PUSH"
+  ref_name: "refs/heads/*"
+  ref_type: "WILDCARD"
+  auto_clear_cache: true
+  trigger_condition: "ALWAYS"
+  actions:
+  - action: "Lint Dockerfile"
+    type: "DOCKERFILE_LINTER"
+    local_path: "docker/nginx/Dockerfile"
+    shell_type: "bash"
+    trigger_condition: "ALWAYS"
+    ignore_errors: true
+  - action: "Build Docker image"
+    type: "DOCKERFILE"
+    dockerfile_path: "docker/nginx/Dockerfile"
+    context_path: "docker/nginx/"
+    build_args:
+    - "DOMAIN=test-buddy.wip\nPHP_URL=localhost:9000"
+    trigger_condition: "ALWAYS"
+  - action: "Run Docker Image"
+    type: "RUN_DOCKER_CONTAINER"
+    use_image_from_action: true
+    inline_commands: "nginx -t"
+    mount_filesystem_disable: true
+    trigger_condition: "ALWAYS"
+    shell: "SH"
