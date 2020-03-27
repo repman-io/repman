@@ -85,14 +85,8 @@ Scopes:
 
 ## Docker
 
-- Override with `docker-compose.override.yml` if needed.
-- Prepare your `.env.local`:
-
-```bash
-APP_HOST=repman.wip
-DATABASE_URL=postgresql://main:main@database:5432/main?serverVersion=11&charset=utf8
-MAILER_DSN=smtp://mailhog:1025
-```
+- Override with `docker-compose.override.yml` if needed. You can change app domain in `services.nginx.build.args.DOMAIN`.
+- Take a look at `.env.docker` and make sure that `APP_HOST` matches your domain.
 
 Build and start
 

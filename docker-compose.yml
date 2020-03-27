@@ -26,9 +26,7 @@ services:
       bin/console d:m:m --no-interaction &&
       bin/console messenger:setup-transports --no-interaction &&
       php-fpm'
-    environment:
-      APP_ENV: prod
-      APP_DEBUG: 0
+    env_file: .env.docker
     volumes:
       - ./var:/app/var
     depends_on:
@@ -38,9 +36,7 @@ services:
     restart: always
     image: repman_app:latest
     command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
-    environment:
-      APP_ENV: prod
-      APP_DEBUG: 0
+    env_file: .env.docker
     volumes:
       - ./var:/app/var
     depends_on:
