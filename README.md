@@ -1,5 +1,7 @@
 # Repman - PHP Repository Manager
 
+[![buddy pipeline](https://app.buddy.works/repman/repman/pipelines/pipeline/244546/badge.svg?token=dbd28b3ece0d16aba095b8a33d0893d15f0403fbcc285a2a1a175cc77f7c94a8 "buddy pipeline")](https://app.buddy.works/repman/repman/pipelines/pipeline/244546)
+
 Repman is a PHP repository manager. Main features:
 
 - work as proxy for packagist.org (speed up your local builds)
