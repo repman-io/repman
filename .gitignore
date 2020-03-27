@@ -28,3 +28,11 @@
 ###> OS ###
 .DS_Store
 ###< OS ###
+
+
+###> Docker ###
+docker-compose.*.yml
+/docker/logs
+/docker/nginx/cert/*
+!/docker/nginx/cert/.gitkeep
+###< Docker ###
