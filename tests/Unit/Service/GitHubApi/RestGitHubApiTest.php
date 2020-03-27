@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\GitHubApi;
 
-use Buddy\Repman\Service\GitHubApi\KnpGitHubApi;
+use Buddy\Repman\Service\GitHubApi\RestGitHubApi;
 use Github\Api\CurrentUser;
 use Github\Api\CurrentUser\Emails;
 use Github\Api\CurrentUser\Memberships;
@@ -14,14 +14,14 @@ use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-final class KnpGitHubApiTest extends TestCase
+final class RestGitHubApiTest extends TestCase
 {
     /**
      * @var MockObject|Client
      */
     private $clientMock;
 
-    private KnpGitHubApi $api;
+    private RestGitHubApi $api;
 
     protected function setUp(): void
     {
@@ -34,7 +34,7 @@ final class KnpGitHubApiTest extends TestCase
         // mock pagination
         $this->clientMock->method('getLastResponse')->willReturn(new Response());
 
-        $this->api = new KnpGitHubApi($this->clientMock);
+        $this->api = new RestGitHubApi($this->clientMock);
     }
 
     public function testReturnPrimaryEmail(): void

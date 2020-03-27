@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\BitbucketApi;
 
 use Bitbucket\Client;
+use Bitbucket\ResultPager;
 use Buddy\Repman\Service\BitbucketApi;
 
-final class GrahamBitbucketApi implements BitbucketApi
+final class RestBitbucketApi implements BitbucketApi
 {
     private Client $client;
+    private ResultPager $pager;
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, ResultPager $pager)
     {
         $this->client = $client;
+        $this->pager = $pager;
     }
 
     public function primaryEmail(string $accessToken): string
@@ -32,28 +35,22 @@ final class GrahamBitbucketApi implements BitbucketApi
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
 
-        // TODO: handle pagination
         return new Repositories(array_map(function (array $repo): Repository {
             return new Repository(
                 $repo['uuid'],
                 $repo['full_name'],
                 $repo['links']['html']['href'].'.git'
             );
-        }, $this->client->repositories()->list([
-            'role' => 'member',
-            'pagelen' => 100,
-        ])['values'] ?? []));
+        }, $this->pager->fetchAll($this->client->repositories(), 'list', [['role' => 'member']])));
     }
 
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
         [$username, $repo] = explode('/', $fullName);
-
         $hooks = $this->client->repositories()->users($username)->hooks($repo);
 
-        // TODO: handle pagination
-        foreach ($hooks->list(['pagelen' => 100])['values'] ?? [] as $hook) {
+        foreach ($this->pager->fetchAll($hooks, 'list') as $hook) {
             if ($hook['url'] === $hookUrl) {
                 return;
             }
@@ -74,8 +71,7 @@ final class GrahamBitbucketApi implements BitbucketApi
 
         $hooks = $this->client->repositories()->users($username)->hooks($repo);
 
-        // TODO: handle pagination
-        foreach ($hooks->list(['pagelen' => 100])['values'] ?? [] as $hook) {
+        foreach ($this->pager->fetchAll($hooks, 'list') as $hook) {
             if ($hook['url'] === $hookUrl) {
                 $hooks->remove($hook['uuid']);
             }
