@@ -7,6 +7,7 @@ namespace Buddy\Repman\Service\Mailer;
 use Buddy\Repman\Service\Mailer;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 
 final class SymfonyMailer implements Mailer
 {
@@ -22,7 +23,7 @@ final class SymfonyMailer implements Mailer
     public function sendPasswordResetLink(string $email, string $token, string $operatingSystem, string $browser): void
     {
         $this->mailer->send((new TemplatedEmail())
-            ->from($this->sender)
+            ->from(Address::fromString($this->sender))
             ->to($email)
             ->subject('Reset password to your Repman account')
             ->htmlTemplate('emails/password-reset.html.twig')
@@ -38,7 +39,7 @@ final class SymfonyMailer implements Mailer
     public function sendEmailVerification(string $email, string $token): void
     {
         $this->mailer->send((new TemplatedEmail())
-            ->from($this->sender)
+            ->from(Address::fromString($this->sender))
             ->to($email)
             ->subject('Verify your Repman email address')
             ->htmlTemplate('emails/email-verification.html.twig')
