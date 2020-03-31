@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +22,7 @@ final class GitLabController extends OAuthController
      */
     public function register(): Response
     {
-        return $this->oauth->getClient('gitlab-register')->redirect(['read_user'], []);
+        return $this->oauth->getClient('gitlab')->redirect(['read_user'], []);
     }
 
     /**
@@ -29,7 +30,7 @@ final class GitLabController extends OAuthController
      */
     public function auth(): Response
     {
-        return $this->oauth->getClient('gitlab-auth')->redirect(['read_user'], ['redirect_uri' => $this->generateUrl('login_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
+        return $this->oauth->getClient('gitlab')->redirect(['read_user'], ['redirect_uri' => $this->generateUrl('login_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
     /**
@@ -43,7 +44,7 @@ final class GitLabController extends OAuthController
 
         try {
             /** @var GitlabResourceOwner $user */
-            $user = $this->oauth->getClient('gitlab-register')->fetchUser();
+            $user = $this->oauth->getClient('gitlab')->fetchUser();
 
             return $this->createAndAuthenticateUser($user->getEmail(), $request);
         } catch (IdentityProviderException $e) {
@@ -56,7 +57,7 @@ final class GitLabController extends OAuthController
     /**
      * @Route("/organization/{organization}/package/add-from-gitlab", name="fetch_gitlab_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packageAddFromGithub(Organization $organization): Response
+    public function packageAddFromGitLab(Organization $organization): Response
     {
         /** @var User */
         $user = $this->getUser();
@@ -65,7 +66,7 @@ final class GitLabController extends OAuthController
         }
         $this->session->set('organization', $organization->alias());
 
-        return $this->oauth->getClient('gitlab-package')->redirect(['read_user', 'api'], []);
+        return $this->oauth->getClient('gitlab')->redirect(['read_user', 'api'], ['redirect_uri' => $this->generateUrl('package_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
     /**
@@ -75,7 +76,9 @@ final class GitLabController extends OAuthController
     {
         return $this->storeRepoToken(
             OAuthToken::TYPE_GITLAB,
-            $this->oauth->getClient('gitlab-package'),
+            function (): AccessToken {
+                return $this->oauth->getClient('gitlab')->getAccessToken(['redirect_uri' => $this->generateUrl('package_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
+            },
             'organization_package_new_from_gitlab'
         );
     }

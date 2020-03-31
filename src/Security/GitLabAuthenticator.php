@@ -46,14 +46,14 @@ final class GitLabAuthenticator extends SocialAuthenticator
 
     public function getCredentials(Request $request)
     {
-        return $this->fetchAccessToken($this->clientRegistry->getClient('gitlab-auth'));
+        return $this->fetchAccessToken($this->clientRegistry->getClient('gitlab'), ['redirect_uri' => $this->router->generate('login_gitlab_check', [], RouterInterface::ABSOLUTE_URL)]);
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         try {
             /** @var GitlabResourceOwner $gitLabUser */
-            $gitLabUser = $this->clientRegistry->getClient('gitlab-auth')->fetchUserFromToken($credentials);
+            $gitLabUser = $this->clientRegistry->getClient('gitlab')->fetchUserFromToken($credentials);
         } catch (IdentityProviderException $exception) {
             throw new CustomUserMessageAuthenticationException($exception->getMessage());
         }

@@ -46,7 +46,7 @@ final class BitbucketAuthenticator extends SocialAuthenticator
 
     public function getCredentials(Request $request)
     {
-        return $this->fetchAccessToken($this->clientRegistry->getClient('bitbucket-auth'));
+        return $this->fetchAccessToken($this->clientRegistry->getClient('bitbucket'), ['redirect_uri' => $this->router->generate('login_bitbucket_check', [], RouterInterface::ABSOLUTE_URL)]);
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
