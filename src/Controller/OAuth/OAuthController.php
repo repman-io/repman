@@ -10,9 +10,9 @@ use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\RefreshOAuthToken;
 use Buddy\Repman\Security\UserGuardHelper;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,12 +61,13 @@ abstract class OAuthController extends AbstractController
         return $this->redirectToRoute('organization_create');
     }
 
-    protected function storeRepoToken(string $type, OAuth2ClientInterface $client, string $route): Response
+    protected function storeRepoToken(string $type, callable $tokenProvider, string $route): Response
     {
         /** @var User $user */
         $user = $this->getUser();
         try {
-            $token = $client->getAccessToken();
+            /** @var AccessToken $token */
+            $token = $tokenProvider();
             $this->dispatchMessage(
                 new AddOAuthToken(
                     Uuid::uuid4()->toString(),

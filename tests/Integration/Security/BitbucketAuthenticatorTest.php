@@ -25,7 +25,7 @@ final class BitbucketAuthenticatorTest extends IntegrationTestCase
         );
 
         self::assertTrue($response->isRedirection());
-        self::assertTrue($this->container()->get('session.flash_bag')->has('danger'));
+        self::assertTrue($this->container()->get('session')->getFlashBag()->has('danger'));
     }
 
     public function testThrowExceptionIfUserWasNotFound(): void

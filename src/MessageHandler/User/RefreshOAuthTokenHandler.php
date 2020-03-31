@@ -30,7 +30,7 @@ final class RefreshOAuthTokenHandler implements MessageHandlerInterface
         }
 
         $accessToken = $this->oauth
-            ->getClient($message->tokenType().'-package')
+            ->getClient($message->tokenType())
             ->getOAuth2Provider()
             ->getAccessToken(new RefreshToken(), ['refresh_token' => $token->refreshToken()])
         ;

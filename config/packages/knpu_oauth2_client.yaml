@@ -7,45 +7,17 @@ knpu_oauth2_client:
             redirect_route: register_github_check
             redirect_params: {}
             use_state: true
-        gitlab-register:
+        gitlab:
             type: gitlab
             client_id: '%env(OAUTH_GITLAB_CLIENT_ID)%'
             client_secret: '%env(OAUTH_GITLAB_CLIENT_SECRET)%'
             redirect_route: register_gitlab_check
             redirect_params: {}
             use_state: true
-        gitlab-auth:
-            type: gitlab
-            client_id: '%env(OAUTH_GITLAB_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_GITLAB_CLIENT_SECRET)%'
-            redirect_route: login_gitlab_check
-            redirect_params: {}
-            use_state: true
-        gitlab-package:
-            type: gitlab
-            client_id: '%env(OAUTH_GITLAB_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_GITLAB_CLIENT_SECRET)%'
-            redirect_route: package_gitlab_check
-            redirect_params: {}
-            use_state: true
-        bitbucket-auth:
-            type: bitbucket
-            client_id: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_BITBUCKET_CLIENT_SECRET)%'
-            redirect_route: login_bitbucket_check
-            redirect_params: {}
-            use_state: true
-        bitbucket-register:
+        bitbucket:
             type: bitbucket
             client_id: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
             client_secret: '%env(OAUTH_BITBUCKET_CLIENT_SECRET)%'
             redirect_route: register_bitbucket_check
-            redirect_params: {}
-            use_state: true
-        bitbucket-package:
-            type: bitbucket
-            client_id: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
-            client_secret: '%env(OAUTH_BITBUCKET_CLIENT_SECRET)%'
-            redirect_route: package_bitbucket_check
             redirect_params: {}
             use_state: true

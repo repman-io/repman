@@ -11,9 +11,11 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\BitbucketApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class BitbucketController extends OAuthController
 {
@@ -22,7 +24,7 @@ final class BitbucketController extends OAuthController
      */
     public function register(): Response
     {
-        return $this->oauth->getClient('bitbucket-register')->redirect(['email'], []);
+        return $this->oauth->getClient('bitbucket')->redirect(['email'], []);
     }
 
     /**
@@ -30,7 +32,7 @@ final class BitbucketController extends OAuthController
      */
     public function auth(ClientRegistry $clientRegistry): Response
     {
-        return $this->oauth->getClient('bitbucket-auth')->redirect(['email'], []);
+        return $this->oauth->getClient('bitbucket')->redirect(['email'], ['redirect_uri' => $this->generateUrl('login_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
     /**
@@ -43,7 +45,7 @@ final class BitbucketController extends OAuthController
         }
 
         try {
-            $email = $api->primaryEmail($this->oauth->getClient('bitbucket-register')->getAccessToken()->getToken());
+            $email = $api->primaryEmail($this->oauth->getClient('bitbucket')->getAccessToken()->getToken());
 
             return $this->createAndAuthenticateUser($email, $request);
         } catch (IdentityProviderException | BitbucketApiExceptionInterface $e) {
@@ -65,17 +67,19 @@ final class BitbucketController extends OAuthController
         }
         $this->session->set('organization', $organization->alias());
 
-        return $this->oauth->getClient('bitbucket-package')->redirect(['repository', 'webhook'], []);
+        return $this->oauth->getClient('bitbucket')->redirect(['repository', 'webhook'], ['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
     /**
      * @Route("/user/token/bitbucket/check", name="package_bitbucket_check", methods={"GET"})
      */
-    public function storeGitLabRepoToken(): Response
+    public function storeBitbucketRepoToken(): Response
     {
         return $this->storeRepoToken(
             OAuthToken::TYPE_BITBUCKET,
-            $this->oauth->getClient('bitbucket-package'),
+            function (): AccessToken {
+                return $this->oauth->getClient('bitbucket')->getAccessToken(['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
+            },
             'organization_package_new_from_bitbucket'
         );
     }

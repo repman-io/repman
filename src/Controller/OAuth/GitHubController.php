@@ -10,6 +10,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\GitHubApi;
 use Github\Exception\ExceptionInterface as GitHubApiExceptionInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -82,7 +83,9 @@ final class GitHubController extends OAuthController
     {
         return $this->storeRepoToken(
             OAuthToken::TYPE_GITHUB,
-            $this->oauth->getClient('github'),
+            function (): AccessToken {
+                return $this->oauth->getClient('github')->getAccessToken();
+            },
             'organization_package_new_from_github'
         );
     }
