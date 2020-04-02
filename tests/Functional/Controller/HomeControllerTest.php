@@ -12,6 +12,14 @@ final class HomeControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', $this->urlTo('index'));
 
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+    }
+
+    public function testHomePageWhenLogged(): void
+    {
+        $this->createAndLoginAdmin();
+        $this->client->request('GET', $this->urlTo('index'));
+
         self::assertStringContainsString('repman-io/composer-plugin', (string) $this->client->getResponse()->getContent());
     }
 }

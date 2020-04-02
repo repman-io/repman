@@ -10,7 +10,6 @@ use Munus\Control\Option;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -73,19 +72,5 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
         );
-    }
-
-    /**
-     * @Route("/packages", name="packages_list", methods={"GET"})
-     */
-    public function packagesList(): Response
-    {
-        return $this->render('packages.html.twig', [
-            'proxies' => $this->register->all()->fold([], function (array $packages, Proxy $proxy): array {
-                $packages[$proxy->name()] = $proxy->syncedPackages()->iterator()->toArray();
-
-                return $packages;
-            }),
-        ]);
     }
 }

@@ -67,7 +67,7 @@
                         {% if package.name %}
                             <a href="{{ url('organization_package_stats', {organization: organization.alias, package: package.id}) }}"
                                class="btn btn-primary btn-sm"
-                            >Installs</a>
+                            >Stats</a>
                         {% endif %}
                         {% if package.name or package.lastSyncError %}
                             <button

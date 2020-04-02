@@ -30,6 +30,7 @@ final class RegistrationControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('app_register_confirm', ['token' => $confirmToken]));
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
 
+        $this->client->followRedirects();
         $this->client->followRedirect();
         self::assertStringContainsString('E-mail address was confirmed.', $this->lastResponseBody());
     }
@@ -41,6 +42,7 @@ final class RegistrationControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('app_register_confirm', ['token' => 'ffffffff-505a-4459-b51d-b142e1046664']));
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
 
+        $this->client->followRedirects();
         $this->client->followRedirect();
         self::assertStringContainsString('Invalid or expired e-mail confirm token', $this->lastResponseBody());
     }
