@@ -177,16 +177,16 @@
         },
         {
             "name": "buddy-works/oauth2-client",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buddy-works/oauth2-client.git",
-                "reference": "874c0fd253f36466201de2a8cab19e56515fe701"
+                "reference": "11a9cf15f815f2198d1828a5b1dd173b4c3139ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buddy-works/oauth2-client/zipball/874c0fd253f36466201de2a8cab19e56515fe701",
-                "reference": "874c0fd253f36466201de2a8cab19e56515fe701",
+                "url": "https://api.github.com/repos/buddy-works/oauth2-client/zipball/11a9cf15f815f2198d1828a5b1dd173b4c3139ae",
+                "reference": "11a9cf15f815f2198d1828a5b1dd173b4c3139ae",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -222,7 +222,7 @@
                 }
             ],
             "description": "Buddy Provider for the OAuth 2.0 Client",
-            "time": "2020-04-02T05:46:06+00:00"
+            "time": "2020-04-02T08:46:37+00:00"
         },
         {
             "name": "cbschuld/browser.php",
