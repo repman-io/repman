@@ -16,13 +16,10 @@ services:
 
   app:
     restart: always
-    image: repman_app
-    build:
-      context: .
-      args:
-        TIMEZONE: UTC
+    image: buddy/repman
     command: >
-      bash -c 'bin/console cache:warmup &&
+      bash -c 'bin/console cache:clear &&
+      bin/console cache:warmup &&
       bin/console d:m:m --no-interaction &&
       bin/console messenger:setup-transports --no-interaction &&
       php-fpm'
@@ -34,7 +31,7 @@ services:
 
   consumer:
     restart: always
-    image: repman_app:latest
+    image: buddy/repman
     command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
     env_file: .env.docker
     volumes:
@@ -44,16 +41,17 @@ services:
 
   nginx:
     restart: always
-    build:
-      context: ./docker/nginx
-      args:
-        DOMAIN: repman.wip
-        PHP_URL: app:9000
+    image: nginx:alpine
+    env_file: .env.docker
+    command: ['/nginx/start.sh']
     ports:
       - 443:443
     depends_on:
       - app
     volumes:
+      - ./docker/nginx/scripts:/nginx
+      - ./docker/nginx/ssl/certs:/etc/ssl/certs
+      - ./docker/nginx/ssl/private:/etc/ssl/private
       - ./public:/app/public
       - ./docker/logs/nginx/:/var/log/nginx
 

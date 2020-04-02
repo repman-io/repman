@@ -1,7 +1,8 @@
 .git
 /ansible
-/docker/*
+/docker
 !/docker/nginx/cert
+/tests
 /var/*
 
 ###> friendsofphp/php-cs-fixer ###
