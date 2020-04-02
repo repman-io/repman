@@ -107,3 +107,5 @@ services:
     Gitlab\ResultPager:
         arguments:
             - '@Gitlab\Client'
+
+    Buddy\Buddy:

@@ -31,6 +31,7 @@ security:
                     - Buddy\Repman\Security\GitHubAuthenticator
                     - Buddy\Repman\Security\GitLabAuthenticator
                     - Buddy\Repman\Security\BitbucketAuthenticator
+                    - Buddy\Repman\Security\BuddyAuthenticator
                 entry_point: Buddy\Repman\Security\LoginFormAuthenticator
             logout:
                 path: app_logout

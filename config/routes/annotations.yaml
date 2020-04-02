@@ -34,3 +34,7 @@ login_gitlab_check:
 login_bitbucket_check:
     path: /auth/bitbucket/check
     schemes: ['%url_scheme%']
+
+login_buddy_check:
+    path: /auth/buddy/check
+    schemes: ['%url_scheme%']
