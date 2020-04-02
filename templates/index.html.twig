@@ -43,22 +43,24 @@ composer update --lock</pre></div>
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title flex-grow-1">Private packages</h3>
+                        <h3 class="card-title flex-grow-1">Organizations</h3>
                     </div>
                     <div class="card-body">
-                        <p>Repman is also a PHP repository manager. Main features:</p>
-                        <ul>
-                            <li>host your private packages</li>
-                            <li>allow to create individual access tokens</li>
-                            <li>you can import private packages from GitHub, GitLab and Bitbucket with one click</li>
-                        </ul>
+                        <p>Organizations allow you to organize your private packages and access to them.</p>
+                        {% if app.user.organizations.empty %}
+                            <a href="{{ path('organization_create') }}" class="btn btn-green">Create a new organisation</a>
+                        {% else %}
+                            <p>Please select organisation:</p>
+                            <ul>
+                            {% for org in app.user.organizations %}
+                                <li><a href="{{ url('organization_overview', {"organization": org.alias}) }}">
+                                    {{ org.name }}
+                                </a></li>
+                            {% endfor %}
+                            </ul>
 
-                        <p>Repman is an open source project. This means that you can use it without restrictions for your own use or in your organizations.</p>
-
-                        <p>You can also use our public instance completely free of charge.</p>
-
-                        <a href="{{ path('app_register') }}" class="btn btn-primary">Create free account</a>
-                        <a href="https://repman.io/docs" class="btn btn-secondary">Read docs</a>
+                            <p><a href="{{ path('organization_create') }}">Create a new organisation</a></p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
