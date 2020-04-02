@@ -21,3 +21,11 @@ knpu_oauth2_client:
             redirect_route: register_bitbucket_check
             redirect_params: {}
             use_state: true
+        buddy:
+            type: generic
+            provider_class: Buddy\OAuth2\Client\Provider\Buddy
+            client_id: '%env(OAUTH_BUDDY_CLIENT_ID)%'
+            client_secret: '%env(OAUTH_BUDDY_CLIENT_SECRET)%'
+            redirect_route: register_buddy_check
+            redirect_params: {}
+            use_state: true

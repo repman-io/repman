@@ -76,7 +76,7 @@ final class BitbucketControllerTest extends FunctionalTestCase
     public function testSuccessfulLoginWithBitbucket(): void
     {
         $this->fixtures->createOAuthUser($email = 'test@buddy.works');
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request('GET', $this->urlTo('auth_bitbucket_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();

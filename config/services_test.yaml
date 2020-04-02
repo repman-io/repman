@@ -24,4 +24,7 @@ services:
     Buddy\Repman\Service\BitbucketApi:
         class: Buddy\Repman\Tests\Doubles\FakeBitbucketApi
 
+    Buddy\Repman\Service\BuddyApi:
+        class: Buddy\Repman\Tests\Doubles\FakeBuddyApi
+
     Buddy\Repman\Tests\Doubles\HttpClientStub:
