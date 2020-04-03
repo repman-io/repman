@@ -1,6 +1,6 @@
 FROM php:7.4-fpm-alpine
 
-ARG TIMEZONE
+ARG TIMEZONE="UTC"
 
 SHELL ["sh", "-eo", "pipefail", "-c"]
 

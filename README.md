@@ -87,23 +87,20 @@ Scopes:
 
 ## Docker
 
-- Override with `docker-compose.override.yml` if needed. You can change app domain in `services.nginx.build.args.DOMAIN`.
-- Take a look at `.env.docker` and make sure that `APP_HOST` matches your domain.
+- Override with `docker-compose.override.yml` if needed.
+- Set your domain (`APP_HOST`) in `.env.docker`.
 
-Build and start
+If you wish to use your own certificate put key and certificate in:
+
+- `docker/nginx/ssl/private/server.key`
+- `docker/nginx/ssl/certs/server.crt`
+
+Otherwise self-sign certificate will be generated.
+
+To start all containers run:
 
 ```bash
-docker-compose build
 docker-compose up
-```
-
-If you wish to use your own certificate put `server.key` and `server.crt` in `docker/nginx/cert` folder.
-
-Otherwise generated self-sign certificate will be used.
-
-```bash
-# copy certificate so it won't be regenerated anymore
-docker cp repman_nginx_1:/cert docker/nginx
 ```
 
 ### Simple local DNS
