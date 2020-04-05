@@ -86,9 +86,14 @@ final class OrganizationController extends AbstractController
      */
     public function packages(Organization $organization, Request $request): Response
     {
+        $count = $this->packageQuery->count($organization->id());
+        if ($count === 0) {
+            return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
+        }
+
         return $this->render('organization/packages.html.twig', [
             'packages' => $this->packageQuery->findAll($organization->id(), 20, (int) $request->get('offset', 0)),
-            'count' => $this->packageQuery->count($organization->id()),
+            'count' => $count,
             'organization' => $organization,
         ]);
     }

@@ -143,20 +143,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
+        $this->client->followRedirects(true);
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect(
-                $this->urlTo('organization_packages', ['organization' => 'buddy'])
-            )
-        );
-        $this->client->followRedirect();
-        self::assertStringNotContainsString(
-            '1 entries', $this->lastResponseBody()
-        );
         self::assertStringContainsString(
             'Package has been successfully removed',
             $this->lastResponseBody()
@@ -170,12 +162,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        $this->client->followRedirect();
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
@@ -186,12 +178,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        $this->client->followRedirect();
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
@@ -202,12 +194,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'gitlab-oauth', [Metadata::GITLAB_PROJECT_ID => 123]);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        $this->client->followRedirect();
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
