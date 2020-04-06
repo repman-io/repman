@@ -78,6 +78,7 @@ final class OrganizationController extends AbstractController
     {
         return $this->render('organization/overview.html.twig', [
             'organization' => $organization,
+            'tokenCount' => $this->organizationQuery->tokenCount($organization->id()),
         ]);
     }
 
