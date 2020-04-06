@@ -4,10 +4,14 @@
 
 Repman is a PHP repository manager. Main features:
 
+- free and open source
 - work as proxy for packagist.org (speed up your local builds)
 - host your private packages
 - allow to create individual access tokens
 - import private packages from GitHub, GitLab and Bitbucket with one click
+- host your own instance (multiple deployment solutions)
+
+Documentation: [https://repman.io/docs](https://repman.io/docs)
 
 ## Requirements
 
@@ -103,25 +107,6 @@ To start all containers run:
 docker-compose up
 ```
 
-### Simple local DNS
+---
 
-Dnsmasq
-
-```conf
-# /usr/local/etc/dnsmasq.conf
-
-address=/wip/127.0.0.1
-port=53
-no-resolv
-```
-
-```conf
-# /etc/resolver/wip
-
-nameserver 127.0.0.1
-```
-
-```bash
-sudo brew services start dnsmasq
-sudo ifconfig en0 down && sudo ifconfig en0 up
-```
+made with ❤️ by [Buddy](https://buddy.works)

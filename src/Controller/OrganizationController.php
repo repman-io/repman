@@ -6,8 +6,8 @@ namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
+use Buddy\Repman\Form\Type\Organization\CreateType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
-use Buddy\Repman\Form\Type\Organization\RegisterType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
@@ -47,7 +47,7 @@ final class OrganizationController extends AbstractController
      */
     public function create(Request $request, AliasGenerator $aliasGenerator): Response
     {
-        $form = $this->createForm(RegisterType::class);
+        $form = $this->createForm(CreateType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -66,7 +66,7 @@ final class OrganizationController extends AbstractController
             return $this->redirectToRoute('organization_overview', ['organization' => $aliasGenerator->generate($name)]);
         }
 
-        return $this->render('admin/organization/register.html.twig', [
+        return $this->render('organization/create.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -78,6 +78,7 @@ final class OrganizationController extends AbstractController
     {
         return $this->render('organization/overview.html.twig', [
             'organization' => $organization,
+            'tokenCount' => $this->organizationQuery->tokenCount($organization->id()),
         ]);
     }
 
@@ -86,9 +87,14 @@ final class OrganizationController extends AbstractController
      */
     public function packages(Organization $organization, Request $request): Response
     {
+        $count = $this->packageQuery->count($organization->id());
+        if ($count === 0) {
+            return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
+        }
+
         return $this->render('organization/packages.html.twig', [
             'packages' => $this->packageQuery->findAll($organization->id(), 20, (int) $request->get('offset', 0)),
-            'count' => $this->packageQuery->count($organization->id()),
+            'count' => $count,
             'organization' => $organization,
         ]);
     }

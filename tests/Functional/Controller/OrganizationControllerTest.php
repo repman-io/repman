@@ -22,20 +22,14 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->userId = $this->createAndLoginAdmin();
     }
 
-    public function testRegisterFormRendering(): void
+    public function testSuccessfulCreate(): void
     {
         $this->client->request('GET', $this->urlTo('organization_create'));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Register organization', $this->lastResponseBody());
-        self::assertStringContainsString('Name', $this->lastResponseBody());
-    }
+        self::assertStringContainsString('Create a new organization', $this->lastResponseBody());
 
-    public function testSuccessfulRegistration(): void
-    {
-        $this->client->request('GET', $this->urlTo('organization_create'));
-
-        $this->client->submitForm('Save', ['name' => 'Acme Inc.']);
+        $this->client->submitForm('Create a new organization', ['name' => 'Acme Inc.']);
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_overview', ['organization' => 'acme-inc'])));
 
@@ -50,7 +44,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('organization_create'));
 
         $this->client->followRedirects();
-        $this->client->submitForm('Save', ['name' => '']);
+        $this->client->submitForm('Create a new organization', ['name' => '']);
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('This value should not be blank', $this->lastResponseBody());
@@ -61,7 +55,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('organization_create'));
 
         $this->client->followRedirects();
-        $this->client->submitForm('Save', ['name' => '!@#']); // only special chars
+        $this->client->submitForm('Create a new organization', ['name' => '!@#']); // only special chars
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Name cannot consist of special characters only.', $this->lastResponseBody());
@@ -71,10 +65,10 @@ final class OrganizationControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', $this->urlTo('organization_create'));
         $this->client->followRedirects();
-        $this->client->submitForm('Save', ['name' => 'same']);
+        $this->client->submitForm('Create a new organization', ['name' => 'same']);
 
         $this->client->request('GET', $this->urlTo('organization_create'));
-        $this->client->submitForm('Save', ['name' => 'same']);
+        $this->client->submitForm('Create a new organization', ['name' => 'same']);
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Organization &quot;same&quot; already exists', $this->lastResponseBody());
@@ -149,20 +143,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
+        $this->client->followRedirects(true);
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect(
-                $this->urlTo('organization_packages', ['organization' => 'buddy'])
-            )
-        );
-        $this->client->followRedirect();
-        self::assertStringNotContainsString(
-            '1 entries', $this->lastResponseBody()
-        );
         self::assertStringContainsString(
             'Package has been successfully removed',
             $this->lastResponseBody()
@@ -176,12 +162,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        $this->client->followRedirect();
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
@@ -192,12 +178,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        $this->client->followRedirect();
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
@@ -208,12 +194,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'gitlab-oauth', [Metadata::GITLAB_PROJECT_ID => 123]);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
-        $this->client->followRedirect();
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 

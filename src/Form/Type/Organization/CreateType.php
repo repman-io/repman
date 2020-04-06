@@ -13,7 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class RegisterType extends AbstractType
+class CreateType extends AbstractType
 {
     public function getBlockPrefix(): string
     {
@@ -36,7 +36,7 @@ class RegisterType extends AbstractType
                     new AliasNotBlank(),
                 ],
             ])
-            ->add('save', SubmitType::class)
+            ->add('Create', SubmitType::class, ['label' => 'Create a new organization'])
         ;
     }
 }
