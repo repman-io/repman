@@ -147,4 +147,14 @@ class Organization
             }
         }
     }
+
+    public function changeName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function changeAlias(string $alias): void
+    {
+        $this->alias = $alias;
+    }
 }

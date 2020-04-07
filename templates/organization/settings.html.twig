@@ -4,17 +4,48 @@
 
 {% block content %}
 <div class="markdown">
-    <div class="alert alert-danger" role="alert">
-        This action is irreversible, all your data (packages, tokens etc.) will be permanently deleted.
+
+    <h4>Organization name</h4>
+        {{ form_start(renameForm, {attr:{class:'row'}}) }}
+            <div class="col-4">
+                {{ form_widget(renameForm.name) }}
+                {{ form_errors(renameForm.name) }}
+            </div>
+            <div class="col-4 text-right">
+                {{ form_widget(renameForm.Rename) }}
+            </div>
+        {{ form_end(renameForm) }}
+    <hr />
+
+    <h4>Organization URL</h4>
+        <p>Once you change the URL, you will have to change your Composer authorization config and composer.json</p>
+        {{ form_start(aliasForm, {attr:{class:'row'}}) }}
+            <div class="col-4">
+                {{ form_widget(aliasForm.alias) }}
+                {{ form_errors(aliasForm.alias) }}
+            </div>
+            <div class="col-4 text-right">
+                {{ form_widget(aliasForm.Change, {attr:{class:'btn-danger'}}) }}
+            </div>
+        {{ form_end(aliasForm) }}
+    <hr />
+
+    <h4>Delete this organization</h4>
+    <div class="row">
+        <div class="col-6">
+            <p>Once you delete a organization, there is no going back. Please be certain.</p>
+        </div>
+        <div class="col-2 text-right">
+            <button
+                class="btn btn-danger"
+                type="button"
+                data-target="confirmation"
+                data-action="{{ path('organization_remove', {organization: organization.alias }) }}"
+                data-method="DELETE"
+            >
+                Delete
+            </button>
+        </div>
     </div>
-    <button
-        class="btn btn-danger"
-        type="button"
-        data-target="confirmation"
-        data-action="{{ path('organization_remove', {organization: organization.alias }) }}"
-        data-method="DELETE"
-    >
-        Delete Organization
-    </button>
 </div>
 {% endblock %}
