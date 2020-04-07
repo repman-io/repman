@@ -6,18 +6,22 @@
 
 {% if not is_user_confirmed %}
     <h3>Verify your email address</h3>
-    <div class="alert alert-warning">
-        Please click the activation link for <strong>{{ app.user.email }}</strong> to verify your email.
+    <div class="row">
+        <div class="col-6">
+            <p>Please click the activation link for <strong>{{ app.user.email }}</strong> to verify your email.</p>
+        </div>
+        <div class="col-3 text-right">
+            <button
+                    class="btn btn-warning"
+                    type="button"
+                    data-target="confirmation"
+                    data-action="{{ url('user_resend_verification') }}"
+                    data-method="POST"
+            >
+                Resend verification email
+            </button>
+        </div>
     </div>
-    <button
-        class="btn btn-warning"
-        type="button"
-        data-target="confirmation"
-        data-action="{{ url('user_resend_verification') }}"
-        data-method="POST"
-    >
-        Resend verification email
-    </button>
     <hr/>
 {% endif %}
 
@@ -25,22 +29,26 @@
 <div class="row">
     <div class="col-md-6 col-lg-4">
         {{ form(form) }}
+        <a href="{{ path('app_send_reset_password_link') }}" class="float-right" style="margin-top: -2em;">I forgot my password</a>
     </div>
 </div>
 
 <hr/>
 
 <h3>Delete Account</h3>
-<div class="alert alert-danger" role="alert">
-    This action is irreversible, all your data (organizations, packages, tokens etc.) will be permanently deleted.
-</div>
-<button
-    class="btn btn-danger"
-    type="button"
-    data-target="confirmation"
-    data-action="{{ url('user_remove') }}"
-    data-method="DELETE"
->
-    Delete Account
-</button>
+<div class="row">
+    <div class="col-6">
+        <p>This action is irreversible, all your data (organizations, packages, tokens etc.) will be permanently deleted.</p>
+    </div>
+    <div class="col-3 text-right">
+        <button
+            class="btn btn-danger"
+            type="button"
+            data-target="confirmation"
+            data-action="{{ url('user_remove') }}"
+            data-method="DELETE"
+        >
+            Delete Account
+        </button>
+    </div>
 {% endblock %}

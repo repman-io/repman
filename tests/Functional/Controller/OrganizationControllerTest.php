@@ -370,6 +370,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Meat', $this->lastResponseBody());
+        self::assertStringContainsString('Organization name been successfully changed.', $this->lastResponseBody());
     }
 
     public function testChangeAlias(): void
@@ -378,11 +379,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->client->followRedirects();
         $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
         $this->client->submitForm('Change', [
-            'alias' => 'buddy-works',
+            'alias' => 'repman',
         ]);
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('buddy-works', $this->lastResponseBody());
+        self::assertStringContainsString('repman', $this->lastResponseBody());
+        self::assertStringContainsString('Organization alias has been successfully changed.', $this->lastResponseBody());
     }
 
     public function testRemoveOrganization(): void

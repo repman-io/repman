@@ -30,7 +30,8 @@ final class UserControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', $this->urlTo('user_profile'));
 
-        $this->client->submitForm('Update', [
+        $this->client->submitForm('changePassword', [
+            'currentPassword' => 'password',
             'plainPassword[first]' => 'secret123',
             'plainPassword[second]' => 'secret123',
         ]);
