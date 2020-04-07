@@ -359,12 +359,30 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringNotContainsString('secret-token', $this->lastResponseBody());
     }
 
-    public function testSettings(): void
+    public function testChangeName(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->followRedirects();
         $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
+        $this->client->submitForm('Rename', [
+            'name' => 'Meat',
+        ]);
 
         self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Meat', $this->lastResponseBody());
+    }
+
+    public function testChangeAlias(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->followRedirects();
+        $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
+        $this->client->submitForm('Change', [
+            'alias' => 'buddy-works',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('buddy-works', $this->lastResponseBody());
     }
 
     public function testRemoveOrganization(): void

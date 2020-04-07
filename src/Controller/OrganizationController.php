@@ -6,9 +6,13 @@ namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
+use Buddy\Repman\Form\Type\Organization\ChangeAliasType;
+use Buddy\Repman\Form\Type\Organization\ChangeNameType;
 use Buddy\Repman\Form\Type\Organization\CreateType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Message\Organization\AddPackage;
+use Buddy\Repman\Message\Organization\ChangeAlias;
+use Buddy\Repman\Message\Organization\ChangeName;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\Package\RemoveBitbucketHook;
@@ -258,12 +262,32 @@ final class OrganizationController extends AbstractController
     }
 
     /**
-     * @Route("/organization/{organization}/settings", name="organization_settings", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
+     * @Route("/organization/{organization}/settings", name="organization_settings", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function settings(Organization $organization): Response
+    public function settings(Organization $organization, Request $request): Response
     {
+        $renameForm = $this->createForm(ChangeNameType::class, ['name' => $organization->name()]);
+        $renameForm->handleRequest($request);
+        if ($renameForm->isSubmitted() && $renameForm->isValid()) {
+            $this->dispatchMessage(new ChangeName($organization->id(), $renameForm->get('name')->getData()));
+            $this->addFlash('success', 'Organization name been successfully changed.');
+
+            return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
+        }
+
+        $aliasForm = $this->createForm(ChangeAliasType::class, ['alias' => $organization->alias()]);
+        $aliasForm->handleRequest($request);
+        if ($aliasForm->isSubmitted() && $aliasForm->isValid()) {
+            $this->dispatchMessage(new ChangeAlias($organization->id(), $aliasForm->get('alias')->getData()));
+            $this->addFlash('success', 'Organization alias has been successfully changed.');
+
+            return $this->redirectToRoute('organization_settings', ['organization' => $aliasForm->get('alias')->getData()]);
+        }
+
         return $this->render('organization/settings.html.twig', [
             'organization' => $organization,
+            'renameForm' => $renameForm->createView(),
+            'aliasForm' => $aliasForm->createView(),
         ]);
     }
 
