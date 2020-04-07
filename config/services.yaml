@@ -109,3 +109,7 @@ services:
             - '@Gitlab\Client'
 
     Buddy\Buddy:
+
+    # will be removed
+    Buddy\Repman\Query\Admin\Proxy\DownloadsQuery\DbalDownloadsQuery:
+        public: true
