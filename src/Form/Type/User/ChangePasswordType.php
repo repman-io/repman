@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -25,11 +26,16 @@ class ChangePasswordType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('currentPassword', PasswordType::class, [
+                'constraints' => [
+                    new UserPassword(),
+                ],
+            ])
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match',
                 'first_options' => ['label' => 'Password'],
-                'second_options' => ['label' => 'Repeat Password'],
+                'second_options' => ['label' => 'Repeat Password', 'help' => 'Make sure it\'s at least 6 characters'],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter a password',
@@ -41,7 +47,7 @@ class ChangePasswordType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('Update', SubmitType::class)
+            ->add('changePassword', SubmitType::class, ['label' => 'Change password'])
         ;
     }
 }
