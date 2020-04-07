@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Buddy\Repman\Message\Proxy\AddDownloads;
+use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Munus\Control\Option;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -29,7 +32,7 @@ final class ProxyController extends AbstractController
     public function packages(): JsonResponse
     {
         return new JsonResponse([
-            'notify-batch' => 'https://packagist.org/downloads/',
+            'notify-batch' => $this->generateUrl('package_downloads', [], RouterInterface::ABSOLUTE_URL),
             'providers-url' => '/p/%package%$%hash%.json',
             'metadata-url' => '/p2/%package%.json',
             'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
@@ -72,5 +75,37 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
         );
+    }
+
+    /**
+     * @Route("/downloads",
+     *     name="package_downloads",
+     *     host="repo.{domain}",
+     *     defaults={"domain":"%domain%"},
+     *     requirements={"domain"="%domain%"},
+     *     methods={"POST"})
+     */
+    public function downloads(Request $request): JsonResponse
+    {
+        $contents = json_decode($request->getContent(), true);
+        if (($contents['downloads'] ?? []) === []) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Invalid request format, must be a json object containing a downloads key filled with an array of name/version objects',
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $this->dispatchMessage(new AddDownloads(
+            array_map(function (array $data): Package {
+                return new Package($data['name'], $data['version']);
+            }, array_filter($contents['downloads'], function (array $row): bool {
+                return isset($row['name'], $row['version']);
+            })),
+            new \DateTimeImmutable(),
+            $request->getClientIp(),
+            $request->headers->get('User-Agent')
+        ));
+
+        return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
     }
 }

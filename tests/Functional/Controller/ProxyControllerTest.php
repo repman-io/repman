@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
 final class ProxyControllerTest extends FunctionalTestCase
 {
@@ -16,7 +18,7 @@ final class ProxyControllerTest extends FunctionalTestCase
 
         self::assertMatchesPattern('
         {
-            "notify-batch": "https://packagist.org/downloads/",
+            "notify-batch": "http://repo.repman.wip/downloads",
             "providers-url": "/p/%package%$%hash%.json",
             "metadata-url": "/p2/%package%.json",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
@@ -67,5 +69,31 @@ final class ProxyControllerTest extends FunctionalTestCase
         ]);
 
         self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testTrackDownloads(): void
+    {
+        $this->client->request('POST', '/downloads', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ], (string) json_encode([
+            'downloads' => [
+                [
+                    'name' => 'buddy-works/repman',
+                    'version' => '1.2.0.0',
+                ],
+                [
+                    'name' => 'not-exist',
+                    'version' => 'should-not-throw-error',
+                ],
+                [
+                    'name' => 'missing version',
+                ],
+            ],
+        ]));
+
+        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        /** @var InMemoryTransport $transport */
+        $transport = $this->container()->get('messenger.transport.async');
+        self::assertCount(1, $transport->getSent());
     }
 }
