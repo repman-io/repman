@@ -2,16 +2,15 @@
 
 [![buddy pipeline](https://app.buddy.works/repman/repman/pipelines/pipeline/244546/badge.svg?token=dbd28b3ece0d16aba095b8a33d0893d15f0403fbcc285a2a1a175cc77f7c94a8 "buddy pipeline")](https://app.buddy.works/repman/repman/pipelines/pipeline/244546)
 
-Repman is a PHP repository manager. Main features:
+**Repman** is a PHP repository manager. Main features:
 
 - free and open source
-- work as proxy for packagist.org (speed up your local builds)
-- host your private packages
-- allow to create individual access tokens
-- import private packages from GitHub, GitLab and Bitbucket with one click
-- host your own instance (multiple deployment solutions)
+- works as a proxy for **packagist.org** (speeds up your local builds)
+- hosts your private packages
+- allows to create individual access tokens
+- supports private package import from **GitHub**, **GitLab** and **Bitbucket** with one click
 
-Documentation: [https://repman.io/docs](https://repman.io/docs)
+Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 
 ## Requirements
 
