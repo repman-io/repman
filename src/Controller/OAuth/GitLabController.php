@@ -62,7 +62,7 @@ final class GitLabController extends OAuthController
         /** @var User */
         $user = $this->getUser();
         if ($user->oauthToken(OAuthToken::TYPE_GITLAB) !== null) {
-            return $this->redirectToRoute('organization_package_new_from_gitlab', ['organization' => $organization->alias()]);
+            return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_GITLAB]);
         }
         $this->session->set('organization', $organization->alias());
 
@@ -79,7 +79,7 @@ final class GitLabController extends OAuthController
             function (): AccessToken {
                 return $this->oauth->getClient('gitlab')->getAccessToken(['redirect_uri' => $this->generateUrl('package_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
             },
-            'organization_package_new_from_gitlab'
+            'organization_package_new'
         );
     }
 }

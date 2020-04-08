@@ -96,4 +96,13 @@ final class ProxyControllerTest extends FunctionalTestCase
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(1, $transport->getSent());
     }
+
+    public function testTrackDownloadsInvalidRequest(): void
+    {
+        $this->client->request('POST', '/downloads', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ], 'invalid');
+
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+    }
 }

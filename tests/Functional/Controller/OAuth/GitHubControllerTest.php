@@ -114,7 +114,7 @@ final class GitHubControllerTest extends FunctionalTestCase
 
         $this->client->request('GET', $this->urlTo('package_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_github', ['organization' => 'buddy'])));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github'])));
         $this->client->followRedirect();
 
         self::assertTrue($this->client->getResponse()->isOk());
@@ -144,7 +144,7 @@ final class GitHubControllerTest extends FunctionalTestCase
         self::assertTrue(
             $this->client
                 ->getResponse()
-                ->isRedirect($this->urlTo('organization_package_new_from_github', ['organization' => 'buddy']))
+                ->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github']))
         );
     }
 

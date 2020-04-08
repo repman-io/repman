@@ -146,32 +146,32 @@
         </div>
     </div>
 
-    {% block javascripts %}
-        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/js/bootstrap-select.min.js" integrity="sha256-+o/X+QCcfTkES5MroTdNL5zrLNGb3i4dYdWPWuq6whY=" crossorigin="anonymous"></script>
-        <script>
-            $('[data-target="confirmation"]').on('click', function() {
-                const confirmationModalId = '#confirmation-modal';
-                const $source = $(this);
-                const $modal = $(`${confirmationModalId}`);
-                const $modalForm = $(`${confirmationModalId} form`);
-                const $modalTitle = $(`${confirmationModalId} .modal-title`);
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/js/bootstrap-select.min.js" integrity="sha256-+o/X+QCcfTkES5MroTdNL5zrLNGb3i4dYdWPWuq6whY=" crossorigin="anonymous"></script>
+    <script>
+        $('[data-target="confirmation"]').on('click', function() {
+            const confirmationModalId = '#confirmation-modal';
+            const $source = $(this);
+            const $modal = $(`${confirmationModalId}`);
+            const $modalForm = $(`${confirmationModalId} form`);
+            const $modalTitle = $(`${confirmationModalId} .modal-title`);
 
-                $modalForm.prop('action', $source.data('action'));
-                $modalForm.children('[name=_method]').val($source.data('method'));
-                $modalTitle.html($source.data('title') || 'Confirm action');
+            $modalForm.prop('action', $source.data('action'));
+            $modalForm.children('[name=_method]').val($source.data('method'));
+            $modalTitle.html($source.data('title') || 'Confirm action');
 
-                $modal.modal('show');
-            });
+            $modal.modal('show');
+        });
 
-            $('.copy-to-clipboard').click(function() {
-                $($(this).data('clipboard-target')).select();
-                document.execCommand('copy');
-            });
-        </script>
-    {% endblock %}
+        $('.copy-to-clipboard').click(function() {
+            $($(this).data('clipboard-target')).select();
+            document.execCommand('copy');
+        });
+    </script>
+
+    {% block javascripts %}{% endblock %}
     </body>
     {% endblock body %}
 </html>
