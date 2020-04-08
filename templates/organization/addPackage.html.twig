@@ -57,7 +57,10 @@
 {% block javascripts %}
 <script>
     $('.addPackageType').on('change', function(e) {
-        window.location.href = $('.addPackageFormUrl').val() + '/' + e.target.value;
+        const type = e.target.value;
+        const baseUrl = $('.addPackageFormUrl').val();
+
+        window.location.href = `${baseUrl}/${type}`;
     });
 </script>
 {% endblock %}

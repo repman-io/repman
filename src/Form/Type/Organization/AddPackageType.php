@@ -54,7 +54,9 @@ class AddPackageType extends AbstractType
                 ], fn (string $type): bool => in_array($type, $this->allowedTypes, true)),
                 'attr' => [
                     'class' => 'addPackageType form-control selectpicker',
+                    'data-live-search' => 'true',
                     'data-style' => 'btn-secondary',
+                    'title' => 'select repository type',
                 ],
                 'constraints' => [
                     new NotNull(),
