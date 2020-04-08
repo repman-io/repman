@@ -48,9 +48,9 @@ composer update --lock</pre></div>
                     <div class="card-body">
                         <p>Organizations allow you to organize your private packages and access to them.</p>
                         {% if app.user.organizations.empty %}
-                            <a href="{{ path('organization_create') }}" class="btn btn-green">Create a new organisation</a>
+                            <a href="{{ path('organization_create') }}" class="btn btn-green">Create a new organization</a>
                         {% else %}
-                            <p>Please select organisation:</p>
+                            <p>Please select organization:</p>
                             <ul>
                             {% for org in app.user.organizations %}
                                 <li><a href="{{ url('organization_overview', {"organization": org.alias}) }}">
@@ -59,7 +59,7 @@ composer update --lock</pre></div>
                             {% endfor %}
                             </ul>
 
-                            <p><a href="{{ path('organization_create') }}">Create a new organisation</a></p>
+                            <p><a href="{{ path('organization_create') }}">Create a new organization</a></p>
                         {% endif %}
                     </div>
                 </div>
