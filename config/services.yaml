@@ -7,8 +7,8 @@ parameters:
     package_name_pattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?'
     organization_pattern: '[a-z0-9_-]+' # remember to change in security.yaml (access_control)
     uuid_pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
-    dists_dir: '%kernel.project_dir%/var/proxy'
-    repo_dir: '%kernel.project_dir%/var/repo'
+    dists_dir: '%env(resolve:PROXY_DIST_DIR)%'
+    repo_dir: '%env(resolve:PACKAGES_DIST_DIR)%'
     domain: '%env(resolve:APP_HOST)%'
     url_scheme: '%env(resolve:APP_URL_SCHEME)%'
     router.request_context.scheme: '%env(resolve:APP_URL_SCHEME)%'
