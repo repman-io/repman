@@ -3,3 +3,5 @@ twig:
     form_themes: ['form/bootstrap_4_layout.html.twig']
     paths:
         '%kernel.project_dir%/public': public
+    globals:
+        ga_tracking: '%env(resolve:GA_TRACKING)%'
