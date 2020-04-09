@@ -16,6 +16,7 @@
         - "rm -rf var/cache"
         - "composer reset-db"
         - "composer tests"
+        - "bash <(curl -s https://codecov.io/bash)"
       setup_commands:
         - "apt-get update && apt-get install -y git zip"
         - "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer"
