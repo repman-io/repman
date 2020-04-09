@@ -6,10 +6,9 @@ namespace Buddy\Repman\Form\Type\Organization;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 class AddPackageType extends AbstractType
@@ -38,24 +37,29 @@ class AddPackageType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('formUrl', HiddenType::class, [
+                'attr' => ['class' => 'addPackageFormUrl'],
+            ])
             ->add('type', ChoiceType::class, [
                 'choices' => array_filter([
-                    'vcs (git, svn, hg)' => 'vcs',
-                    'pear' => 'pear',
-                    'artifact' => 'artifact',
-                    'path' => 'path',
+                    'Git' => 'git',
+                    'GitHub' => 'github',
+                    'GitLab' => 'gitlab',
+                    'Bitbucket' => 'bitbucket',
+                    'Mercurial' => 'mercurial',
+                    'Subversion' => 'subversion',
+                    'Pear' => 'pear',
+                    'Artifact' => 'artifact',
+                    'Path' => 'path',
                 ], fn (string $type): bool => in_array($type, $this->allowedTypes, true)),
                 'attr' => [
-                    'class' => 'form-control selectpicker',
+                    'class' => 'addPackageType form-control selectpicker',
+                    'data-live-search' => 'true',
                     'data-style' => 'btn-secondary',
+                    'title' => 'select repository type',
                 ],
                 'constraints' => [
                     new NotNull(),
-                ],
-            ])
-            ->add('url', TextType::class, [
-                'constraints' => [
-                    new NotBlank(),
                 ],
             ])
             ->add('Add', SubmitType::class);

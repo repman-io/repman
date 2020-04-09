@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Form\Type\Organization\AddPackageType;
 use Buddy\Repman\Form\Type\Organization\ChangeAliasType;
 use Buddy\Repman\Form\Type\Organization\ChangeNameType;
 use Buddy\Repman\Form\Type\Organization\CreateType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
-use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\ChangeAlias;
 use Buddy\Repman\Message\Organization\ChangeName;
 use Buddy\Repman\Message\Organization\CreateOrganization;
@@ -27,7 +25,6 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
-use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -55,7 +52,6 @@ final class OrganizationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var User */
             $user = $this->getUser();
 
             $this->dispatchMessage(new CreateOrganization(
@@ -100,34 +96,6 @@ final class OrganizationController extends AbstractController
             'packages' => $this->packageQuery->findAll($organization->id(), 20, (int) $request->get('offset', 0)),
             'count' => $count,
             'organization' => $organization,
-        ]);
-    }
-
-    /**
-     * @Route("/organization/{organization}/package/new", name="organization_package_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
-     */
-    public function packageNew(Organization $organization, Request $request, GithubApi $api): Response
-    {
-        $form = $this->createForm(AddPackageType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new AddPackage(
-                $id = Uuid::uuid4()->toString(),
-                $organization->id(),
-                $form->get('url')->getData(),
-                $form->get('type')->getData()
-            ));
-            $this->dispatchMessage(new SynchronizePackage($id));
-
-            $this->addFlash('success', 'Package has been added and will be synchronized in the background');
-
-            return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
-        }
-
-        return $this->render('organization/addPackage.html.twig', [
-            'organization' => $organization,
-            'form' => $form->createView(),
         ]);
     }
 
@@ -311,5 +279,13 @@ final class OrganizationController extends AbstractController
             'organization' => $organization,
             'installs' => $this->organizationQuery->getInstalls($organization->id()),
         ]);
+    }
+
+    protected function getUser(): User
+    {
+        /** @var User $user */
+        $user = parent::getUser();
+
+        return $user;
     }
 }

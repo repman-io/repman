@@ -65,7 +65,7 @@ final class GitHubController extends OAuthController
         /** @var User */
         $user = $this->getUser();
         if ($user->oauthToken(OAuthToken::TYPE_GITHUB) !== null) {
-            return $this->redirectToRoute('organization_package_new_from_github', ['organization' => $organization->alias()]);
+            return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_GITHUB]);
         }
         $this->session->set('organization', $organization->alias());
 
@@ -86,7 +86,7 @@ final class GitHubController extends OAuthController
             function (): AccessToken {
                 return $this->oauth->getClient('github')->getAccessToken();
             },
-            'organization_package_new_from_github'
+            'organization_package_new'
         );
     }
 }

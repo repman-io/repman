@@ -109,7 +109,7 @@ final class GitLabControllerTest extends FunctionalTestCase
 
         $this->client->request('GET', $this->urlTo('package_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new_from_gitlab', ['organization' => 'buddy'])));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'gitlab'])));
         $this->client->followRedirect();
 
         self::assertTrue($this->client->getResponse()->isOk());
@@ -135,7 +135,7 @@ final class GitLabControllerTest extends FunctionalTestCase
         self::assertTrue(
             $this->client
                 ->getResponse()
-                ->isRedirect($this->urlTo('organization_package_new_from_gitlab', ['organization' => 'buddy']))
+                ->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'gitlab']))
         );
     }
 

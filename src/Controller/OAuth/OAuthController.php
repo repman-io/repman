@@ -43,8 +43,9 @@ abstract class OAuthController extends AbstractController
         $user = $this->getUser();
         $this->dispatchMessage(new RefreshOAuthToken($user->id()->toString(), $type));
 
-        return $this->redirectToRoute('organization_package_new_from_bitbucket', [
+        return $this->redirectToRoute('organization_package_new', [
             'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
+            'type' => $type,
         ]);
     }
 
@@ -81,6 +82,7 @@ abstract class OAuthController extends AbstractController
 
             return $this->redirectToRoute($route, [
                 'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
+                'type' => $type,
             ]);
         } catch (OAuth2ClientException | IdentityProviderException $e) {
             $this->addFlash('danger', 'Error while getting oauth token: '.$e->getMessage());

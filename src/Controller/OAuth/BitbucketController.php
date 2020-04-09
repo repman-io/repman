@@ -63,7 +63,7 @@ final class BitbucketController extends OAuthController
         /** @var User */
         $user = $this->getUser();
         if ($user->oauthToken(OAuthToken::TYPE_BITBUCKET) !== null) {
-            return $this->redirectToRoute('organization_package_new_from_bitbucket', ['organization' => $organization->alias()]);
+            return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_BITBUCKET]);
         }
         $this->session->set('organization', $organization->alias());
 
@@ -80,7 +80,7 @@ final class BitbucketController extends OAuthController
             function (): AccessToken {
                 return $this->oauth->getClient('bitbucket')->getAccessToken(['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
             },
-            'organization_package_new_from_bitbucket'
+            'organization_package_new'
         );
     }
 }
