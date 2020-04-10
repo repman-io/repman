@@ -2,6 +2,24 @@
 
 {% block header %}{{ organization.name }} package installs (last 30 days){% endblock %}
 
+{% block header_btn %}
+{% set days = days ?? 30 %}
+    <select class="form-control period-select">
+        <option {{ days == 7 ? 'selected="selected"' : '' }} value="7">last 7 days</option>
+        <option {{ days == 30 ? 'selected="selected"' : '' }} value="30">last 30 days</option>
+        <option {{ days == 90 ? 'selected="selected"' : '' }} value="90">last 90 days</option>
+        <option {{ days == 365 ? 'selected="selected"' : '' }} value="365">last year</option>
+    </select>
+    <script>
+        window.onload = function() {
+            $('.period-select').on('change', function (e) {
+                const days = e.target.value;
+                window.location.href = `{{ app.request.pathinfo }}?days=${days}`;
+            });
+        };
+    </script>
+{% endblock %}
+
 {% block content %}
     <div id="chart-installs" ></div>
 
@@ -10,7 +28,7 @@
     <h3>Summary:</h3>
     <p>
         Today installs: {{ (installs.days | last).installs }}<br />
-        Last 30 days installs: {{ installs.daysTotal }}<br />
+        Last {{ days ?? 30 }} days installs: {{ installs.daysTotal }}<br />
         <strong>Total installs: {{ installs.total }}</strong>
     </p>
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c51723641aeef362946d673b5cf89247",
+    "content-hash": "22861c4a1109a91d1f35de79e471ff16",
     "packages": [
         {
             "name": "bitbucket/client",
@@ -187,13 +187,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/buddy-works/oauth2-client/zipball/11a9cf15f815f2198d1828a5b1dd173b4c3139ae",
                 "reference": "11a9cf15f815f2198d1828a5b1dd173b4c3139ae",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://repo.repman.io/dists/%package%/%version%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "shasum": ""
             },
             "require": {
                 "ext-json": "*",
@@ -2803,17 +2797,23 @@
         },
         {
             "name": "munusphp/munus",
-            "version": "0.1.4",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/munusphp/munus.git",
-                "reference": "2a6b795a0f206b7c4b234c4631f7d97358e994c8"
+                "reference": "9e102faa8576e7b15cc6bc85630fa79c706dc6d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/munusphp/munus/zipball/2a6b795a0f206b7c4b234c4631f7d97358e994c8",
-                "reference": "2a6b795a0f206b7c4b234c4631f7d97358e994c8",
-                "shasum": ""
+                "url": "https://api.github.com/repos/munusphp/munus/zipball/9e102faa8576e7b15cc6bc85630fa79c706dc6d8",
+                "reference": "9e102faa8576e7b15cc6bc85630fa79c706dc6d8",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://repo.repman.io/dists/%package%/%version%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
             },
             "require": {
                 "php": "^7.2"
@@ -2831,7 +2831,7 @@
                     "Munus\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "notification-url": "https://repo.repman.io/downloads",
             "license": [
                 "MIT"
             ],
@@ -2842,7 +2842,7 @@
                 }
             ],
             "description": "Power of object-oriented programming with the elegance of functional programming.",
-            "time": "2020-03-03T17:54:36+00:00"
+            "time": "2020-04-09T07:16:36+00:00"
         },
         {
             "name": "ocramius/package-versions",

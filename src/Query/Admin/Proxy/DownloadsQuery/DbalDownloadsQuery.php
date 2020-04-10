@@ -6,6 +6,7 @@ namespace Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 
 use Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 use Buddy\Repman\Query\Admin\Proxy\Model\Package;
+use Buddy\Repman\Query\User\Model\Installs;
 use Doctrine\DBAL\Connection;
 
 final class DbalDownloadsQuery implements DownloadsQuery
@@ -24,16 +25,32 @@ final class DbalDownloadsQuery implements DownloadsQuery
      */
     public function findByNames(array $names): array
     {
-        return array_map(function (array $row): Package {
-            return new Package(
+        $packages = [];
+        foreach ($this->connection->fetchAll('SELECT package, COUNT(package) AS downloads, MAX(date) AS date FROM proxy_package_download WHERE package IN (:packages) GROUP BY package ORDER BY package', [
+            ':packages' => $names,
+        ], [
+            ':packages' => Connection::PARAM_STR_ARRAY,
+        ]) as $row) {
+            $packages[$row['package']] = new Package(
                 $row['package'],
                 $row['downloads'],
                 new \DateTimeImmutable($row['date'])
             );
-        }, $this->connection->fetchAll('SELECT package, COUNT(package) AS downloads, MAX(date) AS date FROM proxy_package_download WHERE package IN (:packages) GROUP BY package ORDER BY package', [
-            ':packages' => $names,
-        ], [
-            ':packages' => Connection::PARAM_STR_ARRAY,
-        ]));
+        }
+
+        return $packages;
+    }
+
+    public function getInstalls(int $lastDays = 30): Installs
+    {
+        return new Installs(
+            array_map(function (array $row): Installs\Day {
+                return new Installs\Day(substr($row['date'], 0, 10), $row['count']);
+            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
+                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            ])),
+            $lastDays,
+            (int) $this->connection->fetchColumn('SELECT COUNT(*) FROM proxy_package_download')
+        );
     }
 }

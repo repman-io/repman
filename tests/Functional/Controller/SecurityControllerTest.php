@@ -12,7 +12,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 {
     public function testRestrictedPageIsRedirectedToLogin(): void
     {
-        $this->client->request('GET', '/admin/dist');
+        $this->client->request('GET', $this->urlTo('admin_dist_list', ['proxy' => 'packagist.org']));
 
         self::assertTrue($this->client->getResponse()->isRedirect('/login'));
     }
@@ -87,7 +87,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
         $this->client->followRedirect();
         $this->fixtures->disableUser($id);
-        $this->client->request('GET', '/admin/dist');
+        $this->client->request('GET', $this->urlTo('admin_dist_list', ['proxy' => 'packagist.org']));
 
         // redirected back to login screen
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
@@ -105,7 +105,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
 
-        $this->client->request('GET', '/admin/dist');
+        $this->client->request('GET', $this->urlTo('admin_dist_list', ['proxy' => 'packagist.org']));
         self::assertTrue($this->client->getResponse()->isOk());
     }
 
@@ -113,7 +113,7 @@ final class SecurityControllerTest extends FunctionalTestCase
     {
         $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
 
-        $this->client->request('GET', '/admin/dist');
+        $this->client->request('GET', $this->urlTo('admin_dist_list', ['proxy' => 'packagist.org']));
         $this->client->followRedirect();
         $this->client->submitForm('Sign in', [
             'email' => $email,
@@ -121,7 +121,7 @@ final class SecurityControllerTest extends FunctionalTestCase
         ]);
 
         // authenticator user $targetPath, so in test env localhost will be added to url
-        self::assertTrue($this->client->getResponse()->isRedirect('http://localhost/admin/dist'));
+        self::assertTrue($this->client->getResponse()->isRedirect('http://localhost/admin/dist/packagist.org'));
     }
 
     public function testSuccessfulLogout(): void

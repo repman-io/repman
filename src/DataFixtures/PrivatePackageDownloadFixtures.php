@@ -16,23 +16,20 @@ use Faker\Generator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Load download for current packages:
- * symfony console d:f:l --group=PackageDownloadFixtures --append.
+ * Load download for current private packages:
+ * symfony console d:f:l --group=PrivatePackageDownloadFixtures --append.
  */
-final class PackageDownloadFixtures extends Fixture
+final class PrivatePackageDownloadFixtures extends Fixture
 {
-    private MessageBusInterface $messageBus;
     private OrganizationQuery $organizations;
     private PackageQuery $packages;
     private Generator $faker;
     private EntityManagerInterface $em;
 
-    public function __construct(MessageBusInterface $messageBus, OrganizationQuery $organizations, PackageQuery $packages, EntityManagerInterface $em)
+    public function __construct(OrganizationQuery $organizations, PackageQuery $packages, EntityManagerInterface $em)
     {
-        $this->messageBus = $messageBus;
         $this->organizations = $organizations;
         $this->packages = $packages;
         $this->em = $em;

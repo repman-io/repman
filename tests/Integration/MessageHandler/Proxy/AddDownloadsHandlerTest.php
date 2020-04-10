@@ -21,7 +21,7 @@ final class AddDownloadsHandlerTest extends IntegrationTestCase
             [
                 new Package('buddy-works/oauth2-client', '0.1.2'),
                 new Package('buddy-works/oauth2-client', '0.1.2'),
-                new Package('doctrine/dbal', '1.2.3'),
+                new Package('subctrine/dbal', '1.2.3'),
             ],
             $date = new \DateTimeImmutable(),
             '156.101.44.101',
@@ -33,11 +33,11 @@ final class AddDownloadsHandlerTest extends IntegrationTestCase
         $packages = $this
             ->container()
             ->get(DbalDownloadsQuery::class)
-            ->findByNames(['buddy-works/oauth2-client', 'doctrine/dbal']);
+            ->findByNames(['buddy-works/oauth2-client', 'subctrine/dbal']);
 
         self::assertEquals([
-            new DownloadPackage('buddy-works/oauth2-client', 2, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
-            new DownloadPackage('doctrine/dbal', 1, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
+            'buddy-works/oauth2-client' => new DownloadPackage('buddy-works/oauth2-client', 2, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
+            'subctrine/dbal' => new DownloadPackage('subctrine/dbal', 1, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
         ], $packages);
     }
 }
