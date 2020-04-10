@@ -36,4 +36,13 @@ final class ProxyRegister
 
         return GenericList::ofAll($proxies);
     }
+
+    public function getByHost(string $host): Proxy
+    {
+        return $this->factory->create($this->urls
+            ->add('https://packagist.org')
+            ->find(fn ($url) => (string) parse_url($url, PHP_URL_HOST) === $host)
+            ->getOrElseThrow(new \RuntimeException(sprintf('Proxy for %s not found', $host)))
+        );
+    }
 }

@@ -1,0 +1,43 @@
+{% extends "base.html.twig" %}
+
+{% block header %}Downloaded packages - {{ proxy }}{% endblock %}
+
+{% block content %}
+<div class="markdown">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Downloads count</th>
+            <th>Last downloads</th>
+            <th>Options</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for package in packages %}
+            <tr>
+                <td>{{ package }}</td>
+                <td>{{ downloads[package].downloads ?? 0 }}</td>
+                <td>
+                    {% if downloads[package] is defined %}
+                        <span title="{{ downloads[package].lastDownload | date }}">{{ downloads[package].lastDownload | time_diff }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button
+                            class="btn btn-danger btn-sm"
+                            type="button"
+                            data-target="confirmation"
+                            data-action="{{ path('admin_dist_remove', {packageName: package, proxy: proxy}) }}"
+                            data-method="DELETE"
+                    >
+                        Remove
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% include 'component/pagination.html.twig' with {'path_name': 'admin_dist_list', 'path_params': {'proxy': proxy}} %}
+</div>
+{% endblock %}

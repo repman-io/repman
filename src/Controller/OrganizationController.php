@@ -142,12 +142,15 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/{package}/stats", name="organization_package_stats", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function packageStats(Organization $organization, Package $package): Response
+    public function packageStats(Organization $organization, Package $package, Request $request): Response
     {
+        $days = min(max((int) $request->get('days', 30), 7), 365);
+
         return $this->render('organization/package/stats.html.twig', [
             'organization' => $organization,
             'package' => $package,
-            'installs' => $this->packageQuery->getInstalls($package->id()),
+            'installs' => $this->packageQuery->getInstalls($package->id(), $days),
+            'days' => $days,
         ]);
     }
 
@@ -273,11 +276,14 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/stats", name="organizations_stats")
      */
-    public function stats(Organization $organization): Response
+    public function stats(Organization $organization, Request $request): Response
     {
+        $days = min(max((int) $request->get('days', 30), 7), 365);
+
         return $this->render('organization/stats.html.twig', [
             'organization' => $organization,
-            'installs' => $this->organizationQuery->getInstalls($organization->id()),
+            'installs' => $this->organizationQuery->getInstalls($organization->id(), $days),
+            'days' => $days,
         ]);
     }
 
