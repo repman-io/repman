@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Admin;
 
+use Buddy\Repman\Form\Type\User\ChangeRolesType;
+use Buddy\Repman\Message\User\ChangeRoles;
 use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\Message\User\EnableUser;
 use Buddy\Repman\Query\Admin\Model\User;
@@ -53,5 +55,27 @@ final class UserController extends AbstractController
         $this->addFlash('success', sprintf('User %s has been successfully enabled', $user->email()));
 
         return $this->redirectToRoute('admin_user_list');
+    }
+
+    /**
+     * @Route("/admin/user/{user}/roles", name="admin_user_roles", methods={"POST","GET"}, requirements={"user"="%uuid_pattern%"})
+     */
+    public function updateRoles(User $user, Request $request): Response
+    {
+        $form = $this->createForm(ChangeRolesType::class, ['admin' => in_array('ROLE_ADMIN', $user->roles(), true)]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $roles = (bool) $form->get('admin')->getData() ? ['ROLE_ADMIN'] : [];
+            $userRoles = array_diff($user->roles(), ['ROLE_ADMIN']);
+            $this->dispatchMessage(new ChangeRoles($user->id(), array_merge($userRoles, $roles)));
+            $this->addFlash('success', sprintf('User %s roles has been successfully changed', $user->email()));
+
+            return $this->redirectToRoute('admin_user_list');
+        }
+
+        return $this->render('admin/user/changeRoles.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+        ]);
     }
 }

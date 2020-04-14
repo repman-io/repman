@@ -22,7 +22,7 @@ final class DbalUserQuery implements UserQuery
     {
         return array_map(function (array $data): User {
             return $this->hydrateUser($data);
-        }, $this->connection->fetchAll('SELECT id, email, status, roles FROM "user" LIMIT :limit OFFSET :offset', [
+        }, $this->connection->fetchAll('SELECT id, email, status, roles FROM "user" ORDER BY email LIMIT :limit OFFSET :offset', [
             ':limit' => $limit,
             ':offset' => $offset,
         ]));

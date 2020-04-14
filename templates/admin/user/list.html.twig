@@ -43,6 +43,7 @@
                                 Enable
                             </button>
                         {% endif %}
+                        <a href="{{ path('admin_user_roles', {user: user.id}) }}" class="btn btn-warning btn-sm">Change roles</a>
                     </td>
                 </tr>
             {% endfor %}
