@@ -190,6 +190,14 @@ class User implements UserInterface
     }
 
     /**
+     * @param string[] $roles
+     */
+    public function changeRoles(array $roles): void
+    {
+        $this->roles = array_unique($roles);
+    }
+
+    /**
      * @see UserInterface
      */
     public function getPassword(): string

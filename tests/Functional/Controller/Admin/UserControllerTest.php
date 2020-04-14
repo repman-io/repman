@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\Admin;
 
+use Buddy\Repman\Query\Admin\UserQuery\DbalUserQuery;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -71,5 +72,21 @@ final class UserControllerTest extends FunctionalTestCase
         ]));
 
         self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testChangeRoles(): void
+    {
+        $userId = $this->fixtures->createUser('typical@buddy.works');
+        $this->client->followRedirects();
+        $this->client->request('GET', $this->urlTo('admin_user_roles', [
+            'user' => $userId,
+        ]));
+        $this->client->submitForm('Change roles', ['admin' => true]);
+
+        self::assertStringContainsString(
+            'User typical@buddy.works roles has been successfully changed',
+            $this->lastResponseBody()
+        );
+        self::assertContains('ROLE_ADMIN', $this->container()->get(DbalUserQuery::class)->getById($userId)->get()->roles());
     }
 }
