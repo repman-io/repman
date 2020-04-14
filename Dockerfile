@@ -7,7 +7,16 @@ SHELL ["sh", "-eo", "pipefail", "-c"]
 # install composer and extensions: pdo_pgsql, pcov, intl, zip
 RUN apk update && \
     apk add --no-cache -q \
-    $PHPIZE_DEPS bash git zip unzip postgresql-dev icu-dev libzip-dev && \
+    $PHPIZE_DEPS \
+    bash \
+    git \
+    zip \
+    unzip \
+    postgresql-dev \
+    icu-dev \
+    libzip-dev \
+    openssh-client \
+    && \
     curl -sS https://getcomposer.org/installer | \
     php -- --install-dir=/usr/local/bin --filename=composer && \
     pecl install pcov && \
@@ -25,6 +34,9 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     echo ${TIMEZONE} > /etc/timezone && \
     printf '[PHP]\ndate.timezone = "%s"\n', "$TIMEZONE" > \
     /usr/local/etc/php/conf.d/tzone.ini && "date"
+
+# automatically add new host keys to the user known hosts
+RUN printf "Host *\n    StrictHostKeyChecking no" > /etc/ssh/ssh_config
 
 RUN mkdir /app
 WORKDIR /app
