@@ -1,7 +1,6 @@
 sentry:
     dsn: '%env(SENTRY_DSN)%'
     options:
-        send_default_pii: true
         excluded_exceptions:
             - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
             - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
