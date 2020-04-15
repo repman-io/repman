@@ -160,7 +160,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
     }
 
-    public function testRemoveGitHubPackageAndIngnoreWebhookError(): void
+    public function testRemoveGitHubPackageAndIgnoreWebhookError(): void
     {
         $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
         $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
@@ -191,6 +191,51 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
+    }
+
+    public function testSynchronizeWebhookFromGitHubPackage(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITLAB);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
+
+        $this->client->followRedirects();
+        $this->client->request('POST', $this->urlTo('organization_package_webhook', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString('will be synchronized in background', $this->lastResponseBody());
+    }
+
+    public function testSynchronizeWebhookFromGitLabPackage(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITLAB);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'gitlab-oauth', [Metadata::GITLAB_PROJECT_ID => 123]);
+
+        $this->client->followRedirects();
+        $this->client->request('POST', $this->urlTo('organization_package_webhook', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString('will be synchronized in background', $this->lastResponseBody());
+    }
+
+    public function testSynchronizeWebhookFromBitbucketPackage(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITLAB);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'some/repo']);
+
+        $this->client->followRedirects();
+        $this->client->request('POST', $this->urlTo('organization_package_webhook', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString('will be synchronized in background', $this->lastResponseBody());
     }
 
     public function testUpdatePackage(): void

@@ -90,4 +90,9 @@ final class Package
     {
         return $this->webhookCreatedAt;
     }
+
+    public function allowToAutoAddWebhook(): bool
+    {
+        return in_array($this->type, ['github-oauth', 'gitlab-oauth', 'bitbucket-oauth'], true);
+    }
 }

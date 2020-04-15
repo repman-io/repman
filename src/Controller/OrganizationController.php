@@ -13,6 +13,9 @@ use Buddy\Repman\Message\Organization\ChangeAlias;
 use Buddy\Repman\Message\Organization\ChangeName;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
+use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
+use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\Package\RemoveBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
 use Buddy\Repman\Message\Organization\Package\RemoveGitLabHook;
@@ -148,10 +151,27 @@ final class OrganizationController extends AbstractController
     }
 
     /**
-     * @Route("/organization/{organization}/package/{package}/webhook", name="organization_package_webhook", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     * @Route("/organization/{organization}/package/{package}/webhook", name="organization_package_webhook", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function packageWebhook(Organization $organization, Package $package): Response
+    public function packageWebhook(Organization $organization, Package $package, Request $request): Response
     {
+        if ($request->isMethod(Request::METHOD_POST)) {
+            switch ($package->type()) {
+                case 'github-oauth':
+                    $this->dispatchMessage(new AddGitHubHook($package->id()));
+                    break;
+                case 'gitlab-oauth':
+                    $this->dispatchMessage(new AddGitLabHook($package->id()));
+                    break;
+                case 'bitbucket-oauth':
+                    $this->dispatchMessage(new AddBitbucketHook($package->id()));
+                    break;
+            }
+            $this->addFlash('success', sprintf('Webhook for "%s" will be synchronized in background.', $package->name()));
+
+            return $this->redirectToRoute('organization_package_webhook', ['organization' => $organization->alias(), 'package' => $package->id()]);
+        }
+
         return $this->render('organization/package/webhook.html.twig', [
             'organization' => $organization,
             'package' => $package,

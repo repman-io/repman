@@ -14,6 +14,27 @@
         In other cases, you can configure it manually.
     </p>
 
+    <p>
+        <strong>Webhook status</strong>:
+        {% if package.allowToAutoAddWebhook %}
+            {% if package.webhookCreatedAt is not null %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                created at {{ package.webhookCreatedAt | date('Y-m-d H:i:s') }}
+            {% else %}
+                not added
+            {% endif %}
+            <a
+                    href="#"
+                    class="btn btn-sm {{ package.webhookCreatedAt ? 'btn-secondary' : 'btn-yellow' }}"
+                    data-target="confirmation"
+                    data-action="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id }) }}"
+                    data-method="POST"
+            >Synchronize webhook</a>
+        {% else %}
+            unable to automatically add a webhook, please add it manually
+        {% endif %}
+    </p>
+
     <p>To manually configure the webhook, all you have to do is make a POST request to the url below.</p>
 
     <p><strong>Webhook URL [POST]:</strong></p>
