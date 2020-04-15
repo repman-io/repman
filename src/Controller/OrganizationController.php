@@ -25,22 +25,26 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Service\ExceptionHandler;
 use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
     private PackageQuery $packageQuery;
     private OrganizationQuery $organizationQuery;
+    private ExceptionHandler $exceptionHandler;
 
-    public function __construct(PackageQuery $packageQuery, OrganizationQuery $organizationQuery)
+    public function __construct(PackageQuery $packageQuery, OrganizationQuery $organizationQuery, ExceptionHandler $exceptionHandler)
     {
         $this->packageQuery = $packageQuery;
         $this->organizationQuery = $organizationQuery;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     /**
@@ -116,19 +120,8 @@ final class OrganizationController extends AbstractController
      */
     public function removePackage(Organization $organization, Package $package): Response
     {
-        if ($package->webhookCreatedAt() !== null) {
-            switch ($package->type()) {
-                case 'github-oauth':
-                    $this->dispatchMessage(new RemoveGitHubHook($package->id()));
-                    break;
-                case 'gitlab-oauth':
-                    $this->dispatchMessage(new RemoveGitLabHook($package->id()));
-                    break;
-                case 'bitbucket-oauth':
-                    $this->dispatchMessage(new RemoveBitbucketHook($package->id()));
-                    break;
-            }
-        }
+        $this->tryToRemoveWebhook($package);
+
         $this->dispatchMessage(new RemovePackage(
             $package->id(),
             $organization->id()
@@ -293,5 +286,26 @@ final class OrganizationController extends AbstractController
         $user = parent::getUser();
 
         return $user;
+    }
+
+    private function tryToRemoveWebhook(Package $package): void
+    {
+        if ($package->webhookCreatedAt() !== null) {
+            try {
+                switch ($package->type()) {
+                    case 'github-oauth':
+                        $this->dispatchMessage(new RemoveGitHubHook($package->id()));
+                        break;
+                    case 'gitlab-oauth':
+                        $this->dispatchMessage(new RemoveGitLabHook($package->id()));
+                        break;
+                    case 'bitbucket-oauth':
+                        $this->dispatchMessage(new RemoveBitbucketHook($package->id()));
+                        break;
+                }
+            } catch (HandlerFailedException $exception) {
+                $this->exceptionHandler->handle($exception);
+            }
+        }
     }
 }

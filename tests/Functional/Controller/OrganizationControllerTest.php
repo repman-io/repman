@@ -6,6 +6,7 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
+use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
@@ -149,6 +150,23 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
+
+        $this->client->followRedirects();
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
+    }
+
+    public function testRemoveGitHubPackageAndIngnoreWebhookError(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
+        $this->fixtures->setWebhookCreated($packageId);
+        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new \RuntimeException('Bad credentials'));
 
         $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [

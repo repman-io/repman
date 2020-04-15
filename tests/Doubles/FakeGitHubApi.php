@@ -13,9 +13,7 @@ final class FakeGitHubApi implements GitHubApi
 
     public function primaryEmail(string $accessToken): string
     {
-        if ($this->exception !== null) {
-            throw $this->exception;
-        }
+        $this->throwExceptionIfSet();
 
         return $this->primaryEmail;
     }
@@ -35,6 +33,8 @@ final class FakeGitHubApi implements GitHubApi
      */
     public function repositories(string $accessToken): array
     {
+        $this->throwExceptionIfSet();
+
         return [
             'buddy/repman',
         ];
@@ -42,11 +42,18 @@ final class FakeGitHubApi implements GitHubApi
 
     public function addHook(string $accessToken, string $repo, string $url): void
     {
-        // TODO: Implement addHook() method.
+        $this->throwExceptionIfSet();
     }
 
     public function removeHook(string $accessToken, string $repo, string $url): void
     {
-        // TODO: Implement removeHook() method.
+        $this->throwExceptionIfSet();
+    }
+
+    private function throwExceptionIfSet(): void
+    {
+        if ($this->exception !== null) {
+            throw $this->exception;
+        }
     }
 }
