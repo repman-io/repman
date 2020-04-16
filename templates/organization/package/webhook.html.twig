@@ -55,4 +55,32 @@
         The synchronization result will be visible on your organization's package list.
     </p>
 
+
+
+    <h3>Recent requests</h3>
+
+    {% if recentRequests is not empty %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>IP</th>
+                <th>User agent</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for request in recentRequests %}
+                <tr>
+                    <td>{{ request.date }}</td>
+                    <td>{{ request.ip }}</td>
+                    <td>{{ request.userAgent }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>No requests have been made at this time</p>
+    {% endif %}
+
 {% endblock %}
