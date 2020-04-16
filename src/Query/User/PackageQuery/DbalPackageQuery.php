@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
+use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
@@ -98,6 +99,13 @@ final class DbalPackageQuery implements PackageQuery
             $lastDays,
             (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', [':package' => $packageId])
         );
+    }
+
+    public function findRecentWebhookRequests(string $packageId): array
+    {
+        return array_map(function (array $row): WebhookRequest {
+            return new WebhookRequest($row['date'], $row['ip'], $row['user_agent']);
+        }, $this->connection->fetchAll('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', [':package' => $packageId]));
     }
 
     /**

@@ -175,6 +175,7 @@ final class OrganizationController extends AbstractController
         return $this->render('organization/package/webhook.html.twig', [
             'organization' => $organization,
             'package' => $package,
+            'recentRequests' => $this->packageQuery->findRecentWebhookRequests($package->id()),
         ]);
     }
 

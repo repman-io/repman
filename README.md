@@ -25,7 +25,7 @@ Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 ## Installation
 
 ```bash
-git clone git@github.com:buddy-works/repman.git
+git clone git@github.com:repman-io/repman.git
 cd repman
 composer install
 ```
