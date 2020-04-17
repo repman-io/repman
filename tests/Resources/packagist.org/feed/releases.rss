@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
+  <channel>
+    <title>New Releases</title>
+    <description>Latest releases of all packages.</description>
+    <pubDate>Thu, 16 Apr 2020 21:39:28 +0000</pubDate>
+    <generator>Packagist</generator>
+    <link>https://packagist.org/explore/</link>
+    <item>
+      <title>buddy-works/repman (1.2.3)</title>
+      <description><![CDATA[Repman - PHP Repository Manager ]]></description>
+      <pubDate>Sat, 16 Apr 2020 09:37:43 +0000</pubDate>
+      <link>https://packagist.org/packages/buddy-works/repman</link>
+      <guid isPermaLink="false">buddy-works/repman 1.2.3</guid>
+      <author>Buddy</author>
+      <dc:creator>Buddy</dc:creator>
+      <slash:comments>0</slash:comments>
+    </item>
+    <item>
+      <title>munusphp/munus (0.2.1)</title>
+      <description><![CDATA[Power of object-oriented programming with the elegance of functional programming.]]></description>
+      <pubDate>Thu, 09 Apr 2020 07:16:36 +0000</pubDate>
+      <link>https://packagist.org/packages/munusphp/munus</link>
+      <guid isPermaLink="false">munusphp/munus 0.2.1</guid>
+      <author>Arkadiusz Kondas</author>
+      <dc:creator>Arkadiusz Kondas</dc:creator>
+      <slash:comments>0</slash:comments>
+    </item>
+  </channel>
+</rss>
