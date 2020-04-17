@@ -39,6 +39,17 @@ services:
     depends_on:
       - app
 
+  cron:
+    restart: always
+    image: buddy/repman
+    command: >
+      bash -c 'echo "*/5 * * * * /app/bin/console repman:proxy:sync-releases" | crontab - && crond -f -L /dev/stdout'
+    env_file: .env.docker
+    volumes:
+      - app-var:/app/var
+    depends_on:
+      - app
+
   nginx:
     restart: always
     image: nginx:alpine

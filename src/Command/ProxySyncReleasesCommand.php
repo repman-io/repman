@@ -37,7 +37,6 @@ class ProxySyncReleasesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $from = time();
         $proxy = $this
             ->register
             ->getByHost('packagist.org');
@@ -46,8 +45,6 @@ class ProxySyncReleasesCommand extends Command
             list($name, $version) = explode(' ', (string) $item->guid);
             $this->syncPackages($proxy, $name, $version);
         }
-
-        $output->writeln(sprintf('Done in %ds', time() - $from));
 
         return 0;
     }
