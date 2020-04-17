@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Buddy\Repman\Entity\Organization\Invitation;
+use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -55,6 +58,18 @@ class Organization
      */
     private Collection $tokens;
 
+    /**
+     * @var Collection<int,Invitation>|Invitation[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Invitation", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     */
+    private Collection $invitations;
+
+    /**
+     * @var Collection<int,Member>|Member[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     */
+    private Collection $members;
+
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
         $this->id = $id;
@@ -64,6 +79,8 @@ class Organization
         $this->createdAt = new \DateTimeImmutable();
         $this->packages = new ArrayCollection();
         $this->tokens = new ArrayCollection();
+        $this->invitations = new ArrayCollection();
+        $this->members = new ArrayCollection();
     }
 
     public function id(): UuidInterface
@@ -156,5 +173,29 @@ class Organization
     public function changeAlias(string $alias): void
     {
         $this->alias = $alias;
+    }
+
+    public function inviteUser(string $email, string $role, string $token): void
+    {
+        if ($this->invitations->exists(fn (int $key, Invitation $invitation) => $invitation->email() === $email)) {
+            return;
+        }
+
+        if ($this->members->exists(fn (int $key, Member $member) => $member->email() === $email)) {
+            return;
+        }
+
+        $this->invitations->add(new Invitation($token, $email, $this, $role));
+    }
+
+    public function acceptInvitation(string $token, User $user): void
+    {
+        $invitation = $this->invitations->filter(fn (Invitation $invitation) => $invitation->token() === $token)->first();
+        if (!$invitation instanceof Invitation) {
+            return;
+        }
+
+        $this->members->add(new Member(Uuid::uuid4(), $user, $this, $invitation->role()));
+        $this->invitations->removeElement($invitation);
     }
 }

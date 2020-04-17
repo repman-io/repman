@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
-use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\UniqueConstraint;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity
  * @ORM\Table(
  *     name="organization_package",
- *     uniqueConstraints={@UniqueConstraint(name="package_name", columns={"organization_id", "name"})}
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="package_name", columns={"organization_id", "name"})}
  * )
  */
 class Package

@@ -6,6 +6,8 @@ namespace Buddy\Repman\Query\User\OrganizationQuery;
 
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Organization\Invitation;
+use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Doctrine\DBAL\Connection;
@@ -89,6 +91,65 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $lastDays,
             (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id IN (:packages)', [':packages' => $packagesId], 0, [':packages' => Connection::PARAM_STR_ARRAY])
         );
+    }
+
+    public function findAllInvitations(string $organizationId, int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $row): Invitation {
+            return new Invitation(
+                $row['email'],
+                $row['role']
+            );
+        }, $this->connection->fetchAll('
+            SELECT email, role 
+            FROM organization_invitation 
+            WHERE organization_id = :id
+            ORDER BY email ASC
+            LIMIT :limit OFFSET :offset', [
+            ':id' => $organizationId,
+            ':limit' => $limit,
+            ':offset' => $offset,
+        ]));
+    }
+
+    public function invitationsCount(string $organizationId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM organization_invitation WHERE organization_id = :id',
+                [':id' => $organizationId]
+            );
+    }
+
+    public function findAllMembers(string $organizationId, int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $row): Member {
+            return new Member(
+                $row['email'],
+                $row['role']
+            );
+        }, $this->connection->fetchAll('
+            SELECT u.email, m.role 
+            FROM organization_member AS m
+            JOIN "user" u ON u.id = m.user_id
+            WHERE m.organization_id = :id
+            ORDER BY u.email ASC
+            LIMIT :limit OFFSET :offset', [
+            ':id' => $organizationId,
+            ':limit' => $limit,
+            ':offset' => $offset,
+        ]));
+    }
+
+    public function membersCount(string $organizationId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM organization_member WHERE organization_id = :id',
+                [':id' => $organizationId]
+            );
     }
 
     /**
