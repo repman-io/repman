@@ -30,11 +30,6 @@ final class Proxy
         $this->versionParser = new VersionParser();
     }
 
-    public function name(): string
-    {
-        return $this->name;
-    }
-
     /**
      * @return Option<string>
      */
@@ -72,6 +67,28 @@ final class Proxy
     public function syncedPackages(): GenericList
     {
         return $this->distStorage->packages($this->name);
+    }
+
+    public function downloadByVersion(string $package, string $version, bool $fromCache = true): void
+    {
+        $normalizedVersion = $this->versionParser->normalize($version);
+        $providerData = $this->providerData($package, $fromCache ? 0 : -60)->getOrElse([]);
+
+        foreach ($providerData['packages'][$package] ?? [] as $packageData) {
+            $packageVersion = $packageData['version_normalized'] ?? $this->versionParser->normalize($packageData['version']);
+            $packageDist = $packageData['dist'];
+
+            if ($packageVersion !== $normalizedVersion && isset($packageDist['url'])) {
+                $this->distStorage->download($packageDist['url'], new Dist(
+                    $this->name,
+                    $package,
+                    $normalizedVersion,
+                    $packageDist['reference'],
+                    $packageDist['type']
+                ));
+                break;
+            }
+        }
     }
 
     /**
