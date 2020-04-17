@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Service\Downloader;
-use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,11 +15,13 @@ class ProxySyncReleasesCommand extends Command
 {
     private ProxyRegister $register;
     private Downloader $downloader;
+    private AdapterInterface $cache;
 
-    public function __construct(ProxyRegister $register, Downloader $downloader)
+    public function __construct(ProxyRegister $register, Downloader $downloader, AdapterInterface $packagistReleasesFeedCache)
     {
         $this->register = $register;
         $this->downloader = $downloader;
+        $this->cache = $packagistReleasesFeedCache;
 
         parent::__construct();
     }
@@ -37,30 +39,49 @@ class ProxySyncReleasesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $proxy = $this
-            ->register
-            ->getByHost('packagist.org');
-
-        foreach ($this->feed()->channel->item as $item) {
-            list($name, $version) = explode(' ', (string) $item->guid);
-            $this->syncPackages($proxy, $name, $version);
+        $feed = $this->loadFeed();
+        if (!$this->alreadySynced((string) $feed->channel->pubDate)) {
+            $this->syncPackages($feed);
         }
 
         return 0;
     }
 
-    private function syncPackages(Proxy $proxy, string $name, string $version): void
+    private function syncPackages(\SimpleXMLElement $feed): void
     {
-        foreach ($proxy->syncedPackages() as $package) {
-            if ($package !== $name) {
-                continue;
-            }
+        $proxy = $this
+            ->register
+            ->getByHost('packagist.org');
 
-            $proxy->downloadByVersion($name, $version);
+        $syncedPackages = [];
+        foreach ($proxy->syncedPackages() as $name) {
+            $syncedPackages[$name] = true;
+        }
+
+        foreach ($feed->channel->item as $item) {
+            list($name, $version) = explode(' ', (string) $item->guid);
+            if (isset($syncedPackages[$name])) {
+                $proxy->downloadByVersion($name, $version);
+            }
         }
     }
 
-    private function feed(): \SimpleXMLElement
+    private function alreadySynced(string $pubDate): bool
+    {
+        $lastPubDateCashed = $this->cache->getItem('pub_date');
+        if (!$lastPubDateCashed->isHit()) {
+            $lastPubDateCashed->set($pubDate);
+            $this->cache->save($lastPubDateCashed);
+
+            return false;
+        }
+
+        $lastPubDate = $lastPubDateCashed->get();
+
+        return new \DateTimeImmutable($pubDate) <= new \DateTimeImmutable($lastPubDate);
+    }
+
+    private function loadFeed(): \SimpleXMLElement
     {
         $string = $this
             ->downloader
