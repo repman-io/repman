@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Entity;
 
 use Buddy\Repman\Entity\Organization;
+use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Token;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
@@ -40,5 +41,32 @@ final class OrganizationTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $package->setOrganization($this->org);
+    }
+
+    public function testPreventDoubleInvitation(): void
+    {
+        $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
+        $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->org->inviteUser('other@buddy.works', 'invalid-role', 'token');
+    }
+
+    public function testAcceptMissingInvitation(): void
+    {
+        $this->org->acceptInvitation('not-exist', new User(Uuid::uuid4(), 'user@buddy.works', Uuid::uuid4()->toString(), []));
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->org->inviteUser('user@buddy.works', 'invalid-role', 'token');
+    }
+
+    public function testInviteMember(): void
+    {
+        $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
+        $this->org->acceptInvitation('token', new User(Uuid::uuid4(), 'some@buddy.works', Uuid::uuid4()->toString(), []));
+        $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->org->inviteUser('other@buddy.works', 'invalid-role', 'token');
     }
 }

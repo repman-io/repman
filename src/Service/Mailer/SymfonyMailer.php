@@ -49,4 +49,19 @@ final class SymfonyMailer implements Mailer
             ])
         );
     }
+
+    public function sendInvitationToOrganization(string $email, string $token, string $organizationName): void
+    {
+        $this->mailer->send((new TemplatedEmail())
+            ->from(Address::fromString($this->sender))
+            ->to($email)
+            ->subject(sprintf('You\'ve been invited to %s organization', $organizationName))
+            ->htmlTemplate('emails/organization-invitation.html.twig')
+            ->context([
+                'userEmail' => $email,
+                'token' => $token,
+                'organizationName' => $organizationName,
+            ])
+        );
+    }
 }

@@ -95,7 +95,7 @@ class User implements UserInterface
         $this->id = $id;
         $this->email = $email;
         $this->emailConfirmToken = $emailConfirmToken;
-        $this->roles = $roles;
+        $this->roles = array_values(array_unique($roles));
         $this->createdAt = new \DateTimeImmutable();
         $this->organizations = new ArrayCollection();
         $this->oauthTokens = new ArrayCollection();
@@ -194,7 +194,7 @@ class User implements UserInterface
      */
     public function changeRoles(array $roles): void
     {
-        $this->roles = array_unique($roles);
+        $this->roles = array_values(array_unique($roles));
     }
 
     /**

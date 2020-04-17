@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration;
 
+use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
+use Buddy\Repman\Message\Organization\InviteUser;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
@@ -83,6 +85,11 @@ final class FixturesManager
                 'token'
             )
         );
+    }
+
+    public function inviteUser(string $orgId, string $email, string $token, string $role = Member::ROLE_MEMBER): void
+    {
+        $this->dispatchMessage(new InviteUser($email, $role, $orgId, $token));
     }
 
     public function createPackage(string $id, string $organization = 'buddy'): void

@@ -32,6 +32,23 @@ class OrganizationRepository extends ServiceEntityRepository
         return $organization;
     }
 
+    public function getByInvitationToken(string $token): Organization
+    {
+        $organization = $this->createQueryBuilder('o')
+            ->join('o.invitations', 'i')
+            ->where('i.token = :token')
+            ->setParameter('token', $token)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+
+        if (!$organization instanceof Organization) {
+            throw new \InvalidArgumentException(sprintf('Organization with invitation token %s not found.', $token));
+        }
+
+        return $organization;
+    }
+
     public function add(Organization $organization): void
     {
         $this->_em->persist($organization);
