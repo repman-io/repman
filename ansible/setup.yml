@@ -13,6 +13,7 @@
     - app.install
     - app.env
     - supervisor
+    - cron
   tasks:
     - name: Stop message consumers
       become: true
