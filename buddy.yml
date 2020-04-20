@@ -62,6 +62,13 @@
       trigger_condition: "VAR_IS"
       next_project_name: "repman"
       next_pipeline_name: "deploy"
+    - action: "Run repman/[master] Build and push Docker image"
+      type: "RUN_NEXT_PIPELINE"
+      comment: "Triggered by $BUDDY_PIPELINE_NAME execution #$BUDDY_EXECUTION_ID"
+      trigger_condition: "ALWAYS"
+      revision: "HEAD"
+      next_project_name: "repman"
+      next_pipeline_name: "[master] Build and push Docker image"
   variables:
     - key: "DATABASE_URL"
       value: "postgresql://main:main@postgres:5432/main?serverVersion=11&charset=utf8"
@@ -160,7 +167,7 @@
       shell: "BASH"
       trigger_condition: "ALWAYS"
 - pipeline: "[master] Build and push Docker image"
-  trigger_mode: "ON_EVERY_PUSH"
+  trigger_mode: "MANUAL"
   ref_name: "master"
   ref_type: "BRANCH"
   fetch_all_refs: true
