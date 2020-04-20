@@ -108,4 +108,8 @@ services:
         arguments:
             - '@Gitlab\Client'
 
+    Buddy\Repman\Service\GitLabApi\RestGitLabApi:
+        arguments:
+            $url: '%env(default::resolve:APP_GITLAB_API_URL)%'
+
     Buddy\Buddy:

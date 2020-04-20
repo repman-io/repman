@@ -13,10 +13,14 @@ final class RestGitLabApi implements GitLabApi
     private Client $client;
     private ResultPager $pager;
 
-    public function __construct(Client $client, ResultPager $pager)
+    public function __construct(Client $client, ResultPager $pager, ?string $url = null)
     {
         $this->client = $client;
         $this->pager = $pager;
+
+        if ($url !== null) {
+            $this->client->setUrl($url);
+        }
     }
 
     public function projects(string $accessToken): Projects

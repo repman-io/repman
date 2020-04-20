@@ -62,7 +62,7 @@ symfony proxy:domain:attach your-organization.repman
 
 - `bin/console repman:metadata:clear-cache` - clear packages metadata cache (json files)
 
-## Integration
+## API Integration
 
 Callbacks:
 
@@ -90,6 +90,13 @@ Scopes:
 
 - registration: `email`
 - repositories: `repository`, `webhook`
+
+## Self-hosted GitLab
+
+To integrate with self-hosted GitLab, enter the instance url in the `APP_GITLAB_API_URL` environment variable
+```
+APP_GITLAB_API_URL='https://gitlab.organization.lan'
+```
 
 ## Docker
 
