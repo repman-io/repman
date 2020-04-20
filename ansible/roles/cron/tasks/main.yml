@@ -1,0 +1,6 @@
+- name: Add sync proxy releases command to cron
+  cron:
+    name="Sync proxy releases with packagist.org"
+    user="{{ system_user }}"
+    minute="*/5"
+    job="{{ app_root }}/bin/console repman:proxy:sync-releases >>{{ app_root }}/var/log/cron.log 2>&1"
