@@ -17,6 +17,9 @@ use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\Lock\LockInterface;
+use Symfony\Component\Lock\Store\PdoStore;
 
 final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 {
@@ -59,10 +62,23 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester->execute([]);
     }
 
-    private function prepareCommand(string $feed, bool $fromCache = false): ProxySyncReleasesCommand
+    public function testJobLocking(): void
     {
-        /** @var Connection */
-        $connection = self::$kernel->getContainer()->get('doctrine')->getConnection();
+        $newDist = $this->basePath.$this->newDistPath;
+        $feed = (string) file_get_contents($this->basePath.$this->feedPath);
+        @unlink($newDist);
+
+        $command = $this->prepareCommand($feed, false, true);
+        $commandTester = new CommandTester($command);
+        $result = $commandTester->execute([]);
+
+        self::assertFalse(file_exists($newDist));
+        self::assertEquals($result, 0);
+    }
+
+    private function prepareCommand(string $feed, bool $fromCache = false, bool $lockCreated = false): ProxySyncReleasesCommand
+    {
+        $lockFactory = $lockCreated ? $this->fakeLockFactory() : $this->lockFactory();
 
         if (!$fromCache) {
             $this->cache()->delete('pub_date');
@@ -83,12 +99,31 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
             ),
             $feedDownloader,
             $this->cache(),
-            $connection
+            $lockFactory
         );
     }
 
     private function cache(): FilesystemAdapter
     {
         return $this->cache = $this->cache ?? new FilesystemAdapter('test', 0, self::$kernel->getCacheDir());
+    }
+
+    private function fakeLockFactory(): LockFactory
+    {
+        $fakeLock = $this->createMock(LockInterface::class);
+        $fakeLock->method('acquire')->willReturn(false);
+
+        $fakeLockFactory = $this->createMock(LockFactory::class);
+        $fakeLockFactory->method('createLock')->willReturn($fakeLock);
+
+        return $fakeLockFactory;
+    }
+
+    private function lockFactory(): LockFactory
+    {
+        /** @var Connection */
+        $connection = self::$kernel->getContainer()->get('doctrine')->getConnection();
+
+        return new LockFactory(new PdoStore($connection));
     }
 }
