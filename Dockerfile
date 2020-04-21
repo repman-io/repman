@@ -19,8 +19,6 @@ RUN apk update && \
     && \
     curl -sS https://getcomposer.org/installer | \
     php -- --install-dir=/usr/local/bin --filename=composer && \
-    pecl install pcov && \
-    docker-php-ext-enable pcov && \
     docker-php-ext-configure pdo_pgsql --with-pdo-pgsql && \
     docker-php-ext-configure intl && \
     docker-php-ext-configure zip && \
