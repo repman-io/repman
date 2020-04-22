@@ -69,6 +69,13 @@
       revision: "HEAD"
       next_project_name: "repman"
       next_pipeline_name: "[master] Build and push Docker image"
+    - action: "Run repman/[tag] Build and push Docker image"
+      type: "RUN_NEXT_PIPELINE"
+      comment: "Triggered by $BUDDY_PIPELINE_NAME execution #$BUDDY_EXECUTION_ID"
+      trigger_condition: "ALWAYS"
+      revision: "HEAD"
+      next_project_name: "repman"
+      next_pipeline_name: "[tag] Build and push Docker image"
   variables:
     - key: "DATABASE_URL"
       value: "postgresql://main:main@postgres:5432/main?serverVersion=11&charset=utf8"
@@ -191,7 +198,7 @@
     repository: "buddy/repman"
     trigger_condition: "ALWAYS"
 - pipeline: "[tag] Build and push Docker image"
-  trigger_mode: "ON_EVERY_PUSH"
+  trigger_mode: "MANUAL"
   ref_name: "refs/tags/*"
   ref_type: "WILDCARD"
   fetch_all_refs: true
