@@ -30,6 +30,22 @@ cd repman
 composer install
 ```
 
+## Configuration
+
+### Mailer
+
+To configure mailer transport, enter connection details in the `MAILER_DSN` environment variable
+
+```
+MAILER_DSN=smtp://user:pass@smtp.example.com
+```
+Read more: [transport setup](https://symfony.com/doc/current/mailer.html#transport-setup)
+
+In addition, setup also `MAILER_SENDER` environment variable
+```
+MAILER_SENDER=mail_from@example.com
+```
+
 ## Workers
 
 To process messages asynchronously you must run worker:
