@@ -34,7 +34,7 @@ final class DbalUserQuery implements UserQuery
     public function getByEmail(string $email): Option
     {
         $data = $this->connection->fetchAssoc('SELECT id, email, status, roles FROM "user" WHERE email = :email', [
-            ':email' => $email,
+            ':email' => \mb_strtolower($email),
         ]);
         if ($data === false) {
             return Option::none();
