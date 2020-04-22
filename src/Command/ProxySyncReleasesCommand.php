@@ -39,8 +39,10 @@ class ProxySyncReleasesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
         $feed = $this->loadFeed();
         if (!$this->alreadySynced((string) $feed->channel->pubDate)) {
+
             $this->syncPackages($feed);
         }
 

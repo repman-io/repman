@@ -28,7 +28,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, name, alias, owner_id FROM "organization" WHERE alias = :alias', [
+            'SELECT id, name, alias, owner_id FROM organization WHERE alias = :alias', [
             ':alias' => $alias,
         ]);
 

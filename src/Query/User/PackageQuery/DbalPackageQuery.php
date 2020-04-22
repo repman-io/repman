@@ -30,7 +30,7 @@ final class DbalPackageQuery implements PackageQuery
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
             'SELECT id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
-            FROM "organization_package"
+            FROM organization_package
             WHERE organization_id = :organization_id
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
@@ -49,7 +49,7 @@ final class DbalPackageQuery implements PackageQuery
             return new PackageName($data['id'], $data['name']);
         }, $this->connection->fetchAll(
             'SELECT id, name
-            FROM "organization_package"
+            FROM organization_package
             WHERE organization_id = :organization_id AND name IS NOT NULL',
             [
             ':organization_id' => $organizationId,
@@ -61,7 +61,7 @@ final class DbalPackageQuery implements PackageQuery
         return (int) $this
             ->connection
             ->fetchColumn(
-                'SELECT COUNT(id) FROM "organization_package"
+                'SELECT COUNT(id) FROM organization_package
                 WHERE organization_id = :organization_id',
                 [
                     ':organization_id' => $organizationId,
@@ -76,7 +76,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         $data = $this->connection->fetchAssoc(
             'SELECT id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
-            FROM "organization_package"
+            FROM organization_package
             WHERE id = :id', [
             ':id' => $id,
         ]);

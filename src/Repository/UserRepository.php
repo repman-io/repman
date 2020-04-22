@@ -27,7 +27,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function emailExist(string $email): bool
     {
-        return false !== $this->_em->getConnection()->fetchColumn('SELECT id FROM "user" WHERE email = :email', [':email' => $email]);
+        return false !== $this->_em->getConnection()->fetchColumn('SELECT id FROM user WHERE email = :email', [':email' => $email]);
     }
 
     public function getByEmail(string $email): User

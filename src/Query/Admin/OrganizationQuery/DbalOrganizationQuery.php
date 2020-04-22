@@ -27,9 +27,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             return $this->hydrateOrganization($data);
         }, $this->connection->fetchAll(
             'SELECT o.id, o.name, o.alias, u.email owner_email, COUNT(p.id) packages_count
-            FROM "organization" o
-            JOIN "user" u ON u.id = o.owner_id
-            LEFT JOIN "organization_package" p ON p.organization_id = o.id
+            FROM organization o
+            JOIN user u ON u.id = o.owner_id
+            LEFT JOIN organization_package p ON p.organization_id = o.id
             GROUP BY o.id, u.email
             ORDER BY o.alias
             LIMIT :limit OFFSET :offset',
@@ -44,7 +44,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn('SELECT COUNT(id) FROM "organization"');
+            ->fetchColumn('SELECT COUNT(id) FROM organization');
     }
 
     public function getInstalls(int $lastDays = 30): Installs

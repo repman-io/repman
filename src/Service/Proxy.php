@@ -41,6 +41,7 @@ final class Proxy
         }
         $distFilename = $this->distStorage->filename($dist);
 
+        echo $distFilename;
         return Option::when(file_exists($distFilename), $distFilename);
     }
 
