@@ -24,10 +24,22 @@ Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 
 ## Installation
 
+### Docker
+
+### Ansible
+
+### Manual
+
 ```bash
 git clone git@github.com:repman-io/repman.git
 cd repman
 composer install
+```
+
+Setup database:
+```
+bin/console doctrine:migrations:migrate
+bin/console messenger:setup-transports
 ```
 
 ## Configuration
