@@ -39,7 +39,7 @@ To configure mailer transport, enter connection details in the `MAILER_DSN` envi
 ```
 MAILER_DSN=smtp://user:pass@smtp.example.com
 ```
-Read more: [transport setup](https://symfony.com/doc/current/mailer.html#transport-setup) of Symfony Mailer documentation.
+Read more: [transport setup](https://symfony.com/doc/current/mailer.html#transport-setup)
 
 In addition, setup also `MAILER_SENDER` environment variable
 ```
