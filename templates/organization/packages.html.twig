@@ -28,10 +28,10 @@
                     <td>
                         {% if package.name %}
                             <strong>{{ package.name }}</strong><br />
-                            <small class="font-italic" style="font-size: 0.7em">{{ package.url }}</small><br />
+                            <small class="font-italic" style="font-size: 0.7em"><a href="{{ package.url }}" target="_blank">{{ package.url }}</a></small><br />
                             <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date('Y-m-d H:i:s') }}">synced: {{ package.lastSyncAt | time_diff }}</small>
                         {% elseif package.lastSyncError is null %}
-                            Synchronizing from {{ package.url }}
+                            Synchronizing from <a href="{{ package.url }}" target="_blank">{{ package.url }}</a>
                             <div class="progress progress-sm">
                                 <div class="progress-bar progress-bar-indeterminate"></div>
                             </div>

@@ -24,10 +24,38 @@ Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 
 ## Installation
 
+### Docker
+
+### Ansible
+
+### Manual
+
 ```bash
 git clone git@github.com:repman-io/repman.git
 cd repman
 composer install
+```
+
+Setup database:
+```
+bin/console doctrine:migrations:migrate
+bin/console messenger:setup-transports
+```
+
+## Configuration
+
+### Mailer
+
+To configure mailer transport, enter connection details in the `MAILER_DSN` environment variable
+
+```
+MAILER_DSN=smtp://user:pass@smtp.example.com
+```
+Read more: [transport setup](https://symfony.com/doc/current/mailer.html#transport-setup)
+
+In addition, setup also `MAILER_SENDER` environment variable
+```
+MAILER_SENDER=mail_from@example.com
 ```
 
 ## Workers

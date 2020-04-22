@@ -27,6 +27,8 @@ class UniqueEmailValidator extends ConstraintValidator
             return;
         }
 
+        $value = \mb_strtolower($value);
+
         if (!$this->usersQuery->getByEmail($value)->isEmpty()) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)

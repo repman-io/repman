@@ -53,4 +53,19 @@ final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
             ->setParameter('{{ value }}', 'test@buddy.works')
             ->assertRaised();
     }
+
+    public function testEmailLowerCasedViolation(): void
+    {
+        $this->userQueryMock
+            ->expects(self::once())
+            ->method('getByEmail')
+            ->with('test@buddy.works')
+            ->willReturn(Option::some(new User('55fe42eb-d527-4a64-bd48-fb3f54372673', 'test@buddy.works', 'enabled', [])));
+
+        $this->validator->validate('test@BUDDY.works', new UniqueEmail());
+
+        $this->buildViolation('Email "{{ value }}" already exists.')
+            ->setParameter('{{ value }}', 'test@buddy.works')
+            ->assertRaised();
+    }
 }

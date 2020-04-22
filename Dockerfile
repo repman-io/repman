@@ -4,7 +4,7 @@ ARG TIMEZONE="UTC"
 
 SHELL ["sh", "-eo", "pipefail", "-c"]
 
-# install composer and extensions: pdo_pgsql, pcov, intl, zip
+# install composer and extensions: pdo_pgsql, intl, zip
 RUN apk update && \
     apk add --no-cache -q \
     $PHPIZE_DEPS \
