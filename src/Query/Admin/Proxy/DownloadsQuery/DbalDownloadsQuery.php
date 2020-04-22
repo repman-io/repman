@@ -43,10 +43,15 @@ final class DbalDownloadsQuery implements DownloadsQuery
 
     public function getInstalls(int $lastDays = 30): Installs
     {
+        $dtFn = 'DATE_TRUNC(\'day\', date)';
+        if(get_class($this->connection->getDriver()) === \Doctrine\DBAL\Driver\PDOMySql\Driver::class) {
+            $dtFn = 'DAY(date)';
+        }
+
         return new Installs(
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day(substr($row['date'], 0, 10), $row['count']);
-            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
+            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(*), ' . $dtFn  . ' AS date FROM proxy_package_download WHERE date > :date GROUP BY ' . $dtFn . ') AS installs ORDER BY date ASC', [
                 ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             ])),
             $lastDays,

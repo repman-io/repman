@@ -11,6 +11,7 @@ use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Munus\Control\Option;
 
 final class DbalOrganizationQuery implements OrganizationQuery
@@ -64,6 +65,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ':id' => $organizationId,
             ':limit' => $limit,
             ':offset' => $offset,
+        ], [
+            ':limit' => ParameterType::INTEGER,
+            ':offset' => ParameterType::INTEGER,
         ]));
     }
 
@@ -109,6 +113,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ':id' => $organizationId,
             ':limit' => $limit,
             ':offset' => $offset,
+        ], [
+            ':limit' => ParameterType::INTEGER,
+            ':offset' => ParameterType::INTEGER,
         ]));
     }
 
@@ -139,6 +146,10 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ':id' => $organizationId,
             ':limit' => $limit,
             ':offset' => $offset,
+        ], [
+            ':id' => ParameterType::STRING,
+            ':limit' => ParameterType::INTEGER,
+            ':offset' => ParameterType::INTEGER,
         ]));
     }
 

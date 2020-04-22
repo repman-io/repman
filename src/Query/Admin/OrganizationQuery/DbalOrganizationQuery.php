@@ -8,6 +8,7 @@ use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\User\Model\Installs;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 
 final class DbalOrganizationQuery implements OrganizationQuery
 {
@@ -36,7 +37,10 @@ final class DbalOrganizationQuery implements OrganizationQuery
             [
                 ':limit' => $limit,
                 ':offset' => $offset,
-            ])
+            ], [
+            ':limit' => ParameterType::INTEGER,
+            ':offset' => ParameterType::INTEGER,
+        ])
         );
     }
 
@@ -70,7 +74,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['name'],
             $data['alias'],
             $data['owner_email'],
-            $data['packages_count'],
+            (int)$data['packages_count'],
         );
     }
 }

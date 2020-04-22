@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\Admin\UserQuery;
 use Buddy\Repman\Query\Admin\Model\User;
 use Buddy\Repman\Query\Admin\UserQuery;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Munus\Control\Option;
 
 final class DbalUserQuery implements UserQuery
@@ -25,6 +26,9 @@ final class DbalUserQuery implements UserQuery
         }, $this->connection->fetchAll('SELECT id, email, status, roles FROM user ORDER BY email LIMIT :limit OFFSET :offset', [
             ':limit' => $limit,
             ':offset' => $offset,
+        ], [
+            ':limit' => ParameterType::INTEGER,
+            ':offset' => ParameterType::INTEGER,
         ]));
     }
 

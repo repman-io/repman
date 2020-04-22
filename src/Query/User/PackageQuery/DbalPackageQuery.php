@@ -10,6 +10,7 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use Munus\Control\Option;
 
 final class DbalPackageQuery implements PackageQuery
@@ -37,7 +38,10 @@ final class DbalPackageQuery implements PackageQuery
                 ':organization_id' => $organizationId,
                 ':limit' => $limit,
                 ':offset' => $offset,
-            ]));
+            ], [
+            ':limit' => ParameterType::INTEGER,
+            ':offset' => ParameterType::INTEGER,
+        ]));
     }
 
     /**
