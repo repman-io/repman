@@ -71,4 +71,11 @@ final class UserTest extends TestCase
     {
         self::assertTrue(Option::none()->equals($this->user->firstOrganizationAlias()));
     }
+
+    public function testEmailLowercase(): void
+    {
+        $user = new User(Uuid::uuid4(), 'tEsT@buDDy.woRKs', '4f6a2491-244a-4aef-8ec9-8dc36f7a10ce', ['ROLE_USER']);
+
+        self::assertEquals($user->getEmail(), 'test@buddy.works');
+    }
 }
