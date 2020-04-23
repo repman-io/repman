@@ -8,8 +8,6 @@ use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\GitHubApi;
-use Github\Exception\ExceptionInterface as GitHubApiExceptionInterface;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,19 +40,11 @@ final class GitHubController extends OAuthController
      */
     public function registerCheck(Request $request, GitHubApi $api): Response
     {
-        if ($this->getUser() !== null) {
-            return $this->redirectToRoute('index');
-        }
-
-        try {
-            $email = $api->primaryEmail($this->oauth->getClient('github')->getAccessToken()->getToken());
-
-            return $this->createAndAuthenticateUser($email, $request);
-        } catch (IdentityProviderException | GitHubApiExceptionInterface $e) {
-            $this->addFlash('danger', $e->getMessage());
-
-            return $this->redirectToRoute('app_register');
-        }
+        return $this->createAndAuthenticateUser(
+            'github',
+            fn () => $api->primaryEmail($this->oauth->getClient('github')->getAccessToken()->getToken()),
+            $request
+        );
     }
 
     /**

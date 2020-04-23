@@ -27,14 +27,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function emailExist(string $email): bool
     {
-        return false !== $this->_em->getConnection()->fetchColumn('SELECT id FROM "user" WHERE email = :email', [':email' => $email]);
+        return false !== $this->_em->getConnection()->fetchColumn('SELECT id FROM "user" WHERE email = :email', [
+            ':email' => \mb_strtolower($email),
+        ]);
     }
 
     public function getByEmail(string $email): User
     {
-        $user = $this->findOneBy(['email' => $email]);
+        $user = $this->findOneBy(['email' => \mb_strtolower($email)]);
         if (!$user instanceof User) {
-            throw new \InvalidArgumentException(sprintf('User with email %s not found', $email));
+            throw new \InvalidArgumentException(sprintf('User with email %s not found', \mb_strtolower($email)));
         }
 
         return $user;

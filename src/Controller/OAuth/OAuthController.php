@@ -9,6 +9,7 @@ use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\RefreshOAuthToken;
 use Buddy\Repman\Security\UserGuardHelper;
+use Http\Client\Exception as HttpException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -49,17 +50,35 @@ abstract class OAuthController extends AbstractController
         ]);
     }
 
-    protected function createAndAuthenticateUser(string $email, Request $request): Response
+    /**
+     * @param callable():string $emailProvider
+     */
+    protected function createAndAuthenticateUser(string $type, callable $emailProvider, Request $request): Response
     {
-        if (!$this->guard->userExists($email)) {
-            $this->dispatchMessage(new CreateOAuthUser($email));
-            $this->addFlash('success', 'Your account has been created. Please create a new organization.');
-        } else {
-            $this->addFlash('success', 'Your account already exists. You have been logged in automatically');
+        if ($this->getUser() !== null) {
+            return $this->redirectToRoute('index');
         }
-        $this->guard->authenticateUser($email, $request);
 
-        return $this->redirectToRoute('organization_create');
+        try {
+            $email = $emailProvider();
+            $params = [];
+            if (!$this->guard->userExists($email)) {
+                $this->dispatchMessage(new CreateOAuthUser($email));
+                $this->addFlash('success', 'Your account has been created. Please create a new organization.');
+                $params['origin'] = $type;
+            } else {
+                $this->addFlash('success', 'Your account already exists. You have been logged in automatically');
+            }
+            $this->guard->authenticateUser($email, $request);
+
+            return $this->redirectToRoute('organization_create', $params);
+        } catch (OAuth2ClientException $exception) {
+            $this->addFlash('danger', 'Authentication failed! Did you authorize our app?');
+        } catch (IdentityProviderException | HttpException $e) {
+            $this->addFlash('danger', $e->getMessage());
+        }
+
+        return $this->redirectToRoute('app_register');
     }
 
     protected function storeRepoToken(string $type, callable $tokenProvider, string $route): Response

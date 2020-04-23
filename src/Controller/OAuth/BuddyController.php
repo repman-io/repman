@@ -6,7 +6,6 @@ namespace Buddy\Repman\Controller\OAuth;
 
 use Buddy\OAuth2\Client\Provider\Buddy;
 use Buddy\Repman\Service\BuddyApi;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,18 +37,10 @@ final class BuddyController extends OAuthController
      */
     public function registerCheck(Request $request, BuddyApi $api): Response
     {
-        if ($this->getUser() !== null) {
-            return $this->redirectToRoute('index');
-        }
-
-        try {
-            $email = $api->primaryEmail($this->oauth->getClient('buddy')->getAccessToken()->getToken());
-
-            return $this->createAndAuthenticateUser($email, $request);
-        } catch (IdentityProviderException | BuddyApi\BuddyApiException $e) {
-            $this->addFlash('danger', $e->getMessage());
-
-            return $this->redirectToRoute('app_register');
-        }
+        return $this->createAndAuthenticateUser(
+            'buddy',
+            fn () => $api->primaryEmail($this->oauth->getClient('buddy')->getAccessToken()->getToken()),
+            $request
+        );
     }
 }

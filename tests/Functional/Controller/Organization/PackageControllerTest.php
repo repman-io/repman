@@ -8,7 +8,9 @@ use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Github\Exception\ApiLimitExceedException;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
 final class PackageControllerTest extends FunctionalTestCase
@@ -71,6 +73,16 @@ final class PackageControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Packages has been added', (string) $this->client->getResponse()->getContent());
 
         self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testHandleErrorWhenFetchingRepositories(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, 'github');
+        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new ApiLimitExceedException());
+        $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github']));
+
+        self::assertStringContainsString('Failed to fetch repositories (reason: You have reached GitHub hourly limit!', (string) $this->client->getResponse()->getContent());
     }
 
     public function testNewPackageFromGithub(): void

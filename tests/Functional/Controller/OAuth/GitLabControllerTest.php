@@ -61,7 +61,7 @@ final class GitLabControllerTest extends FunctionalTestCase
 
         $this->client->request('GET', $this->urlTo('register_gitlab_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'gitlab'])));
         $this->client->followRedirect();
 
         self::assertStringContainsString('Your account has been created', $this->lastResponseBody());

@@ -7,7 +7,6 @@ namespace Buddy\Repman\Controller\OAuth;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,20 +37,16 @@ final class GitLabController extends OAuthController
      */
     public function registerCheck(Request $request): Response
     {
-        if ($this->getUser() !== null) {
-            return $this->redirectToRoute('index');
-        }
+        return $this->createAndAuthenticateUser(
+            'gitlab',
+            function (): string {
+                /** @var GitlabResourceOwner $user */
+                $user = $this->oauth->getClient('gitlab')->fetchUser();
 
-        try {
-            /** @var GitlabResourceOwner $user */
-            $user = $this->oauth->getClient('gitlab')->fetchUser();
-
-            return $this->createAndAuthenticateUser($user->getEmail(), $request);
-        } catch (IdentityProviderException $e) {
-            $this->addFlash('danger', $e->getMessage());
-
-            return $this->redirectToRoute('app_register');
-        }
+                return $user->getEmail();
+            },
+            $request
+        );
     }
 
     /**
