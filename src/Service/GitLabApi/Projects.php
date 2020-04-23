@@ -9,7 +9,7 @@ final class Projects
     /**
      * @var array<int,Project>|Project[]
      */
-    private array $projects;
+    private array $projects = [];
 
     /**
      * @param Project[] $projects
