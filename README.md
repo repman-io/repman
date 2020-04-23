@@ -26,7 +26,11 @@ Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 
 ### Docker
 
+[https://repman.io/docs/standalone/#docker-installation](https://repman.io/docs/standalone/#docker-installation)
+
 ### Ansible
+
+[https://repman.io/docs/standalone/#ansible-playbooks-installation](https://repman.io/docs/standalone/#ansible-playbooks-installation)
 
 ### Manual
 
