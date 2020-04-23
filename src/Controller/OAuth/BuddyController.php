@@ -38,6 +38,7 @@ final class BuddyController extends OAuthController
     public function registerCheck(Request $request, BuddyApi $api): Response
     {
         return $this->createAndAuthenticateUser(
+            'buddy',
             fn () => $api->primaryEmail($this->oauth->getClient('buddy')->getAccessToken()->getToken()),
             $request
         );
