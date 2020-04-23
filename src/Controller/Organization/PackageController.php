@@ -14,10 +14,10 @@ use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Organization;
-use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Service\BitbucketApi;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\GitLabApi;
+use Http\Client\Exception as HttpException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -46,35 +46,40 @@ final class PackageController extends AbstractController
         $form->get('type')->setData($type);
         $response = null;
 
-        switch ($type) {
-            case null:
-                $form->remove('Add');
-                break;
-            case 'git':
-            case 'mercurial':
-            case 'subversion':
-            case 'pear':
-                $response = $this->packageNewFromUrl('url', $form, $organization, $request);
-                break;
-            case 'path':
-            case 'artifact':
-                $response = $this->packageNewFromUrl($type, $form, $organization, $request);
-                break;
-            case 'github':
-                $response = $this->packageNewFromGitHub($form, $organization, $request, $githubApi);
-                break;
-            case 'gitlab':
-                $response = $this->packageNewFromGitLab($form, $organization, $request, $gitlabApi);
-                break;
-            case 'bitbucket':
-                $response = $this->packageNewFromBitbucket($form, $organization, $request, $bitbucketApi);
-                break;
-            default:
-                throw new NotFoundHttpException();
-        }
+        try {
+            switch ($type) {
+                case null:
+                    $form->remove('Add');
+                    break;
+                case 'git':
+                case 'mercurial':
+                case 'subversion':
+                case 'pear':
+                    $response = $this->packageNewFromUrl('url', $form, $organization, $request);
+                    break;
+                case 'path':
+                case 'artifact':
+                    $response = $this->packageNewFromUrl($type, $form, $organization, $request);
+                    break;
+                case 'github':
+                    $response = $this->packageNewFromGitHub($form, $organization, $request, $githubApi);
+                    break;
+                case 'gitlab':
+                    $response = $this->packageNewFromGitLab($form, $organization, $request, $gitlabApi);
+                    break;
+                case 'bitbucket':
+                    $response = $this->packageNewFromBitbucket($form, $organization, $request, $bitbucketApi);
+                    break;
+                default:
+                    throw new NotFoundHttpException();
+            }
 
-        if ($response instanceof Response) {
-            return $response;
+            if ($response instanceof Response) {
+                return $response;
+            }
+        } catch (HttpException $exception) {
+            $this->addFlash('danger', sprintf('Failed to fetch repositories (reason: %s). Please try again. If the problem persists, try to remove Repman OAuth application from your provider and try again.', $exception->getMessage()));
+            $form->get('type')->setData(null);
         }
 
         return $this->render('organization/addPackage.html.twig', [
