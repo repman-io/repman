@@ -38,6 +38,7 @@ final class GitLabController extends OAuthController
     public function registerCheck(Request $request): Response
     {
         return $this->createAndAuthenticateUser(
+            'gitlab',
             function (): string {
                 /** @var GitlabResourceOwner $user */
                 $user = $this->oauth->getClient('gitlab')->fetchUser();

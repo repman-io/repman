@@ -53,7 +53,7 @@ abstract class OAuthController extends AbstractController
     /**
      * @param callable():string $emailProvider
      */
-    protected function createAndAuthenticateUser(callable $emailProvider, Request $request): Response
+    protected function createAndAuthenticateUser(string $type, callable $emailProvider, Request $request): Response
     {
         if ($this->getUser() !== null) {
             return $this->redirectToRoute('index');
@@ -61,15 +61,17 @@ abstract class OAuthController extends AbstractController
 
         try {
             $email = $emailProvider();
+            $params = [];
             if (!$this->guard->userExists($email)) {
                 $this->dispatchMessage(new CreateOAuthUser($email));
                 $this->addFlash('success', 'Your account has been created. Please create a new organization.');
+                $params['origin'] = $type;
             } else {
                 $this->addFlash('success', 'Your account already exists. You have been logged in automatically');
             }
             $this->guard->authenticateUser($email, $request);
 
-            return $this->redirectToRoute('organization_create');
+            return $this->redirectToRoute('organization_create', $params);
         } catch (OAuth2ClientException $exception) {
             $this->addFlash('danger', 'Authentication failed! Did you authorize our app?');
         } catch (IdentityProviderException | HttpException $e) {
