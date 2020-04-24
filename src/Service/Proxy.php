@@ -133,7 +133,7 @@ final class Proxy
         $providerData = $this->providerData($package, $fromCache ? 0 : -60)->getOrElse([]);
         foreach ($providerData['packages'][$package] ?? [] as $packageData) {
             $packageVersion = $packageData['version_normalized'] ?? $this->versionParser->normalize($packageData['version']);
-            if ($packageVersion === $version && isset($packageData['dist']['url'])) {
+            if (($packageVersion === $version || md5($packageVersion) === $version) && isset($packageData['dist']['url'])) {
                 $this->distStorage->download($packageData['dist']['url'], $dist);
 
                 return;
