@@ -43,6 +43,7 @@ final class ProxyController extends AbstractController
                 ],
             ],
             'providers-lazy-url' => '/p/%package%',
+           // 'providers-api'  => $this->generateUrl('index', [], RouterInterface::ABSOLUTE_URL) . '/providers/%package%.json'
         ]);
     }
 
