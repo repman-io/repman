@@ -35,9 +35,8 @@ final class RestGitLabApi implements GitLabApi
             );
         }, $this->pager->fetchAll($this->client->projects(), 'all', [[
             'simple' => true,
-            'owned' => true,
             'membership' => true,
-            'order_by' => 'path',
+            'order_by' => 'last_activity_at',
         ]])));
     }
 
