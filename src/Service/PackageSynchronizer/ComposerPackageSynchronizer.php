@@ -18,6 +18,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
+use Composer\Semver\Comparator;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class ComposerPackageSynchronizer implements PackageSynchronizer
@@ -53,7 +54,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             foreach ($packages as $p) {
                 $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->packageNormalizer->normalize($p);
-                if ($p->getReleaseDate() > $latest->getReleaseDate() && $latest->getStability() !== 'stable') {
+                if (Comparator::greaterThan($p->getVersion(), $latest->getVersion()) && $p->getStability() === 'stable') {
                     $latest = $p;
                 }
             }

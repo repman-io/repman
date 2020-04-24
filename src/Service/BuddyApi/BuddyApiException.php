@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\BuddyApi;
 
-final class BuddyApiException extends \Exception
+use Http\Client\Exception as HttpException;
+
+final class BuddyApiException extends \Exception implements HttpException
 {
 }

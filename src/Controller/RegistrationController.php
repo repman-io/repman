@@ -34,7 +34,7 @@ class RegistrationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->dispatchMessage(new CreateUser(
-                $id = Uuid::uuid4()->toString(),
+                Uuid::uuid4()->toString(),
                 $email = $form->get('email')->getData(),
                 $form->get('plainPassword')->getData(),
                 $confirmToken = Uuid::uuid4()->toString(),

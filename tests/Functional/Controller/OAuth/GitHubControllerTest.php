@@ -64,7 +64,7 @@ final class GitHubControllerTest extends FunctionalTestCase
 
         $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'github'])));
         $this->client->followRedirect();
 
         self::assertStringContainsString('Your account has been created', $this->lastResponseBody());

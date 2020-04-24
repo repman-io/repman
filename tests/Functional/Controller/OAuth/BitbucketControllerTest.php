@@ -6,10 +6,12 @@ namespace Buddy\Repman\Tests\Functional\Controller\OAuth;
 
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Repository\UserRepository;
+use Buddy\Repman\Service\BitbucketApi;
 use Buddy\Repman\Tests\Doubles\BitbucketOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use GuzzleHttp\Psr7\Response;
+use KnpU\OAuth2ClientBundle\Exception\MissingAuthorizationCodeException;
 use Ramsey\Uuid\Uuid;
 
 final class BitbucketControllerTest extends FunctionalTestCase
@@ -67,7 +69,7 @@ final class BitbucketControllerTest extends FunctionalTestCase
 
         $this->client->request('GET', $this->urlTo('register_bitbucket_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'bitbucket'])));
         $this->client->followRedirect();
 
         self::assertStringContainsString('Your account has been created', $this->lastResponseBody());
@@ -103,6 +105,23 @@ final class BitbucketControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
 
         self::assertStringContainsString('invalid scope provided', $this->lastResponseBody());
+    }
+
+    public function testDisplayErrorIfMissingAuthorizationCodeExceptionIsThrow(): void
+    {
+        $this->client->request('GET', $this->urlTo('register_bitbucket_start'));
+        $params = $this->getQueryParamsFromLastResponse();
+
+        $this->client->disableReboot();
+        BitbucketOAuth::mockAccessTokenResponse('whatever@repman.io', $this->container());
+        $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(new MissingAuthorizationCodeException());
+
+        $this->client->request('GET', $this->urlTo('register_bitbucket_check', ['state' => $params['state'], 'code' => 'secret-token']));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_register')));
+        $this->client->followRedirect();
+
+        self::assertStringContainsString('Authentication failed! Did you authorize our app?', $this->lastResponseBody());
     }
 
     public function testAddOAuthTokenToUser(): void

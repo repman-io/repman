@@ -116,12 +116,21 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
     public function testSynchronizePackageWithNoStableRelease(): void
     {
-        $package = PackageMother::withOrganization('path', $this->resourcesDir.'path/unstable', 'buddy');
+        // prepare package in path without git
+        $resPath = $this->resourcesDir.'path/unstable/composer.json';
+        $tmpPath = sys_get_temp_dir().'/repman/path/unstable/composer.json';
+        if (!is_dir(dirname($tmpPath))) {
+            mkdir(dirname($tmpPath), 0777, true);
+        }
+        copy($resPath, $tmpPath);
+
+        $package = PackageMother::withOrganization('path', dirname($tmpPath), 'buddy');
 
         $this->synchronizer->synchronize($package);
 
         self::assertEquals('no stable release', $this->getProperty($package, 'latestReleasedVersion'));
         @unlink($this->baseDir.'/buddy/p/some/package.json');
+        @unlink($tmpPath);
     }
 
     /**

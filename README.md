@@ -3,6 +3,7 @@
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg)](https://php.net/)
 [![buddy pipeline](https://app.buddy.works/repman/repman/pipelines/pipeline/244546/badge.svg?token=dbd28b3ece0d16aba095b8a33d0893d15f0403fbcc285a2a1a175cc77f7c94a8 "buddy pipeline")](https://app.buddy.works/repman/repman/pipelines/pipeline/244546)
 [![codecov](https://codecov.io/gh/repman-io/repman/branch/master/graph/badge.svg)](https://codecov.io/gh/repman-io/repman)
+[![Maintainability](https://api.codeclimate.com/v1/badges/23a93132c8273cabf9eb/maintainability)](https://codeclimate.com/github/repman-io/repman/maintainability)
 ![License](https://img.shields.io/github/license/repman-io/repman)
 
 **Repman** is a PHP repository manager. Main features:
@@ -26,7 +27,11 @@ Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 
 ### Docker
 
+[https://repman.io/docs/standalone/#docker-installation](https://repman.io/docs/standalone/#docker-installation)
+
 ### Ansible
+
+[https://repman.io/docs/standalone/#ansible-playbooks-installation](https://repman.io/docs/standalone/#ansible-playbooks-installation)
 
 ### Manual
 
