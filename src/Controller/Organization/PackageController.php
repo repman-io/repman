@@ -13,6 +13,7 @@ use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\User\RemoveOAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\BitbucketApi;
 use Buddy\Repman\Service\GitHubApi;
@@ -78,6 +79,7 @@ final class PackageController extends AbstractController
                 return $response;
             }
         } catch (HttpException $exception) {
+            $this->dispatchMessage(new RemoveOAuthToken($this->getUser()->id()->toString(), (string) $type));
             $this->addFlash('danger', sprintf('Failed to fetch repositories (reason: %s). Please try again. If the problem persists, try to remove Repman OAuth application from your provider and try again.', $exception->getMessage()));
             $form->get('type')->setData(null);
         }
