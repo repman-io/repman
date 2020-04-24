@@ -84,4 +84,23 @@ final class ProxyTest extends TestCase
             $proxy->distFilename('buddy-works/repman', '0.1.2.0', 'f0c896a759d4e2e1eff57978318e841911796305', 'zip')->get()
         );
     }
+
+    public function testStorageHandleDistWithSlashInVersion(): void
+    {
+        $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0cdaa0ab95de9fcf94ad9b1d2f80e15d_e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb.zip';
+        /** @phpstan-var mixed $storage */
+        $storage = $this->prophesize(Storage::class);
+        $storage->has(Argument::type(Dist::class))->willReturn(false);
+        $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
+        $storage->download('https://api.github.com/repos/munusphp/munus/zipball/e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb', Argument::type(Dist::class))
+            ->shouldBeCalledOnce();
+
+        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), $storage->reveal());
+
+        self::assertStringContainsString(
+            '0cdaa0ab95de9fcf94ad9b1d2f80e15d_e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb.zip',
+            $proxy->distFilename('buddy-works/repman', 'dev-feature/awesome', 'e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb', 'zip')->get()
+        );
+        self::assertEquals('0cdaa0ab95de9fcf94ad9b1d2f80e15d', (new Dist('repo', 'package', 'dev-feature/awesome', 'ref', 'format'))->version());
+    }
 }
