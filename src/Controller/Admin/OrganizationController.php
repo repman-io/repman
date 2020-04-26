@@ -46,10 +46,12 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/admin/stats", name="admin_stats", methods={"GET"})
      */
-    public function stats(): Response
+    public function stats(Request $request): Response
     {
+        $days = min(max((int) $request->get('days', 30), 7), 365);
+
         return $this->render('admin/stats.html.twig', [
-            'installs' => $this->organizationQuery->getInstalls(),
+            'installs' => $this->organizationQuery->getInstalls($days),
         ]);
     }
 }
