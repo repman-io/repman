@@ -94,6 +94,53 @@
         "uid": 3420230,
         "notification-url": "https:\/\/packagist.org\/downloads\/"
       },
+      "dev-feature/awesome": {
+        "name": "buddy-works\/repman",
+        "description": "Power of object-oriented programming with the elegance of functional programming.",
+        "keywords": [],
+        "homepage": "",
+        "version": "dev-feature/awesome",
+        "version_normalized": "dev-feature/awesome",
+        "license": [
+          "MIT"
+        ],
+        "authors": [
+          {
+            "name": "Arkadiusz Kondas",
+            "email": "arkadiusz.kondas@gmail.com"
+          }
+        ],
+        "source": {
+          "type": "git",
+          "url": "https:\/\/github.com\/munusphp\/munus.git",
+          "reference": "e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https:\/\/api.github.com\/repos\/munusphp\/munus\/zipball\/e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb",
+          "reference": "e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb",
+          "shasum": ""
+        },
+        "type": "library",
+        "time": "2019-12-08T08:35:40+00:00",
+        "autoload": {
+          "psr-4": {
+            "Munus\\": "src\/"
+          }
+        },
+        "require": {
+          "php": "^7.2"
+        },
+        "require-dev": {
+          "friendsofphp\/php-cs-fixer": "^2.15",
+          "phpunit\/phpunit": "^8.4",
+          "vimeo\/psalm": "^3.6",
+          "psalm\/plugin-phpunit": "^0.7.0",
+          "phpstan\/phpstan": "^0.11.19"
+        },
+        "uid": 3386500,
+        "notification-url": "https:\/\/packagist.org\/downloads\/"
+      },
       "dev-master": {
         "name": "buddy-works\/repman",
         "description": "Power of object-oriented programming with the elegance of functional programming.",

@@ -33,6 +33,10 @@ final class Dist
 
     public function version(): string
     {
+        if (strpos($this->version, '/') !== false) {
+            return md5($this->version);
+        }
+
         return $this->version;
     }
 
