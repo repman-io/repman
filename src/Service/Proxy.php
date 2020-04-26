@@ -60,6 +60,7 @@ final class Proxy
 
         return $this->metadataProvider->fromUrl($this->getUrl($providerPath->get()));
     }
+
     /**
      * @return Option<array<mixed>>
      */
@@ -76,6 +77,7 @@ final class Proxy
 
         return $this->metadataProvider->fromUrl($this->getUrl($providerPath->get()));
     }
+
     /**
      * @return GenericList<string>
      */
@@ -130,7 +132,6 @@ final class Proxy
         return Option::none();
     }
 
-
     /**
      * @return Option<string>
      */
@@ -146,6 +147,7 @@ final class Proxy
                 )
             );
         }
+
         return Option::none();
     }
 
