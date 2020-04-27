@@ -51,6 +51,18 @@ abstract class FunctionalTestCase extends WebTestCase
         return $this->fixtures->createAdmin($email, $password);
     }
 
+    protected function loginUser(string $email, string $password): void
+    {
+        if (static::$booted) {
+            self::ensureKernelShutdown();
+        }
+
+        $this->client = static::createClient([], [
+            'PHP_AUTH_USER' => $email,
+            'PHP_AUTH_PW' => $password,
+        ]);
+    }
+
     protected function container(): ContainerInterface
     {
         return self::$kernel->getContainer()->get('test.service_container');

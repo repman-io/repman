@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\MessageHandler\Organization;
+namespace Buddy\Repman\MessageHandler\Organization\Member;
 
-use Buddy\Repman\Message\Organization\InviteUser;
+use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Service\Mailer;
 use Ramsey\Uuid\Uuid;
@@ -24,7 +24,8 @@ final class InviteUserHandler implements MessageHandlerInterface
     public function __invoke(InviteUser $message): void
     {
         $organization = $this->organizations->getById(Uuid::fromString($message->organizationId()));
-        $organization->inviteUser($message->email(), $message->role(), $message->token());
-        $this->mailer->sendInvitationToOrganization($message->email(), $message->token(), $organization->name());
+        if ($organization->inviteUser($message->email(), $message->role(), $message->token())) {
+            $this->mailer->sendInvitationToOrganization($message->email(), $message->token(), $organization->name());
+        }
     }
 }

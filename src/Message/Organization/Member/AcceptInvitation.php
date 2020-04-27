@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Message\Organization;
+namespace Buddy\Repman\Message\Organization\Member;
 
 final class AcceptInvitation
 {
