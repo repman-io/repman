@@ -72,8 +72,8 @@
             {% for request in recentRequests %}
                 <tr>
                     <td>{{ request.date }}</td>
-                    <td>{{ request.ip }}</td>
-                    <td>{{ request.userAgent }}</td>
+                    <td>{{ request.ip | default('n/a') }}</td>
+                    <td>{{ request.userAgent | default('n/a') }}</td>
                 </tr>
             {% endfor %}
             </tbody>
