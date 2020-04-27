@@ -15,7 +15,7 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    public const REPMAN_VERSION = '0.1.1';
+    public const REPMAN_VERSION = '0.1.2';
     private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     public function registerBundles(): iterable
