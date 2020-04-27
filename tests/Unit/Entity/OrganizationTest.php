@@ -69,4 +69,13 @@ final class OrganizationTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->org->inviteUser('other@buddy.works', 'invalid-role', 'token');
     }
+
+    public function testIgnoreWhenUserTriesToAcceptNotOwnInvitation(): void
+    {
+        $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
+        $this->org->acceptInvitation('token', new User(Uuid::uuid4(), 'bad@buddy.works', Uuid::uuid4()->toString(), []));
+        $this->org->removeInvitation('token');
+
+        self::assertTrue($this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token'));
+    }
 }

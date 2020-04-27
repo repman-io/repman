@@ -36,9 +36,23 @@ final class DbalOrganizationQuery implements OrganizationQuery
             return Option::none();
         }
 
-        $data['token'] = $this->connection->fetchColumn('SELECT value FROM organization_token WHERE organization_id = :id', [
-            ':id' => $data['id'],
+        return Option::some($this->hydrateOrganization($data));
+    }
+
+    public function getByInvitation(string $token, string $email): Option
+    {
+        $data = $this->connection->fetchAssoc('SELECT o.id, o.name, o.alias, o.owner_id 
+            FROM "organization" o 
+            JOIN organization_invitation i ON o.id = i.organization_id
+            WHERE i.token = :token AND i.email = :email
+        ', [
+            ':token' => $token,
+            ':email' => $email,
         ]);
+
+        if ($data === false) {
+            return Option::none();
+        }
 
         return Option::some($this->hydrateOrganization($data));
     }
@@ -98,11 +112,12 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return array_map(function (array $row): Invitation {
             return new Invitation(
                 $row['email'],
-                $row['role']
+                $row['role'],
+                $row['token']
             );
         }, $this->connection->fetchAll('
-            SELECT email, role 
-            FROM organization_invitation 
+            SELECT email, role, token
+            FROM organization_invitation
             WHERE organization_id = :id
             ORDER BY email ASC
             LIMIT :limit OFFSET :offset', [
@@ -122,15 +137,19 @@ final class DbalOrganizationQuery implements OrganizationQuery
             );
     }
 
+    /**
+     * @return Member[]
+     */
     public function findAllMembers(string $organizationId, int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $row): Member {
             return new Member(
+                $row['id'],
                 $row['email'],
                 $row['role']
             );
         }, $this->connection->fetchAll('
-            SELECT u.email, m.role 
+            SELECT u.id, u.email, m.role 
             FROM organization_member AS m
             JOIN "user" u ON u.id = m.user_id
             WHERE m.organization_id = :id
@@ -152,11 +171,41 @@ final class DbalOrganizationQuery implements OrganizationQuery
             );
     }
 
+    public function isMember(string $organizationId, string $email): bool
+    {
+        return false !== $this
+            ->connection
+            ->fetchColumn(
+                'SELECT 1 FROM organization_member AS m JOIN "user" u ON u.id = m.user_id WHERE organization_id = :id AND u.email = :email',
+                [
+                    ':id' => $organizationId,
+                    ':email' => $email,
+                ]
+            );
+    }
+
+    public function isInvited(string $organizationId, string $email): bool
+    {
+        return false !== $this
+            ->connection
+            ->fetchColumn(
+                'SELECT 1 FROM organization_invitation WHERE organization_id = :id AND email = :email',
+                [
+                    ':id' => $organizationId,
+                    ':email' => $email,
+                ]
+            );
+    }
+
     /**
      * @param array<mixed> $data
      */
     private function hydrateOrganization(array $data): Organization
     {
+        $data['token'] = $this->connection->fetchColumn('SELECT value FROM organization_token WHERE organization_id = :id', [
+            ':id' => $data['id'],
+        ]);
+
         return new Organization(
             $data['id'],
             $data['name'],

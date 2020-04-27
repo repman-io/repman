@@ -1,0 +1,49 @@
+{% extends "base.html.twig" %}
+
+{% block header_btn %}
+    {% if invitations > 0 %}
+        <a href="{{ path('organization_invitations', {"organization":organization.alias}) }}" class="mr-5">
+            Pending invitations: {{ invitations }}
+        </a>
+    {% endif %}
+    <a href="{{ path('organization_invite_member', {"organization":organization.alias}) }}" class="btn btn-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Invite new member
+    </a>
+{% endblock %}
+{% block header %} {{ organization.name }} members:{% endblock %}
+
+{% block content %}
+
+<div class="markdown">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>E-mail</th>
+                <th>Role</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+                <tr>
+                    <td>{{ member.email }}</td>
+                    <td>{{ member.role }}</td>
+                    <td>
+                        <button
+                                class="btn btn-danger btn-sm"
+                                type="submit"
+                                data-target="confirmation"
+                                data-action="{{ path('organization_remove_member', {organization: organization.alias, user: member.userId}) }}"
+                                data-method="DELETE"
+                        >
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'component/pagination.html.twig' with {'path_name': 'organization_members', 'path_params': {'organization': organization.alias}} %}
+</div>
+{% endblock %}

@@ -175,17 +175,24 @@ class Organization
         $this->alias = $alias;
     }
 
-    public function inviteUser(string $email, string $role, string $token): void
+    public function inviteUser(string $email, string $role, string $token): bool
     {
         if ($this->invitations->exists(fn (int $key, Invitation $invitation) => $invitation->email() === $email)) {
-            return;
+            return false;
         }
 
         if ($this->members->exists(fn (int $key, Member $member) => $member->email() === $email)) {
-            return;
+            return false;
         }
 
         $this->invitations->add(new Invitation($token, $email, $this, $role));
+
+        return true;
+    }
+
+    public function removeInvitation(string $token): void
+    {
+        $this->invitations = $this->invitations->filter(fn (Invitation $invitation) => $invitation->token() !== $token);
     }
 
     public function acceptInvitation(string $token, User $user): void
@@ -195,7 +202,16 @@ class Organization
             return;
         }
 
+        if ($invitation->email() !== $user->getEmail()) {
+            return;
+        }
+
         $this->members->add(new Member(Uuid::uuid4(), $user, $this, $invitation->role()));
         $this->invitations->removeElement($invitation);
+    }
+
+    public function removeMember(User $user): void
+    {
+        $this->members = $this->members->filter(fn (Member $member) => !$member->userId()->equals($user->id()));
     }
 }

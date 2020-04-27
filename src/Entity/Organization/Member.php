@@ -61,6 +61,11 @@ class Member
         return $this->user->getEmail();
     }
 
+    public function userId(): UuidInterface
+    {
+        return $this->user->id();
+    }
+
     /**
      * @return array<int,string>
      */
