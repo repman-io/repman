@@ -294,6 +294,15 @@ class User implements UserInterface
         return null;
     }
 
+    public function removeOAuthToken(string $type): void
+    {
+        foreach ($this->oauthTokens as $oauthToken) {
+            if ($oauthToken->isType($type)) {
+                $this->oauthTokens->removeElement($oauthToken);
+            }
+        }
+    }
+
     /**
      * @return Option<string>
      */
