@@ -19,6 +19,11 @@ interface OrganizationQuery
     public function getByAlias(string $alias): Option;
 
     /**
+     * @return Option<Organization>
+     */
+    public function getByInvitation(string $token, string $email): Option;
+
+    /**
      * @return Token[]
      */
     public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array;
@@ -34,10 +39,14 @@ interface OrganizationQuery
 
     public function membersCount(string $organizationId): int;
 
+    public function isMember(string $organizationId, string $email): bool;
+
     /**
      * @return Invitation[]
      */
     public function findAllInvitations(string $organizationId, int $limit = 20, int $offset = 0): array;
 
     public function invitationsCount(string $organizationId): int;
+
+    public function isInvited(string $organizationId, string $email): bool;
 }

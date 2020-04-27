@@ -41,9 +41,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testStats(): void
     {
+        $orgId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($orgId, 'https://some.url');
+        $this->fixtures->addPackageDownload(1, $packageId);
         $this->client->request('GET', $this->urlTo('admin_stats'));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Total installs:', $this->lastResponseBody());
+        self::assertStringContainsString('Total installs: 1', $this->lastResponseBody());
     }
 }
