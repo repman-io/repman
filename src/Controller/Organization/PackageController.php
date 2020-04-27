@@ -78,7 +78,13 @@ final class PackageController extends AbstractController
                 return $response;
             }
         } catch (HttpException $exception) {
-            $this->addFlash('danger', sprintf('Failed to fetch repositories (reason: %s). Please try again. If the problem persists, try to remove Repman OAuth application from your provider and try again.', $exception->getMessage()));
+            $this->addFlash('danger', sprintf(
+                'Failed to fetch repositories (reason: %s).
+                Please try again. If the problem persists, try to remove Repman OAuth application
+                from your provider or unlink %s integration in your Profile and try again.',
+                $exception->getMessage(),
+                \ucfirst((string) $type)
+            ));
             $form->get('type')->setData(null);
         }
 

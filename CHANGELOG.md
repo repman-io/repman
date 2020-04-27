@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - WIP: organization members (#56)
 
+## [0.1.2] - 2020-04-27
+### Added
+- Add ability to unlink OAuth integration from user profile page (#106)
+- Uptime Robot monitor (#102 & #103)
+
+### Changes
+- GitLab API: Show all user's packages and order by last activity (#104)
+
+### Fixed
+- Handle oauth errors during registration (#92)
+- Handle errors when fetching repos from provider  (#94)
+- Fix last package version detection mechanism (#99)
+- Fix support for packages with slash in version name (#101)
+- Fix number of days for /admin/stats (#108)
+- Fix recent webhook requests view model (#110)
+- Allow *.php named packages to be found (#111)
+
 ## [0.1.1] - 2020-04-22
 ### BC break
 - user email is now change to lowercase with migration 
