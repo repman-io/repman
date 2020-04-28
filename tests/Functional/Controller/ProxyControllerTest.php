@@ -71,6 +71,15 @@ final class ProxyControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isOk());
     }
 
+    public function testDistributionNotFoundAction(): void
+    {
+        $this->client->request('GET', '/dists/buddy-works/repman/2.0.0.0/0f1a178ca9c0271bca6426dde8f5a2241578deae.zip', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
     public function testTrackDownloads(): void
     {
         $this->client->request('POST', '/downloads', [], [], [

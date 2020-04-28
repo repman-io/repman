@@ -11,6 +11,7 @@ use Buddy\Repman\Service\Downloader;
 use Munus\Collection\GenericList;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class FileStorage implements Storage
 {
@@ -42,7 +43,9 @@ final class FileStorage implements Storage
 
         AtomicFile::write(
             $filename,
-            $this->downloader->getContents($url, $headers)->getOrElseThrow(
+            $this->downloader->getContents($url, $headers, function () use ($url): void {
+                throw new NotFoundHttpException(sprintf('File not found at %s', $url));
+            })->getOrElseThrow(
                 new \RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))
             )
         );

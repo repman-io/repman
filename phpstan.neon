@@ -20,6 +20,10 @@ parameters:
             message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
             count: 2
             path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+        -
+            message: "#^Variable \\$http_response_header in isset\\(\\) always exists and is not nullable\\.$#"
+            count: 1
+            path: src/Service/Downloader/NativeDownloader.php
 
     autoload_files:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
