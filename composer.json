@@ -129,6 +129,7 @@
             "@phpstan",
             "@coverage-ci",
             "bin/console lint:twig templates --show-deprecations",
+            "rm -rf var/cache/prod",
             "bin/console cache:warmup --env=prod"
         ],
         "security": [

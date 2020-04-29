@@ -4,20 +4,29 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use Buddy\Repman\Query\User\Model\Organization\Member;
+
 final class Organization
 {
     private string $id;
     private string $name;
     private string $alias;
-    private string $ownerId;
+    /**
+     * @var Member[]
+     */
+    private array $members;
+
     private ?string $token;
 
-    public function __construct(string $id, string $name, string $alias, string $ownerId, ?string $token = null)
+    /**
+     * @param Member[] $members
+     */
+    public function __construct(string $id, string $name, string $alias, array $members, ?string $token = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
-        $this->ownerId = $ownerId;
+        $this->members = array_map(fn (Member $member) => $member, $members);
         $this->token = $token;
     }
 
@@ -41,8 +50,25 @@ final class Organization
         return $this->token;
     }
 
-    public function isOwnedBy(string $userId): bool
+    public function isMember(string $userId): bool
     {
-        return $this->ownerId === $userId;
+        foreach ($this->members as $member) {
+            if ($member->userId() === $userId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isOwner(string $userId): bool
+    {
+        foreach ($this->members as $member) {
+            if ($member->role() === 'owner' && $member->userId() === $userId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

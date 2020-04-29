@@ -40,7 +40,7 @@ final class OrganizationVoter extends Voter
             ->map(function (Organization $organization) use ($user, $subject): bool {
                 $subject->attributes->set('organization', $organization);
 
-                return $organization->isOwnedBy($user->id()->toString());
+                return $organization->isMember($user->id()->toString());
             })
             ->getOrElse(false);
     }

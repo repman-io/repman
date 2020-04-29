@@ -34,7 +34,7 @@ final class OrganizationParamConverterTest extends TestCase
             '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
             'Buddy',
             'buddy',
-            '9a1c9f23-23bf-4dc0-8d10-03848867d7f4'
+            [new Organization\Member('9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')]
         )]), new ParamConverter(['name' => 'organization']));
     }
 
@@ -44,7 +44,7 @@ final class OrganizationParamConverterTest extends TestCase
             '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
             'Buddy',
             'buddy',
-            '9a1c9f23-23bf-4dc0-8d10-03848867d7f4'
+            [new Organization\Member('9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')]
         );
         $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
         $queryMock->expects(self::once())->method('getByAlias')->with('buddy')->willReturn(Option::some($organization));

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Entity\User\OAuthToken;
+use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 
 final class UserControllerTest extends FunctionalTestCase
@@ -59,6 +60,8 @@ final class UserControllerTest extends FunctionalTestCase
         $this->client->request('DELETE', $this->urlTo('user_remove'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+
+        self::assertFalse($this->container()->get(DbalOrganizationQuery::class)->getByAlias('buddy')->isEmpty());
     }
 
     public function testResendEmailVerification(): void
