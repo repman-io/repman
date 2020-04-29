@@ -15,13 +15,17 @@ final class NativeDownloader implements Downloader
      *
      * @return Option<string>
      */
-    public function getContents(string $url, array $headers = []): Option
+    public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option
     {
         $retries = 3;
         do {
             $content = @file_get_contents($url, false, $this->createContext($headers));
             if ($content !== false) {
                 return Option::some($content);
+            }
+
+            if (isset($http_response_header) && $this->getStatusCode($http_response_header) === 404 && $notFoundHandler !== null) {
+                $notFoundHandler();
             }
             --$retries;
         } while ($retries > 0);
@@ -53,5 +57,15 @@ final class NativeDownloader implements Downloader
                 'max_redirects' => 20,
             ],
         ]);
+    }
+
+    /**
+     * @param mixed[] $headers
+     */
+    private function getStatusCode(array $headers): int
+    {
+        preg_match('{HTTP\/\S*\s(\d{3})}', $headers[0], $match);
+
+        return (int) $match[1];
     }
 }
