@@ -9,6 +9,7 @@ use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\GitHubApi;
 use League\OAuth2\Client\Token\AccessToken;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -48,6 +49,7 @@ final class GitHubController extends OAuthController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/add-from-github", name="fetch_github_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
     public function packageAddFromGithub(Organization $organization): Response

@@ -15,6 +15,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Invitation;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Ramsey\Uuid\Uuid;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +48,27 @@ final class MembersController extends AbstractController
     }
 
     /**
+     * @Route("/user/invitation/{token}", name="organization_accept_invitation", methods={"GET"}, requirements={"token"="%uuid_pattern%"})
+     */
+    public function acceptInvitation(string $token): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $organization = $this->organizations->getByInvitation($token, $user->getEmail());
+        if ($organization->isEmpty()) {
+            $this->addFlash('danger', 'Invitation not found or belongs to different user');
+            $this->tokenStorage->setToken();
+            throw new AuthenticationException();
+        }
+
+        $this->dispatchMessage(new AcceptInvitation($token, $user->id()->toString()));
+        $this->addFlash('success', sprintf('The invitation to %s organization has been accepted', $organization->get()->name()));
+
+        return $this->redirectToRoute('organization_overview', ['organization' => $organization->get()->alias()]);
+    }
+
+    /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/member/invite", name="organization_invite_member", methods={"GET", "POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function invite(Organization $organization, Request $request): Response
@@ -74,6 +96,7 @@ final class MembersController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/invitation", name="organization_invitations", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
     public function listInvitations(Organization $organization, Request $request): Response
@@ -86,26 +109,7 @@ final class MembersController extends AbstractController
     }
 
     /**
-     * @Route("/user/invitation/{token}", name="organization_accept_invitation", methods={"GET"}, requirements={"token"="%uuid_pattern%"})
-     */
-    public function acceptInvitation(string $token): Response
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-        $organization = $this->organizations->getByInvitation($token, $user->getEmail());
-        if ($organization->isEmpty()) {
-            $this->addFlash('danger', 'Invitation not found or belongs to different user');
-            $this->tokenStorage->setToken();
-            throw new AuthenticationException();
-        }
-
-        $this->dispatchMessage(new AcceptInvitation($token, $user->id()->toString()));
-        $this->addFlash('success', sprintf('The invitation to %s organization has been accepted', $organization->get()->name()));
-
-        return $this->redirectToRoute('organization_overview', ['organization' => $organization->get()->alias()]);
-    }
-
-    /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/invitation/{token}", name="organization_remove_invitation", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
     public function removeInvitation(Organization $organization, string $token): Response
@@ -117,6 +121,7 @@ final class MembersController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/member/{user}", name="organization_remove_member", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
     public function removeMember(Organization $organization, UserReadModel $user): Response
