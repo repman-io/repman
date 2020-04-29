@@ -3,7 +3,7 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         types:
             uuid: 'Ramsey\Uuid\Doctrine\UuidType'
-        schema_filter: '~^(?!messenger_messages|organization_package_webhook_request|proxy_package_download)~'
+        schema_filter: '~^(?!messenger_messages|organization_package_webhook_request|proxy_package_download|lock_keys)~'
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware

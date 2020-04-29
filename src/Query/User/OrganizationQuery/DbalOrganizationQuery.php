@@ -28,7 +28,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, name, alias, owner_id FROM "organization" WHERE alias = :alias', [
+            'SELECT id, name, alias FROM "organization" WHERE alias = :alias', [
             ':alias' => $alias,
         ]);
 
@@ -41,7 +41,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function getByInvitation(string $token, string $email): Option
     {
-        $data = $this->connection->fetchAssoc('SELECT o.id, o.name, o.alias, o.owner_id 
+        $data = $this->connection->fetchAssoc('SELECT o.id, o.name, o.alias
             FROM "organization" o 
             JOIN organization_invitation i ON o.id = i.organization_id
             WHERE i.token = :token AND i.email = :email
@@ -202,7 +202,10 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     private function hydrateOrganization(array $data): Organization
     {
-        $data['token'] = $this->connection->fetchColumn('SELECT value FROM organization_token WHERE organization_id = :id', [
+        $token = $this->connection->fetchColumn('SELECT value FROM organization_token WHERE organization_id = :id', [
+            ':id' => $data['id'],
+        ]);
+        $members = $this->connection->fetchAll('SELECT m.user_id, m.role, u.email FROM organization_member m JOIN "user" u ON u.id = m.user_id WHERE m.organization_id = :id', [
             ':id' => $data['id'],
         ]);
 
@@ -210,8 +213,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['id'],
             $data['name'],
             $data['alias'],
-            $data['owner_id'],
-            $data['token'] !== false ? $data['token'] : null
+            array_map(fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
+            $token !== false ? $token : null
         );
     }
 }

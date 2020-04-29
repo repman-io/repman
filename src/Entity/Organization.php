@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization\Invitation;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -24,12 +25,6 @@ class Organization
      * @ORM\Column(type="uuid", unique=true)
      */
     private UuidInterface $id;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User", inversedBy="organizations")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private User $owner;
 
     /**
      * @ORM\Column(type="datetime_immutable")
@@ -73,7 +68,6 @@ class Organization
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
         $this->id = $id;
-        $this->setOwner($owner->addOrganization($this));
         $this->name = $name;
         $this->alias = $alias;
         $this->createdAt = new \DateTimeImmutable();
@@ -81,23 +75,13 @@ class Organization
         $this->tokens = new ArrayCollection();
         $this->invitations = new ArrayCollection();
         $this->members = new ArrayCollection();
+        $this->members->add($member = new Member(Uuid::uuid4(), $owner, $this, Member::ROLE_OWNER));
+        $owner->addMembership($member);
     }
 
     public function id(): UuidInterface
     {
         return $this->id;
-    }
-
-    public function setOwner(User $owner): self
-    {
-        $this->owner = $owner;
-
-        return $this;
-    }
-
-    public function owner(): User
-    {
-        return $this->owner;
     }
 
     public function name(): string
@@ -192,7 +176,12 @@ class Organization
 
     public function removeInvitation(string $token): void
     {
-        $this->invitations = $this->invitations->filter(fn (Invitation $invitation) => $invitation->token() !== $token);
+        foreach ($this->invitations as $invitation) {
+            if ($invitation->token() === $token) {
+                $this->invitations->removeElement($invitation);
+                break;
+            }
+        }
     }
 
     public function acceptInvitation(string $token, User $user): void
@@ -212,6 +201,22 @@ class Organization
 
     public function removeMember(User $user): void
     {
-        $this->members = $this->members->filter(fn (Member $member) => !$member->userId()->equals($user->id()));
+        foreach ($this->members as $member) {
+            if ($member->userId()->equals($user->id())) {
+                $this->members->removeElement($member);
+                break;
+            }
+        }
+    }
+
+    public function oauthToken(string $type): ?OAuthToken
+    {
+        foreach ($this->members->filter(fn (Member $member) => $member->isOwner()) as $owner) {
+            if ($owner->user()->oauthToken($type) !== null) {
+                return $owner->user()->oauthToken($type);
+            }
+        }
+
+        return null;
     }
 }

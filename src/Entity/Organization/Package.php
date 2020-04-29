@@ -155,7 +155,7 @@ class Package
 
     public function oauthToken(): string
     {
-        $token = $this->organization->owner()->oauthToken(str_replace('-oauth', '', $this->type));
+        $token = $this->organization->oauthToken(str_replace('-oauth', '', $this->type));
         if ($token === null) {
             throw new \RuntimeException('Oauth token not found');
         }
