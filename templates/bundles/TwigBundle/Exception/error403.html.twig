@@ -1,3 +1,14 @@
 {% extends "bundles/TwigBundle/Exception/error.html.twig" %}
 
+{% block status_text %}Oops&hellip; Access Denied{% endblock %}
+
 {% block status_description %}We are sorry but you do not have permission to access this page{% endblock %}
+
+{% block button %}
+    <div class="empty-action">
+        <a href="#" onclick="window.history.back();" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Take me back
+        </a>
+    </div>
+{% endblock %}

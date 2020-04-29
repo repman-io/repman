@@ -19,7 +19,6 @@ use Ramsey\Uuid\UuidInterface;
 class Member
 {
     public const ROLE_OWNER = 'owner';
-    public const ROLE_ADMIN = 'admin';
     public const ROLE_MEMBER = 'member';
 
     /**
@@ -89,7 +88,6 @@ class Member
     {
         return [
             self::ROLE_MEMBER,
-            self::ROLE_ADMIN,
             self::ROLE_OWNER,
         ];
     }
