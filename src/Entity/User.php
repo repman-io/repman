@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -71,10 +72,10 @@ class User implements UserInterface
     private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
 
     /**
-     * @var Collection<int,Organization>|Organization[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization", mappedBy="owner", orphanRemoval=true)
+     * @var Collection<int,Member>|Member[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="user", orphanRemoval=true)
      */
-    private Collection $organizations;
+    private Collection $memberships;
 
     /**
      * @ORM\Column(type="string", length=20)
@@ -97,7 +98,7 @@ class User implements UserInterface
         $this->emailConfirmToken = $emailConfirmToken;
         $this->roles = array_values(array_unique($roles));
         $this->createdAt = new \DateTimeImmutable();
-        $this->organizations = new ArrayCollection();
+        $this->memberships = new ArrayCollection();
         $this->oauthTokens = new ArrayCollection();
     }
 
@@ -237,17 +238,7 @@ class User implements UserInterface
      */
     public function getOrganizations(): Collection
     {
-        return $this->organizations;
-    }
-
-    public function addOrganization(Organization $organization): self
-    {
-        if (!$this->organizations->contains($organization)) {
-            $this->organizations[] = $organization;
-            $organization->setOwner($this);
-        }
-
-        return $this;
+        return $this->memberships->map(fn (Member $member) => $member->organization());
     }
 
     public function disable(): self
@@ -308,11 +299,21 @@ class User implements UserInterface
      */
     public function firstOrganizationAlias(): Option
     {
-        $first = $this->organizations->first();
+        /** @var Member|false $first */
+        $first = $this->memberships->first();
         if ($first === false) {
             return Option::none();
         }
 
-        return Option::some($first->alias());
+        return Option::some($first->organization()->alias());
+    }
+
+    public function addMembership(Member $member): void
+    {
+        if (!$this->memberships->filter(fn (Member $m) => $m->userId()->equals($member->userId()))->isEmpty()) {
+            return;
+        }
+
+        $this->memberships->add($member);
     }
 }

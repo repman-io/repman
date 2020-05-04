@@ -18,7 +18,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Member
 {
-    public const ROLE_ADMIN = 'admin';
+    public const ROLE_OWNER = 'owner';
     public const ROLE_MEMBER = 'member';
 
     /**
@@ -28,14 +28,14 @@ class Member
     private UuidInterface $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User", inversedBy="memberships")
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private User $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="members")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     private Organization $organization;
 
@@ -61,6 +61,26 @@ class Member
         return $this->user->getEmail();
     }
 
+    public function userId(): UuidInterface
+    {
+        return $this->user->id();
+    }
+
+    public function user(): User
+    {
+        return $this->user;
+    }
+
+    public function organization(): Organization
+    {
+        return $this->organization;
+    }
+
+    public function isOwner(): bool
+    {
+        return $this->role === self::ROLE_OWNER;
+    }
+
     /**
      * @return array<int,string>
      */
@@ -68,7 +88,7 @@ class Member
     {
         return [
             self::ROLE_MEMBER,
-            self::ROLE_ADMIN,
+            self::ROLE_OWNER,
         ];
     }
 }

@@ -26,6 +26,7 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         self::assertEquals('Acme Inc.', $organization->name());
         self::assertEquals('acme-inc', $organization->alias());
         self::assertEquals($id, $organization->id());
-        self::assertTrue($organization->isOwnedBy($ownerId));
+        self::assertTrue($organization->isOwner($ownerId));
+        self::assertTrue($organization->isMember($ownerId));
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Entity;
 
+use Buddy\Repman\Entity\Organization;
+use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
@@ -77,5 +79,13 @@ final class UserTest extends TestCase
         $user = new User(Uuid::uuid4(), 'tEsT@buDDy.woRKs', '4f6a2491-244a-4aef-8ec9-8dc36f7a10ce', ['ROLE_USER']);
 
         self::assertEquals($user->getEmail(), 'test@buddy.works');
+    }
+
+    public function testIgnoreIfIsAlreadyMember(): void
+    {
+        $organization = new Organization(Uuid::uuid4(), $this->user, 'repman', 'repman');
+        $this->user->addMembership(new Member(Uuid::uuid4(), $this->user, $organization, Member::ROLE_MEMBER));
+
+        self::assertEquals(1, $this->user->getOrganizations()->count());
     }
 }
