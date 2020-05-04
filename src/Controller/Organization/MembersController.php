@@ -6,13 +6,14 @@ namespace Buddy\Repman\Controller\Organization;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\InviteMemberType;
+use Buddy\Repman\Form\Type\Organization\Member\ChangeRoleType;
 use Buddy\Repman\Message\Organization\Member\AcceptInvitation;
+use Buddy\Repman\Message\Organization\Member\ChangeRole;
 use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Message\Organization\Member\RemoveInvitation;
 use Buddy\Repman\Message\Organization\Member\RemoveMember;
-use Buddy\Repman\Query\Admin\Model\User as UserReadModel;
 use Buddy\Repman\Query\User\Model\Organization;
-use Buddy\Repman\Query\User\Model\Organization\Invitation;
+use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -122,13 +123,41 @@ final class MembersController extends AbstractController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/member/{user}", name="organization_remove_member", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
+     * @Route("/organization/{organization}/member/{member}", name="organization_remove_member", methods={"DELETE"}, requirements={"organization"="%organization_pattern%", "member"="%uuid_pattern%"})
      */
-    public function removeMember(Organization $organization, UserReadModel $user): Response
+    public function removeMember(Organization $organization, Member $member): Response
     {
-        $this->dispatchMessage(new RemoveMember($organization->id(), $user->id()));
-        $this->addFlash('success', sprintf('Member "%s" has been removed from organization', $user->email()));
+        $this->dispatchMessage(new RemoveMember($organization->id(), $member->userId()));
+        $this->addFlash('success', sprintf('Member "%s" has been removed from organization', $member->email()));
 
         return $this->redirectToRoute('organization_members', ['organization' => $organization->alias()]);
+    }
+
+    /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     * @Route("/organization/{organization}/member/{member}/role", name="organization_change_member_role", methods={"GET", "POST"}, requirements={"organization"="%organization_pattern%", "member"="%uuid_pattern%"})
+     */
+    public function changeRole(Organization $organization, Member $member, Request $request): Response
+    {
+        $form = $this->createForm(ChangeRoleType::class, ['role' => $member->role()]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->dispatchMessage(new ChangeRole(
+                $organization->id(),
+                $member->userId(),
+                $form->get('role')->getData()
+            ));
+
+            $this->addFlash('success', sprintf('Member "%s" role has been successfully changed.', $member->email()));
+
+            return $this->redirectToRoute('organization_members', ['organization' => $organization->alias()]);
+        }
+
+        return $this->render('organization/member/changeRole.twig', [
+            'organization' => $organization,
+            'member' => $member,
+            'form' => $form->createView(),
+        ]);
     }
 }

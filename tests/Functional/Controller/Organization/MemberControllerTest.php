@@ -89,7 +89,7 @@ final class MemberControllerTest extends FunctionalTestCase
 
         self::assertStringContainsString($email, $this->lastResponseBody());
 
-        $this->client->request('DELETE', $this->urlTo('organization_remove_member', ['organization' => 'repman', 'user' => $userId]));
+        $this->client->request('DELETE', $this->urlTo('organization_remove_member', ['organization' => 'repman', 'member' => $userId]));
         self::assertTrue(
             $this->client->getResponse()->isRedirect($this->urlTo('organization_members', ['organization' => 'repman']))
         );
@@ -97,5 +97,23 @@ final class MemberControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Member &quot;some@buddy.works&quot; has been removed from organization', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testChangeMemberRole(): void
+    {
+        $userId = $this->fixtures->addAcceptedMember($this->organizationId, $email = 'some@buddy.works', Member::ROLE_MEMBER);
+        $this->client->request('GET', $this->urlTo('organization_change_member_role', ['organization' => 'repman', 'member' => $userId]));
+
+        $this->client->submitForm('Change role', [
+            'role' => Member::ROLE_OWNER,
+        ]);
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_members', ['organization' => 'repman']))
+        );
+
+        $this->client->followRedirect();
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Member &quot;some@buddy.works&quot; role has been successfully changed', (string) $this->client->getResponse()->getContent());
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\Model;
 
 use Buddy\Repman\Query\User\Model\Organization\Member;
+use Munus\Control\Option;
 
 final class Organization
 {
@@ -70,5 +71,19 @@ final class Organization
         }
 
         return false;
+    }
+
+    /**
+     * @return Option<Member>
+     */
+    public function getMember(string $userId): Option
+    {
+        foreach ($this->members as $member) {
+            if ($member->userId() === $userId) {
+                return Option::some($member);
+            }
+        }
+
+        return Option::none();
     }
 }
