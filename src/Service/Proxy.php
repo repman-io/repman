@@ -78,7 +78,7 @@ final class Proxy
             $packageVersion = $packageData['version_normalized'] ?? $this->versionParser->normalize($packageData['version']);
             $packageDist = $packageData['dist'];
 
-            if ($packageVersion !== $normalizedVersion && isset($packageDist['url'])) {
+            if ($packageVersion !== $normalizedVersion && isset($packageDist['url'], $packageDist['reference'])) {
                 $this->distStorage->download($packageDist['url'], new Dist(
                     $this->name,
                     $package,
