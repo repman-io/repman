@@ -96,7 +96,7 @@ final class OrganizationController extends AbstractController
     public function packages(Organization $organization, Request $request): Response
     {
         $count = $this->packageQuery->count($organization->id());
-        if ($count === 0) {
+        if ($count === 0 && $organization->isOwner($this->getUser()->id()->toString())) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
         }
 
