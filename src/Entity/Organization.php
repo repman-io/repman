@@ -24,46 +24,46 @@ class Organization
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */
-    private UuidInterface $id;
+    private ?UuidInterface $id = null;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private ?\DateTimeImmutable $createdAt = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
      * @ORM\Column(type="string", unique=true, length=255)
      */
-    private string $alias;
+    private ?string $alias = null;
 
     /**
      * @var Collection<int,Package>|Package[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $packages;
+    private ?Collection $packages = null;
 
     /**
      * @var Collection<int,Token>|Token[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $tokens;
+    private ?Collection $tokens = null;
 
     /**
      * @var Collection<int,Invitation>|Invitation[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Invitation", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $invitations;
+    private ?Collection $invitations = null;
 
     /**
      * @var Collection<int,Member>|Member[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $members;
+    private ?Collection $members = null;
 
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
