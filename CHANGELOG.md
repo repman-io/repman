@@ -5,9 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+On next release:
+- [ ] update src/Kernel.php (REPMAN_VERSION)
+- [ ] update docker-compose.yml (image tags)
+
 ## [Unreleased]
+
+## [0.2.0] - 2020-05-05
 ### Added
-- WIP: organization members (#56)
+- Organization members (#56)
+
+### Changed
+- Lock php version to 7.4.5 (Docker) (#131)
+
+### Fixed
+- Fix emails headers and match password requirements (#136)
+- GitLab projects fetch - Add php curl extension to asible setup playbook (#133)
+- Don't try to download packages without reference (#132)
+- Fix database foreign keys (#127)
+- Add autorestart flag to consumer configuration (Ansible supervisor) (#126)
+- Return 404 when distribution file not found (#123)
+- Add missing directories for docker instance (#117)
 
 ## [0.1.2] - 2020-04-27
 ### Added
