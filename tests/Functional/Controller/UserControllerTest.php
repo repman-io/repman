@@ -31,8 +31,8 @@ final class UserControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Unlink Github', $this->lastResponseBody());
         self::assertStringContainsString('Change password', $this->lastResponseBody());
         self::assertStringContainsString('Current password', $this->lastResponseBody());
-        self::assertStringContainsString('Password', $this->lastResponseBody());
-        self::assertStringContainsString('Repeat Password', $this->lastResponseBody());
+        self::assertStringContainsString('New password', $this->lastResponseBody());
+        self::assertStringContainsString('Repeat new password', $this->lastResponseBody());
         self::assertStringContainsString('Delete Account', $this->lastResponseBody());
     }
 
