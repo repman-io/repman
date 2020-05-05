@@ -31,4 +31,9 @@ final class Member
     {
         return $this->role;
     }
+
+    public function isOwner(): bool
+    {
+        return $this->role === 'owner';
+    }
 }

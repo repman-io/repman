@@ -9,6 +9,10 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotNull;
 
 final class ChangeRoleType extends AbstractType
@@ -34,6 +38,16 @@ final class ChangeRoleType extends AbstractType
             ->add('change', SubmitType::class, [
                 'label' => 'Change role',
             ])
+            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($options): void {
+                if ((bool) $options['isLastOwner'] && $event->getData()['role'] === Member::ROLE_MEMBER) {
+                    $event->getForm()->get('role')->addError(new FormError('The role cannot be downgraded. Organisation must have at least one owner.'));
+                }
+            })
         ;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setRequired('isLastOwner')->addAllowedTypes('isLastOwner', 'bool');
     }
 }

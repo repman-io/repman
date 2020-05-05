@@ -99,6 +99,18 @@ final class MemberControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Member &quot;some@buddy.works&quot; has been removed from organization', (string) $this->client->getResponse()->getContent());
     }
 
+    public function testPreventRemoveLastOwner(): void
+    {
+        $this->client->request('DELETE', $this->urlTo('organization_remove_member', ['organization' => 'repman', 'member' => $this->userId]));
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_members', ['organization' => 'repman']))
+        );
+
+        $this->client->followRedirect();
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Member &quot;test@buddy.works&quot; cannot be removed. Organisation must have at least one owner.', (string) $this->client->getResponse()->getContent());
+    }
+
     public function testChangeMemberRole(): void
     {
         $userId = $this->fixtures->addAcceptedMember($this->organizationId, $email = 'some@buddy.works', Member::ROLE_MEMBER);
@@ -115,5 +127,17 @@ final class MemberControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Member &quot;some@buddy.works&quot; role has been successfully changed', (string) $this->client->getResponse()->getContent());
+    }
+
+    public function testPreventChangeLastOwnerRole(): void
+    {
+        $this->client->request('GET', $this->urlTo('organization_change_member_role', ['organization' => 'repman', 'member' => $this->userId]));
+
+        $this->client->submitForm('Change role', [
+            'role' => Member::ROLE_MEMBER,
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('The role cannot be downgraded. Organisation must have at least one owner.', (string) $this->client->getResponse()->getContent());
     }
 }

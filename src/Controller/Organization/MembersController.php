@@ -127,8 +127,12 @@ final class MembersController extends AbstractController
      */
     public function removeMember(Organization $organization, Member $member): Response
     {
-        $this->dispatchMessage(new RemoveMember($organization->id(), $member->userId()));
-        $this->addFlash('success', sprintf('Member "%s" has been removed from organization', $member->email()));
+        if ($organization->isLastOwner($member->userId())) {
+            $this->addFlash('danger', sprintf('Member "%s" cannot be removed. Organisation must have at least one owner.', $member->email()));
+        } else {
+            $this->dispatchMessage(new RemoveMember($organization->id(), $member->userId()));
+            $this->addFlash('success', sprintf('Member "%s" has been removed from organization', $member->email()));
+        }
 
         return $this->redirectToRoute('organization_members', ['organization' => $organization->alias()]);
     }
@@ -139,7 +143,7 @@ final class MembersController extends AbstractController
      */
     public function changeRole(Organization $organization, Member $member, Request $request): Response
     {
-        $form = $this->createForm(ChangeRoleType::class, ['role' => $member->role()]);
+        $form = $this->createForm(ChangeRoleType::class, ['role' => $member->role()], ['isLastOwner' => $organization->isLastOwner($member->userId())]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

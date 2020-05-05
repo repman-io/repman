@@ -201,6 +201,10 @@ class Organization
 
     public function removeMember(User $user): void
     {
+        if ($this->isLastOwner($user)) {
+            throw new \RuntimeException('Organisation must have at least one owner.');
+        }
+
         foreach ($this->members as $member) {
             if ($member->userId()->equals($user->id())) {
                 $this->members->removeElement($member);
@@ -211,6 +215,10 @@ class Organization
 
     public function changeRole(User $user, string $role): void
     {
+        if ($this->isLastOwner($user) && $role === Member::ROLE_MEMBER) {
+            throw new \RuntimeException('Organisation must have at least one owner.');
+        }
+
         foreach ($this->members as $member) {
             if ($member->userId()->equals($user->id())) {
                 $member->changeRole($role);
@@ -228,5 +236,17 @@ class Organization
         }
 
         return null;
+    }
+
+    private function isLastOwner(User $user): bool
+    {
+        $owners = $this->members->filter(fn (Member $member) => $member->isOwner());
+        if ($owners->count() > 1) {
+            return false;
+        }
+        /** @var Member $lastOwner */
+        $lastOwner = $owners->first();
+
+        return $lastOwner->userId()->equals($user->id());
     }
 }
