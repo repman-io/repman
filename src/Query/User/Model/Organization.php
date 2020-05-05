@@ -65,12 +65,19 @@ final class Organization
     public function isOwner(string $userId): bool
     {
         foreach ($this->members as $member) {
-            if ($member->role() === 'owner' && $member->userId() === $userId) {
+            if ($member->isOwner() && $member->userId() === $userId) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public function isLastOwner(string $userId): bool
+    {
+        $owners = array_values(array_filter($this->members, fn (Member $member) => $member->isOwner()));
+
+        return count($owners) === 1 && $owners[0]->userId() === $userId;
     }
 
     /**
