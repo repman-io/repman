@@ -35,11 +35,14 @@
                     <td>{{ member.role }}</td>
                     {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
                         <td>
+                            <a class="btn btn-warning btn-sm" href="{{ path('organization_change_member_role', {organization: organization.alias, member: member.userId}) }}">
+                                Change role
+                            </a>
                             <button
                                     class="btn btn-danger btn-sm"
                                     type="submit"
                                     data-target="confirmation"
-                                    data-action="{{ path('organization_remove_member', {organization: organization.alias, user: member.userId}) }}"
+                                    data-action="{{ path('organization_remove_member', {organization: organization.alias, member: member.userId}) }}"
                                     data-method="DELETE"
                             >
                                 Remove

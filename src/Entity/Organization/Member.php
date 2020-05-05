@@ -56,6 +56,15 @@ class Member
         $this->role = $role;
     }
 
+    public function changeRole(string $role): void
+    {
+        if (!in_array($role, self::availableRoles(), true)) {
+            throw new \InvalidArgumentException(sprintf('Unsupported role: %s', $role));
+        }
+
+        $this->role = $role;
+    }
+
     public function email(): string
     {
         return $this->user->getEmail();

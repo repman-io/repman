@@ -209,6 +209,16 @@ class Organization
         }
     }
 
+    public function changeRole(User $user, string $role): void
+    {
+        foreach ($this->members as $member) {
+            if ($member->userId()->equals($user->id())) {
+                $member->changeRole($role);
+                break;
+            }
+        }
+    }
+
     public function oauthToken(string $type): ?OAuthToken
     {
         foreach ($this->members->filter(fn (Member $member) => $member->isOwner()) as $owner) {

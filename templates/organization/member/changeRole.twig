@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}Change the role of {{ member.email }}{% endblock %}
+
+{% block content %}
+ <div class="row">
+    <div class="col-md-6 col-lg-4">
+        {{ form(form) }}
+    </div>
+</div>
+{% endblock %}
