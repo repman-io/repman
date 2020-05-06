@@ -108,3 +108,24 @@
     regexp='^;?pm.max_children'
     line='pm.max_children = {{ php_fpm_max_children }}'
   notify: restart php7-fpm
+
+- name: Set php-fpm start_servers
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/pool.d/www.conf
+    regexp='^;?pm.start_servers'
+    line='pm.start_servers = {{ php_fpm_start_servers }}'
+  notify: restart php7-fpm
+
+- name: Set php-fpm min_spare_servers
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/pool.d/www.conf
+    regexp='^;?pm.min_spare_servers'
+    line='pm.min_spare_servers = {{ php_fpm_min_spare_servers }}'
+  notify: restart php7-fpm
+
+- name: Set php-fpm max_spare_servers
+  lineinfile: >
+    dest=/etc/php/7.4/fpm/pool.d/www.conf
+    regexp='^;?pm.max_spare_servers'
+    line='pm.max_spare_servers = {{ php_fpm_max_spare_servers }}'
+  notify: restart php7-fpm
