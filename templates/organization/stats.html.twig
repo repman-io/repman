@@ -1,23 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block header %}{{ organization.name }} package installs (last 30 days){% endblock %}
+{% set days = days ?? 30 %}
+
+{% block header %}{{ organization.name }} package installs (last {{ days }} days){% endblock %}
 
 {% block header_btn %}
-{% set days = days ?? 30 %}
-    <select class="form-control period-select">
+    <select class="form-control period-select selectpicker" data-style="btn-secondary">
         <option {{ days == 7 ? 'selected="selected"' : '' }} value="7">last 7 days</option>
         <option {{ days == 30 ? 'selected="selected"' : '' }} value="30">last 30 days</option>
         <option {{ days == 90 ? 'selected="selected"' : '' }} value="90">last 90 days</option>
         <option {{ days == 365 ? 'selected="selected"' : '' }} value="365">last year</option>
     </select>
-    <script>
-        window.onload = function() {
-            $('.period-select').on('change', function (e) {
-                const days = e.target.value;
-                window.location.href = `{{ app.request.pathinfo }}?days=${days}`;
-            });
-        };
-    </script>
 {% endblock %}
 
 {% block content %}
@@ -31,48 +24,9 @@
         Last {{ days ?? 30 }} days installs: {{ installs.daysTotal }}<br />
         <strong>Total installs: {{ installs.total }}</strong>
     </p>
+{% endblock %}
 
-    <script type="text/javascript" src="{{ asset('dist/js/apexcharts.min.js') }}"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            window.ApexCharts && (new ApexCharts(document.getElementById('chart-installs'), {
-                chart: {
-                    type: "area",
-                    fontFamily: 'inherit',
-                    height: 440,
-                    parentHeightOffset: 0,
-                    toolbar: {
-                        show: false,
-                    },
-                    animations: {
-                        enabled: false
-                    },
-                },
-                fill: {
-                    opacity: .16,
-                    type: 'solid'
-                },
-                dataLabels: {
-                    enabled: false,
-                },
-                stroke: {
-                    width: 2,
-                    lineCap: "round",
-                    curve: "smooth",
-                },
-                series: [{
-                    name: "Installs",
-                    data: [{{ installs.days | map(day => day.installs) | join(',') }}]
-                }],
-                xaxis: {
-                    type: 'datetime',
-                },
-                labels: [{{ installs.days | map(day => "'#{day.date}'") | join(',') | raw }}],
-                colors: ["#206bc4"],
-                legend: {
-                    show: false,
-                },
-            })).render();
-        });
-    </script>
+{% block javascripts %}
+<script type="text/javascript" src="{{ asset('dist/js/apexcharts.min.js') }}"></script>
+{% include 'component/js/stats.js.twig' %}
 {% endblock %}

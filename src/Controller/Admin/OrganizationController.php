@@ -52,6 +52,7 @@ final class OrganizationController extends AbstractController
 
         return $this->render('admin/stats.html.twig', [
             'installs' => $this->organizationQuery->getInstalls($days),
+            'days' => $days,
         ]);
     }
 }

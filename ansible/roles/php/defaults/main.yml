@@ -26,4 +26,7 @@ php_packages:
   - php{{ php_version }}-mbstring
   - php{{ php_version }}-zip
 
-php_fpm_max_children: 25
+php_fpm_max_children: 45
+php_fpm_start_servers: 8
+php_fpm_min_spare_servers: 4
+php_fpm_max_spare_servers: 8

@@ -1,29 +1,29 @@
 {% set current_route = app.request.get('_route') %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-        <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-        <meta http-equiv="Content-Language" content="en"/>
-        <meta name="msapplication-TileColor" content="#206bc4"/>
-        <meta name="theme-color" content="#206bc4"/>
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-        <meta name="apple-mobile-web-app-capable" content="yes"/>
-        <meta name="mobile-web-app-capable" content="yes"/>
-        <meta name="HandheldFriendly" content="True"/>
-        <meta name="MobileOptimized" content="320"/>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta http-equiv="Content-Language" content="en"/>
+    <meta name="msapplication-TileColor" content="#206bc4"/>
+    <meta name="theme-color" content="#206bc4"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="HandheldFriendly" content="True"/>
+    <meta name="MobileOptimized" content="320"/>
 
-        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
-        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
-        <title>{% block title %}Repman - PHP Repository Manager{% endblock %}</title>
-        {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('dist/css/tabler.min.css') }}">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
-        {% endblock %}
-    </head>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+    <title>{% block title %}Repman - PHP Repository Manager{% endblock %}</title>
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('dist/css/tabler.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+    {% endblock %}
+</head>
+<body class="antialiased">
     {% block body %}
-    <body class="antialiased">
     <div class="wrapper">
         <div class="content">
             <header class="topnav">
@@ -46,42 +46,32 @@
                             {% if organization is defined %}
                                 <li class="nav-item">
                                     <a class="nav-link {{ current_route == 'organization_overview' ? 'active' : '' }}" href="{{ path('organization_overview', {"organization":organization.alias}) }}">
-                                        <span class="nav-icon">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                                        </span>
+                                        <span class="nav-icon">{% include 'svg/home.svg' %}</span>
                                         <span class="d-none d-sm-block">Overview</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ current_route == 'organization_packages' ? 'active' : '' }}" href="{{ path('organization_packages', {"organization":organization.alias}) }}">
-                                        <span class="nav-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                                        </span>
+                                        <span class="nav-icon">{% include 'svg/package.svg' %}</span>
                                         <span class="d-none d-sm-block">Packages</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ current_route == 'organization_tokens' ? 'active' : '' }}" href="{{ path('organization_tokens', {"organization":organization.alias}) }}">
-                                        <span class="nav-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                        </span>
+                                        <span class="nav-icon">{% include 'svg/lock.svg' %}</span>
                                         <span class="d-none d-sm-block">Tokens</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link {{ current_route == 'organization_members' ? 'active' : '' }}" href="{{ path('organization_members', {"organization":organization.alias}) }}">
-                                        <span class="nav-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                                        </span>
+                                        <span class="nav-icon">{% include 'svg/users.svg' %}</span>
                                         <span class="d-none d-sm-block">Members</span>
                                     </a>
                                 </li>
                                 {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
                                     <li class="nav-item">
                                         <a class="nav-link {{ current_route == 'organization_settings' ? 'active' : '' }}" href="{{ path('organization_settings', {"organization":organization.alias}) }}">
-                                            <span class="nav-icon">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
-                                            </span>
+                                            <span class="nav-icon">{% include 'svg/sliders.svg' %}</span>
                                             <span class="d-none d-sm-block">Settings</span>
                                         </a>
                                     </li>
@@ -89,9 +79,7 @@
                             {% else %}
                                 <li class="nav-item">
                                     <a class="nav-link {{ current_route == 'index' ? 'active' : '' }}" href="{{ path('index') }}">
-                                    <span class="nav-icon">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                                    </span>
+                                        <span class="nav-icon">{% include 'svg/home.svg' %}</span>
                                         <span class="d-none d-sm-block">Home</span>
                                     </a>
                                 </li>
@@ -131,65 +119,20 @@
             {% endblock page %}
         </div>
     </div>
+    {% endblock body %}
+    {% include 'component/confirmationModal.html.twig' %}
 
-    <!-- Confirmation modal -->
-    <div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Title</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to perform this action?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form id="modal-action-form" class="d-inline" action="action" method="POST">
-                    <input type="hidden" name="_method" value="method">
-                    <button type="submit" class="btn btn-primary" id="confirmation-btn">Ok</button>
-                </form>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    {% if ga_tracking is not empty %}
-        <script>
-            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-            ga('create', '{{ ga_tracking }}', 'auto');
-            ga('send', 'pageview');
-        </script>
-        <script async src='https://www.google-analytics.com/analytics.js'></script>
-    {% endif %}
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/js/bootstrap-select.min.js" integrity="sha256-+o/X+QCcfTkES5MroTdNL5zrLNGb3i4dYdWPWuq6whY=" crossorigin="anonymous"></script>
-    <script>
-        $('[data-target="confirmation"]').on('click', function() {
-            const confirmationModalId = '#confirmation-modal';
-            const $source = $(this);
-            const $modal = $(`${confirmationModalId}`);
-            const $modalForm = $(`${confirmationModalId} form`);
-            const $modalTitle = $(`${confirmationModalId} .modal-title`);
 
-            $modalForm.prop('action', $source.data('action'));
-            $modalForm.children('[name=_method]').val($source.data('method'));
-            $modalTitle.html($source.data('title') || 'Confirm action');
+    {% if ga_tracking is not empty %}
+        <script async src='https://www.google-analytics.com/analytics.js'></script>
+        <script>{% include 'component/js/ga.js' %}</script>
+    {% endif %}
 
-            $modal.modal('show');
-        });
-
-        $('.copy-to-clipboard').click(function() {
-            $($(this).data('clipboard-target')).select();
-            document.execCommand('copy');
-        });
-    </script>
-
+    <script>{% include 'component/js/base.js' %}</script>
     {% block javascripts %}{% endblock %}
-    </body>
-    {% endblock body %}
+</body>
 </html>

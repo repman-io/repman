@@ -4,14 +4,14 @@
 
 {% block header_btn %}
     <a href="{{ url('organizations_stats', {"organization":organization.alias}) }}" class="btn btn-primary">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
-        Package stats
+        {% include 'svg/bar-chart.svg' %} Package stats
     </a>
 {% endblock %}
 
 {% block token %}
     {% if tokenCount <= 1 %}
-        <span class="token d-none">{{ organization.token }}</span><button class="btn btn-primary btn-sm show-token">Show token</button>
+        <span class="token d-none" data-type="token">{{ organization.token }}</span>
+        <button class="btn btn-primary btn-sm show-token">Show token</button>
     {% else %}
         <a href="{{ path('organization_tokens', {organization: organization.alias}) }}" class="btn btn-primary btn-sm">Get token</a>
     {% endif %}
@@ -47,12 +47,4 @@
             </a> to allow users to access your organization packages
         {% endif %}
     </div>
-    <script type="text/javascript">
-        window.onload = function() {
-            $('.show-token').click(function(){
-                $(this).parent().find('span.token').removeClass('d-none');
-                $(this).remove();
-            });
-        };
-    </script>
 {% endblock %}
