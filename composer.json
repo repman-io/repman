@@ -9,6 +9,8 @@
         "ext-iconv": "*",
         "ext-intl": "*",
         "ext-zip": "*",
+        "ext-curl": "*",
+        "ext-pdo_pgsql": "*",
         "bitbucket/client": "^2.1",
         "buddy-works/buddy-works-php-api": "^1.3",
         "buddy-works/oauth2-client": "^0.1",
