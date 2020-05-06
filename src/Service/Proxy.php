@@ -77,6 +77,23 @@ final class Proxy
         return $this->metadataProvider->fromUrl($this->getUrl($providerPath->get()));
     }
     /**
+     * @return Option<array<mixed>>
+     */
+    public function providerDataV2(string $package, int $expireTime = self::PACKAGES_EXPIRE_TIME): Option
+    {
+        if (!($fromPath = $this->metadataProvider->fromPath($package, $this->url, $expireTime))->isEmpty()) {
+            return $fromPath;
+        }
+
+        $providerPath = $this->getProviderPathV2($package);
+        if ($providerPath->isEmpty()) {
+            return Option::none();
+        }
+
+        return $this->metadataProvider->fromUrl($this->getUrl($providerPath->get()));
+    }
+
+    /**
      * @return GenericList<string>
      */
     public function syncedPackages(): GenericList
@@ -146,6 +163,25 @@ final class Proxy
                 )
             );
         }
+        return Option::none();
+    }
+
+    /**
+     * @return Option<string>
+     */
+    private function getProviderPathV2(string $packageName): Option
+    {
+        $root = $this->getRootPackages();
+        if (isset($root['metadata-url'])) {
+            return Option::some(
+                (string) str_replace(
+                    ['%package%'],
+                    [$packageName],
+                    $root['metadata-url']
+                )
+            );
+        }
+
         return Option::none();
     }
 
