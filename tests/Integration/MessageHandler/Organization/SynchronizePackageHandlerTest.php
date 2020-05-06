@@ -25,7 +25,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
         );
 
         $handler = $this->container()->get(SynchronizePackageHandler::class);
-        $handler(new SynchronizePackage($packageId));
+        $handler->__invoke(new SynchronizePackage($packageId));
         $this->container()->get('doctrine.orm.entity_manager')->flush();
 
         /** @var Package $package */
@@ -40,12 +40,15 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
         self::assertEquals($date->format('Y-m-d H:i:s'), $releaseDate->format('Y-m-d H:i:s'));
     }
 
-    public function testPackageNotFound(): void
+    public function testHandlePackageNotFoundWithoutError(): void
     {
-        self::expectException(\InvalidArgumentException::class);
-        self::expectExceptionMessage('Package e0ea4d32-4144-4a67-9310-6dae483a6377 not found');
+        $exception = null;
+        try {
+            $handler = $this->container()->get(SynchronizePackageHandler::class);
+            $handler->__invoke(new SynchronizePackage('e0ea4d32-4144-4a67-9310-6dae483a6377'));
+        } catch (\Exception $exception) {
+        }
 
-        $handler = $this->container()->get(SynchronizePackageHandler::class);
-        $handler(new SynchronizePackage('e0ea4d32-4144-4a67-9310-6dae483a6377'));
+        self::assertNull($exception);
     }
 }

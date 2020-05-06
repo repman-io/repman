@@ -30,4 +30,16 @@ final class AddGitLabHookHandlerTest extends IntegrationTestCase
 
         self::assertInstanceOf(\DateTimeImmutable::class, $package->get()->webhookCreatedAt());
     }
+
+    public function testHandlePackageNotFoundWithoutError(): void
+    {
+        $exception = null;
+        try {
+            $handler = $this->container()->get(AddGitLabHookHandler::class);
+            $handler->__invoke(new AddGitLabHook('e0ea4d32-4144-4a67-9310-6dae483a6377'));
+        } catch (\Exception $exception) {
+        }
+
+        self::assertNull($exception);
+    }
 }

@@ -31,4 +31,13 @@ final class RemoveGitHubHookHandlerTest extends IntegrationTestCase
 
         self::assertEquals(null, $package->get()->webhookCreatedAt());
     }
+
+    public function testPackageNotFound(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Package 9691e73b-1738-42fe-9d5b-31d0dadf7407 not found.');
+
+        $handler = $this->container()->get(RemoveGitHubHookHandler::class);
+        $handler->__invoke(new RemoveGitHubHook('9691e73b-1738-42fe-9d5b-31d0dadf7407'));
+    }
 }
