@@ -9,6 +9,8 @@
         "ext-iconv": "*",
         "ext-intl": "*",
         "ext-zip": "*",
+        "ext-curl": "*",
+        "ext-pdo_pgsql": "*",
         "bitbucket/client": "^2.1",
         "buddy-works/buddy-works-php-api": "^1.3",
         "buddy-works/oauth2-client": "^0.1",
@@ -97,9 +99,25 @@
             "Buddy\\Repman\\Tests\\": "tests/"
         }
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.repman.io"
+        },
+        {
+            "packagist": false
+        }
+    ],
     "scripts": {
         "check-cs": [
             "php-cs-fixer fix --dry-run --diff"
+        ],
+        "coverage-ci": [
+            "phpunit --colors=never --coverage-clover 'clover.xml'",
+            "bin/coverage-checker clover.xml 99"
+        ],
+        "coverage-html": [
+            "@phpunit --coverage-html coverage"
         ],
         "fix-cs": [
             "php-cs-fixer fix"
@@ -111,12 +129,11 @@
         "phpunit": [
             "phpunit --colors=always"
         ],
-        "coverage-html": [
-            "@phpunit --coverage-html coverage"
-        ],
-        "coverage-ci": [
-            "phpunit --colors=never --coverage-clover 'clover.xml'",
-            "bin/coverage-checker clover.xml 99"
+        "proxy-setup": [
+            "symfony proxy:start",
+            "symfony proxy:domain:attach repman",
+            "symfony proxy:domain:attach repo.repman",
+            "export HTTPS_PROXY=http://127.0.0.1:7080"
         ],
         "reset-db": [
             "bin/console doctrine:database:drop --force --if-exists",
@@ -124,21 +141,16 @@
             "bin/console doctrine:migrations:migrate --no-interaction",
             "bin/console messenger:setup-transports"
         ],
+        "security": [
+            "bin/console security:check"
+        ],
         "tests": [
             "@check-cs",
             "@phpstan",
             "@coverage-ci",
             "bin/console lint:twig templates --show-deprecations",
+            "rm -rf var/cache/prod",
             "bin/console cache:warmup --env=prod"
-        ],
-        "security": [
-            "bin/console security:check"
-        ],
-        "proxy-setup": [
-            "symfony proxy:start",
-            "symfony proxy:domain:attach repman",
-            "symfony proxy:domain:attach repo.repman",
-            "export HTTPS_PROXY=http://127.0.0.1:7080"
         ]
     }
 }

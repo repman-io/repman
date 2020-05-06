@@ -9,13 +9,16 @@ use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
-use Buddy\Repman\Message\Organization\InviteUser;
+use Buddy\Repman\Message\Organization\Member\AcceptInvitation;
+use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
+use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
@@ -92,6 +95,15 @@ final class FixturesManager
         $this->dispatchMessage(new InviteUser($email, $role, $orgId, $token));
     }
 
+    public function addAcceptedMember(string $orgId, string $email, string $role = Member::ROLE_MEMBER): string
+    {
+        $token = Uuid::uuid4()->toString();
+        $this->dispatchMessage(new InviteUser($email, $role, $orgId, $token));
+        $this->dispatchMessage(new AcceptInvitation($token, $userId = $this->createUser($email)));
+
+        return $userId;
+    }
+
     public function createPackage(string $id, string $organization = 'buddy'): void
     {
         $this->dispatchMessage(
@@ -140,6 +152,19 @@ final class FixturesManager
                 'Composer 19.10'
             ));
         });
+    }
+
+    /**
+     * @param AddDownloads\Package[] $packages
+     */
+    public function addProxyPackageDownload(array $packages, \DateTimeImmutable $date): void
+    {
+        $this->container->get(AddDownloadsHandler::class)->__invoke(new AddDownloads(
+            $packages,
+            $date,
+            '127.0.0.1',
+            'Repman Fixtures'
+        ));
     }
 
     public function disableUser(string $id): void

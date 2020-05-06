@@ -181,6 +181,7 @@ final class BitbucketControllerTest extends FunctionalTestCase
         BitbucketOAuth::mockRefreshTokenResponse('new-token', $this->container());
 
         $this->client->request('GET', $this->urlTo('refresh_oauth_token', ['type' => 'bitbucket']));
+
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'bitbucket'])));
 
         /** @var OAuthToken $token */

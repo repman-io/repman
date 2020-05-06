@@ -16,7 +16,7 @@ services:
 
   app:
     restart: always
-    image: buddy/repman:0.1.1
+    image: buddy/repman:0.2.0
     command: >
       bash -c 'bin/console cache:clear &&
       bin/console cache:warmup &&
@@ -31,7 +31,7 @@ services:
 
   consumer:
     restart: always
-    image: buddy/repman:0.1.1
+    image: buddy/repman:0.2.0
     command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
     env_file: .env.docker
     volumes:
@@ -41,7 +41,7 @@ services:
 
   cron:
     restart: always
-    image: buddy/repman:0.1.1
+    image: buddy/repman:0.2.0
     command: >
       bash -c 'echo "*/5 * * * * /app/bin/console repman:proxy:sync-releases" | crontab - && crond -f -L /dev/stdout'
     env_file: .env.docker

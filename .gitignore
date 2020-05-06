@@ -4,7 +4,8 @@
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
-/var/
+/var/*
+!/var/.gitkeep
 /vendor/
 ###< symfony/framework-bundle ###
 
@@ -32,7 +33,8 @@
 
 ###> Docker ###
 docker-compose.*.yml
-/docker/logs
+/docker/logs/nginx/*
+!/docker/logs/nginx/.gitkeep
 /docker/nginx/ssl/certs/*
 !/docker/nginx/ssl/certs/.gitkeep
 /docker/nginx/ssl/private/*

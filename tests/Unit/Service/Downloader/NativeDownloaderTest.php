@@ -25,4 +25,11 @@ final class NativeDownloaderTest extends TestCase
             (new NativeDownloader())->getContents('/tmp/not-exists')
         ));
     }
+
+    public function testNotFoundHandler(): void
+    {
+        $this->expectException(\LogicException::class);
+
+        (new NativeDownloader())->getContents('https://repman.io/not-exist', [], function (): void {throw new \LogicException('Not found'); });
+    }
 }

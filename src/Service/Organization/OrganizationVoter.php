@@ -22,7 +22,10 @@ final class OrganizationVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return $attribute === 'ROLE_ORGANIZATION_MEMBER';
+        return in_array($attribute, [
+            'ROLE_ORGANIZATION_MEMBER',
+            'ROLE_ORGANIZATION_OWNER',
+        ], true);
     }
 
     /**
@@ -31,17 +34,30 @@ final class OrganizationVoter extends Voter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        if (!$user instanceof User || !$subject instanceof Request) {
+        if (!$user instanceof User) {
             return false;
         }
+        $userId = $user->id()->toString();
 
-        return $this->organizationQuery
-            ->getByAlias($subject->get('organization'))
-            ->map(function (Organization $organization) use ($user, $subject): bool {
-                $subject->attributes->set('organization', $organization);
+        if ($subject instanceof Organization) {
+            return $attribute === 'ROLE_ORGANIZATION_OWNER' ? $subject->isOwner($userId) : $subject->isMember($userId);
+        }
 
-                return $organization->isOwnedBy($user->id()->toString());
-            })
-            ->getOrElse(false);
+        if ($subject instanceof Request) {
+            return $this->organizationQuery
+                ->getByAlias($subject->get('organization'))
+                ->map(function (Organization $organization) use ($userId, $subject, $attribute): bool {
+                    $subject->attributes->set('organization', $organization);
+
+                    if ($attribute === 'ROLE_ORGANIZATION_OWNER') {
+                        return $organization->isOwner($userId);
+                    }
+
+                    return $organization->isMember($userId);
+                })
+                ->getOrElse(false);
+        }
+
+        return false;
     }
 }

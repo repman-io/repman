@@ -4,20 +4,30 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use Buddy\Repman\Query\User\Model\Organization\Member;
+use Munus\Control\Option;
+
 final class Organization
 {
     private string $id;
     private string $name;
     private string $alias;
-    private string $ownerId;
+    /**
+     * @var Member[]
+     */
+    private array $members;
+
     private ?string $token;
 
-    public function __construct(string $id, string $name, string $alias, string $ownerId, ?string $token = null)
+    /**
+     * @param Member[] $members
+     */
+    public function __construct(string $id, string $name, string $alias, array $members, ?string $token = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
-        $this->ownerId = $ownerId;
+        $this->members = array_map(fn (Member $member) => $member, $members);
         $this->token = $token;
     }
 
@@ -41,8 +51,46 @@ final class Organization
         return $this->token;
     }
 
-    public function isOwnedBy(string $userId): bool
+    public function isMember(string $userId): bool
     {
-        return $this->ownerId === $userId;
+        foreach ($this->members as $member) {
+            if ($member->userId() === $userId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isOwner(string $userId): bool
+    {
+        foreach ($this->members as $member) {
+            if ($member->isOwner() && $member->userId() === $userId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isLastOwner(string $userId): bool
+    {
+        $owners = array_values(array_filter($this->members, fn (Member $member) => $member->isOwner()));
+
+        return count($owners) === 1 && $owners[0]->userId() === $userId;
+    }
+
+    /**
+     * @return Option<Member>
+     */
+    public function getMember(string $userId): Option
+    {
+        foreach ($this->members as $member) {
+            if ($member->userId() === $userId) {
+                return Option::some($member);
+            }
+        }
+
+        return Option::none();
     }
 }

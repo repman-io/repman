@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization\Invitation;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -23,57 +24,50 @@ class Organization
      * @ORM\Id
      * @ORM\Column(type="uuid", unique=true)
      */
-    private UuidInterface $id;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User", inversedBy="organizations")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private User $owner;
+    private ?UuidInterface $id = null;
 
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private ?\DateTimeImmutable $createdAt = null;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private string $name;
+    private ?string $name = null;
 
     /**
      * @ORM\Column(type="string", unique=true, length=255)
      */
-    private string $alias;
+    private ?string $alias = null;
 
     /**
      * @var Collection<int,Package>|Package[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $packages;
+    private ?Collection $packages = null;
 
     /**
      * @var Collection<int,Token>|Token[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $tokens;
+    private ?Collection $tokens = null;
 
     /**
      * @var Collection<int,Invitation>|Invitation[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Invitation", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $invitations;
+    private ?Collection $invitations = null;
 
     /**
      * @var Collection<int,Member>|Member[]
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
-    private Collection $members;
+    private ?Collection $members = null;
 
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
         $this->id = $id;
-        $this->setOwner($owner->addOrganization($this));
         $this->name = $name;
         $this->alias = $alias;
         $this->createdAt = new \DateTimeImmutable();
@@ -81,23 +75,13 @@ class Organization
         $this->tokens = new ArrayCollection();
         $this->invitations = new ArrayCollection();
         $this->members = new ArrayCollection();
+        $this->members->add($member = new Member(Uuid::uuid4(), $owner, $this, Member::ROLE_OWNER));
+        $owner->addMembership($member);
     }
 
     public function id(): UuidInterface
     {
         return $this->id;
-    }
-
-    public function setOwner(User $owner): self
-    {
-        $this->owner = $owner;
-
-        return $this;
-    }
-
-    public function owner(): User
-    {
-        return $this->owner;
     }
 
     public function name(): string
@@ -175,17 +159,29 @@ class Organization
         $this->alias = $alias;
     }
 
-    public function inviteUser(string $email, string $role, string $token): void
+    public function inviteUser(string $email, string $role, string $token): bool
     {
         if ($this->invitations->exists(fn (int $key, Invitation $invitation) => $invitation->email() === $email)) {
-            return;
+            return false;
         }
 
         if ($this->members->exists(fn (int $key, Member $member) => $member->email() === $email)) {
-            return;
+            return false;
         }
 
         $this->invitations->add(new Invitation($token, $email, $this, $role));
+
+        return true;
+    }
+
+    public function removeInvitation(string $token): void
+    {
+        foreach ($this->invitations as $invitation) {
+            if ($invitation->token() === $token) {
+                $this->invitations->removeElement($invitation);
+                break;
+            }
+        }
     }
 
     public function acceptInvitation(string $token, User $user): void
@@ -195,7 +191,62 @@ class Organization
             return;
         }
 
+        if ($invitation->email() !== $user->getEmail()) {
+            return;
+        }
+
         $this->members->add(new Member(Uuid::uuid4(), $user, $this, $invitation->role()));
         $this->invitations->removeElement($invitation);
+    }
+
+    public function removeMember(User $user): void
+    {
+        if ($this->isLastOwner($user)) {
+            throw new \RuntimeException('Organisation must have at least one owner.');
+        }
+
+        foreach ($this->members as $member) {
+            if ($member->userId()->equals($user->id())) {
+                $this->members->removeElement($member);
+                break;
+            }
+        }
+    }
+
+    public function changeRole(User $user, string $role): void
+    {
+        if ($this->isLastOwner($user) && $role === Member::ROLE_MEMBER) {
+            throw new \RuntimeException('Organisation must have at least one owner.');
+        }
+
+        foreach ($this->members as $member) {
+            if ($member->userId()->equals($user->id())) {
+                $member->changeRole($role);
+                break;
+            }
+        }
+    }
+
+    public function oauthToken(string $type): ?OAuthToken
+    {
+        foreach ($this->members->filter(fn (Member $member) => $member->isOwner()) as $owner) {
+            if ($owner->user()->oauthToken($type) !== null) {
+                return $owner->user()->oauthToken($type);
+            }
+        }
+
+        return null;
+    }
+
+    private function isLastOwner(User $user): bool
+    {
+        $owners = $this->members->filter(fn (Member $member) => $member->isOwner());
+        if ($owners->count() > 1) {
+            return false;
+        }
+        /** @var Member $lastOwner */
+        $lastOwner = $owners->first();
+
+        return $lastOwner->userId()->equals($user->id());
     }
 }

@@ -27,17 +27,10 @@ final class RestGitLabApi implements GitLabApi
     {
         $this->client->authenticate($accessToken, Client::AUTH_OAUTH_TOKEN);
 
-        return new Projects(array_map(function (array $project): Project {
-            return new Project(
-                $project['id'],
-                $project['path_with_namespace'],
-                $project['web_url']
-            );
-        }, $this->pager->fetchAll($this->client->projects(), 'all', [[
-            'simple' => true,
-            'membership' => true,
-            'order_by' => 'last_activity_at',
-        ]])));
+        return new Projects(array_merge(
+            $this->fetchAllProjects(['owned' => true]),
+            $this->fetchAllProjects(['membership' => true])
+        ));
     }
 
     public function addHook(string $accessToken, int $projectId, string $hookUrl): void
@@ -65,5 +58,26 @@ final class RestGitLabApi implements GitLabApi
                 $this->client->projects()->removeHook($projectId, $hook['id']);
             }
         }
+    }
+
+    /**
+     * @param array<string,bool> $options
+     *
+     * @return Project[]
+     */
+    private function fetchAllProjects(array $options = []): array
+    {
+        $fetchOptions = array_merge([
+            'simple' => true,
+            'order_by' => 'last_activity_at',
+        ], $options);
+
+        return array_map(function (array $project): Project {
+            return new Project(
+                $project['id'],
+                $project['path_with_namespace'],
+                $project['web_url']
+            );
+        }, $this->pager->fetchAll($this->client->projects(), 'all', [$fetchOptions]));
     }
 }

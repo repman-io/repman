@@ -31,6 +31,7 @@ use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\ExceptionHandler;
 use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -95,7 +96,7 @@ final class OrganizationController extends AbstractController
     public function packages(Organization $organization, Request $request): Response
     {
         $count = $this->packageQuery->count($organization->id());
-        if ($count === 0) {
+        if ($count === 0 && $organization->isOwner($this->getUser()->id()->toString())) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
         }
 
@@ -119,6 +120,7 @@ final class OrganizationController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/{package}", name="organization_package_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
     public function removePackage(Organization $organization, Package $package): Response
@@ -247,6 +249,7 @@ final class OrganizationController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/settings", name="organization_settings", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function settings(Organization $organization, Request $request): Response
@@ -277,6 +280,7 @@ final class OrganizationController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}", name="organization_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
     public function removeOrganization(Organization $organization): Response

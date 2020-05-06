@@ -23,4 +23,18 @@ final class MemberTest extends TestCase
             'bad-role'
         );
     }
+
+    public function testRoleValidationOnRoleChange(): void
+    {
+        $member = new Member(
+            Uuid::uuid4(),
+            $user = new User(Uuid::uuid4(), 'test@buddy.works', 'token', []),
+            new Organization(Uuid::uuid4(), $user, 'repman', 'repman'),
+            Member::ROLE_OWNER
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $member->changeRole('invalid');
+    }
 }

@@ -48,6 +48,15 @@
         "uid": 3420230,
         "notification-url": "https:\/\/packagist.org\/downloads\/"
       },
+      "2.0.0": {
+        "version": "2.0.0",
+        "dist":{
+          "type": "zip",
+          "url": "https:\/\/api.github.com\/repos\/buddy-works\/repman\/zipball\/not-found",
+          "reference": "not-found",
+          "shasum": ""
+        }
+      },
       "0.1.2": {
         "name": "buddy-works\/repman",
         "description": "Power of object-oriented programming with the elegance of functional programming.",

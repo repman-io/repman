@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\MessageHandler\Organization;
+namespace Buddy\Repman\MessageHandler\Organization\Member;
 
-use Buddy\Repman\Message\Organization\AcceptInvitation;
+use Buddy\Repman\Message\Organization\Member\AcceptInvitation;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;

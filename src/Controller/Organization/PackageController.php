@@ -19,6 +19,7 @@ use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\GitLabApi;
 use Http\Client\Exception as HttpException;
 use Ramsey\Uuid\Uuid;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -33,6 +34,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 final class PackageController extends AbstractController
 {
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/new/{type?}", name="organization_package_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function packageNew(Organization $organization, Request $request, GithubApi $githubApi, GitlabApi $gitlabApi, BitbucketApi $bitbucketApi, ?string $type): Response
@@ -78,7 +80,13 @@ final class PackageController extends AbstractController
                 return $response;
             }
         } catch (HttpException $exception) {
-            $this->addFlash('danger', sprintf('Failed to fetch repositories (reason: %s). Please try again. If the problem persists, try to remove Repman OAuth application from your provider and try again.', $exception->getMessage()));
+            $this->addFlash('danger', sprintf(
+                'Failed to fetch repositories (reason: %s).
+                Please try again. If the problem persists, try to remove Repman OAuth application
+                from your provider or unlink %s integration in your Profile and try again.',
+                $exception->getMessage(),
+                \ucfirst((string) $type)
+            ));
             $form->get('type')->setData(null);
         }
 

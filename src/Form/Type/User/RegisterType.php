@@ -35,7 +35,7 @@ final class RegisterType extends AbstractType
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match',
-                'first_options' => ['label' => 'Password'],
+                'first_options' => ['label' => 'Password', 'help' => 'at least 6 characters required'],
                 'second_options' => ['label' => 'Repeat Password'],
                 'constraints' => [
                     new NotBlank([
