@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 final class MembersController extends AbstractController
 {
@@ -59,7 +58,8 @@ final class MembersController extends AbstractController
         if ($organization->isEmpty()) {
             $this->addFlash('danger', 'Invitation not found or belongs to different user');
             $this->tokenStorage->setToken();
-            throw new AuthenticationException();
+
+            return $this->redirectToRoute('app_login');
         }
 
         $this->dispatchMessage(new AcceptInvitation($token, $user->id()->toString()));

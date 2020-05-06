@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\MessageHandler\Organization\Package;
 
+use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Repository\PackageRepository;
@@ -27,7 +28,11 @@ final class AddGitLabHookHandler implements MessageHandlerInterface
 
     public function __invoke(AddGitLabHook $message): void
     {
-        $package = $this->packages->getById(Uuid::fromString($message->packageId()));
+        $package = $this->packages->find(Uuid::fromString($message->packageId()));
+        if (!$package instanceof Package) {
+            return;
+        }
+
         $this->api->addHook(
             $package->oauthToken(),
             $package->metadata(Metadata::GITLAB_PROJECT_ID),
