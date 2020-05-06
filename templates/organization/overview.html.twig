@@ -11,7 +11,8 @@
 
 {% block token %}
     {% if tokenCount <= 1 %}
-        <span class="token d-none">{{ organization.token }}</span><button class="btn btn-primary btn-sm show-token">Show token</button>
+        <span class="token d-none" data-type="token">{{ organization.token }}</span>
+        <button class="btn btn-primary btn-sm show-token">Show token</button>
     {% else %}
         <a href="{{ path('organization_tokens', {organization: organization.alias}) }}" class="btn btn-primary btn-sm">Get token</a>
     {% endif %}
@@ -47,12 +48,4 @@
             </a> to allow users to access your organization packages
         {% endif %}
     </div>
-    <script type="text/javascript">
-        window.onload = function() {
-            $('.show-token').click(function(){
-                $(this).parent().find('span.token').removeClass('d-none');
-                $(this).remove();
-            });
-        };
-    </script>
 {% endblock %}

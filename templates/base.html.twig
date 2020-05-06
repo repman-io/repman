@@ -1,29 +1,29 @@
 {% set current_route = app.request.get('_route') %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-        <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-        <meta http-equiv="Content-Language" content="en"/>
-        <meta name="msapplication-TileColor" content="#206bc4"/>
-        <meta name="theme-color" content="#206bc4"/>
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-        <meta name="apple-mobile-web-app-capable" content="yes"/>
-        <meta name="mobile-web-app-capable" content="yes"/>
-        <meta name="HandheldFriendly" content="True"/>
-        <meta name="MobileOptimized" content="320"/>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta http-equiv="Content-Language" content="en"/>
+    <meta name="msapplication-TileColor" content="#206bc4"/>
+    <meta name="theme-color" content="#206bc4"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="HandheldFriendly" content="True"/>
+    <meta name="MobileOptimized" content="320"/>
 
-        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
-        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
-        <title>{% block title %}Repman - PHP Repository Manager{% endblock %}</title>
-        {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('dist/css/tabler.min.css') }}">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
-        {% endblock %}
-    </head>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon"/>
+    <title>{% block title %}Repman - PHP Repository Manager{% endblock %}</title>
+    {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('dist/css/tabler.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
+    {% endblock %}
+</head>
+<body class="antialiased">
     {% block body %}
-    <body class="antialiased">
     <div class="wrapper">
         <div class="content">
             <header class="topnav">
@@ -131,65 +131,20 @@
             {% endblock page %}
         </div>
     </div>
+    {% endblock body %}
+    {% include 'component/confirmationModal.html.twig' %}
 
-    <!-- Confirmation modal -->
-    <div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Title</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to perform this action?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form id="modal-action-form" class="d-inline" action="action" method="POST">
-                    <input type="hidden" name="_method" value="method">
-                    <button type="submit" class="btn btn-primary" id="confirmation-btn">Ok</button>
-                </form>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    {% if ga_tracking is not empty %}
-        <script>
-            window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-            ga('create', '{{ ga_tracking }}', 'auto');
-            ga('send', 'pageview');
-        </script>
-        <script async src='https://www.google-analytics.com/analytics.js'></script>
-    {% endif %}
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.12/js/bootstrap-select.min.js" integrity="sha256-+o/X+QCcfTkES5MroTdNL5zrLNGb3i4dYdWPWuq6whY=" crossorigin="anonymous"></script>
-    <script>
-        $('[data-target="confirmation"]').on('click', function() {
-            const confirmationModalId = '#confirmation-modal';
-            const $source = $(this);
-            const $modal = $(`${confirmationModalId}`);
-            const $modalForm = $(`${confirmationModalId} form`);
-            const $modalTitle = $(`${confirmationModalId} .modal-title`);
 
-            $modalForm.prop('action', $source.data('action'));
-            $modalForm.children('[name=_method]').val($source.data('method'));
-            $modalTitle.html($source.data('title') || 'Confirm action');
+    {% if ga_tracking is not empty %}
+        <script async src='https://www.google-analytics.com/analytics.js'></script>
+        <script>{% include 'component/js/ga.js' %}</script>
+    {% endif %}
 
-            $modal.modal('show');
-        });
-
-        $('.copy-to-clipboard').click(function() {
-            $($(this).data('clipboard-target')).select();
-            document.execCommand('copy');
-        });
-    </script>
-
+    <script>{% include 'component/js/base.js' %}</script>
     {% block javascripts %}{% endblock %}
-    </body>
-    {% endblock body %}
+</body>
 </html>

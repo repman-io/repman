@@ -1,0 +1,49 @@
+<script>
+    (function() {
+        $('.period-select').on('change', function (e) {
+            const days = e.target.value;
+            window.location.href = `{{ app.request.pathinfo }}?days=${days}`;
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            window.ApexCharts && (new ApexCharts(document.getElementById('chart-installs'), {
+                chart: {
+                    type: "area",
+                    fontFamily: 'inherit',
+                    height: 440,
+                    parentHeightOffset: 0,
+                    toolbar: {
+                        show: false,
+                    },
+                    animations: {
+                        enabled: false
+                    },
+                },
+                fill: {
+                    opacity: .16,
+                    type: 'solid'
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                stroke: {
+                    width: 2,
+                    lineCap: "round",
+                    curve: "smooth",
+                },
+                series: [{
+                    name: "Installs",
+                    data: [{{ installs.days | map(day => day.installs) | join(',') }}]
+                }],
+                xaxis: {
+                    type: 'datetime',
+                },
+                labels: [{{ installs.days | map(day => "'#{day.date}'") | join(',') | raw }}],
+                colors: ["#206bc4"],
+                legend: {
+                    show: false,
+                },
+            })).render();
+        });
+    })();
+</script>

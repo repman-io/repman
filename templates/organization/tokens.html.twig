@@ -31,7 +31,7 @@
                         <button class="btn btn-primary btn-sm show-token">
                             Show token
                         </button>
-                        <div class="input-group d-none">
+                        <div class="input-group d-none" data-type="token">
                             <input id="token{{ loop.index }}" type="text" class="form-control" readonly value="{{ token.value }}">
                             <span class="input-group-append">
                               <button data-clipboard-target="#token{{ loop.index }}" class="copy-to-clipboard btn btn-primary p-2" type="button" title="Copy to clipboard">
@@ -65,14 +65,5 @@
         </tbody>
     </table>
     {% include 'component/pagination.html.twig' with {'path_name': 'organization_tokens', 'path_params': {'organization': organization.alias}} %}
-
-    <script type="text/javascript">
-        window.onload = function() {
-            $('.show-token').click(function(){
-                $(this).parent().find('div.input-group').removeClass('d-none');
-                $(this).remove();
-            });
-        };
-    </script>
 </div>
 {% endblock %}

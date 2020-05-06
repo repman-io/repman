@@ -55,12 +55,5 @@
 {% endblock %}
 
 {% block javascripts %}
-<script>
-    $('.addPackageType').on('change', function(e) {
-        const type = e.target.value;
-        const baseUrl = $('.addPackageFormUrl').val();
-
-        window.location.href = `${baseUrl}/${type}`;
-    });
-</script>
+<script>{% include 'component/js/addPackage.js' %}</script>
 {% endblock %}
