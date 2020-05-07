@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User\Model;
 final class Package
 {
     private string $id;
+    private string $organizationId;
     private string $type;
     private string $url;
     private ?string $name;
@@ -19,6 +20,7 @@ final class Package
 
     public function __construct(
         string $id,
+        string $organizationId,
         string $type,
         string $url,
         ?string $name = null,
@@ -30,6 +32,7 @@ final class Package
         ?\DateTimeImmutable $webhookCreatedAt = null
     ) {
         $this->id = $id;
+        $this->organizationId = $organizationId;
         $this->type = $type;
         $this->url = $url;
         $this->name = $name;
@@ -44,6 +47,11 @@ final class Package
     public function id(): string
     {
         return $this->id;
+    }
+
+    public function organizationId(): string
+    {
+        return $this->organizationId;
     }
 
     public function type(): string

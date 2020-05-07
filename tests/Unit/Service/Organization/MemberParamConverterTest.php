@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
-use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Service\Organization\MemberParamConverter;
+use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
 use PHPUnit\Framework\TestCase;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,12 +39,7 @@ final class MemberParamConverterTest extends TestCase
 
         $converter = new MemberParamConverter();
         $converter->apply($request = new Request([], [], [
-            'organization' => new Organization(
-                '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
-                'Buddy',
-                'buddy',
-                [new Member('0f143a74-6e9a-4347-a916-b97a4568c0eb', 'email', 'owner')]
-            ),
+            'organization' => OrganizationMother::some(),
             'member' => $member,
         ]), new ParamConverter(['name' => 'member']));
 
@@ -53,11 +48,8 @@ final class MemberParamConverterTest extends TestCase
 
     public function testConvertMember(): void
     {
-        $organization = new Organization(
-            '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
-            'Buddy',
-            'buddy',
-            [$member = new Member($memberId = '9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')]
+        $organization = OrganizationMother::withMember(
+            $member = new Member($memberId = '9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')
         );
 
         $converter = new MemberParamConverter();
@@ -66,14 +58,9 @@ final class MemberParamConverterTest extends TestCase
         self::assertEquals($member, $request->attributes->get('member'));
     }
 
-    public function testThrowNotFoundExcetpionWhenNoMember(): void
+    public function testThrowNotFoundExceptionWhenNoMember(): void
     {
-        $organization = new Organization(
-            '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
-            'Buddy',
-            'buddy',
-            [$member = new Member($memberId = '9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')]
-        );
+        $organization = OrganizationMother::some();
 
         $this->expectException(NotFoundHttpException::class);
 

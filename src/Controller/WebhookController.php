@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-final class PackageController extends AbstractController
+final class WebhookController extends AbstractController
 {
     private WebhookRequests $webhookRequests;
 
@@ -25,7 +25,7 @@ final class PackageController extends AbstractController
     /**
      * @Route("/hook/{package}", name="package_webhook", methods={"POST"})
      */
-    public function webhook(Package $package, Request $request): Response
+    public function package(Package $package, Request $request): Response
     {
         $this->dispatchMessage(new SynchronizePackage($package->id()));
         $this->webhookRequests->add($package->id(), new \DateTimeImmutable(), $request->getClientIp(), $request->headers->get('User-Agent'));
