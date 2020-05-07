@@ -11,6 +11,19 @@ On next release:
 
 ## [Unreleased]
 
+## [0.2.1] - 2020-05-07
+### Security
+- prevention of guessing package uuid for organization package endpoints (#148)
+
+### Added
+- package versions stats and tweak other charts (#145, #146)
+
+### Changed
+- Cleanup JS; Fix number of days in admin stats view; Force referrer in GA (#143, #144)
+- handle package not found exception on app level (#142)
+- tuning php-fpm configuration for better resources utilization (Ansible) (#141)
+- add curl and pdo_pgsql to required php extensions (#140) 
+
 ## [0.2.0] - 2020-05-05
 ### Added
 - Organization members (#56)
