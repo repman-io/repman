@@ -19,6 +19,9 @@
 
     <h3>Daily installs per version</h3>
 
+    {% if versions is empty %}
+        <p>currently no data available</p>
+    {% else %}
     <div class="row">
         <div class="col-2">
             <p>Versions</p>
@@ -30,6 +33,7 @@
             <div id="chart-installs-versions" ></div>
         </div>
     </div>
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

@@ -1,6 +1,11 @@
 <script>
 (function() {
-    var chart = new ApexCharts(document.getElementById('chart-installs-versions'), {
+    var chartContainer = document.getElementById('chart-installs-versions');
+    if(chartContainer === null) {
+        return;
+    }
+
+    var chart = new ApexCharts(chartContainer, {
         chart: {
             type: "area",
             fontFamily: 'inherit',
