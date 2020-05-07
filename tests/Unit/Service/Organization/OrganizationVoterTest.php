@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
 use Buddy\Repman\Entity\User;
-use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Service\Organization\OrganizationVoter;
+use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
 use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -54,16 +55,12 @@ final class OrganizationVoterTest extends TestCase
     {
         self::assertEquals(Voter::ACCESS_GRANTED, $this->voter->vote(
             $this->token,
-            new Organization('id', 'name', 'alias', [
-                new Organization\Member($this->userId->toString(), 'email', 'owner'),
-            ]),
+            OrganizationMother::withMember(new Member($this->userId->toString(), 'email', 'owner')),
             ['ROLE_ORGANIZATION_OWNER']
         ));
         self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
             $this->token,
-            new Organization('id', 'name', 'alias', [
-                new Organization\Member($this->userId->toString(), 'email', 'member'),
-            ]),
+            OrganizationMother::withMember(new Member($this->userId->toString(), 'email', 'member')),
             ['ROLE_ORGANIZATION_OWNER']
         ));
     }
@@ -71,9 +68,7 @@ final class OrganizationVoterTest extends TestCase
     public function testAccessForOwnerWithRequest(): void
     {
         $this->organizationQuery->expects(self::once())->method('getByAlias')->willReturn(Option::of(
-            new Organization('id', 'name', 'alias', [
-                new Organization\Member($this->userId->toString(), 'email', 'owner'),
-            ])
+            OrganizationMother::withMember(new Member($this->userId->toString(), 'email', 'owner'))
         ));
 
         self::assertEquals(Voter::ACCESS_GRANTED, $this->voter->vote(

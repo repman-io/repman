@@ -290,9 +290,24 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
 
-        $this->client->request('DELETE', $this->urlTo('organization_package_update', [
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => Uuid::uuid4()->toString(), // random
+        ]));
+
+        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testRemoveNotOwnedPackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $buddyPackageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $repmanId = $this->fixtures->createOrganization('repman', $this->userId);
+        $repmanPackageId = $this->fixtures->addPackage($repmanId, 'https://repman.io');
+
+        $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
+            'organization' => 'repman',
+            'package' => $buddyPackageId, // package from other organization
         ]));
 
         self::assertEquals(404, $this->client->getResponse()->getStatusCode());

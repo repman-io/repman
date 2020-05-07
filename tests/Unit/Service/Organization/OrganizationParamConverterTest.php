@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
-use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Service\Organization\OrganizationParamConverter;
+use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -30,22 +30,14 @@ final class OrganizationParamConverterTest extends TestCase
 
         $converter = new OrganizationParamConverter($queryMock);
 
-        $converter->apply(new Request([], [], ['organization' => new Organization(
-            '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
-            'Buddy',
-            'buddy',
-            [new Organization\Member('9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')]
-        )]), new ParamConverter(['name' => 'organization']));
+        $converter->apply(new Request([], [], [
+            'organization' => OrganizationMother::some(),
+        ]), new ParamConverter(['name' => 'organization']));
     }
 
     public function testConvertOrganization(): void
     {
-        $organization = new Organization(
-            '10b86f64-ccf5-4ef8-a99f-b7cafe1fcf37',
-            'Buddy',
-            'buddy',
-            [new Organization\Member('9a1c9f23-23bf-4dc0-8d10-03848867d7f4', 'email', 'owner')]
-        );
+        $organization = OrganizationMother::some();
         $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
         $queryMock->expects(self::once())->method('getByAlias')->with('buddy')->willReturn(Option::some($organization));
 

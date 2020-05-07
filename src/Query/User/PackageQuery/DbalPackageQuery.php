@@ -29,7 +29,7 @@ final class DbalPackageQuery implements PackageQuery
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
-            'SELECT id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
+            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
             FROM "organization_package"
             WHERE organization_id = :organization_id
             ORDER BY name ASC
@@ -75,7 +75,7 @@ final class DbalPackageQuery implements PackageQuery
     public function getById(string $id): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
+            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
             FROM "organization_package"
             WHERE id = :id', [
             ':id' => $id,
@@ -137,6 +137,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return new Package(
             $data['id'],
+            $data['organization_id'],
             $data['type'],
             $data['repository_url'],
             $data['name'],

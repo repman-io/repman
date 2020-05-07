@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Organization;
 
+use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\PackageQuery;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -32,13 +33,14 @@ final class PackageParamConverter implements ParamConverterInterface
             throw new BadRequestHttpException('Missing package parameter in request');
         }
 
-        $request->attributes->set(
-            $configuration->getName(),
-            $this
-                ->packageQuery
-                ->getById($id)
-                ->getOrElseThrow(new NotFoundHttpException('Package not found'))
-        );
+        /** @var Package $package */
+        $package = $this->packageQuery->getById($id)->getOrElseThrow(new NotFoundHttpException('Package not found'));
+        $organization = $request->attributes->get('organization');
+        if ($organization instanceof Organization && $package->organizationId() !== $organization->id()) {
+            throw new NotFoundHttpException('Package not found');
+        }
+
+        $request->attributes->set($configuration->getName(), $package);
 
         return true;
     }
