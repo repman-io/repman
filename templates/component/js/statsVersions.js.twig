@@ -1,0 +1,53 @@
+<script>
+(function() {
+    var chart = new ApexCharts(document.getElementById('chart-installs-versions'), {
+        chart: {
+            type: "area",
+            fontFamily: 'inherit',
+            height: 440,
+            parentHeightOffset: 0
+        },
+        fill: {
+            opacity: .16,
+            type: 'solid'
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        stroke: {
+            width: 2,
+            lineCap: "round",
+            curve: "smooth",
+        },
+        series: [],
+        xaxis: {
+            type: 'datetime',
+        },
+        colors: ["#206bc4"],
+        noData: {
+            text: 'Loading...'
+        },
+        legend: {
+            show: true,
+            position: 'top',
+            showForSingleSeries: true
+        }
+    });
+    chart.render();
+
+    $('.package-version').click(function () {
+        var version = $(this).text();
+        $.getJSON('{{ path('organization_package_version_stats', {organization: organization.alias, package: package.id, version: 'version', days: days}) }}'.replace('version', version), function(response) {
+            chart.updateSeries([{
+                name: version,
+                data: response
+            }]);
+        });
+        $('.package-version').removeClass('strong text-decoration-underline');
+        $(this).addClass('strong text-decoration-underline');
+        return false;
+    });
+
+    $('.package-version').first().click();
+})();
+</script>

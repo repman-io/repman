@@ -141,12 +141,12 @@ final class FixturesManager
         $this->container->get('doctrine.orm.entity_manager')->flush($package);
     }
 
-    public function addPackageDownload(int $count, string $packageId): void
+    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0'): void
     {
-        Stream::range(1, $count)->forEach(function (int $index) use ($packageId): void {
+        Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version): void {
             $this->dispatchMessage(new AddDownload(
                 $packageId,
-                '1.0.0',
+                $version,
                 new \DateTimeImmutable(),
                 '192.168.0.1',
                 'Composer 19.10'

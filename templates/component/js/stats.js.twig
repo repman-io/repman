@@ -12,9 +12,6 @@
                     fontFamily: 'inherit',
                     height: 440,
                     parentHeightOffset: 0,
-                    toolbar: {
-                        show: false,
-                    },
                     animations: {
                         enabled: false
                     },
@@ -32,7 +29,7 @@
                     curve: "smooth",
                 },
                 series: [{
-                    name: "Installs",
+                    name: "{{ package is defined ? package.name : 'Installs' }}",
                     data: [{{ installs.days | map(day => day.installs) | join(',') }}]
                 }],
                 xaxis: {
@@ -41,8 +38,10 @@
                 labels: [{{ installs.days | map(day => "'#{day.date}'") | join(',') | raw }}],
                 colors: ["#206bc4"],
                 legend: {
-                    show: false,
-                },
+                    show: true,
+                    position: 'top',
+                    showForSingleSeries: true
+                }
             })).render();
         });
     })();
