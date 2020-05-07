@@ -87,18 +87,40 @@ final class DbalPackageQuery implements PackageQuery
         return Option::some($this->hydratePackage($data));
     }
 
-    public function getInstalls(string $packageId, int $lastDays = 30): Installs
+    public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs
     {
+        $params = [
+            ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            ':package' => $packageId,
+        ];
+        $query = 'SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id = :package ';
+
+        if ($version !== null) {
+            $query .= ' AND version = :version';
+            $params[':version'] = $version;
+        }
+
+        $query .= ' GROUP BY date) AS installs ORDER BY date ASC';
+
         return new Installs(
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id = :package GROUP BY date) AS installs ORDER BY date ASC', [
-                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
-                ':package' => $packageId,
-            ])),
+            }, $this->connection->fetchAll($query, $params)),
             $lastDays,
             (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', [':package' => $packageId])
         );
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getInstallVersions(string $packageId): array
+    {
+        return array_column($this->connection->fetchAll('
+            SELECT DISTINCT version FROM organization_package_download 
+            WHERE package_id= :package ORDER BY version DESC', [
+            ':package' => $packageId,
+        ]), 'version');
     }
 
     public function findRecentWebhookRequests(string $packageId): array

@@ -48,12 +48,13 @@ final class ProxyPackageDownloadFixtures extends Fixture
         $progress = new ProgressBar($output, 30);
         $output->writeln(sprintf('Package: %s', $package));
         $progress->start();
+        $versions = array_map(fn () => $this->faker->numerify('#.#.#'), range(1, 10));
 
         for ($i = 0; $i < 30; ++$i) {
             $dayDownloads = random_int(0, 100);
             for ($j = 0; $j < $dayDownloads; ++$j) {
                 $this->downloads->save(
-                    [new Downloads\Package($package, $this->faker->numerify('#.#.#'))],
+                    [new Downloads\Package($package, $this->faker->randomElement($versions))],
                     (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
                     $this->faker->ipv4,
                     $this->faker->userAgent

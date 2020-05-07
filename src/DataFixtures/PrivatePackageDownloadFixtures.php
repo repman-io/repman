@@ -52,6 +52,7 @@ final class PrivatePackageDownloadFixtures extends Fixture
         $progress = new ProgressBar($output, 30);
         $output->writeln(sprintf('Package: %s', $package->name()));
         $progress->start();
+        $versions = array_map(fn () => $this->faker->numerify('#.#.#'), range(1, 10));
 
         for ($i = 0; $i < 30; ++$i) {
             $dayDownloads = random_int(0, 100);
@@ -60,7 +61,7 @@ final class PrivatePackageDownloadFixtures extends Fixture
                     Uuid::uuid4(),
                     Uuid::fromString($package->id()),
                     (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
-                    $this->faker->numerify('#.#.#'),
+                    $this->faker->randomElement($versions),
                     $this->faker->ipv4,
                     $this->faker->userAgent
                 ));

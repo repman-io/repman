@@ -24,6 +24,7 @@ use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
@@ -33,6 +34,7 @@ use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
@@ -148,8 +150,22 @@ final class OrganizationController extends AbstractController
             'organization' => $organization,
             'package' => $package,
             'installs' => $this->packageQuery->getInstalls($package->id(), $days),
+            'versions' => $this->packageQuery->getInstallVersions($package->id()),
             'days' => $days,
         ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}/stats/{version}", name="organization_package_version_stats", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function packageVersionStats(Organization $organization, Package $package, string $version, Request $request): JsonResponse
+    {
+        $days = min(max((int) $request->get('days', 30), 7), 365);
+
+        return new JsonResponse(array_map(fn (Day $day) => [
+            'x' => $day->date(),
+            'y' => $day->installs(),
+        ], $this->packageQuery->getInstalls($package->id(), $days, $version)->days()));
     }
 
     /**

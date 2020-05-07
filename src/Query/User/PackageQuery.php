@@ -29,7 +29,12 @@ interface PackageQuery
      */
     public function getById(string $id): Option;
 
-    public function getInstalls(string $packageId, int $lastDays = 30): Installs;
+    public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs;
+
+    /**
+     * @return string[]
+     */
+    public function getInstallVersions(string $packageId): array;
 
     /**
      * @return WebhookRequest[]

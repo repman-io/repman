@@ -14,7 +14,8 @@ use Ramsey\Uuid\UuidInterface;
  *     name="organization_package_download",
  *     indexes={
  *      @Index(name="package_id_idx", columns={"package_id"}),
- *      @Index(name="download_date_idx", columns={"date"})
+ *      @Index(name="download_date_idx", columns={"date"}),
+ *      @Index(name="download_version_idx", columns={"version"})
  *     }
  * )
  */

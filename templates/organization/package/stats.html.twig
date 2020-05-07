@@ -1,3 +1,39 @@
 {% extends 'organization/stats.html.twig' %}
 
 {% block header %}{{ package.name }} installs (last {{ days }} days){% endblock %}
+
+{% block content %}
+    <h3>Daily installs</h3>
+    <div id="chart-installs" ></div>
+
+    <hr />
+
+    <h3>Summary</h3>
+    <p>
+        <span class="mr-5">Today installs: {{ (installs.days | last).installs }}</span>
+        <span class="mr-5">Last {{ days ?? 30 }} days installs: {{ installs.daysTotal }}</span>
+        <span class="mr-5"><strong>Total installs: {{ installs.total }}</strong></span>
+    </p>
+
+    <hr />
+
+    <h3>Daily installs per version</h3>
+
+    <div class="row">
+        <div class="col-2">
+            <p>Versions</p>
+            {% for version in versions %}
+                <a href="#" class="package-version">{{ version }}</a><br />
+            {% endfor %}
+        </div>
+        <div class="col-10">
+            <div id="chart-installs-versions" ></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="{{ asset('dist/js/apexcharts.min.js') }}"></script>
+    {% include 'component/js/stats.js.twig' %}
+    {% include 'component/js/statsVersions.js.twig' %}
+{% endblock %}
