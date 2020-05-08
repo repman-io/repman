@@ -78,7 +78,7 @@ class ProxySyncReleasesCommand extends Command
 
         foreach ($feed->channel->item as $item) {
             list($name, $version) = explode(' ', (string) $item->guid);
-            if (isset($syncedPackages[$name])) {
+            if (!isset($syncedPackages[$name])) {
                 $this->lock->refresh();
                 $proxy->downloadByVersion($name, $version);
             }
