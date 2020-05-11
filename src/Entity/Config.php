@@ -28,16 +28,6 @@ class Config
         $this->value = $value;
     }
 
-    public function key(): string
-    {
-        return $this->key;
-    }
-
-    public function value(): string
-    {
-        return $this->value;
-    }
-
     public function setValue(string $value): void
     {
         $this->value = $value;
