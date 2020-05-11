@@ -61,6 +61,10 @@
                             {% include 'svg/bar-chart.svg' %} Statistics
                         </a>
                         <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ url('admin_config')}}">
+                            {% include 'svg/sliders.svg' %} Configuration
+                        </a>
+                        <div class="dropdown-divider"></div>
                     {% endif %}
                     <a class="dropdown-item" href="{{ url('user_profile') }}">
                         {% include 'svg/user.svg' %} Profile

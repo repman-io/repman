@@ -1,3 +1,5 @@
-<div class="text-center text-muted">
-    Don't have account yet? <a href="{{ url('app_register') }}">Sign up</a>
-</div>
+{% if config.userRegistrationEnabled %}
+    <div class="text-center text-muted">
+        Don't have account yet? <a href="{{ url('app_register') }}">Sign up</a>
+    </div>
+{% endif %}
