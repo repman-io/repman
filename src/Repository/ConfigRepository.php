@@ -21,24 +21,17 @@ class ConfigRepository extends ServiceEntityRepository
         parent::__construct($registry, Config::class);
     }
 
-    public function getByKey(string $key): Config
-    {
-        $config = $this->findOneBy(['key' => $key]);
-        if (!$config instanceof Config) {
-            throw new \InvalidArgumentException("Config with key $key not found");
-        }
-
-        return $config;
-    }
-
     /**
      * @param array<string,string> $values
      */
     public function change(array $values): void
     {
         foreach ($values as $key => $value) {
-            $config = $this->getByKey($key);
-            $config->setValue($value);
+            $config = $this->findOneBy(['key' => $key]);
+
+            if ($config instanceof Config) {
+                $config->setValue($value);
+            }
         }
     }
 }

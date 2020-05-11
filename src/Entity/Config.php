@@ -22,12 +22,6 @@ class Config
      */
     private string $value;
 
-    public function __construct(string $key, string $value)
-    {
-        $this->key = $key;
-        $this->value = $value;
-    }
-
     public function setValue(string $value): void
     {
         $this->value = $value;
