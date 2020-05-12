@@ -23,6 +23,8 @@ final class BitbucketController extends OAuthController
      */
     public function register(): Response
     {
+        $this->ensureRegistrationIsEnabled();
+
         return $this->oauth->getClient('bitbucket')->redirect(['email'], []);
     }
 
@@ -39,6 +41,8 @@ final class BitbucketController extends OAuthController
      */
     public function registerCheck(Request $request, BitbucketApi $api): Response
     {
+        $this->ensureRegistrationIsEnabled();
+
         return $this->createAndAuthenticateUser(
             'bitbucket',
             fn () => $api->primaryEmail($this->oauth->getClient('bitbucket')->getAccessToken()->getToken()),

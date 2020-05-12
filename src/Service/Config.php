@@ -54,9 +54,11 @@ final class Config
 
     private function load(): void
     {
-        $this->values = $this->cache->get(
-            self::CACHE_KEY,
-            fn () => $this->configQuery->findAll()
-        );
+        if ($this->values === []) {
+            $this->values = $this->cache->get(
+                self::CACHE_KEY,
+                fn () => $this->configQuery->findAll()
+            );
+        }
     }
 }
