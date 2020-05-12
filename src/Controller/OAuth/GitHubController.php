@@ -22,6 +22,8 @@ final class GitHubController extends OAuthController
      */
     public function register(): Response
     {
+        $this->ensureRegistrationIsEnabled();
+
         return $this->oauth->getClient('github')->redirect(['user:email'], []);
     }
 
@@ -41,6 +43,8 @@ final class GitHubController extends OAuthController
      */
     public function registerCheck(Request $request, GitHubApi $api): Response
     {
+        $this->ensureRegistrationIsEnabled();
+
         return $this->createAndAuthenticateUser(
             'github',
             fn () => $api->primaryEmail($this->oauth->getClient('github')->getAccessToken()->getToken()),

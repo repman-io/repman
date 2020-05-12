@@ -9,6 +9,7 @@ use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\RefreshOAuthToken;
 use Buddy\Repman\Security\UserGuardHelper;
+use Buddy\Repman\Service\Config;
 use Http\Client\Exception as HttpException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
@@ -27,12 +28,14 @@ abstract class OAuthController extends AbstractController
     protected UserGuardHelper $guard;
     protected ClientRegistry $oauth;
     protected SessionInterface $session;
+    private Config $config;
 
-    public function __construct(UserGuardHelper $guard, ClientRegistry $oauth, SessionInterface $session)
+    public function __construct(UserGuardHelper $guard, ClientRegistry $oauth, SessionInterface $session, Config $config)
     {
         $this->guard = $guard;
         $this->oauth = $oauth;
         $this->session = $session;
+        $this->config = $config;
     }
 
     /**
@@ -109,6 +112,13 @@ abstract class OAuthController extends AbstractController
             return $this->redirectToRoute('organization_package_new', [
                 'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
             ]);
+        }
+    }
+
+    protected function ensureRegistrationIsEnabled(): void
+    {
+        if (!$this->config->userRegistrationEnabled()) {
+            throw new NotFoundHttpException('Registration is disabled');
         }
     }
 }
