@@ -3,7 +3,7 @@
 {% block header %}Package: {{ package.name }} webhook{% endblock %}
 {% block header_btn %}
     <a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
-        Package list
+        {% include 'svg/package.svg' %} Package list
     </a>
 {% endblock %}
 

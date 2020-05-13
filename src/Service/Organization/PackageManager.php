@@ -11,7 +11,7 @@ use Buddy\Repman\Service\Dist\Storage;
 use Munus\Control\Option;
 use Symfony\Component\Filesystem\Filesystem;
 
-final class PackageManager
+class PackageManager
 {
     private Storage $distStorage;
     private string $baseDir;

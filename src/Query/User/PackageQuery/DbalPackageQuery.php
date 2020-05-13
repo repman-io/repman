@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
+use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
@@ -29,10 +30,42 @@ final class DbalPackageQuery implements PackageQuery
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
-            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
-            FROM "organization_package"
-            WHERE organization_id = :organization_id
-            ORDER BY name ASC
+            'SELECT
+                p.id,
+                p.organization_id,
+                p.type,
+                p.repository_url,
+                p.name,
+                p.latest_released_version,
+                p.latest_release_date,
+                p.description,
+                p.last_sync_at,
+                p.last_sync_error,
+                p.webhook_created_at,
+                (
+                    SELECT s.status
+                    FROM organization_package_scan_result s
+                    WHERE s.package_id = p.id
+                    ORDER BY date DESC
+                    LIMIT 1
+                ) scan_result_status,
+                (
+                    SELECT s.date
+                    FROM organization_package_scan_result s
+                    WHERE s.package_id = p.id
+                    ORDER BY date DESC
+                    LIMIT 1
+                ) scan_result_date,
+                (
+                    SELECT s.content
+                    FROM organization_package_scan_result s
+                    WHERE s.package_id = p.id
+                    ORDER BY date DESC
+                    LIMIT 1
+                ) scan_result_content
+            FROM organization_package p
+            WHERE p.organization_id = :organization_id
+            ORDER BY p.name ASC
             LIMIT :limit OFFSET :offset', [
                 ':organization_id' => $organizationId,
                 ':limit' => $limit,
@@ -117,7 +150,7 @@ final class DbalPackageQuery implements PackageQuery
     public function getInstallVersions(string $packageId): array
     {
         return array_column($this->connection->fetchAll('
-            SELECT DISTINCT version FROM organization_package_download 
+            SELECT DISTINCT version FROM organization_package_download
             WHERE package_id= :package ORDER BY version DESC', [
             ':package' => $packageId,
         ]), 'version');
@@ -131,10 +164,44 @@ final class DbalPackageQuery implements PackageQuery
     }
 
     /**
+     * @return ScanResult[]
+     */
+    public function getScanResults(string $packageId): array
+    {
+        return array_map(function (array $data): ScanResult {
+            return new ScanResult(
+                new \DateTimeImmutable($data['date']),
+                $data['status'],
+                $data['version'],
+                json_decode($data['content'], true)
+            );
+        }, $this->connection->fetchAll(
+            'SELECT
+                date,
+                status,
+                version,
+                content
+            FROM organization_package_scan_result
+            WHERE package_id = :package_id
+            ORDER BY date DESC
+            LIMIT 100', [
+                ':package_id' => $packageId,
+            ]));
+    }
+
+    /**
      * @param array<mixed> $data
      */
     private function hydratePackage(array $data): Package
     {
+        $scanResult = isset($data['scan_result_status']) ?
+            new ScanResult(
+                new \DateTimeImmutable($data['scan_result_date']),
+                $data['scan_result_status'],
+                $data['latest_released_version'],
+                json_decode($data['scan_result_content'], true)
+            ) : null;
+
         return new Package(
             $data['id'],
             $data['organization_id'],
@@ -147,6 +214,7 @@ final class DbalPackageQuery implements PackageQuery
             $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
+            $scanResult
         );
     }
 }

@@ -52,4 +52,23 @@ final class PackageMother
 
         return $package;
     }
+
+    public static function synchronized(string $name, string $latestVersion, string $url = ''): Package
+    {
+        $package = new Package(Uuid::uuid4(), 'path', $url);
+        $package->setOrganization(new Organization(
+            Uuid::uuid4(),
+            new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
+            'Buddy',
+            'buddy'
+        ));
+        $package->syncSuccess(
+            $name,
+            'Package description',
+            $latestVersion,
+            new \DateTimeImmutable()
+        );
+
+        return $package;
+    }
 }

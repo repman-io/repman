@@ -17,6 +17,7 @@ final class Package
     private ?\DateTimeImmutable $lastSyncAt;
     private ?string $lastSyncError;
     private ?\DateTimeImmutable $webhookCreatedAt;
+    private ?ScanResult $scanResult;
 
     public function __construct(
         string $id,
@@ -29,7 +30,8 @@ final class Package
         ?string $description = null,
         ?\DateTimeImmutable $lastSyncAt = null,
         ?string $lastSyncError = null,
-        ?\DateTimeImmutable $webhookCreatedAt = null
+        ?\DateTimeImmutable $webhookCreatedAt = null,
+        ?ScanResult $scanResult = null
     ) {
         $this->id = $id;
         $this->organizationId = $organizationId;
@@ -42,6 +44,7 @@ final class Package
         $this->lastSyncAt = $lastSyncAt;
         $this->lastSyncError = $lastSyncError;
         $this->webhookCreatedAt = $webhookCreatedAt;
+        $this->scanResult = $scanResult ?? null;
     }
 
     public function id(): string
@@ -102,5 +105,35 @@ final class Package
     public function allowToAutoAddWebhook(): bool
     {
         return in_array($this->type, ['github-oauth', 'gitlab-oauth', 'bitbucket-oauth'], true);
+    }
+
+    public function isSynchronizedSuccessfully(): bool
+    {
+        return $this->name() !== null && $this->lastSyncError() === null;
+    }
+
+    public function scanResultStatus(): string
+    {
+        return $this->scanResult !== null ? $this->scanResult->status() : ScanResult::statusPending();
+    }
+
+    public function scanResultDate(): ?\DateTimeImmutable
+    {
+        return $this->scanResult !== null ? $this->scanResult->date() : null;
+    }
+
+    public function isScanResultOk(): ?bool
+    {
+        return $this->scanResult !== null ? $this->scanResult->isOk() : false;
+    }
+
+    public function isScanResultPending(): bool
+    {
+        return $this->scanResult !== null ? $this->scanResult->isPending() : true;
+    }
+
+    public function scanResultContentFormatted(): string
+    {
+        return $this->scanResult !== null ? $this->scanResult->contentFormatted() : '';
     }
 }

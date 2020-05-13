@@ -28,3 +28,6 @@ services:
         class: Buddy\Repman\Tests\Doubles\FakeBuddyApi
 
     Buddy\Repman\Tests\Doubles\HttpClientStub:
+
+    Buddy\Repman\Service\PackageScanner:
+        class: Buddy\Repman\Tests\Doubles\FakePackageScanner

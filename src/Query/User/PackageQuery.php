@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
+use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Munus\Control\Option;
 
@@ -40,4 +41,9 @@ interface PackageQuery
      * @return WebhookRequest[]
      */
     public function findRecentWebhookRequests(string $packageId): array;
+
+    /**
+     * @return ScanResult[]
+     */
+    public function getScanResults(string $packageId): array;
 }

@@ -19,6 +19,7 @@ use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\Package\RemoveBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
 use Buddy\Repman\Message\Organization\Package\RemoveGitLabHook;
+use Buddy\Repman\Message\Organization\Package\ScanPackage;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
@@ -318,6 +319,30 @@ final class OrganizationController extends AbstractController
             'organization' => $organization,
             'installs' => $this->organizationQuery->getInstalls($organization->id(), $days),
             'days' => $days,
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}/scan", name="organization_package_scan", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function scanPackage(Organization $organization, Package $package): Response
+    {
+        $this->dispatchMessage(new ScanPackage($package->id()));
+
+        $this->addFlash('success', 'Package will be scanned in the background');
+
+        return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}/scan-results", name="organization_package_scan_results", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function packageScanResults(Organization $organization, Package $package, Request $request): Response
+    {
+        return $this->render('organization/package/scanResults.html.twig', [
+            'organization' => $organization,
+            'package' => $package,
+            'results' => $this->packageQuery->getScanResults($package->id()),
         ]);
     }
 
