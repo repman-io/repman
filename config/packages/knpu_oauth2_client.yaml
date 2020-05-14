@@ -14,6 +14,7 @@ knpu_oauth2_client:
             redirect_route: register_gitlab_check
             redirect_params: {}
             use_state: true
+            domain: '%env(APP_GITLAB_API_URL)%'
         bitbucket:
             type: bitbucket
             client_id: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'

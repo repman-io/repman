@@ -33,7 +33,7 @@ final class RestGitLabApiTest extends TestCase
         $this->clientMock->expects(self::once())->method('authenticate');
         $this->pagerMock = $this->createMock(ResultPager::class);
 
-        $this->api = new RestGitLabApi($this->clientMock, $this->pagerMock);
+        $this->api = new RestGitLabApi($this->clientMock, $this->pagerMock, 'https://gitlab.com');
     }
 
     public function testFetchUserProjects(): void
