@@ -580,7 +580,11 @@ final class OrganizationControllerTest extends FunctionalTestCase
                 'vendor/some-dependency' => [
                     'version' => '6.6.6',
                     'advisories' => [
-                        ['title' => 'Compromised'],
+                        [
+                            'title' => 'Direct access of ESI URLs behind a trusted proxy',
+                            'cve' => 'CVE-2014-5245',
+                            'link' => 'https://symfony.com/cve-2014-5245',
+                        ],
                     ],
                 ],
             ],
@@ -597,7 +601,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('warning', $this->lastResponseBody());
         self::assertStringContainsString('vendor/some-dependency', $this->lastResponseBody());
         self::assertStringContainsString('v6.6.6', $this->lastResponseBody());
-        self::assertStringContainsString('Compromised', $this->lastResponseBody());
+        self::assertStringContainsString('Direct access of ESI URLs behind a trusted proxy', $this->lastResponseBody());
+        self::assertStringContainsString('CVE-2014-5245', $this->lastResponseBody());
+        self::assertStringContainsString('https://symfony.com/cve-2014-5245', $this->lastResponseBody());
         self::assertStringNotContainsString('sub-dir/composer.lock', $this->lastResponseBody());
     }
 

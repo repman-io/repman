@@ -132,8 +132,8 @@ final class Package
         return $this->scanResult !== null ? $this->scanResult->isPending() : true;
     }
 
-    public function scanResultContentFormatted(): string
+    public function scanResultContentHtml(): string
     {
-        return $this->scanResult !== null ? $this->scanResult->contentFormatted() : '';
+        return $this->scanResult !== null ? $this->scanResult->contentHtmlSimple() : '';
     }
 }

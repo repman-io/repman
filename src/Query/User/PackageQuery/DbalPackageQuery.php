@@ -173,7 +173,7 @@ final class DbalPackageQuery implements PackageQuery
                 new \DateTimeImmutable($data['date']),
                 $data['status'],
                 $data['version'],
-                json_decode($data['content'], true)
+                $data['content'],
             );
         }, $this->connection->fetchAll(
             'SELECT
@@ -199,7 +199,7 @@ final class DbalPackageQuery implements PackageQuery
                 new \DateTimeImmutable($data['scan_result_date']),
                 $data['scan_result_status'],
                 $data['latest_released_version'],
-                json_decode($data['scan_result_content'], true)
+                $data['scan_result_content'],
             ) : null;
 
         return new Package(
