@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\MessageHandler\Organization;
 
 use Buddy\Repman\Entity\Organization\Package;
-use Buddy\Repman\Message\Organization\Package\ScanPackage;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Ramsey\Uuid\Uuid;

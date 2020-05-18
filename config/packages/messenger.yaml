@@ -20,4 +20,4 @@ framework:
             'Buddy\Repman\Message\User\SendPasswordResetLink': async
             'Buddy\Repman\Message\User\SendConfirmToken': async
             'Buddy\Repman\Message\Proxy\AddDownloads': async
-            'Buddy\Repman\Message\Organization\Package\ScanPackage': async
+            'Buddy\Repman\Message\Security\ScanPackage': async

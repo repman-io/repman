@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization\Package;
+namespace Buddy\Repman\Tests\Integration\MessageHandler\Security;
 
-use Buddy\Repman\Message\Organization\Package\ScanPackage;
-use Buddy\Repman\MessageHandler\Organization\Package\ScanPackageHandler;
+use Buddy\Repman\Message\Security\ScanPackage;
+use Buddy\Repman\MessageHandler\Security\ScanPackageHandler;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 

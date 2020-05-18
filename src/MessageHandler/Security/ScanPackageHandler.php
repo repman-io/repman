@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\MessageHandler\Organization\Package;
+namespace Buddy\Repman\MessageHandler\Security;
 
 use Buddy\Repman\Entity\Organization\Package;
-use Buddy\Repman\Message\Organization\Package\ScanPackage;
+use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\PackageScanner;
 use Ramsey\Uuid\Uuid;

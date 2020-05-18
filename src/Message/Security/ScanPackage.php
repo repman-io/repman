@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Message\Organization\Package;
+namespace Buddy\Repman\Message\Security;
 
 final class ScanPackage
 {

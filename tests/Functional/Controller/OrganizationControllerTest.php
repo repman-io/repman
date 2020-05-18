@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
-use Buddy\Repman\Message\Organization\Package\ScanPackage;
+use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
