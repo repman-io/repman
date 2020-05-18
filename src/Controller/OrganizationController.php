@@ -342,7 +342,8 @@ final class OrganizationController extends AbstractController
         return $this->render('organization/package/scanResults.html.twig', [
             'organization' => $organization,
             'package' => $package,
-            'results' => $this->packageQuery->getScanResults($package->id()),
+            'results' => $this->packageQuery->getScanResults($package->id(), 20, (int) $request->get('offset', 0)),
+            'count' => $this->packageQuery->getScanResultsCount($package->id()),
         ]);
     }
 

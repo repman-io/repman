@@ -41,4 +41,6 @@
     </tbody>
 </table>
 
+{% include 'component/pagination.html.twig' with {'path_name': 'organization_package_scan_results', 'path_params': {'organization': organization.alias, 'package': package.id}} %}
+
 {% endblock %}

@@ -166,7 +166,7 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return ScanResult[]
      */
-    public function getScanResults(string $packageId): array
+    public function getScanResults(string $packageId, int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): ScanResult {
             return new ScanResult(
@@ -184,9 +184,24 @@ final class DbalPackageQuery implements PackageQuery
             FROM organization_package_scan_result
             WHERE package_id = :package_id
             ORDER BY date DESC
-            LIMIT 100', [
+            LIMIT :limit OFFSET :offset', [
                 ':package_id' => $packageId,
+                ':limit' => $limit,
+                ':offset' => $offset,
             ]));
+    }
+
+    public function getScanResultsCount(string $packageId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(id) FROM "organization_package_scan_result"
+                WHERE package_id = :package_id',
+                [
+                    ':package_id' => $packageId,
+                ]
+            );
     }
 
     /**
