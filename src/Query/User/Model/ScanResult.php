@@ -58,11 +58,6 @@ final class ScanResult
         return $this->status() === ScanResultEntity::STATUS_PENDING;
     }
 
-    public function isError(): bool
-    {
-        return $this->status() === ScanResultEntity::STATUS_ERROR;
-    }
-
     public function contentFormatted(): string
     {
         if ($this->isOk()) {
@@ -70,23 +65,32 @@ final class ScanResult
         }
 
         $result = [];
-        foreach ($this->content as $dependency => $details) {
-            $dependency = htmlspecialchars($dependency);
+        foreach ($this->content as $lockFile => $lockFileResult) {
+            if ($lockFile === 'exception') {
+                foreach ($lockFileResult as $class => $message) {
+                    $message = htmlspecialchars($message);
+                    $result[] = "<b>$class</b> - $message";
+                }
 
-            if ($this->isError()) {
-                $errorMsg = htmlspecialchars($details);
-                $result[] = "<p><b>$dependency</b> - $errorMsg</p>";
+                break;
+            }
 
+            if ($lockFileResult === []) {
                 continue;
             }
 
-            $advisories = [];
-            foreach ($details['advisories'] as $advisor) {
-                $advisories[] = '<li>'.htmlspecialchars($advisor['title']).'</li>';
-            }
+            $result[] = "<div class='small text-muted'>$lockFile</div>";
+            foreach ($lockFileResult as $dependency => $details) {
+                $dependency = htmlspecialchars($dependency);
 
-            $version = htmlspecialchars($details['version']);
-            $result[] = "<p><b>$dependency</b> (v$version)<ul>".implode('', $advisories).'</ul>';
+                $advisories = [];
+                foreach ($details['advisories'] as $advisor) {
+                    $advisories[] = '<li>'.htmlspecialchars($advisor['title']).'</li>';
+                }
+
+                $version = htmlspecialchars($details['version']);
+                $result[] = "<b>$dependency</b> (v$version)<ul>".implode('', $advisories).'</ul>';
+            }
         }
 
         return implode('', $result);

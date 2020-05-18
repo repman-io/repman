@@ -220,7 +220,7 @@ final class FixturesManager
     /**
      * @param mixed[] $content
      */
-    public function addScanResult(string $packageId, string $status, array $content = []): void
+    public function addScanResult(string $packageId, string $status, array $content = ['composer.lock' => []]): void
     {
         $package = $this->container
             ->get(PackageRepository::class)

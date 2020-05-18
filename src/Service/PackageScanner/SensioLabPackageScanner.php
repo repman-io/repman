@@ -33,28 +33,32 @@ class SensioLabPackageScanner implements PackageScanner
     {
         $packageName = $package->name();
         $result = [];
+        $status = ScanResult::STATUS_OK;
+
         if ($packageName === null) {
             return;
         }
 
         try {
-            $result = $this->performScan(
-                $this->extractLockFile($this->findDistribution($package))
-            );
+            $lockFiles = $this->extractLockFiles($this->findDistribution($package));
+            foreach ($lockFiles as $name => $content) {
+                $scanResult = $this->performScan($content);
+                if ($scanResult !== []) {
+                    $status = ScanResult::STATUS_WARNING;
+                }
+
+                $result[$name] = $scanResult;
+            }
         } catch (\Throwable $exception) {
-            $result[get_class($exception)] = $exception->getMessage();
+            $result['exception'] = [
+                get_class($exception) => $exception->getMessage(),
+            ];
             $this->saveResult($package, ScanResult::STATUS_ERROR, $result);
 
             return;
         }
 
-        if ($result === []) {
-            $this->saveResult($package, ScanResult::STATUS_OK, $result);
-
-            return;
-        }
-
-        $this->saveResult($package, ScanResult::STATUS_WARNING, $result);
+        $this->saveResult($package, $status, $result);
     }
 
     /**
@@ -110,7 +114,10 @@ class SensioLabPackageScanner implements PackageScanner
         throw new \RuntimeException("Version $normalizedVersion for package $packageName not found");
     }
 
-    private function extractLockFile(string $distFilename): string
+    /**
+     * @return array<string,string>
+     */
+    private function extractLockFiles(string $distFilename): array
     {
         $zip = new \ZipArchive();
         $result = $zip->open($distFilename);
@@ -118,22 +125,24 @@ class SensioLabPackageScanner implements PackageScanner
             throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
         }
 
-        $content = null;
+        $lockFiles = [];
         for ($i = 0; $i < $zip->numFiles; ++$i) {
-            if (preg_match('/\/composer.lock$/', (string) $zip->getNameIndex($i)) === 1) {
-                $content = $zip->getFromIndex($i);
-
-                break;
+            $filename = (string) $zip->getNameIndex($i);
+            if (preg_match('/\/composer.lock$/', $filename) === 1) {
+                $lockFileContent = $zip->getFromIndex($i);
+                $trimmed = explode('/', $filename);
+                array_shift($trimmed);
+                $lockFiles['/'.implode('/', $trimmed)] = (string) $lockFileContent;
             }
         }
 
         $zip->close();
 
-        if (!is_string($content)) {
+        if ($lockFiles === []) {
             throw new \RuntimeException('Lock file not found');
         }
 
-        return $content;
+        return $lockFiles;
     }
 
     /**

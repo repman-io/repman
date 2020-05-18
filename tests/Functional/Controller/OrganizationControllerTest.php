@@ -519,7 +519,11 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
 
         $this->fixtures->addScanResult($packageId, 'ok');
-        $this->fixtures->addScanResult($package2Id, 'error', ['RuntimeException' => 'Lock file not found']);
+        $this->fixtures->addScanResult($package2Id, 'error', [
+            'exception' => [
+                'RuntimeException' => 'Lock file not found',
+            ],
+        ]);
 
         $this->client->followRedirect();
         self::assertStringContainsString('Package will be scanned in the background', $this->lastResponseBody());
@@ -572,12 +576,15 @@ final class OrganizationControllerTest extends FunctionalTestCase
         );
 
         $this->fixtures->addScanResult($packageId, 'warning', [
-            'vendor/some-dependency' => [
-                'version' => '6.6.6',
-                'advisories' => [
-                    ['title' => 'Compromised'],
+            'composer.lock' => [
+                'vendor/some-dependency' => [
+                    'version' => '6.6.6',
+                    'advisories' => [
+                        ['title' => 'Compromised'],
+                    ],
                 ],
             ],
+            'sub-dir/composer.lock' => [],
         ]);
 
         $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
@@ -591,6 +598,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('vendor/some-dependency', $this->lastResponseBody());
         self::assertStringContainsString('v6.6.6', $this->lastResponseBody());
         self::assertStringContainsString('Compromised', $this->lastResponseBody());
+        self::assertStringNotContainsString('sub-dir/composer.lock', $this->lastResponseBody());
     }
 
     public function testPackageScanResultsWithErrorStatus(): void
@@ -609,7 +617,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
         );
 
         $this->fixtures->addScanResult($packageId, 'error', [
-            'RuntimeException' => 'Lock file not found',
+            'exception' => [
+                'RuntimeException' => 'Lock file not found',
+            ],
         ]);
 
         $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
