@@ -112,4 +112,11 @@ services:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
 
+    Buddy\Repman\Service\Doctrine\PackageSynchronizedListener:
+        tags:
+            -
+                name: 'doctrine.orm.entity_listener'
+                event: 'postUpdate'
+                entity: 'Buddy\Repman\Entity\Organization\Package'
+
     Buddy\Buddy:
