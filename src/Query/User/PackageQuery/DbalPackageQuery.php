@@ -190,6 +190,20 @@ final class DbalPackageQuery implements PackageQuery
     }
 
     /**
+     * @return PackageName[]
+     */
+    public function getAllSynchronized(): array
+    {
+        return array_map(function (array $data): PackageName {
+            return new PackageName($data['id'], $data['name']);
+        }, $this->connection->fetchAll(
+            'SELECT id, name FROM organization_package
+            WHERE name IS NOT NULL AND last_sync_error IS NULL
+            ORDER BY last_sync_at ASC'
+        ));
+    }
+
+    /**
      * @param array<mixed> $data
      */
     private function hydratePackage(array $data): Package

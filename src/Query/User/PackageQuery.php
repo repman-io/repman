@@ -48,4 +48,9 @@ interface PackageQuery
     public function getScanResults(string $packageId, int $limit = 20, int $offset = 0): array;
 
     public function getScanResultsCount(string $packageId): int;
+
+    /**
+     * @return PackageName[]
+     */
+    public function getAllSynchronized(): array;
 }
