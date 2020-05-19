@@ -31,7 +31,8 @@ final class ComposerPackageSynchronizerTest extends TestCase
             new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
-            new InMemoryStorage()
+            new InMemoryStorage(),
+            'gitlab.com'
         );
         $this->resourcesDir = __DIR__.'/../../../Resources/';
     }

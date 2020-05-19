@@ -64,6 +64,7 @@ services:
     Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer:
         arguments:
             $distStorage: '@repman.organization.dist_storage'
+            $gitlabUrl: '%env(APP_GITLAB_API_URL)%'
 
     Buddy\Repman\Form\Type\Organization\AddPackageType:
         arguments:
