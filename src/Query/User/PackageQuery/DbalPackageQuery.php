@@ -42,29 +42,14 @@ final class DbalPackageQuery implements PackageQuery
                 p.last_sync_at,
                 p.last_sync_error,
                 p.webhook_created_at,
-                (
-                    SELECT s.status
-                    FROM organization_package_scan_result s
-                    WHERE s.package_id = p.id
-                    ORDER BY date DESC
-                    LIMIT 1
-                ) scan_result_status,
-                (
-                    SELECT s.date
-                    FROM organization_package_scan_result s
-                    WHERE s.package_id = p.id
-                    ORDER BY date DESC
-                    LIMIT 1
-                ) scan_result_date,
-                (
-                    SELECT s.content
-                    FROM organization_package_scan_result s
-                    WHERE s.package_id = p.id
-                    ORDER BY date DESC
-                    LIMIT 1
-                ) scan_result_content
+                MAX(s.date) scan_result_date,
+                s.status scan_result_status,
+                CAST(s.content as text) as scan_result_content
             FROM organization_package p
+            LEFT JOIN organization_package_scan_result s
+            ON s.package_id = p.id
             WHERE p.organization_id = :organization_id
+            GROUP BY p.id, scan_result_status, scan_result_content
             ORDER BY p.name ASC
             LIMIT :limit OFFSET :offset', [
                 ':organization_id' => $organizationId,
