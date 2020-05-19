@@ -27,13 +27,15 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageNormalizer $packageNormalizer;
     private PackageRepository $packageRepository;
     private Storage $distStorage;
+    private string $gitlabUrl;
 
-    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage)
+    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
     {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
+        $this->gitlabUrl = $gitlabUrl;
     }
 
     public function synchronize(Package $package): void
@@ -116,7 +118,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         }
 
         if ($package->type() === 'gitlab-oauth') {
-            $io->setAuthentication('gitlab.com', $package->oauthToken(), 'oauth2');
+            $io->setAuthentication((string) parse_url($this->gitlabUrl, PHP_URL_HOST), $package->oauthToken(), 'oauth2');
         }
 
         if ($package->type() === 'bitbucket-oauth') {
