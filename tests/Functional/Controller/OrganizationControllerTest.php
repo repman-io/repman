@@ -600,7 +600,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Package: buddy-works/repman security scan results', $this->lastResponseBody());
         self::assertStringContainsString('warning', $this->lastResponseBody());
         self::assertStringContainsString('vendor/some-dependency', $this->lastResponseBody());
-        self::assertStringContainsString('v6.6.6', $this->lastResponseBody());
+        self::assertStringContainsString('6.6.6', $this->lastResponseBody());
         self::assertStringContainsString('Direct access of ESI URLs behind a trusted proxy', $this->lastResponseBody());
         self::assertStringContainsString('CVE-2014-5245', $this->lastResponseBody());
         self::assertStringContainsString('https://symfony.com/cve-2014-5245', $this->lastResponseBody());

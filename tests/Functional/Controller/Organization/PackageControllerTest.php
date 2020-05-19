@@ -7,7 +7,7 @@ namespace Buddy\Repman\Tests\Functional\Controller\Organization;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
-use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Github\Exception\ApiLimitExceedException;
@@ -41,7 +41,7 @@ final class PackageControllerTest extends FunctionalTestCase
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(1, $transport->getSent());
-        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
+        self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
 
         $this->client->followRedirect();
         self::assertStringContainsString('Packages has been added', (string) $this->client->getResponse()->getContent());
@@ -67,7 +67,7 @@ final class PackageControllerTest extends FunctionalTestCase
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(1, $transport->getSent());
-        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
+        self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
 
         $this->client->followRedirect();
         self::assertStringContainsString('Packages has been added', (string) $this->client->getResponse()->getContent());
@@ -105,7 +105,7 @@ final class PackageControllerTest extends FunctionalTestCase
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(2, $transport->getSent());
-        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
+        self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
         self::assertInstanceOf(AddGitHubHook::class, $transport->getSent()[1]->getMessage());
 
         $this->client->followRedirect();
@@ -145,7 +145,7 @@ final class PackageControllerTest extends FunctionalTestCase
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(2, $transport->getSent());
-        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
+        self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
         self::assertInstanceOf(AddGitLabHook::class, $transport->getSent()[1]->getMessage());
 
         $this->client->followRedirect();
@@ -185,7 +185,7 @@ final class PackageControllerTest extends FunctionalTestCase
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(2, $transport->getSent());
-        self::assertInstanceOf(SynchronizePackage::class, $transport->getSent()[0]->getMessage());
+        self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
         self::assertInstanceOf(AddBitbucketHook::class, $transport->getSent()[1]->getMessage());
 
         $this->client->followRedirect();

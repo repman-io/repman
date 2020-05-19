@@ -35,7 +35,7 @@ final class LockFileResult
             $advisories = $this->advisoriesHtml($dependency->advisories());
             $version = htmlspecialchars($dependency->version());
             $dependencyName = htmlspecialchars($dependency->name());
-            $body[] = "<b>$dependencyName</b> (v$version)<ul>$advisories</ul>";
+            $body[] = "<b>$dependencyName</b> ($version)<ul>$advisories</ul>";
         }
 
         return implode('', $body);

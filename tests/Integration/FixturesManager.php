@@ -18,7 +18,6 @@ use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
-use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Repository\ScanResultRepository;
@@ -177,14 +176,14 @@ final class FixturesManager
     public function syncPackageWithError(string $packageId, string $error): void
     {
         $this->container->get(PackageSynchronizer::class)->setError($error);
-        $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
+        $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
     }
 
     public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
     {
         $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate);
-        $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
+        $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
     }
 

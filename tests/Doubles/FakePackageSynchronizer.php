@@ -9,7 +9,7 @@ use Buddy\Repman\Service\PackageSynchronizer;
 
 final class FakePackageSynchronizer implements PackageSynchronizer
 {
-    private string $name = 'default';
+    private string $name = 'default/default';
     private string $description = 'n/a';
     private string $latestReleasedVersion = '1.0.0';
     private \DateTimeImmutable $latestReleaseDate;
