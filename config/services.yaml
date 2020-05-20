@@ -9,6 +9,7 @@ parameters:
     uuid_pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
     dists_dir: '%env(resolve:PROXY_DIST_DIR)%'
     repo_dir: '%env(resolve:PACKAGES_DIST_DIR)%'
+    security_advisories_db_dir: '%kernel.project_dir%/var/security-advisories'
     domain: '%env(resolve:APP_HOST)%'
     url_scheme: '%env(resolve:APP_URL_SCHEME)%'
     router.request_context.scheme: '%env(resolve:APP_URL_SCHEME)%'
@@ -69,6 +70,14 @@ services:
         arguments:
             $allowedTypes: '%env(csv:APP_ALLOWED_PACKAGE_TYPES)%'
 
+    Buddy\Repman\Service\GitLabApi\RestGitLabApi:
+        arguments:
+            $url: '%env(APP_GITLAB_API_URL)%'
+
+    Buddy\Repman\Service\Security\SecurityChecker:
+        arguments:
+            $databaseDir: '%security_advisories_db_dir%'
+
     ### Vendor
     Github\Client:
         arguments:
@@ -107,9 +116,5 @@ services:
     Gitlab\ResultPager:
         arguments:
             - '@Gitlab\Client'
-
-    Buddy\Repman\Service\GitLabApi\RestGitLabApi:
-        arguments:
-            $url: '%env(APP_GITLAB_API_URL)%'
 
     Buddy\Buddy:

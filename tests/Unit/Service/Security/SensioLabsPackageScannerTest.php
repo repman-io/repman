@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Tests\Unit\Service\PackageScanner;
+namespace Buddy\Repman\Tests\Unit\Service\Security;
 
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
-use Buddy\Repman\Service\PackageScanner\SensioLabPackageScanner;
+use Buddy\Repman\Service\Security\SecurityChecker;
+use Buddy\Repman\Service\Security\SensioLabsPackageScanner;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
 use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use SensioLabs\Security\SecurityChecker;
 use Symfony\Component\Filesystem\Filesystem;
 
-final class SensioLabPackageScannerTest extends TestCase
+final class SensioLabsPackageScannerTest extends TestCase
 {
     const VERSION = '1.2.3';
 
-    private SensioLabPackageScanner $scanner;
+    private SensioLabsPackageScanner $scanner;
     private SecurityChecker $checkerMock;
     private string $baseDir;
     /** @var ScanResultRepository|MockObject */
@@ -28,7 +28,7 @@ final class SensioLabPackageScannerTest extends TestCase
     protected function setUp(): void
     {
         $this->checkerMock = $this->createMock(SecurityChecker::class);
-        $this->checkerMock->method('check')->willReturn('{}');
+        $this->checkerMock->method('check')->willReturn([]);
         $this->repoMock = $this->createMock(ScanResultRepository::class);
 
         $this->filesystem = new Filesystem();
@@ -86,7 +86,7 @@ final class SensioLabPackageScannerTest extends TestCase
         $package = PackageMother::synchronized('buddy-works/repman', self::VERSION);
 
         $this->checkerMock = $this->createMock(SecurityChecker::class);
-        $this->checkerMock->method('check')->willReturn(json_encode($result));
+        $this->checkerMock->method('check')->willReturn($result);
         $this->prepareScanner()->scan($package);
     }
 
@@ -112,7 +112,7 @@ final class SensioLabPackageScannerTest extends TestCase
         $this->prepareScanner('repman-invalid-archive')->scan($package);
     }
 
-    private function prepareScanner(string $fixtureType = 'repman'): SensioLabPackageScanner
+    private function prepareScanner(string $fixtureType = 'repman'): SensioLabsPackageScanner
     {
         $distFile = realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
         $packageManager = $this->createMock(PackageManager::class);
@@ -128,7 +128,7 @@ final class SensioLabPackageScannerTest extends TestCase
 
         $packageManager->method('distFilename')->willReturn(Option::some($distFile));
 
-        return new SensioLabPackageScanner(
+        return new SensioLabsPackageScanner(
             $this->checkerMock,
             $packageManager,
             $this->repoMock

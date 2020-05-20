@@ -1,6 +1,7 @@
 parameters:
     dists_dir: '%kernel.project_dir%/tests/Resources'
     repo_dir: '%kernel.project_dir%/tests/Resources'
+    security_advisories_db_dir: '%kernel.project_dir%/tests/Resources/security-advisories'
 
 services:
     Buddy\Repman\Service\Downloader:

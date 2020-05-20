@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Service\PackageScanner;
+namespace Buddy\Repman\Service\Security;
 
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
@@ -12,9 +12,8 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageScanner;
 use Composer\Semver\VersionParser;
 use Ramsey\Uuid\Uuid;
-use SensioLabs\Security\SecurityChecker;
 
-class SensioLabPackageScanner implements PackageScanner
+class SensioLabsPackageScanner implements PackageScanner
 {
     private SecurityChecker $checker;
     private VersionParser $versionParser;
@@ -41,19 +40,20 @@ class SensioLabPackageScanner implements PackageScanner
 
         try {
             $lockFiles = $this->extractLockFiles($this->findDistribution($package));
-            foreach ($lockFiles as $name => $content) {
-                $scanResult = $this->performScan($content);
-                if ($scanResult !== []) {
+            foreach ($lockFiles as $lockFileName => $content) {
+                $scanResults = $this->checker->check($content);
+                if ($scanResults !== []) {
                     $status = ScanResult::STATUS_WARNING;
                 }
 
-                $result[$name] = $scanResult;
+                $result[$lockFileName] = $scanResults;
             }
         } catch (\Throwable $exception) {
-            $result['exception'] = [
-                get_class($exception) => $exception->getMessage(),
-            ];
-            $this->saveResult($package, ScanResult::STATUS_ERROR, $result);
+            $this->saveError($package, [
+                'exception' => [
+                    get_class($exception) => $exception->getMessage(),
+                ],
+            ]);
 
             return;
         }
@@ -73,6 +73,22 @@ class SensioLabPackageScanner implements PackageScanner
                 new \DateTimeImmutable(),
                 $status,
                 $result
+            )
+        );
+    }
+
+    /**
+     * @param array<string,array<string,string>> $error
+     */
+    private function saveError(Package $package, array $error): void
+    {
+        $this->results->add(
+            new ScanResult(
+                Uuid::uuid4(),
+                $package,
+                new \DateTimeImmutable(),
+                ScanResult::STATUS_ERROR,
+                $error
             )
         );
     }
@@ -143,18 +159,5 @@ class SensioLabPackageScanner implements PackageScanner
         }
 
         return $lockFiles;
-    }
-
-    /**
-     * @return mixed[]
-     */
-    private function performScan(string $content): array
-    {
-        $result = $this->checker->check(
-            'data://text/plain;base64,'.base64_encode($content),
-            'json'
-        );
-
-        return json_decode((string) $result, true) ?? [];
     }
 }
