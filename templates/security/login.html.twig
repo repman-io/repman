@@ -19,28 +19,38 @@
             </div>
         {% endif %}
 
-        <div class="text-center">
-            <a href="{{ url('auth_github_start') }}" class="btn btn-github btn-sm">
-                {% include 'svg/github-icon.svg' %} GitHub
-            </a>
+        {% if oauth_enabled() %}
+            <div class="text-center">
+                {% if oauth_enabled('github') %}
+                    <a href="{{ url('auth_github_start') }}" class="btn btn-github btn-sm">
+                        {% include 'svg/github-icon.svg' %} GitHub
+                    </a>
+                {% endif %}
 
-            <a href="{{ url('auth_gitlab_start') }}" class="btn btn-orange btn-sm">
-                {% include 'svg/gitlab-icon.svg' %} GitLab
-            </a>
+                {% if oauth_enabled('gitlab') %}
+                    <a href="{{ url('auth_gitlab_start') }}" class="btn btn-orange btn-sm">
+                        {% include 'svg/gitlab-icon.svg' %} GitLab
+                    </a>
+                {% endif %}
 
-            <a href="{{ url('auth_bitbucket_start') }}" class="btn btn-bitbucket btn-sm">
-                {% include 'svg/bitbucket-icon.svg' %} Bitbucket
-            </a>
+                {% if oauth_enabled('bitbucket') %}
+                    <a href="{{ url('auth_bitbucket_start') }}" class="btn btn-bitbucket btn-sm">
+                        {% include 'svg/bitbucket-icon.svg' %} Bitbucket
+                    </a>
+                {% endif %}
 
-            <a href="{{ url('auth_buddy_start') }}" class="btn btn-dark btn-sm">
-                <img alt="Buddy" src="https://app.buddy.works/icons/favicon.png" class="icon" />
-                Buddy
-            </a>
-        </div>
+                {% if oauth_enabled('buddy') %}
+                    <a href="{{ url('auth_buddy_start') }}" class="btn btn-dark btn-sm">
+                        <img alt="Buddy" src="https://app.buddy.works/icons/favicon.png" class="icon" />
+                        Buddy
+                    </a>
+                {% endif %}
+            </div>
 
-        <hr />
+            <hr />
 
-        <div class="text-center"><small>or sign in with e-mail</small></div>
+            <div class="text-center"><small>or sign in with e-mail</small></div>
+        {% endif %}
 
         <div class="mb-2">
             <label for="inputEmail" class="form-label">Email address</label>
