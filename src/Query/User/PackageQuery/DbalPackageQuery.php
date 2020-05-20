@@ -42,14 +42,24 @@ final class DbalPackageQuery implements PackageQuery
                 p.last_sync_at,
                 p.last_sync_error,
                 p.webhook_created_at,
-                MAX(s.date) scan_result_date,
-                s.status scan_result_status,
-                CAST(s.content as text) as scan_result_content
+                (
+                    SELECT date FROM organization_package_scan_result s
+                    WHERE s.package_id = p.id
+                    ORDER BY date DESC LIMIT 1
+                ) scan_result_date,
+                (
+                    SELECT status FROM organization_package_scan_result s
+                    WHERE s.package_id = p.id
+                    ORDER BY date DESC LIMIT 1
+                ) scan_result_status,
+                (
+                    SELECT content FROM organization_package_scan_result s
+                    WHERE s.package_id = p.id
+                    ORDER BY date DESC LIMIT 1
+                ) scan_result_content
             FROM organization_package p
-            LEFT JOIN organization_package_scan_result s
-            ON s.package_id = p.id
             WHERE p.organization_id = :organization_id
-            GROUP BY p.id, scan_result_status, scan_result_content
+            GROUP BY p.id
             ORDER BY p.name ASC
             LIMIT :limit OFFSET :offset', [
                 ':organization_id' => $organizationId,
@@ -192,15 +202,27 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return PackageName[]
      */
-    public function getAllSynchronized(): array
+    public function getAllSynchronized(int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): PackageName {
             return new PackageName($data['id'], $data['name']);
         }, $this->connection->fetchAll(
             'SELECT id, name FROM organization_package
             WHERE name IS NOT NULL AND last_sync_error IS NULL
-            ORDER BY last_sync_at ASC'
+            ORDER BY last_sync_at ASC
+            LIMIT :limit OFFSET :offset', [
+                ':limit' => $limit,
+                ':offset' => $offset,
+            ]
         ));
+    }
+
+    public function getAllSynchronizedCount(): int
+    {
+        return (int) $this->connection->fetchColumn(
+            'SELECT COUNT(id) FROM organization_package
+            WHERE name IS NOT NULL AND last_sync_error IS NULL',
+        );
     }
 
     /**

@@ -52,5 +52,7 @@ interface PackageQuery
     /**
      * @return PackageName[]
      */
-    public function getAllSynchronized(): array;
+    public function getAllSynchronized(int $limit = 20, int $offset = 0): array;
+
+    public function getAllSynchronizedCount(): int;
 }

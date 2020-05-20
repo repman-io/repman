@@ -41,20 +41,26 @@ class ScanAllPackagesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $list = $this->packageQuery->getAllSynchronized();
-        $count = count($list);
+        $count = $this->packageQuery->getAllSynchronizedCount();
+        $limit = 50;
+        $offset = 0;
+
         $progressBar = new ProgressBar($output, $count);
         $progressBar->start();
 
-        foreach ($list as $item) {
-            $this->scanner->scan(
-                $this->packageRepository->getById(Uuid::fromString($item->id()))
-            );
-            $progressBar->advance();
+        for ($offset = 0; $offset <= $count; $offset = ($offset + 1) * $limit) {
+            $list = $this->packageQuery->getAllSynchronized($limit, $offset);
+
+            foreach ($list as $item) {
+                $this->scanner->scan(
+                    $this->packageRepository->getById(Uuid::fromString($item->id()))
+                );
+                $progressBar->advance();
+            }
         }
 
         $progressBar->finish();
-        $output->writeln(sprintf('Successfully scanned %d packages', $count));
+        $output->writeln(sprintf("\nSuccessfully scanned %d packages", $count));
 
         return 0;
     }
