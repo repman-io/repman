@@ -63,13 +63,16 @@ final class PackageManager
     public function removeProvider(string $organizationAlias, string $packageName): self
     {
         $file = $this->filepath($organizationAlias, $packageName);
-        $names = explode('/', $packageName);
-        $distDir = $this->baseDir.'/'.$organizationAlias.'/dist/'.$names[0];
-
         if (is_file($file)) {
-            $this->filesystem->remove(dirname($file));
+            $this->filesystem->remove($file);
         }
 
+        return $this;
+    }
+
+    public function removeDist(string $organizationAlias, string $packageName): self
+    {
+        $distDir = $this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName;
         if (is_dir($distDir)) {
             $this->filesystem->remove($distDir);
         }

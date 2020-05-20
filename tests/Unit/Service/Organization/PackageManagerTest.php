@@ -73,16 +73,44 @@ final class PackageManagerTest extends TestCase
         );
 
         $org = 'buddy';
-        $package = 'hello/world';
+        $package1 = 'vendor/package1';
+        $package2 = 'vendor/package2';
 
-        $manager->saveProvider([], $org, $package);
+        $manager->saveProvider([], $org, $package1);
+        $manager->saveProvider([], $org, $package2);
 
-        self::assertTrue(is_dir($this->baseDir.'/buddy/p/hello'));
+        self::assertTrue(file_exists($this->baseDir.'/buddy/p/'.$package1.'.json'));
+        self::assertTrue(file_exists($this->baseDir.'/buddy/p/'.$package2.'.json'));
 
-        $manager->removeProvider($org, $package);
+        $manager->removeProvider($org, $package1);
 
         self::assertTrue(is_dir($this->baseDir.'/buddy'));
-        self::assertFalse(is_dir($this->baseDir.'/buddy/p/hello'));
+        self::assertTrue(is_dir(dirname($this->baseDir.'/buddy/p/'.$package1)));
+        self::assertFalse(file_exists($this->baseDir.'/buddy/p/'.$package1.'.json'));
+        self::assertTrue(file_exists($this->baseDir.'/buddy/p/'.$package2.'.json'));
+    }
+
+    public function testRemoveDist(): void
+    {
+        $manager = new PackageManager(
+            new FileStorage($this->baseDir, new FakeDownloader()),
+            $this->baseDir,
+            $this->filesystem
+        );
+
+        $org = 'buddy';
+        $package1 = 'vendor/package1';
+        $package2 = 'vendor/package2';
+
+        @mkdir($this->baseDir.'/buddy/dist/'.$package1, 0777, true);
+        @mkdir($this->baseDir.'/buddy/dist/'.$package2, 0777, true);
+
+        $manager->removeDist($org, $package1);
+
+        self::assertTrue(is_dir($this->baseDir.'/buddy'));
+        self::assertTrue(is_dir($this->baseDir.'/buddy/dist/vendor'));
+        self::assertFalse(is_dir($this->baseDir.'/buddy/dist/'.$package1));
+        self::assertTrue(is_dir($this->baseDir.'/buddy/dist/'.$package2));
     }
 
     public function testRemoveOrganizationDir(): void

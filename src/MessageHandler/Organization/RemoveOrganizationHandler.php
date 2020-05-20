@@ -31,7 +31,8 @@ final class RemoveOrganizationHandler implements MessageHandlerInterface
         foreach ($organization->synchronizedPackages() as $package) {
             $this
                 ->packageManager
-                ->removeProvider($package->organizationAlias(), (string) $package->name());
+                ->removeProvider($package->organizationAlias(), (string) $package->name())
+                ->removeDist($package->organizationAlias(), (string) $package->name());
         }
 
         $this->packageManager->removeOrganizationDir($organization->alias());
