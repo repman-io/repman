@@ -25,21 +25,6 @@ final class Advisory
         $this->branches = $branches;
     }
 
-    public function title(): string
-    {
-        return $this->title;
-    }
-
-    public function cve(): string
-    {
-        return $this->cve;
-    }
-
-    public function link(): string
-    {
-        return $this->link;
-    }
-
     /**
      * @return Versions[]
      */

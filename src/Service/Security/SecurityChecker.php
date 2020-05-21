@@ -81,7 +81,7 @@ class SecurityChecker
 
         $packages = [];
         foreach (['packages', 'packages-dev'] as $key) {
-            if (!is_array($contents[$key])) {
+            if (!isset($contents[$key]) || !is_array($contents[$key])) {
                 continue;
             }
 
@@ -137,7 +137,7 @@ class SecurityChecker
     private function getDatabase(): \RecursiveIteratorIterator
     {
         if (!is_dir($this->databaseDir)) {
-            throw new \InvalidArgumentException('Advisories database does not exist');
+            throw new \InvalidArgumentException('Advisories database not found');
         }
 
         $advisoryFilter = function (\SplFileInfo $file): bool {

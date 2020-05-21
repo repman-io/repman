@@ -21,19 +21,6 @@ final class Result
         $this->advisories = $advisories;
     }
 
-    public function version(): string
-    {
-        return $this->version;
-    }
-
-    /**
-     * @return Advisory[]
-     */
-    public function advisories(): array
-    {
-        return $this->advisories;
-    }
-
     /**
      * @return array<string,string|array<string,string>>
      */
