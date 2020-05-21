@@ -36,7 +36,8 @@ final class RemovePackageHandler implements MessageHandlerInterface
         if ($package->isSynchronized()) {
             $this
                 ->packageManager
-                ->removeProvider($package->organizationAlias(), (string) $package->name());
+                ->removeProvider($package->organizationAlias(), (string) $package->name())
+                ->removeDist($package->organizationAlias(), (string) $package->name());
         }
     }
 }
