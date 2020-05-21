@@ -45,7 +45,7 @@ final class SecurityCheckerTest extends TestCase
 
     public function testSuccessfulScanWithAlerts(): void
     {
-        self::assertEquals($this->checker->check($this->insecureLock()), [
+        self::assertEqualsCanonicalizing($this->checker->check($this->insecureLock()), [
             'aws/aws-sdk-php' => [
                 'version' => '3.2.0',
                 'advisories' => [
