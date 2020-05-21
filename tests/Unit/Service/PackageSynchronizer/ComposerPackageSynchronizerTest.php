@@ -82,12 +82,40 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertFileNotExists($path);
     }
 
-    public function testSynchronizePackageWithToken(): void
+    public function testSynchronizePackageWithGitLabToken(): void
     {
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab-oauth', $this->resourcesDir.'artifacts', 'buddy'));
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab', $this->resourcesDir.'artifacts', 'buddy'));
+
+        self::assertFileExists($path);
+
+        $json = unserialize((string) file_get_contents($path));
+        self::assertTrue($json['packages']['repman-io/repman'] !== []);
+        @unlink($path);
+    }
+
+    public function testSynchronizePackageWithGitHubToken(): void
+    {
+        $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
+        @unlink($path);
+
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('github', $this->resourcesDir.'artifacts', 'buddy'));
+
+        self::assertFileExists($path);
+
+        $json = unserialize((string) file_get_contents($path));
+        self::assertTrue($json['packages']['repman-io/repman'] !== []);
+        @unlink($path);
+    }
+
+    public function testSynchronizePackageWithBitbucketToken(): void
+    {
+        $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
+        @unlink($path);
+
+        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('bitbucket', $this->resourcesDir.'artifacts', 'buddy'));
 
         self::assertFileExists($path);
 
