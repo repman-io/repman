@@ -8,22 +8,47 @@ use Buddy\Repman\Service\Security\SecurityChecker\Advisory;
 use Buddy\Repman\Service\Security\SecurityChecker\Package;
 use Buddy\Repman\Service\Security\SecurityChecker\Result;
 use Buddy\Repman\Service\Security\SecurityChecker\Versions;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
 
 class SecurityChecker
 {
     private Parser $yamlParser;
     private string $databaseDir;
+    private string $databaseRepo;
 
     /**
      * @var array<string,Advisory[]>
      */
     private array $advisories = [];
 
-    public function __construct(string $databaseDir)
+    public function __construct(string $databaseDir, string $databaseRepo)
     {
         $this->yamlParser = new Parser();
         $this->databaseDir = $databaseDir;
+        $this->databaseRepo = $databaseRepo;
+    }
+
+    public function update(): string
+    {
+        if (!is_dir($this->databaseDir.'/.git')) {
+            @mkdir($this->databaseDir, 0777, true);
+
+            return $this->cloneRepo();
+        }
+
+        return $this->updateRepo();
+    }
+
+    public function databaseDir(): string
+    {
+        $path = realpath($this->databaseDir);
+        if ($path === false) {
+            throw new \RuntimeException('Database directory does not exist');
+        }
+
+        return $path;
     }
 
     /**
@@ -105,7 +130,7 @@ class SecurityChecker
             }
 
             $packageName = $this->parsePackageName(
-                str_replace($this->databaseDir, '', $file->getPathname())
+                str_replace($this->databaseDir(), '', $file->getPathname())
             );
 
             if ($packageName === null) {
@@ -136,12 +161,8 @@ class SecurityChecker
 
     private function getDatabase(): \RecursiveIteratorIterator
     {
-        if (!is_dir($this->databaseDir)) {
-            throw new \InvalidArgumentException('Advisories database not found');
-        }
-
         $advisoryFilter = function (\SplFileInfo $file): bool {
-            if ($file->isFile() && $file->getPath() === $this->databaseDir) {
+            if ($file->isFile() && $file->getPath() === $this->databaseDir()) {
                 return false;
             }
 
@@ -157,7 +178,7 @@ class SecurityChecker
 
         return new \RecursiveIteratorIterator(
             new \RecursiveCallbackFilterIterator(
-                new \RecursiveDirectoryIterator($this->databaseDir),
+                new \RecursiveDirectoryIterator($this->databaseDir()),
                 $advisoryFilter
             )
         );
@@ -174,5 +195,37 @@ class SecurityChecker
     private function loadAdvisoriesDatabase(): void
     {
         $this->advisories = $this->getAdvisories();
+    }
+
+    private function cloneRepo(): string
+    {
+        $process = new Process([
+            'git', 'clone',
+            '--depth', '1',
+            '--branch', 'master',
+            $this->databaseRepo, $this->databaseDir(),
+        ]);
+
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
+    }
+
+    private function updateRepo(): string
+    {
+        $process = new Process([
+            'git', '-C', $this->databaseDir(),
+            'pull', '--depth', '1', '--force',
+        ]);
+
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        return $process->getOutput();
     }
 }

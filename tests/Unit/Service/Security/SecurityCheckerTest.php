@@ -18,7 +18,7 @@ final class SecurityCheckerTest extends TestCase
         $this->dbDir = __DIR__.'/../../../Resources/fixtures/security/security-advisories';
         $this->fixturesDir = __DIR__.'/../../../Resources/fixtures/security/locks';
 
-        $this->checker = new SecurityChecker($this->dbDir);
+        $this->checker = new SecurityChecker($this->dbDir, '');
     }
 
     public function testInvalidLockFile(): void
@@ -31,10 +31,10 @@ final class SecurityCheckerTest extends TestCase
 
     public function testMissingDatabase(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Advisories database not found');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Database directory does not exist');
 
-        $this->checker = new SecurityChecker(sys_get_temp_dir().'/bogus-security-advisories');
+        $this->checker = new SecurityChecker(sys_get_temp_dir().'/bogus-security-advisories', '');
         $this->checker->check($this->insecureLock());
     }
 

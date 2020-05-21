@@ -10,6 +10,7 @@ parameters:
     dists_dir: '%env(resolve:PROXY_DIST_DIR)%'
     repo_dir: '%env(resolve:PACKAGES_DIST_DIR)%'
     security_advisories_db_dir: '%kernel.project_dir%/var/security-advisories'
+    security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
     domain: '%env(resolve:APP_HOST)%'
     url_scheme: '%env(resolve:APP_URL_SCHEME)%'
     router.request_context.scheme: '%env(resolve:APP_URL_SCHEME)%'
@@ -77,6 +78,7 @@ services:
     Buddy\Repman\Service\Security\SecurityChecker:
         arguments:
             $databaseDir: '%security_advisories_db_dir%'
+            $databaseRepo: '%security_advisories_db_repo%'
 
     ### Vendor
     Github\Client:
