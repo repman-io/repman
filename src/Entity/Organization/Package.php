@@ -153,6 +153,11 @@ class Package
         return $this->name !== null;
     }
 
+    public function isSynchronizedSuccessfully(): bool
+    {
+        return $this->isSynchronized() && $this->lastSyncError === null;
+    }
+
     public function oauthToken(): string
     {
         $token = $this->organization->oauthToken(str_replace('-oauth', '', $this->type));
@@ -188,6 +193,11 @@ class Package
         }
 
         return $this->metadata[$key];
+    }
+
+    public function latestReleasedVersion(): ?string
+    {
+        return $this->latestReleasedVersion;
     }
 
     private function setName(string $name): void

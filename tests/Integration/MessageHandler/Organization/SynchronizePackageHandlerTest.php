@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
 use Buddy\Repman\Message\Organization\SynchronizePackage;
-use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Service\PackageSynchronizer;
@@ -24,9 +23,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
             $date = new \DateTimeImmutable()
         );
 
-        $handler = $this->container()->get(SynchronizePackageHandler::class);
-        $handler->__invoke(new SynchronizePackage($packageId));
-        $this->container()->get('doctrine.orm.entity_manager')->flush();
+        $this->dispatchMessage(new SynchronizePackage($packageId));
 
         /** @var Package $package */
         $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
@@ -44,8 +41,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
     {
         $exception = null;
         try {
-            $handler = $this->container()->get(SynchronizePackageHandler::class);
-            $handler->__invoke(new SynchronizePackage('e0ea4d32-4144-4a67-9310-6dae483a6377'));
+            $this->dispatchMessage(new SynchronizePackage('e0ea4d32-4144-4a67-9310-6dae483a6377'));
         } catch (\Exception $exception) {
         }
 

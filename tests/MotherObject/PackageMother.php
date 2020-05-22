@@ -34,7 +34,7 @@ final class PackageMother
     {
         $package = new Package(
             Uuid::uuid4(),
-            $type,
+            "$type-oauth",
             $url
         );
         $package->setOrganization(new Organization(
@@ -46,9 +46,28 @@ final class PackageMother
         $user->addOAuthToken(new OAuthToken(
             Uuid::uuid4(),
             new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
-            rtrim($type, '-oauth'),
+            $type,
             'secret'
         ));
+
+        return $package;
+    }
+
+    public static function synchronized(string $name, string $latestVersion, string $url = ''): Package
+    {
+        $package = new Package(Uuid::uuid4(), 'path', $url);
+        $package->setOrganization(new Organization(
+            Uuid::uuid4(),
+            new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),
+            'Buddy',
+            'buddy'
+        ));
+        $package->syncSuccess(
+            $name,
+            'Package description',
+            $latestVersion,
+            new \DateTimeImmutable()
+        );
 
         return $package;
     }
