@@ -24,6 +24,7 @@ use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
@@ -318,6 +319,31 @@ final class OrganizationController extends AbstractController
             'organization' => $organization,
             'installs' => $this->organizationQuery->getInstalls($organization->id(), $days),
             'days' => $days,
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}/scan", name="organization_package_scan", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function scanPackage(Organization $organization, Package $package): Response
+    {
+        $this->dispatchMessage(new ScanPackage($package->id()));
+
+        $this->addFlash('success', 'Package will be scanned in the background');
+
+        return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}/scan-results", name="organization_package_scan_results", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function packageScanResults(Organization $organization, Package $package, Request $request): Response
+    {
+        return $this->render('organization/package/scanResults.html.twig', [
+            'organization' => $organization,
+            'package' => $package,
+            'results' => $this->packageQuery->getScanResults($package->id(), 20, (int) $request->get('offset', 0)),
+            'count' => $this->packageQuery->getScanResultsCount($package->id()),
         ]);
     }
 
