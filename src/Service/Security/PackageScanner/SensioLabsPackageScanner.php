@@ -137,7 +137,7 @@ final class SensioLabsPackageScanner implements PackageScanner
     private function extractLockFiles(string $distFilename): array
     {
         $zip = new \ZipArchive();
-        $result = $zip->open($distFilename, \ZipArchive::RDONLY);
+        $result = $zip->open($distFilename);
         if ($result !== true) {
             throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
         }
