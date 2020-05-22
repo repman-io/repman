@@ -6,3 +6,4 @@ framework:
         routing:
             'Buddy\Repman\Message\User\SendPasswordResetLink': sync
             'Buddy\Repman\Message\User\SendConfirmToken': sync
+            'Buddy\Repman\Message\Organization\SynchronizePackage': sync
