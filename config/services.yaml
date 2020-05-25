@@ -13,6 +13,8 @@ parameters:
     url_scheme: '%env(resolve:APP_URL_SCHEME)%'
     router.request_context.scheme: '%env(resolve:APP_URL_SCHEME)%'
     router.request_context.host: '%env(default:domain:APP_PUBLIC_HOST)%'
+    security_advisories_db_dir: '%env(resolve:SECURITY_ADVISORIES_DB_DIR)%'
+    security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
 
 services:
     # default configuration for services in *this* file
@@ -77,6 +79,11 @@ services:
                 gitlab: '%env(OAUTH_GITLAB_CLIENT_ID)%'
                 bitbucket: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
                 buddy: '%env(OAUTH_BUDDY_CLIENT_ID)%'
+
+    Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker:
+        arguments:
+            $databaseDir: '%security_advisories_db_dir%'
+            $databaseRepo: '%security_advisories_db_repo%'
 
     ### Vendor
     Github\Client:
