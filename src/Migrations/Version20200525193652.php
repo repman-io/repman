@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200514173159 extends AbstractMigration
+final class Version20200525193652 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -29,6 +29,10 @@ final class Version20200514173159 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN organization_package_scan_result.package_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN organization_package_scan_result.date IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('ALTER TABLE organization_package_scan_result ADD CONSTRAINT FK_9AB3F43AF44CABFF FOREIGN KEY (package_id) REFERENCES organization_package (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE organization_package ADD last_scan_result JSON DEFAULT NULL');
+        $this->addSql('ALTER TABLE organization_package ADD last_scan_status VARCHAR(7) DEFAULT NULL');
+        $this->addSql('ALTER TABLE organization_package ADD last_scan_date TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
+        $this->addSql('COMMENT ON COLUMN organization_package.last_scan_date IS \'(DC2Type:datetime_immutable)\'');
     }
 
     public function down(Schema $schema): void
@@ -37,5 +41,8 @@ final class Version20200514173159 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('DROP TABLE organization_package_scan_result');
+        $this->addSql('ALTER TABLE organization_package DROP last_scan_result');
+        $this->addSql('ALTER TABLE organization_package DROP last_scan_status');
+        $this->addSql('ALTER TABLE organization_package DROP last_scan_date');
     }
 }

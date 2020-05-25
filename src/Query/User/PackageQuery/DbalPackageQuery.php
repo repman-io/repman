@@ -31,36 +31,24 @@ final class DbalPackageQuery implements PackageQuery
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
             'SELECT
-                p.id,
-                p.organization_id,
-                p.type,
-                p.repository_url,
-                p.name,
-                p.latest_released_version,
-                p.latest_release_date,
-                p.description,
-                p.last_sync_at,
-                p.last_sync_error,
-                p.webhook_created_at,
-                (
-                    SELECT date FROM organization_package_scan_result s
-                    WHERE s.package_id = p.id
-                    ORDER BY date DESC LIMIT 1
-                ) scan_result_date,
-                (
-                    SELECT status FROM organization_package_scan_result s
-                    WHERE s.package_id = p.id
-                    ORDER BY date DESC LIMIT 1
-                ) scan_result_status,
-                (
-                    SELECT content FROM organization_package_scan_result s
-                    WHERE s.package_id = p.id
-                    ORDER BY date DESC LIMIT 1
-                ) scan_result_content
-            FROM organization_package p
-            WHERE p.organization_id = :organization_id
-            GROUP BY p.id
-            ORDER BY p.name ASC
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result
+            FROM organization_package
+            WHERE organization_id = :organization_id
+            GROUP BY id
+            ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
                 ':organization_id' => $organizationId,
                 ':limit' => $limit,
@@ -230,12 +218,12 @@ final class DbalPackageQuery implements PackageQuery
      */
     private function hydratePackage(array $data): Package
     {
-        $scanResult = isset($data['scan_result_status']) ?
+        $scanResult = isset($data['last_scan_status']) ?
             new ScanResult(
-                new \DateTimeImmutable($data['scan_result_date']),
-                $data['scan_result_status'],
+                new \DateTimeImmutable($data['last_scan_date']),
+                $data['last_scan_status'],
                 $data['latest_released_version'],
-                $data['scan_result_content'],
+                $data['last_scan_result'],
             ) : null;
 
         return new Package(

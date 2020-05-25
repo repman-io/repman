@@ -221,14 +221,16 @@ final class FixturesManager
      */
     public function addScanResult(string $packageId, string $status, array $content = ['composer.lock' => []]): void
     {
+        $date = new \DateTimeImmutable();
         $package = $this->container
             ->get(PackageRepository::class)
             ->getById(Uuid::fromString($packageId));
+        $package->setScanResult($status, $date, $content);
         $this->container->get(ScanResultRepository::class)->add(
             new ScanResult(
                 Uuid::uuid4(),
                 $package,
-                new \DateTimeImmutable(),
+                $date,
                 $status,
                 $content
             )

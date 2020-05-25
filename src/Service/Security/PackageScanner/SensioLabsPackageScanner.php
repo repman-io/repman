@@ -67,15 +67,9 @@ final class SensioLabsPackageScanner implements PackageScanner
      */
     private function saveResult(Package $package, string $status, array $result): void
     {
-        $this->results->add(
-            new ScanResult(
-                Uuid::uuid4(),
-                $package,
-                new \DateTimeImmutable(),
-                $status,
-                $result
-            )
-        );
+        $date = new \DateTimeImmutable();
+        $package->setScanResult($status, $date, $result);
+        $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $result));
     }
 
     /**
@@ -83,15 +77,10 @@ final class SensioLabsPackageScanner implements PackageScanner
      */
     private function saveError(Package $package, array $error): void
     {
-        $this->results->add(
-            new ScanResult(
-                Uuid::uuid4(),
-                $package,
-                new \DateTimeImmutable(),
-                ScanResult::STATUS_ERROR,
-                $error
-            )
-        );
+        $status = ScanResult::STATUS_ERROR;
+        $date = new \DateTimeImmutable();
+        $package->setScanResult(ScanResult::STATUS_ERROR, $date, $error);
+        $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $error));
     }
 
     private function findDistribution(Package $package): string
