@@ -1,0 +1,2 @@
+*/5 * * * * /app/bin/console repman:proxy:sync-releases
+0 */2 * * * /app/bin/console repman:security:update-db
