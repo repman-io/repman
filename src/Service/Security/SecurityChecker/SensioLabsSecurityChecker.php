@@ -182,7 +182,9 @@ final class SensioLabsSecurityChecker implements SecurityChecker
 
     private function loadAdvisoriesDatabase(): void
     {
-        $this->advisories = $this->getAdvisories();
+        if ($this->advisories === []) {
+            $this->advisories = $this->getAdvisories();
+        }
     }
 
     private function cloneRepo(): void
