@@ -19,6 +19,5 @@ final class UpdateAdvisoriesDbCommandTest extends FunctionalTestCase
         $output = $commandTester->getDisplay();
 
         self::assertEquals($result, 0);
-        self::assertStringContainsString('Database successfully updated', $output);
     }
 }
