@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\Model;
 
 use Buddy\Repman\Entity\Organization\Package\ScanResult as ScanResultEntity;
-use Buddy\Repman\Query\User\Model\ScanResult\ResultContent;
 
 final class ScanResult
 {
     private \DateTimeImmutable $date;
     private string $status = ScanResultEntity::STATUS_PENDING;
     private string $version;
-    private ResultContent $content;
+    private string $content;
 
     public static function statusPending(): string
     {
@@ -24,7 +23,7 @@ final class ScanResult
         $this->date = $date;
         $this->status = $status;
         $this->version = $version;
-        $this->content = new ResultContent($content);
+        $this->content = $content;
     }
 
     public function status(): string
@@ -52,21 +51,11 @@ final class ScanResult
         return $this->status() === ScanResultEntity::STATUS_PENDING;
     }
 
-    public function contentHtml(): string
+    /**
+     * @return mixed[]
+     */
+    public function content(): array
     {
-        if ($this->isOk()) {
-            return 'no advisories';
-        }
-
-        return $this->content->html();
-    }
-
-    public function contentHtmlSimple(): string
-    {
-        if ($this->isOk()) {
-            return 'no advisories';
-        }
-
-        return $this->content->htmlSimple();
+        return json_decode($this->content, true);
     }
 }

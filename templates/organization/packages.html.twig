@@ -71,7 +71,7 @@
                         {% if package.isSynchronizedSuccessfully %}
                             <a
                                 href="{{ path('organization_package_scan_results', {organization: organization.alias, package: package.id}) }}"
-                                data-content="{{ package.scanResultContentHtml|raw }}"
+                                data-content="{% apply escape %}{% include 'organization/package/scanResultContent.html.twig' with {'result': package.lastScanResultContent, 'simple': true} %}{% endapply %}"
                                 data-title="{{ package.scanResultDate|time_diff }}"
                                 data-toggle="scan-result-popover"
                             >

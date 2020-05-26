@@ -34,7 +34,6 @@ class UpdateAdvisoriesDbCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->checker->update();
-        $output->writeln(sprintf('Database successfully updated'));
 
         return 0;
     }
