@@ -530,7 +530,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('ok', $this->lastResponseBody());
         self::assertStringContainsString('no advisories', $this->lastResponseBody());
         self::assertStringContainsString('error', $this->lastResponseBody());
-        self::assertStringContainsString('<b>RuntimeException</b> - Lock file not found', $this->lastResponseBody());
+        self::assertStringContainsString('&lt;b&gt;RuntimeException&lt;/b&gt; - Lock file not found', $this->lastResponseBody());
     }
 
     public function testPackageScanResultsWithOkStatus(): void

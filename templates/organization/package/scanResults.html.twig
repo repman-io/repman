@@ -35,7 +35,9 @@
                     {% endif %}
                 </td>
                 <td>{{ result.version }}</td>
-                <td>{{ result.contentHtml|raw }}</td>
+                <td>
+                    {% include 'organization/package/scanResultContent.html.twig' with {'result': result.content, 'simple': false} %}
+                </td>
             </tr>
         {% endfor %}
     </tbody>

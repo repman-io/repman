@@ -1,0 +1,35 @@
+{% for lockFile, lockFileResult in result %}
+    {% if lockFile == 'exception' %}
+        {% for class, message in lockFileResult %}
+            <b>{{ class }}</b> - {{ message }}
+        {% endfor %}
+    {% else %}
+        {% if lockFileResult is not empty %}
+            <div class="small text-muted">{{ lockFile }}</div>
+            {% for dependencyName, dependency in lockFileResult %}
+                <b>{{ dependencyName }}</b> ({{ dependency.version }})
+                <ul>
+                    {% for advisor in dependency.advisories %}
+                        <li>
+                            {{ advisor.title }}<br>
+                            {% if advisor.cve is not empty %}
+                                <b>{{ advisor.cve }}</b><br>
+                            {% endif %}
+                            {% if advisor.link is not empty and not simple %}
+                                <a
+                                    href="{{ advisor.link }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer nofollow"
+                                >
+                                    {{ advisor.link }}
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% else %}
+            no advisories
+        {% endif %}
+    {% endif %}
+{% endfor %}
