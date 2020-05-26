@@ -132,8 +132,11 @@ final class Package
         return $this->scanResult !== null ? $this->scanResult->isPending() : true;
     }
 
-    public function scanResultContentHtml(): string
+    /**
+     * @return mixed[]
+     */
+    public function lastScanResultContent(): array
     {
-        return $this->scanResult !== null ? $this->scanResult->contentHtmlSimple() : '';
+        return $this->scanResult !== null ? $this->scanResult->content() : [];
     }
 }
