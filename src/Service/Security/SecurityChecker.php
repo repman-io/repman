@@ -11,7 +11,5 @@ interface SecurityChecker
      */
     public function check(string $lockFile): array;
 
-    public function update(): void;
-
-    public function hasDbBeenUpdated(): bool;
+    public function update(): bool;
 }

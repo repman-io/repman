@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
-use Buddy\Repman\Query\User\PackageQuery;
-use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateAdvisoriesDbCommand extends Command
 {
     private SecurityChecker $checker;
-    private PackageScanner $scanner;
-    private PackageQuery $packageQuery;
-    private PackageRepository $packageRepository;
+    private ScanAllPackagesCommand $scanCommand;
 
-    public function __construct(SecurityChecker $checker, PackageScanner $scanner, PackageQuery $packageQuery, PackageRepository $packageRepository)
+    public function __construct(SecurityChecker $checker, ScanAllPackagesCommand $scanCommand)
     {
         parent::__construct();
 
         $this->checker = $checker;
-        $this->scanner = $scanner;
-        $this->packageQuery = $packageQuery;
-        $this->packageRepository = $packageRepository;
+        $this->scanCommand = $scanCommand;
     }
 
     /**
@@ -43,21 +37,8 @@ class UpdateAdvisoriesDbCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->checker->update();
-
-        if ($this->checker->hasDbBeenUpdated()) {
-            $count = $this->packageQuery->getAllSynchronizedCount();
-            $limit = 50;
-            $offset = 0;
-
-            for ($offset = 0; $offset <= $count; $offset = ($offset + 1) * $limit) {
-                $list = $this->packageQuery->getAllSynchronized($limit, $offset);
-                foreach ($list as $item) {
-                    $this->scanner->scan(
-                        $this->packageRepository->getById(Uuid::fromString($item->id()))
-                    );
-                }
-            }
+        if ($this->checker->update()) {
+            $this->scanCommand->execute(new ArrayInput([]), new NullOutput());
         }
 
         return 0;

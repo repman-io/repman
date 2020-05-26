@@ -16,11 +16,7 @@ final class FakeSecurityChecker implements SecurityChecker
         return [];
     }
 
-    public function update(): void
-    {
-    }
-
-    public function hasDbBeenUpdated(): bool
+    public function update(): bool
     {
         return true;
     }

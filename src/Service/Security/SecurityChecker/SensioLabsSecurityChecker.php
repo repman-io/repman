@@ -14,7 +14,6 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     private Parser $yamlParser;
     private string $databaseDir;
     private string $databaseRepo;
-    private bool $dbUpdated = false;
 
     /**
      * @var array<string,Advisory[]>
@@ -28,21 +27,16 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         $this->databaseRepo = $databaseRepo;
     }
 
-    public function update(): void
+    public function update(): bool
     {
         if (!is_dir($this->databaseDir.'/.git')) {
             @mkdir($this->databaseDir, 0777, true);
             $this->cloneRepo();
 
-            return;
+            return false;
         }
 
-        $this->updateRepo();
-    }
-
-    public function hasDbBeenUpdated(): bool
-    {
-        return $this->dbUpdated;
+        return $this->updateRepo();
     }
 
     /**
@@ -200,13 +194,13 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         ]);
     }
 
-    private function updateRepo(): void
+    private function updateRepo(): bool
     {
         $this->runProcess(['git', '--git-dir=.git', 'clean', '-f']);
         $this->runProcess(['git', '--git-dir=.git', 'reset', '--hard', 'origin/master']);
         $output = $this->runProcess(['git', '--git-dir=.git', 'pull', '--depth', '1']);
 
-        $this->dbUpdated = preg_match('/up to date/i', $output) !== 1;
+        return preg_match('/up to date/i', $output) !== 1;
     }
 
     /**
