@@ -14,6 +14,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     private Parser $yamlParser;
     private string $databaseDir;
     private string $databaseRepo;
+    private bool $dbUpdated = false;
 
     /**
      * @var array<string,Advisory[]>
@@ -37,6 +38,11 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         }
 
         $this->updateRepo();
+    }
+
+    public function hasDbBeenUpdated(): bool
+    {
+        return $this->dbUpdated;
     }
 
     /**
@@ -198,13 +204,15 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     {
         $this->runProcess(['git', '--git-dir=.git', 'clean', '-f']);
         $this->runProcess(['git', '--git-dir=.git', 'reset', '--hard', 'origin/master']);
-        $this->runProcess(['git', '--git-dir=.git', 'pull', '--depth', '1']);
+        $output = $this->runProcess(['git', '--git-dir=.git', 'pull', '--depth', '1']);
+
+        $this->dbUpdated = preg_match('/up to date/i', $output) !== 1;
     }
 
     /**
      * @param string[] $command
      */
-    protected function runProcess(array $command): void
+    protected function runProcess(array $command): string
     {
         $process = new Process($command, $this->databaseDir);
         $process->run();
@@ -212,5 +220,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
+
+        return $process->getOutput();
     }
 }
