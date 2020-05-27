@@ -8,6 +8,7 @@ use Buddy\Repman\Form\Type\User\RegisterType;
 use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
+use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
 use Ramsey\Uuid\Uuid;
@@ -21,11 +22,13 @@ class RegistrationController extends AbstractController
 {
     private UserGuardHelper $guard;
     private Config $config;
+    private UserRepository $users;
 
-    public function __construct(UserGuardHelper $guard, Config $config)
+    public function __construct(UserGuardHelper $guard, Config $config, UserRepository $users)
     {
         $this->guard = $guard;
         $this->config = $config;
+        $this->users = $users;
     }
 
     /**
@@ -44,7 +47,7 @@ class RegistrationController extends AbstractController
                 $email = $form->get('email')->getData(),
                 $form->get('plainPassword')->getData(),
                 $confirmToken = Uuid::uuid4()->toString(),
-                ['ROLE_USER']
+                $this->users->anyExists() ? ['ROLE_USER'] : ['ROLE_USER', 'ROLE_ADMIN'],
             ));
             $this->dispatchMessage(new SendConfirmToken(
                 $email,

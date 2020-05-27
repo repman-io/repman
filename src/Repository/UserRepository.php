@@ -95,4 +95,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $this->_em->remove($this->getById($id));
     }
+
+    public function anyExists(): bool
+    {
+        return $this->count([]) > 0;
+    }
 }
