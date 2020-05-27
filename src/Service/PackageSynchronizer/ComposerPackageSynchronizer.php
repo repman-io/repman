@@ -140,6 +140,13 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 ],
             ],
         ]);
+        if ($package->type() === 'gitlab-oauth') {
+            $config->merge([
+                'config' => [
+                    'gitlab-domains' => [(string) parse_url($this->gitlabUrl, PHP_URL_HOST)],
+                ],
+            ]);
+        }
 
         return $config;
     }
