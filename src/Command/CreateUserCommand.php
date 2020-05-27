@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class CreateAdminCommand extends Command
+class CreateUserCommand extends Command
 {
     private MessageBusInterface $bus;
 
@@ -29,8 +29,8 @@ class CreateAdminCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:create:admin')
-            ->setDescription('Create admin user')
+            ->setName('repman:create:user')
+            ->setDescription('Create normal user')
             ->addArgument('email', InputArgument::REQUIRED, 'e-mail used to log in')
             ->addArgument('password', InputArgument::OPTIONAL, 'plain password, if you don\'t provide it, you\'ll be asked for it')
         ;
@@ -42,18 +42,17 @@ class CreateAdminCommand extends Command
         $email = $input->getArgument('email');
         /** @var string $plainPassword */
         $plainPassword = $input->getArgument('password') ?? $this->getHelper('question')
-            ->ask($input, $output, (new Question('User password:'))->setHidden(true));
+                                                                 ->ask($input, $output, (new Question('User password:'))->setHidden(true));
         $id = Uuid::uuid4()->toString();
 
         $this->bus->dispatch(new CreateUser(
             $id,
             $email,
             $plainPassword,
-            Uuid::uuid4()->toString(),
-            ['ROLE_ADMIN']
+            Uuid::uuid4()->toString()
         ));
 
-        $output->writeln(sprintf('Created admin user with id: %s', $id));
+        $output->writeln(sprintf('Created user with id: %s', $id));
 
         return 0;
     }
