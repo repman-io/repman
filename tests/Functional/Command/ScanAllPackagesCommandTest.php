@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\ScanAllPackagesCommand;
+use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Repository\PackageRepository;
+use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -26,7 +29,18 @@ final class ScanAllPackagesCommandTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($this->buddyId, 'https://buddy.com');
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
-        $commandTester = new CommandTester($this->container()->get(ScanAllPackagesCommand::class));
+        $scannerMock = $this->createMock(PackageScanner::class);
+        $scannerMock
+            ->expects(self::once())
+            ->method('scan');
+
+        $scanCommand = new ScanAllPackagesCommand(
+            $scannerMock,
+            self::$kernel->getContainer()->get('test.service_container')->get(PackageQuery::class),
+            self::$kernel->getContainer()->get('test.service_container')->get(PackageRepository::class)
+        );
+
+        $commandTester = new CommandTester($scanCommand);
         $result = $commandTester->execute([]);
         $output = $commandTester->getDisplay();
 

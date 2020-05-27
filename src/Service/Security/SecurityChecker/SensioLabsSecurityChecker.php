@@ -27,16 +27,16 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         $this->databaseRepo = $databaseRepo;
     }
 
-    public function update(): void
+    public function update(): bool
     {
         if (!is_dir($this->databaseDir.'/.git')) {
             @mkdir($this->databaseDir, 0777, true);
             $this->cloneRepo();
 
-            return;
+            return false;
         }
 
-        $this->updateRepo();
+        return $this->updateRepo();
     }
 
     /**
@@ -194,17 +194,19 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         ]);
     }
 
-    private function updateRepo(): void
+    private function updateRepo(): bool
     {
         $this->runProcess(['git', '--git-dir=.git', 'clean', '-f']);
         $this->runProcess(['git', '--git-dir=.git', 'reset', '--hard', 'origin/master']);
-        $this->runProcess(['git', '--git-dir=.git', 'pull', '--depth', '1']);
+        $output = $this->runProcess(['git', '--git-dir=.git', 'pull', '--depth', '1']);
+
+        return preg_match('/up to date/i', $output) !== 1;
     }
 
     /**
      * @param string[] $command
      */
-    protected function runProcess(array $command): void
+    protected function runProcess(array $command): string
     {
         $process = new Process($command, $this->databaseDir);
         $process->run();
@@ -212,5 +214,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
+
+        return $process->getOutput();
     }
 }
