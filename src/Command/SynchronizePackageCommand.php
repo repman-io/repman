@@ -35,14 +35,14 @@ final class SynchronizePackageCommand extends Command
         $this
             ->setName('repman:package:synchronize')
             ->setDescription('Synchronize given package')
-            ->addArgument('package id', InputArgument::REQUIRED, 'package UUID')
+            ->addArgument('packageId', InputArgument::REQUIRED, 'package UUID')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var string $packageId */
-        $packageId = $input->getArgument('package id');
+        $packageId = $input->getArgument('packageId');
         if (!$this->packages->find(Uuid::fromString($packageId)) instanceof Package) {
             $output->writeln('Package not found');
 

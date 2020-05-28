@@ -28,15 +28,16 @@ final class SynchronizePackageCommandTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($this->buddyId, 'https://buddy.com');
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
-        $commandTester = new CommandTester($this->container()->get(SynchronizePackageCommand::class));
-        $result = $commandTester->execute([
-            'package id' => $packageId,
-        ]);
-
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
+        $transport->reset();
 
-        self::assertCount(2, $transport->getSent());
+        $commandTester = new CommandTester($this->container()->get(SynchronizePackageCommand::class));
+        $result = $commandTester->execute([
+            'packageId' => $packageId,
+        ]);
+
+        self::assertCount(1, $transport->getSent());
         self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
         self::assertEquals($result, 0);
     }
@@ -45,7 +46,7 @@ final class SynchronizePackageCommandTest extends FunctionalTestCase
     {
         $commandTester = new CommandTester($this->container()->get(SynchronizePackageCommand::class));
         $result = $commandTester->execute([
-            'package id' => 'c0dbfca1-cf1b-4334-9081-41a2125fc443',
+            'packageId' => 'c0dbfca1-cf1b-4334-9081-41a2125fc443',
         ]);
 
         self::assertStringContainsString('Package not found', $commandTester->getDisplay());
