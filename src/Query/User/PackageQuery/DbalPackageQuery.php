@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
+use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
@@ -29,9 +30,24 @@ final class DbalPackageQuery implements PackageQuery
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
         }, $this->connection->fetchAll(
-            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
-            FROM "organization_package"
+            'SELECT
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result
+            FROM organization_package
             WHERE organization_id = :organization_id
+            GROUP BY id
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
                 ':organization_id' => $organizationId,
@@ -117,7 +133,7 @@ final class DbalPackageQuery implements PackageQuery
     public function getInstallVersions(string $packageId): array
     {
         return array_column($this->connection->fetchAll('
-            SELECT DISTINCT version FROM organization_package_download 
+            SELECT DISTINCT version FROM organization_package_download
             WHERE package_id= :package ORDER BY version DESC', [
             ':package' => $packageId,
         ]), 'version');
@@ -131,10 +147,85 @@ final class DbalPackageQuery implements PackageQuery
     }
 
     /**
+     * @return ScanResult[]
+     */
+    public function getScanResults(string $packageId, int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $data): ScanResult {
+            return new ScanResult(
+                new \DateTimeImmutable($data['date']),
+                $data['status'],
+                $data['version'],
+                $data['content'],
+            );
+        }, $this->connection->fetchAll(
+            'SELECT
+                date,
+                status,
+                version,
+                content
+            FROM organization_package_scan_result
+            WHERE package_id = :package_id
+            ORDER BY date DESC
+            LIMIT :limit OFFSET :offset', [
+                ':package_id' => $packageId,
+                ':limit' => $limit,
+                ':offset' => $offset,
+            ]));
+    }
+
+    public function getScanResultsCount(string $packageId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(id) FROM "organization_package_scan_result"
+                WHERE package_id = :package_id',
+                [
+                    ':package_id' => $packageId,
+                ]
+            );
+    }
+
+    /**
+     * @return PackageName[]
+     */
+    public function getAllSynchronized(int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $data): PackageName {
+            return new PackageName($data['id'], $data['name']);
+        }, $this->connection->fetchAll(
+            'SELECT id, name FROM organization_package
+            WHERE name IS NOT NULL AND last_sync_error IS NULL
+            ORDER BY last_sync_at ASC
+            LIMIT :limit OFFSET :offset', [
+                ':limit' => $limit,
+                ':offset' => $offset,
+            ]
+        ));
+    }
+
+    public function getAllSynchronizedCount(): int
+    {
+        return (int) $this->connection->fetchColumn(
+            'SELECT COUNT(id) FROM organization_package
+            WHERE name IS NOT NULL AND last_sync_error IS NULL',
+        );
+    }
+
+    /**
      * @param array<mixed> $data
      */
     private function hydratePackage(array $data): Package
     {
+        $scanResult = isset($data['last_scan_status']) ?
+            new ScanResult(
+                new \DateTimeImmutable($data['last_scan_date']),
+                $data['last_scan_status'],
+                $data['latest_released_version'],
+                $data['last_scan_result'],
+            ) : null;
+
         return new Package(
             $data['id'],
             $data['organization_id'],
@@ -147,6 +238,7 @@ final class DbalPackageQuery implements PackageQuery
             $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
+            $scanResult
         );
     }
 }

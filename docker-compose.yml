@@ -42,11 +42,11 @@ services:
   cron:
     restart: always
     image: buddy/repman:0.2.1
-    command: >
-      bash -c 'echo "*/5 * * * * /app/bin/console repman:proxy:sync-releases" | crontab - && crond -f -L /dev/stdout'
+    command: ['crond', '-f', '-L', '/dev/stdout']
     env_file: .env.docker
     volumes:
       - app-var:/app/var
+      - docker-crontabs:/var/spool/cron/crontabs
     depends_on:
       - app
 
@@ -111,4 +111,10 @@ volumes:
     driver_opts:
       type: none
       device: $PWD/docker/nginx/ssl/private
+      o: bind
+  docker-crontabs:
+    driver: local
+    driver_opts:
+      type: none
+      device: $PWD/docker/crontabs
       o: bind

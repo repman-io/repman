@@ -84,6 +84,23 @@ class Package
     private array $metadata;
 
     /**
+     * @ORM\Column(type="json", nullable=true)
+     *
+     * @var mixed[]
+     */
+    private ?array $lastScanResult = null;
+
+    /**
+     * @ORM\Column(type="string", length=7, nullable=true)
+     */
+    private ?string $lastScanStatus = null;
+
+    /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private ?\DateTimeImmutable $lastScanDate = null;
+
+    /**
      * @param mixed[] $metadata
      */
     public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [])
@@ -153,6 +170,11 @@ class Package
         return $this->name !== null;
     }
 
+    public function isSynchronizedSuccessfully(): bool
+    {
+        return $this->isSynchronized() && $this->lastSyncError === null;
+    }
+
     public function oauthToken(): string
     {
         $token = $this->organization->oauthToken(str_replace('-oauth', '', $this->type));
@@ -188,6 +210,21 @@ class Package
         }
 
         return $this->metadata[$key];
+    }
+
+    public function latestReleasedVersion(): ?string
+    {
+        return $this->latestReleasedVersion;
+    }
+
+    /**
+     * @param mixed[] $result
+     */
+    public function setScanResult(string $status, \DateTimeImmutable $date, array $result): void
+    {
+        $this->lastScanDate = $date;
+        $this->lastScanStatus = $status;
+        $this->lastScanResult = $result;
     }
 
     private function setName(string $name): void

@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}Package: {{ package.name }} security scan results{% endblock %}
+{% block header_btn %}
+<a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
+    {% include 'svg/package.svg' %} Package list
+</a>
+{% endblock %}
+
+{% block content %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Version</th>
+            <th>Content</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if results is empty %}
+            <tr><td colspan="4">package not scanned yet</tr>
+        {% endif %}
+        {% for result in results %}
+            <tr>
+                <td>{{ result.date|date('Y-m-d H:i:s') }}</td>
+                <td>
+                    {% if result.isOk %}
+                        <span class="badge badge-success">{{ result.status }}</span>
+                    {% elseif result.isPending %}
+                        <span class="badge badge-warning">{{ result.status }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ result.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ result.version }}</td>
+                <td>
+                    {% include 'organization/package/scanResultContent.html.twig' with {'result': result.content, 'simple': false} %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include 'component/pagination.html.twig' with {'path_name': 'organization_package_scan_results', 'path_params': {'organization': organization.alias, 'package': package.id}} %}
+
+{% endblock %}

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration;
 
 use Buddy\Repman\Entity\Organization\Member;
+use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
@@ -17,9 +18,9 @@ use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
-use Buddy\Repman\MessageHandler\Organization\SynchronizePackageHandler;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
 use Buddy\Repman\Repository\PackageRepository;
+use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -175,14 +176,14 @@ final class FixturesManager
     public function syncPackageWithError(string $packageId, string $error): void
     {
         $this->container->get(PackageSynchronizer::class)->setError($error);
-        $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
+        $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
     }
 
     public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
     {
         $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate);
-        $this->container->get(SynchronizePackageHandler::class)(new SynchronizePackage($packageId));
+        $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
     }
 
@@ -207,12 +208,34 @@ final class FixturesManager
         return $id;
     }
 
-    public function prepareRepoFiles(string $organization = 'buddy'): void
+    public function prepareRepoFiles(): void
     {
         $this->filesystem->mirror(
-            __DIR__.'/../Resources/fixtures/'.$organization,
-            __DIR__.'/../Resources/'.$organization
+            __DIR__.'/../Resources/fixtures/buddy/dist/buddy-works/repman',
+            __DIR__.'/../Resources/buddy/dist/buddy-works/repman'
         );
+    }
+
+    /**
+     * @param mixed[] $content
+     */
+    public function addScanResult(string $packageId, string $status, array $content = ['composer.lock' => []]): void
+    {
+        $date = new \DateTimeImmutable();
+        $package = $this->container
+            ->get(PackageRepository::class)
+            ->getById(Uuid::fromString($packageId));
+        $package->setScanResult($status, $date, $content);
+        $this->container->get(ScanResultRepository::class)->add(
+            new ScanResult(
+                Uuid::uuid4(),
+                $package,
+                $date,
+                $status,
+                $content
+            )
+        );
+        $this->container->get(EntityManagerInterface::class)->flush();
     }
 
     private function dispatchMessage(object $message): void

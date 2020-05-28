@@ -1,6 +1,8 @@
 parameters:
     dists_dir: '%kernel.project_dir%/tests/Resources'
     repo_dir: '%kernel.project_dir%/tests/Resources'
+    security_advisories_db_dir: '%kernel.project_dir%/tests/Resources/fixtures/security/security-advisories'
+    security_advisories_db_repo: 'bogus'
 
 services:
     Buddy\Repman\Service\Downloader:
@@ -28,3 +30,9 @@ services:
         class: Buddy\Repman\Tests\Doubles\FakeBuddyApi
 
     Buddy\Repman\Tests\Doubles\HttpClientStub:
+
+    Buddy\Repman\Service\Security\PackageScanner:
+        class: Buddy\Repman\Tests\Doubles\FakePackageScanner
+
+    Buddy\Repman\Service\Security\SecurityChecker:
+        class: Buddy\Repman\Tests\Doubles\FakeSecurityChecker

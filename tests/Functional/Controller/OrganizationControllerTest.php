@@ -6,10 +6,12 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
+use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
 final class OrganizationControllerTest extends FunctionalTestCase
 {
@@ -126,6 +128,8 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'Package has been successfully removed',
             $this->lastResponseBody()
         );
+
+        $this->fixtures->prepareRepoFiles();
     }
 
     public function testRemoveBitbucketPackage(): void
@@ -475,5 +479,162 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertTrue($this->client->getResponse()->isForbidden());
+    }
+
+    public function testPackageEmptyScanResults(): void
+    {
+        $organization = 'buddy';
+        $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
+            'organization' => $organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString('package not scanned yet', $this->lastResponseBody());
+    }
+
+    public function testScanPackages(): void
+    {
+        $organization = 'buddy';
+        $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $package2Id = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
+        $this->fixtures->syncPackageWithData($package2Id, 'buddy-works/repman2', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
+
+        $this->client->request('POST', $this->urlTo('organization_package_scan', [
+            'organization' => $organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect(
+            $this->urlTo('organization_packages', ['organization' => $organization])
+        ));
+
+        /** @var InMemoryTransport $transport */
+        $transport = $this->container()->get('messenger.transport.async');
+        self::assertCount(3, $transport->getSent());
+        self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
+
+        $this->fixtures->addScanResult($packageId, 'ok');
+        $this->fixtures->addScanResult($package2Id, 'error', [
+            'exception' => [
+                'RuntimeException' => 'Lock file not found',
+            ],
+        ]);
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package will be scanned in the background', $this->lastResponseBody());
+        self::assertStringContainsString('ok', $this->lastResponseBody());
+        self::assertStringContainsString('no advisories', $this->lastResponseBody());
+        self::assertStringContainsString('error', $this->lastResponseBody());
+        self::assertStringContainsString('&lt;b&gt;RuntimeException&lt;/b&gt; - Lock file not found', $this->lastResponseBody());
+    }
+
+    public function testPackageScanResultsWithOkStatus(): void
+    {
+        $organization = 'buddy';
+        $version = '1.2.3';
+
+        $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            'buddy-works/repman',
+            'Repository manager',
+            $version,
+            new \DateTimeImmutable()
+        );
+
+        $this->fixtures->addScanResult($packageId, 'ok');
+
+        $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
+            'organization' => $organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString($version, $this->lastResponseBody());
+        self::assertStringContainsString('ok', $this->lastResponseBody());
+        self::assertStringContainsString('no advisories', $this->lastResponseBody());
+    }
+
+    public function testPackageScanResultsWithWarningStatus(): void
+    {
+        $organization = 'buddy';
+        $version = '1.2.3';
+
+        $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            'buddy-works/repman',
+            'Repository manager',
+            $version,
+            new \DateTimeImmutable()
+        );
+
+        $this->fixtures->addScanResult($packageId, 'warning', [
+            'composer.lock' => [
+                'vendor/some-dependency' => [
+                    'version' => '6.6.6',
+                    'advisories' => [
+                        [
+                            'title' => 'Direct access of ESI URLs behind a trusted proxy',
+                            'cve' => 'CVE-2014-5245',
+                            'link' => 'https://symfony.com/cve-2014-5245',
+                        ],
+                    ],
+                ],
+            ],
+            'sub-dir/composer.lock' => [],
+        ]);
+
+        $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
+            'organization' => $organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString($version, $this->lastResponseBody());
+        self::assertStringContainsString('Package: buddy-works/repman security scan results', $this->lastResponseBody());
+        self::assertStringContainsString('warning', $this->lastResponseBody());
+        self::assertStringContainsString('vendor/some-dependency', $this->lastResponseBody());
+        self::assertStringContainsString('6.6.6', $this->lastResponseBody());
+        self::assertStringContainsString('Direct access of ESI URLs behind a trusted proxy', $this->lastResponseBody());
+        self::assertStringContainsString('CVE-2014-5245', $this->lastResponseBody());
+        self::assertStringContainsString('https://symfony.com/cve-2014-5245', $this->lastResponseBody());
+        self::assertStringNotContainsString('sub-dir/composer.lock', $this->lastResponseBody());
+    }
+
+    public function testPackageScanResultsWithErrorStatus(): void
+    {
+        $organization = 'buddy';
+        $version = '1.2.3';
+
+        $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            'buddy-works/repman',
+            'Repository manager',
+            $version,
+            new \DateTimeImmutable()
+        );
+
+        $this->fixtures->addScanResult($packageId, 'error', [
+            'exception' => [
+                'RuntimeException' => 'Lock file not found',
+            ],
+        ]);
+
+        $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
+            'organization' => $organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString($version, $this->lastResponseBody());
+        self::assertStringContainsString('error', $this->lastResponseBody());
+        self::assertStringContainsString('<b>RuntimeException</b> - Lock file not found', $this->lastResponseBody());
     }
 }
