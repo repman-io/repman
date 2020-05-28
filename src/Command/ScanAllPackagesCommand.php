@@ -50,7 +50,7 @@ final class ScanAllPackagesCommand extends Command
         $progressBar = new ProgressBar($output, $count);
         $progressBar->start();
 
-        for ($offset = 0; $offset <= $count; $offset = ($offset + 1) * $limit) {
+        for ($offset = 0; $offset < $count; $offset += $limit) {
             foreach ($this->packageQuery->getAllSynchronized($limit, $offset) as $item) {
                 $this->scanner->scan(
                     $this->packageRepository->getById(Uuid::fromString($item->id()))
