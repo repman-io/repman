@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpdateAdvisoriesDbCommand extends Command
+final class UpdateAdvisoriesDbCommand extends Command
 {
     private SecurityChecker $checker;
     private ScanAllPackagesCommand $scanCommand;

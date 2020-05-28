@@ -40,6 +40,8 @@
     - "docker-php-ext-install zip"
     - "  "
     - "echo \"memory_limit=-1\" >> /usr/local/etc/php/conf.d/buddy.ini"
+    - "git config --global user.email \"buddy@repman.io\""
+      "git config --global user.name \"buddy.works\""
     services:
     - type: "POSTGRE_SQL"
       version: "11.6-alpine"

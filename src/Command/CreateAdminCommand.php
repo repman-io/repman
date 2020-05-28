@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class CreateAdminCommand extends Command
+final class CreateAdminCommand extends Command
 {
     private MessageBusInterface $bus;
 
