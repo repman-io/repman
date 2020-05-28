@@ -33,7 +33,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
             @mkdir($this->databaseDir, 0777, true);
             $this->cloneRepo();
 
-            return false;
+            return true;
         }
 
         return $this->updateRepo();
@@ -198,7 +198,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     {
         $this->runProcess(['git', '--git-dir=.git', 'clean', '-f']);
         $this->runProcess(['git', '--git-dir=.git', 'reset', '--hard', 'origin/master']);
-        $output = $this->runProcess(['git', '--git-dir=.git', 'pull', '--depth', '1']);
+        $output = $this->runProcess(['git', '--git-dir=.git', 'pull']);
 
         return preg_match('/up to date/i', $output) !== 1;
     }

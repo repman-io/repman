@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 
-class ProxySyncReleasesCommand extends Command
+final class ProxySyncReleasesCommand extends Command
 {
     const LOCK_TTL = 30;
 

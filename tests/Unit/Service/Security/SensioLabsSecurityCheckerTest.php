@@ -8,25 +8,28 @@ use Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 final class SensioLabsSecurityCheckerTest extends TestCase
 {
     private SensioLabsSecurityChecker $checker;
     private string $dbDir;
-    private string $fixturesDir;
+    private string $repoDir;
+    private Filesystem $filesystem;
 
     protected function setUp(): void
     {
         $this->dbDir = sys_get_temp_dir().'/repman/security-advisories';
-        $this->fixturesDir = __DIR__.'/../../../Resources/fixtures/security/locks';
+        $this->repoDir = sys_get_temp_dir().'/repman/security-advisories-repo';
+        $this->filesystem = new Filesystem();
 
-        $filesystem = new Filesystem();
-        $filesystem->mirror(
-            __DIR__.'/../../../Resources/fixtures/security/security-advisories',
-            $this->dbDir
-        );
+        $this->checker = new SensioLabsSecurityChecker($this->dbDir, $this->repoDir);
+    }
 
-        $this->checker = new SensioLabsSecurityChecker($this->dbDir, 'bogus');
+    protected function tearDown(): void
+    {
+        $this->filesystem->remove($this->dbDir);
+        $this->filesystem->remove($this->repoDir);
     }
 
     public function testInvalidLockFile(): void
@@ -48,11 +51,13 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
     public function testEmptyLockFile(): void
     {
+        $this->synchronizeAdvisoriesDatabase();
         self::assertEquals($this->checker->check('{}'), []);
     }
 
     public function testSuccessfulScanWithAlerts(): void
     {
+        $this->synchronizeAdvisoriesDatabase();
         self::assertEqualsCanonicalizing($this->checker->check($this->insecureLock()), [
             'aws/aws-sdk-php' => [
                 'version' => '3.2.0',
@@ -104,31 +109,69 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
     public function testSuccessfulScanWithoutAlerts(): void
     {
+        $this->synchronizeAdvisoriesDatabase();
         self::assertEquals($this->checker->check($this->safeLock()), []);
     }
 
-    public function testUpdateWithGitClone(): void
+    public function testUpdateWhenRepoDontExist(): void
+    {
+        $this->createAdvisoriesDatabaseRepo();
+        self::assertTrue($this->checker->update());
+        // second update should return false because nothing has changed
+        self::assertFalse($this->checker->update());
+    }
+
+    public function testThrowErrorWhenUpdateFails(): void
     {
         $this->expectException(ProcessFailedException::class);
+        $this->expectExceptionMessage('repository \'/tmp/repman/security-advisories-repo\' does not exist');
         $this->checker->update();
     }
 
-    public function testUpdateWithGitPull(): void
+    public function testUpdateWhenRepoExist(): void
     {
-        $this->expectException(ProcessFailedException::class);
-        $git = $this->dbDir.'/.git';
-        @mkdir($git);
+        $this->createAdvisoriesDatabaseRepo();
         $this->checker->update();
-        @rmdir($git);
+        $this->updateAdvisoriesDatabaseRepo();
+        self::assertTrue($this->checker->update());
+        // second update should return false because nothing has changed
+        self::assertFalse($this->checker->update());
+    }
+
+    private function updateAdvisoriesDatabaseRepo(): void
+    {
+        $this->filesystem->copy($this->repoDir.'/aws/aws-sdk-php/CVE-2015-5723.yaml', $this->repoDir.'/google/google-sdk-php/CVE-2015-5723.yaml');
+        (new Process(['git', 'add', '.'], $this->repoDir))->run();
+        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'New CVE discovered'], $this->repoDir))->run();
+    }
+
+    private function createAdvisoriesDatabaseRepo(): void
+    {
+        $this->filesystem->mkdir($this->repoDir);
+        (new Process(['git', 'init'], $this->repoDir))->run();
+        $this->filesystem->mirror(
+            __DIR__.'/../../../Resources/fixtures/security/security-advisories',
+            $this->repoDir
+        );
+        (new Process(['git', 'add', '.'], $this->repoDir))->run();
+        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'AD repo'], $this->repoDir))->run();
+    }
+
+    private function synchronizeAdvisoriesDatabase(): void
+    {
+        $this->filesystem->mirror(
+            __DIR__.'/../../../Resources/fixtures/security/security-advisories',
+            $this->dbDir
+        );
     }
 
     private function insecureLock(): string
     {
-        return (string) file_get_contents($this->fixturesDir.'/insecure-composer.lock');
+        return (string) file_get_contents(__DIR__.'/../../../Resources/fixtures/security/locks/insecure-composer.lock');
     }
 
     private function safeLock(): string
     {
-        return (string) file_get_contents($this->fixturesDir.'/safe-composer.lock');
+        return (string) file_get_contents(__DIR__.'/../../../Resources/fixtures/security/locks/safe-composer.lock');
     }
 }
