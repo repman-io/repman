@@ -124,7 +124,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     public function testThrowErrorWhenUpdateFails(): void
     {
         $this->expectException(ProcessFailedException::class);
-        $this->expectExceptionMessage('repository \'/tmp/repman/security-advisories-repo\' does not exist');
+        $this->expectExceptionMessage("repository '{$this->repoDir}' does not exist");
         $this->checker->update();
     }
 
