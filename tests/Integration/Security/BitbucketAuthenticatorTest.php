@@ -6,9 +6,9 @@ namespace Buddy\Repman\Tests\Integration\Security;
 
 use Bitbucket\Exception\ApiLimitExceededException;
 use Buddy\Repman\Security\BitbucketAuthenticator;
+use Buddy\Repman\Security\UserProvider;
 use Buddy\Repman\Service\BitbucketApi;
 use Buddy\Repman\Tests\Doubles\BitbucketOAuth;
-use Buddy\Repman\Tests\Doubles\UserProviderStub;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +35,7 @@ final class BitbucketAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(BitbucketAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 
@@ -48,7 +48,7 @@ final class BitbucketAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(BitbucketAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 }

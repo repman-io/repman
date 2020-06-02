@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\Security;
 
 use Buddy\Repman\Security\GitHubAuthenticator;
+use Buddy\Repman\Security\UserProvider;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Tests\Doubles\GitHubOAuth;
-use Buddy\Repman\Tests\Doubles\UserProviderStub;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Github\Exception\ApiLimitExceedException;
 use League\OAuth2\Client\Token\AccessToken;
@@ -35,7 +35,7 @@ final class GitHubAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(GitHubAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 
@@ -48,7 +48,7 @@ final class GitHubAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(GitHubAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 }

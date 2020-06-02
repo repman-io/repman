@@ -27,18 +27,6 @@ final class UserRepositoryTest extends IntegrationTestCase
         $this->users->upgradePassword(new Organization('id', 'name', 'alias', 'token'), 'password');
     }
 
-    public function testUpgradeUserPassword(): void
-    {
-        $userId = Uuid::fromString($this->fixtures->createUser());
-        $user = $this->users->getById($userId);
-
-        $this->users->upgradePassword($user, 'new-encoded-password');
-
-        $this->container()->get('doctrine.orm.entity_manager')->clear();
-
-        self::assertEquals('new-encoded-password', $this->users->getById($userId)->getPassword());
-    }
-
     public function testThrowExceptionWhenNotFoundByEmail(): void
     {
         $this->expectException(\InvalidArgumentException::class);

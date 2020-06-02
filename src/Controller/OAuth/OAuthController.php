@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\RefreshOAuthToken;
+use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
 use Http\Client\Exception as HttpException;
@@ -45,7 +45,7 @@ abstract class OAuthController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $this->dispatchMessage(new RefreshOAuthToken($user->id()->toString(), $type));
+        $this->dispatchMessage(new RefreshOAuthToken($user->id(), $type));
 
         return $this->redirectToRoute('organization_package_new', [
             'organization' => $this->session->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
@@ -94,7 +94,7 @@ abstract class OAuthController extends AbstractController
             $this->dispatchMessage(
                 new AddOAuthToken(
                     Uuid::uuid4()->toString(),
-                    $user->id()->toString(),
+                    $user->id(),
                     $type,
                     $token->getToken(),
                     $token->getRefreshToken(),

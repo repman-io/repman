@@ -6,26 +6,26 @@ namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Message\User\ChangePassword;
 use Buddy\Repman\Repository\UserRepository;
+use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
 final class ChangePasswordHandler implements MessageHandlerInterface
 {
     private UserRepository $users;
-    private UserPasswordEncoderInterface $encoder;
+    private EncoderFactoryInterface $encoderFactory;
 
-    public function __construct(UserRepository $users, UserPasswordEncoderInterface $encoder)
+    public function __construct(UserRepository $users, EncoderFactoryInterface $encoderFactory)
     {
         $this->users = $users;
-        $this->encoder = $encoder;
+        $this->encoderFactory = $encoderFactory;
     }
 
     public function __invoke(ChangePassword $message): void
     {
-        $user = $this->users->getById(Uuid::fromString($message->userId()));
-        $user->changePassword(
-            $this->encoder->encodePassword($user, $message->plainPassword())
+        $this->users->getById(Uuid::fromString($message->userId()))->changePassword(
+            $this->encoderFactory->getEncoder(User::class)->encodePassword($message->plainPassword(), null)
         );
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Entity\User;
+use Buddy\Repman\Security\Model\User;
 use Symfony\Component\Security\Core\Exception\DisabledException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;

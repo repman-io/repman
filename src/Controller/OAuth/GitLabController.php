@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\UserQuery;
+use Buddy\Repman\Security\Model\User;
 use League\OAuth2\Client\Token\AccessToken;
 use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -58,11 +59,11 @@ final class GitLabController extends OAuthController
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/add-from-gitlab", name="fetch_gitlab_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packageAddFromGitLab(Organization $organization): Response
+    public function packageAddFromGitLab(Organization $organization, UserQuery $userQuery): Response
     {
         /** @var User */
         $user = $this->getUser();
-        if ($user->oauthToken(OAuthToken::TYPE_GITLAB) !== null) {
+        if ($userQuery->findOAuthAccessToken($user->id(), OAuthToken::TYPE_GITLAB)->isPresent()) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_GITLAB]);
         }
         $this->session->set('organization', $organization->alias());

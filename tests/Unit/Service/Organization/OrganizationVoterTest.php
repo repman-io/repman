@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Query\User\Model\Organization\Member;
-use Buddy\Repman\Query\User\OrganizationQuery;
+use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\Organization\OrganizationVoter;
 use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
-use Munus\Control\Option;
-use PHPUnit\Framework\MockObject\MockObject;
+use Buddy\Repman\Tests\MotherObject\Security\UserMother;
 use PHPUnit\Framework\TestCase;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -21,16 +17,18 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 final class OrganizationVoterTest extends TestCase
 {
-    private MockObject $organizationQuery;
     private OrganizationVoter $voter;
     private UsernamePasswordToken $token;
-    private UuidInterface $userId;
+    private string $userId;
 
     protected function setUp(): void
     {
-        $this->token = new UsernamePasswordToken(new User($this->userId = Uuid::uuid4(), 'some@repman.io', 'token', []), 'password', 'key');
-        $this->organizationQuery = $this->createMock(OrganizationQuery::class);
-        $this->voter = new OrganizationVoter($this->organizationQuery);
+        $this->userId = 'some-id';
+        $this->token = new UsernamePasswordToken(UserMother::withOrganizations($this->userId, [
+            new User\Organization('repman', 'name', 'owner'),
+            new User\Organization('buddy', 'name', 'member'),
+        ]), 'password', 'key');
+        $this->voter = new OrganizationVoter();
     }
 
     public function testSupportOnlyUserInstance(): void
@@ -55,25 +53,68 @@ final class OrganizationVoterTest extends TestCase
     {
         self::assertEquals(Voter::ACCESS_GRANTED, $this->voter->vote(
             $this->token,
-            OrganizationMother::withMember(new Member($this->userId->toString(), 'email', 'owner')),
+            OrganizationMother::withMember(new Member($this->userId, 'email', 'owner')),
             ['ROLE_ORGANIZATION_OWNER']
         ));
+
         self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
             $this->token,
-            OrganizationMother::withMember(new Member($this->userId->toString(), 'email', 'member')),
+            OrganizationMother::withMember(new Member($this->userId, 'email', 'member')),
             ['ROLE_ORGANIZATION_OWNER']
+        ));
+
+        // other organization
+        self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
+            $this->token,
+            OrganizationMother::withMember(new Member('other-id', 'email', 'member')),
+            ['ROLE_ORGANIZATION_OWNER']
+        ));
+
+        self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
+            $this->token,
+            OrganizationMother::withMember(new Member('other-id', 'email', 'member')),
+            ['ROLE_ORGANIZATION_MEMBER']
         ));
     }
 
     public function testAccessForOwnerWithRequest(): void
     {
-        $this->organizationQuery->expects(self::once())->method('getByAlias')->willReturn(Option::of(
-            OrganizationMother::withMember(new Member($this->userId->toString(), 'email', 'owner'))
+        // owner organization
+        self::assertEquals(Voter::ACCESS_GRANTED, $this->voter->vote(
+            $this->token,
+            new Request([], ['organization' => 'repman']),
+            ['ROLE_ORGANIZATION_OWNER']
         ));
 
         self::assertEquals(Voter::ACCESS_GRANTED, $this->voter->vote(
             $this->token,
-            new Request([], ['organization' => 'alias']),
+            new Request([], ['organization' => 'repman']),
+            ['ROLE_ORGANIZATION_MEMBER']
+        ));
+
+        // member organization
+        self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
+            $this->token,
+            new Request([], ['organization' => 'buddy']),
+            ['ROLE_ORGANIZATION_OWNER']
+        ));
+
+        self::assertEquals(Voter::ACCESS_GRANTED, $this->voter->vote(
+            $this->token,
+            new Request([], ['organization' => 'buddy']),
+            ['ROLE_ORGANIZATION_MEMBER']
+        ));
+
+        // other organization
+        self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
+            $this->token,
+            new Request([], ['organization' => 'other']),
+            ['ROLE_ORGANIZATION_MEMBER']
+        ));
+
+        self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
+            $this->token,
+            new Request([], ['organization' => 'other']),
             ['ROLE_ORGANIZATION_OWNER']
         ));
     }

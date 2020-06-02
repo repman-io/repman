@@ -7,7 +7,6 @@ namespace Buddy\Repman\Tests\Unit\Entity;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User;
-use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -67,11 +66,6 @@ final class UserTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $this->user->confirmEmail('wrong');
-    }
-
-    public function testNoneWhenNoOrganizations(): void
-    {
-        self::assertTrue(Option::none()->equals($this->user->firstOrganizationAlias()));
     }
 
     public function testEmailLowercase(): void

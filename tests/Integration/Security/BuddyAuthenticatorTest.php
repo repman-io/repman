@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\Security;
 
 use Buddy\Repman\Security\BuddyAuthenticator;
+use Buddy\Repman\Security\UserProvider;
 use Buddy\Repman\Service\BuddyApi;
 use Buddy\Repman\Service\BuddyApi\BuddyApiException;
 use Buddy\Repman\Tests\Doubles\BuddyOAuth;
-use Buddy\Repman\Tests\Doubles\UserProviderStub;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +35,7 @@ final class BuddyAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(BuddyAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 
@@ -48,7 +48,7 @@ final class BuddyAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(BuddyAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 }

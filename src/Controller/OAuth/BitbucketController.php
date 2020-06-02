@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\UserQuery;
+use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\BitbucketApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Token\AccessToken;
@@ -54,11 +55,11 @@ final class BitbucketController extends OAuthController
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/add-from-bitbucket", name="fetch_bitbucket_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function packageAddFromBitbucket(Organization $organization): Response
+    public function packageAddFromBitbucket(Organization $organization, UserQuery $userQuery): Response
     {
         /** @var User */
         $user = $this->getUser();
-        if ($user->oauthToken(OAuthToken::TYPE_BITBUCKET) !== null) {
+        if ($userQuery->findOAuthAccessToken($user->id(), OAuthToken::TYPE_BITBUCKET)->isPresent()) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_BITBUCKET]);
         }
         $this->session->set('organization', $organization->alias());
