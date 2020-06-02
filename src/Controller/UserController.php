@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\User\ChangePasswordType;
 use Buddy\Repman\Message\User\ChangePassword;
 use Buddy\Repman\Message\User\RemoveOAuthToken;
 use Buddy\Repman\Message\User\RemoveUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
 use Buddy\Repman\Query\User\UserQuery;
+use Buddy\Repman\Security\Model\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,7 +31,7 @@ final class UserController extends AbstractController
     public function profile(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
-        $oauthTokens = $this->userQuery->findAllOAuthTokens($this->getUser()->id()->toString());
+        $oauthTokens = $this->userQuery->findAllOAuthTokens($this->getUser()->id());
         $form = $this->createForm(ChangePasswordType::class);
         $form->handleRequest($request);
 
@@ -39,7 +39,7 @@ final class UserController extends AbstractController
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
             $this->dispatchMessage(new ChangePassword(
-                $this->getUser()->id()->toString(),
+                $this->getUser()->id(),
                 $form->get('plainPassword')->getData()
             ));
             $this->addFlash('success', 'Your password has been changed');
@@ -59,7 +59,7 @@ final class UserController extends AbstractController
     public function remove(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->dispatchMessage(new RemoveUser($this->getUser()->id()->toString()));
+        $this->dispatchMessage(new RemoveUser($this->getUser()->id()));
         $this->addFlash('success', 'User has been successfully removed');
 
         return $this->redirectToRoute('index');
@@ -72,7 +72,7 @@ final class UserController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $this->dispatchMessage(new SendConfirmToken(
-            $this->getUser()->getEmail(),
+            $this->getUser()->email(),
             $this->getUser()->emailConfirmToken()
         ));
         $this->addFlash('success', 'Email sent successfully');
@@ -86,7 +86,7 @@ final class UserController extends AbstractController
     public function removeOAuthToken(string $type): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->dispatchMessage(new RemoveOAuthToken($this->getUser()->id()->toString(), $type));
+        $this->dispatchMessage(new RemoveOAuthToken($this->getUser()->id(), $type));
         $this->addFlash('success', sprintf('%s has been successfully unlinked.', \ucfirst($type)));
 
         return $this->redirectToRoute('user_profile');

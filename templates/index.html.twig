@@ -48,7 +48,7 @@
                         <p>
                             Organizations allow you to manage your private packages and the access to them.
                         </p>
-                        {% if app.user.organizations.empty %}
+                        {% if not app.user.belongsToAnyOrganization %}
                             <a href="{{ path('organization_create') }}" class="btn btn-green">Create a new organization</a>
                         {% else %}
                             <ul>

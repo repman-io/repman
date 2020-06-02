@@ -1,5 +1,5 @@
 {% if app.user %}
-    {% if not app.user.organizations.empty %}
+    {% if app.user.belongsToAnyOrganization %}
         <div class="dropdown">
             <a href="#" data-toggle="dropdown"
                class="align-items-center ml-2 btn btn-secondary">

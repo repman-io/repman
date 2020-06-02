@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\ChangeAliasType;
 use Buddy\Repman\Form\Type\Organization\ChangeNameType;
 use Buddy\Repman\Form\Type\Organization\CreateType;
@@ -30,6 +29,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\ExceptionHandler;
 use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
@@ -63,11 +63,9 @@ final class OrganizationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $this->getUser();
-
             $this->dispatchMessage(new CreateOrganization(
                 $id = Uuid::uuid4()->toString(),
-                $user->id()->toString(),
+                $this->getUser()->id(),
                 $name = $form->get('name')->getData()
             ));
             $this->dispatchMessage(new GenerateToken($id, 'default'));
@@ -99,7 +97,7 @@ final class OrganizationController extends AbstractController
     public function packages(Organization $organization, Request $request): Response
     {
         $count = $this->packageQuery->count($organization->id());
-        if ($count === 0 && $organization->isOwner($this->getUser()->id()->toString())) {
+        if ($count === 0 && $organization->isOwner($this->getUser()->id())) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
         }
 

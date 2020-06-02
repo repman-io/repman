@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\Security;
 
 use Buddy\Repman\Security\GitLabAuthenticator;
+use Buddy\Repman\Security\UserProvider;
 use Buddy\Repman\Tests\Doubles\GitLabOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
-use Buddy\Repman\Tests\Doubles\UserProviderStub;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Token\AccessToken;
@@ -30,13 +30,13 @@ final class GitLabAuthenticatorTest extends IntegrationTestCase
 
     public function testThrowExceptionIfUserWasNotFound(): void
     {
-        GitLabOAuth::mockTokenAndUserResponse('some@buddy.works', $this->container());
+        GitLabOAuth::mockUserResponse('some@buddy.works', $this->container());
 
         $this->expectException(UsernameNotFoundException::class);
 
         $this->container()->get(GitLabAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 
@@ -52,7 +52,7 @@ final class GitLabAuthenticatorTest extends IntegrationTestCase
 
         $this->container()->get(GitLabAuthenticator::class)->getUser(
             new AccessToken(['access_token' => 'token']),
-            new UserProviderStub()
+            $this->container()->get(UserProvider::class)
         );
     }
 }

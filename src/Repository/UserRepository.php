@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Repository;
 
 use Buddy\Repman\Entity\User;
+use Buddy\Repman\Security\Model\User as SecurityUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
@@ -82,10 +83,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      */
     public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof SecurityUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
+        $user = $this->getByEmail($user->getUsername());
         $user->setPassword($newEncodedPassword);
         $this->_em->persist($user);
         $this->_em->flush();

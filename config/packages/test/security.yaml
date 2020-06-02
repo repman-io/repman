@@ -1,6 +1,6 @@
 security:
     encoders:
-        Buddy\Repman\Entity\User:
+        Buddy\Repman\Security\Model\User:
             algorithm: plaintext
     firewalls:
         main:

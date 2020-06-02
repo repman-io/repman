@@ -6,28 +6,28 @@ namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Message\User\ResetPassword;
 use Buddy\Repman\Repository\UserRepository;
+use Buddy\Repman\Security\Model\User;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
 final class ResetPasswordHandler implements MessageHandlerInterface
 {
     private UserRepository $users;
-    private UserPasswordEncoderInterface $encoder;
+    private EncoderFactoryInterface $encoderFactory;
     private int $resetPasswordTokenTtl;
 
-    public function __construct(UserRepository $users, UserPasswordEncoderInterface $encoder, int $resetPasswordTokenTtl)
+    public function __construct(UserRepository $users, EncoderFactoryInterface $encoderFactory, int $resetPasswordTokenTtl)
     {
         $this->users = $users;
-        $this->encoder = $encoder;
+        $this->encoderFactory = $encoderFactory;
         $this->resetPasswordTokenTtl = $resetPasswordTokenTtl;
     }
 
     public function __invoke(ResetPassword $message): void
     {
-        $user = $this->users->getByResetPasswordToken($message->token());
-        $user->resetPassword(
+        $this->users->getByResetPasswordToken($message->token())->resetPassword(
             $message->token(),
-            $this->encoder->encodePassword($user, $message->password()),
+            $this->encoderFactory->getEncoder(User::class)->encodePassword($message->password(), null),
             $this->resetPasswordTokenTtl
         );
     }

@@ -1,12 +1,10 @@
 security:
     encoders:
-        Buddy\Repman\Entity\User:
+        Buddy\Repman\Security\Model\User:
             algorithm: auto
     providers:
         user_provider:
-            entity:
-                class: Buddy\Repman\Entity\User
-                property: email
+            id: Buddy\Repman\Security\UserProvider
         organization_provider:
             id: Buddy\Repman\Security\OrganizationProvider
     firewalls:

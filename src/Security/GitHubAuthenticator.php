@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Entity\User;
-use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\GitHubApi;
 use Github\Exception\ExceptionInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -18,22 +16,19 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 final class GitHubAuthenticator extends SocialAuthenticator
 {
     private ClientRegistry $clientRegistry;
-    private UserRepository $users;
     private GitHubApi $gitHubApi;
     private RouterInterface $router;
     private Session $session;
 
-    public function __construct(ClientRegistry $clientRegistry, UserRepository $users, GitHubApi $gitHubApi, RouterInterface $router, Session $session)
+    public function __construct(ClientRegistry $clientRegistry, GitHubApi $gitHubApi, RouterInterface $router, Session $session)
     {
         $this->clientRegistry = $clientRegistry;
-        $this->users = $users;
         $this->gitHubApi = $gitHubApi;
         $this->router = $router;
         $this->session = $session;
@@ -52,16 +47,12 @@ final class GitHubAuthenticator extends SocialAuthenticator
     public function getUser($credentials, UserProviderInterface $userProvider): UserInterface
     {
         try {
-            $user = $this->users->findOneBy(['email' => $this->gitHubApi->primaryEmail($credentials->getToken())]);
+            $email = $this->gitHubApi->primaryEmail($credentials->getToken());
         } catch (ExceptionInterface $exception) {
             throw new CustomUserMessageAuthenticationException($exception->getMessage());
         }
 
-        if (!$user instanceof User) {
-            throw new UsernameNotFoundException();
-        }
-
-        return $user;
+        return $userProvider->loadUserByUsername($email);
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

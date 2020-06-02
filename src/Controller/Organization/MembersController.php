@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Organization;
 
-use Buddy\Repman\Entity\User;
 use Buddy\Repman\Form\Type\Organization\InviteMemberType;
 use Buddy\Repman\Form\Type\Organization\Member\ChangeRoleType;
 use Buddy\Repman\Message\Organization\Member\AcceptInvitation;
@@ -15,6 +14,7 @@ use Buddy\Repman\Message\Organization\Member\RemoveMember;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery;
+use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,7 +54,7 @@ final class MembersController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $organization = $this->organizations->getByInvitation($token, $user->getEmail());
+        $organization = $this->organizations->getByInvitation($token, $user->email());
         if ($organization->isEmpty()) {
             $this->addFlash('danger', 'Invitation not found or belongs to different user');
             $this->tokenStorage->setToken();
@@ -62,7 +62,7 @@ final class MembersController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $this->dispatchMessage(new AcceptInvitation($token, $user->id()->toString()));
+        $this->dispatchMessage(new AcceptInvitation($token, $user->id()));
         $this->addFlash('success', sprintf('The invitation to %s organization has been accepted', $organization->get()->name()));
 
         return $this->redirectToRoute('organization_overview', ['organization' => $organization->get()->alias()]);

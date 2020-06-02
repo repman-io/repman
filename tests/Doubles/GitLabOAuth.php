@@ -15,7 +15,17 @@ final class GitLabOAuth
           "access_token": "1f0af717251950dbd4d73154fdf0a474a5c5119adad999683f5b450c460726aa",
           "token_type": "bearer",
           "expires_in": 7200
-        }'), new Response(200, [], '{
+        }'), new Response(200, [], self::getUserJson($email))]);
+    }
+
+    public static function mockUserResponse(string $email, ContainerInterface $container): void
+    {
+        $container->get(HttpClientStub::class)->setNextResponses([new Response(200, [], self::getUserJson($email))]);
+    }
+
+    private static function getUserJson(string $email): string
+    {
+        return '{
           "id": 1,
           "username": "john_smith",
           "email": "'.$email.'",
@@ -49,6 +59,6 @@ final class GitLabOAuth
           "two_factor_enabled": true,
           "external": false,
           "private_profile": false
-        }')]);
+        }';
     }
 }
