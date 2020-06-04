@@ -1,3 +1,7 @@
+{% if result is empty %}
+    composer.lock not present
+{% endif %}
+
 {% for lockFile, lockFileResult in result %}
     {% if lockFile == 'exception' %}
         {% for class, message in lockFileResult %}

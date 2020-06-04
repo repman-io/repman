@@ -201,6 +201,17 @@ class Package
     }
 
     /**
+     * @return string[]
+     */
+    public function ownersEmails(): array
+    {
+        return $this->organization->members()
+            ->filter(fn ($member) => $member->isOwner())
+            ->map(fn ($member) => $member->email())
+            ->toArray();
+    }
+
+    /**
      * @return mixed
      */
     public function metadata(string $key)

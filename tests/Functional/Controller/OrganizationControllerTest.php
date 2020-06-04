@@ -521,7 +521,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->fixtures->addScanResult($packageId, 'ok');
         $this->fixtures->addScanResult($package2Id, 'error', [
             'exception' => [
-                'RuntimeException' => 'Lock file not found',
+                'RuntimeException' => 'Some error',
             ],
         ]);
 
@@ -530,7 +530,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('ok', $this->lastResponseBody());
         self::assertStringContainsString('no advisories', $this->lastResponseBody());
         self::assertStringContainsString('error', $this->lastResponseBody());
-        self::assertStringContainsString('&lt;b&gt;RuntimeException&lt;/b&gt; - Lock file not found', $this->lastResponseBody());
+        self::assertStringContainsString('&lt;b&gt;RuntimeException&lt;/b&gt; - Some error', $this->lastResponseBody());
     }
 
     public function testPackageScanResultsWithOkStatus(): void
@@ -624,7 +624,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $this->fixtures->addScanResult($packageId, 'error', [
             'exception' => [
-                'RuntimeException' => 'Lock file not found',
+                'RuntimeException' => 'Some error',
             ],
         ]);
 
@@ -635,6 +635,33 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertStringContainsString($version, $this->lastResponseBody());
         self::assertStringContainsString('error', $this->lastResponseBody());
-        self::assertStringContainsString('<b>RuntimeException</b> - Lock file not found', $this->lastResponseBody());
+        self::assertStringContainsString('<b>RuntimeException</b> - Some error', $this->lastResponseBody());
+    }
+
+    public function testPackageScanResultsWithNaStatus(): void
+    {
+        $organization = 'buddy';
+        $version = '1.2.3';
+
+        $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            'buddy-works/repman',
+            'Repository manager',
+            $version,
+            new \DateTimeImmutable()
+        );
+
+        $this->fixtures->addScanResult($packageId, 'n/a', []);
+
+        $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
+            'organization' => $organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertStringContainsString($version, $this->lastResponseBody());
+        self::assertStringContainsString('n/a', $this->lastResponseBody());
+        self::assertStringContainsString('composer.lock not present', $this->lastResponseBody());
     }
 }
