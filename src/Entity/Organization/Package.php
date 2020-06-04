@@ -205,14 +205,10 @@ class Package
      */
     public function ownersEmails(): array
     {
-        $emails = [];
-        foreach ($this->organization->members() as $member) {
-            if ($member->isOwner()) {
-                $emails[] = $member->email();
-            }
-        }
-
-        return $emails;
+        return $this->organization->members()
+            ->filter(fn ($member) => $member->isOwner())
+            ->map(fn ($member) => $member->email())
+            ->toArray();
     }
 
     /**
