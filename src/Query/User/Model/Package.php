@@ -132,6 +132,11 @@ final class Package
         return $this->scanResult !== null ? $this->scanResult->isPending() : true;
     }
 
+    public function isScanResultNotAvailable(): bool
+    {
+        return $this->scanResult !== null ? $this->scanResult->isNotAvailable() : true;
+    }
+
     /**
      * @return mixed[]
      */

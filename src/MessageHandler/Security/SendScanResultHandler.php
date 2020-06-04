@@ -22,19 +22,8 @@ final class SendScanResultHandler implements MessageHandlerInterface
 
     public function __invoke(SendScanResult $message): void
     {
-        $organization = $this->organizationQuery
-            ->getByAlias($message->organizationAlias())
-            ->getOrElseThrow(new \RuntimeException('Organization not found'));
-
-        $emails = [];
-        foreach ($organization->members() as $member) {
-            if ($member->isOwner()) {
-                $emails[] = $member->email();
-            }
-        }
-
         $this->mailer->sendScanResult(
-            $emails,
+            $message->emails(),
             $message->packageName(),
             $message->packageId(),
             $message->organizationAlias(),

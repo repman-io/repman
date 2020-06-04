@@ -27,6 +27,7 @@ final class SendScanResultHandlerTest extends IntegrationTestCase
     {
         $handler = $this->container()->get(SendScanResultHandler::class);
         $handler->__invoke(new SendScanResult(
+            ['test@example.com'],
             'buddy',
             'buddy/repman',
             $this->packageId,
@@ -39,19 +40,5 @@ final class SendScanResultHandlerTest extends IntegrationTestCase
             ->findAll($this->organizationId)[0];
 
         self::assertEquals($package->scanResultStatus(), 'pending');
-    }
-
-    public function testHandleOrganizationNotFound(): void
-    {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Organization not found');
-
-        $handler = $this->container()->get(SendScanResultHandler::class);
-        $handler->__invoke(new SendScanResult(
-            'not-existing',
-            'buddy/repman',
-            $this->packageId,
-            []
-        ));
     }
 }

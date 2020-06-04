@@ -134,7 +134,7 @@ final class SensioLabsPackageScannerTest extends TestCase
         $messageBusMock = $this->createMock(MessageBus::class);
         $messageBusMock
             ->method('dispatch')
-            ->willReturn(new Envelope(new SendScanResult('buddy', 'test/test', 'test', [])));
+            ->willReturn(new Envelope(new SendScanResult(['test@example.com'], 'buddy', 'test/test', 'test', [])));
 
         return new SensioLabsPackageScanner(
             $this->checkerMock,

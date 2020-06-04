@@ -45,6 +45,10 @@ final class SensioLabsPackageScanner implements PackageScanner
 
         try {
             $lockFiles = $this->extractLockFiles($this->findDistribution($package));
+            if ($lockFiles === []) {
+                $status = ScanResult::STATUS_NOT_AVAILABLE;
+            }
+
             foreach ($lockFiles as $lockFileName => $content) {
                 $scanResults = $this->checker->check($content);
                 if ($scanResults !== []) {
@@ -77,17 +81,17 @@ final class SensioLabsPackageScanner implements PackageScanner
     {
         $date = new \DateTimeImmutable();
         $package->setScanResult($status, $date, $result);
-        /**
-         * @var string
-         */
-        $packageName = $package->name();
         $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $result));
-        $this->messageBus->dispatch(new SendScanResult(
-            $package->organizationAlias(),
-            $packageName,
-            $package->id()->toString(),
-            $result
-        ));
+
+        if ($status === ScanResult::STATUS_WARNING) {
+            $this->messageBus->dispatch(new SendScanResult(
+                $package->ownersEmails(),
+                $package->organizationAlias(),
+                (string) $package->name(),
+                $package->id()->toString(),
+                $result
+            ));
+        }
     }
 
     private function findDistribution(Package $package): string

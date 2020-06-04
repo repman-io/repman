@@ -93,12 +93,4 @@ final class Organization
 
         return Option::none();
     }
-
-    /**
-     * @return Member[]
-     */
-    public function members(): array
-    {
-        return $this->members;
-    }
 }

@@ -28,7 +28,7 @@
                 <td>
                     {% if result.isOk %}
                         <span class="badge badge-success">{{ result.status }}</span>
-                    {% elseif result.isPending %}
+                    {% elseif result.isPending or result.isNotAvailable %}
                         <span class="badge badge-warning">{{ result.status }}</span>
                     {% else %}
                         <span class="badge badge-danger">{{ result.status }}</span>

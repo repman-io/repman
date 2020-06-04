@@ -77,7 +77,7 @@
                             >
                                 {% if package.isScanResultOk %}
                                     <span class="badge badge-success">{{ package.scanResultStatus }}</span>
-                                {% elseif package.isScanResultPending %}
+                                {% elseif package.isScanResultPending or package.isScanResultNotAvailable %}
                                     <span class="badge badge-warning">{{ package.scanResultStatus }}</span>
                                 {% else %}
                                     <span class="badge badge-danger">{{ package.scanResultStatus }}</span>
