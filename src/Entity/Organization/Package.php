@@ -203,10 +203,10 @@ class Package
     /**
      * @return string[]
      */
-    public function ownersEmails(): array
+    public function scanResultEmails(): array
     {
         return $this->organization->members()
-            ->filter(fn ($member) => $member->isOwner())
+            ->filter(fn ($member) => $member->emailScanResult() && $member->hasEmailConfirmed())
             ->map(fn ($member) => $member->email())
             ->toArray();
     }

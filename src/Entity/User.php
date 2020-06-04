@@ -87,6 +87,11 @@ class User
     private Collection $oauthTokens;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $emailScanResult = true;
+
+    /**
      * @param array<string> $roles
      */
     public function __construct(UuidInterface $id, string $email, string $emailConfirmToken, array $roles)
@@ -226,5 +231,20 @@ class User
         }
 
         $this->memberships->add($member);
+    }
+
+    public function emailScanResult(): bool
+    {
+        return $this->emailScanResult;
+    }
+
+    public function hasEmailConfirmed(): bool
+    {
+        return $this->emailConfirmedAt !== null;
+    }
+
+    public function setEmailScanResult(bool $emailScanResult): void
+    {
+        $this->emailScanResult = $emailScanResult;
     }
 }
