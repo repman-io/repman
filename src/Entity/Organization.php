@@ -238,6 +238,14 @@ class Organization
         return null;
     }
 
+    /**
+     * @return Collection<int,Member>|Member[]
+     */
+    public function members(): Collection
+    {
+        return $this->members;
+    }
+
     private function isLastOwner(User $user): bool
     {
         $owners = $this->members->filter(fn (Member $member) => $member->isOwner());

@@ -24,6 +24,7 @@ class ScanResult
     const STATUS_OK = 'ok';
     const STATUS_WARNING = 'warning';
     const STATUS_ERROR = 'error';
+    const STATUS_NOT_AVAILABLE = 'n/a';
 
     /**
      * @ORM\Id

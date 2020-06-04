@@ -51,6 +51,11 @@ final class ScanResult
         return $this->status() === ScanResultEntity::STATUS_PENDING;
     }
 
+    public function isNotAvailable(): bool
+    {
+        return $this->status() === ScanResultEntity::STATUS_NOT_AVAILABLE;
+    }
+
     /**
      * @return mixed[]
      */

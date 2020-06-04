@@ -11,4 +11,10 @@ interface Mailer
     public function sendEmailVerification(string $email, string $token): void;
 
     public function sendInvitationToOrganization(string $email, string $token, string $organizationName): void;
+
+    /**
+     * @param string[] $emails
+     * @param mixed[]  $result
+     */
+    public function sendScanResult(array $emails, string $packageName, string $packageId, string $organizationAlias, array $result): void;
 }
