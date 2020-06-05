@@ -85,7 +85,7 @@ final class SensioLabsPackageScanner implements PackageScanner
 
         if ($status === ScanResult::STATUS_WARNING) {
             $this->messageBus->dispatch(new SendScanResult(
-                $package->ownersEmails(),
+                $package->scanResultEmails(),
                 $package->organizationAlias(),
                 (string) $package->name(),
                 $package->id()->toString(),

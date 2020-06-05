@@ -37,7 +37,7 @@ abstract class FunctionalTestCase extends WebTestCase
         return (string) $this->client->getResponse()->getContent();
     }
 
-    protected function createAndLoginAdmin(string $email = 'test@buddy.works', string $password = 'password'): string
+    protected function createAndLoginAdmin(string $email = 'test@buddy.works', string $password = 'password', ?string $confirmToken = null): string
     {
         if (static::$booted) {
             self::ensureKernelShutdown();
@@ -48,7 +48,7 @@ abstract class FunctionalTestCase extends WebTestCase
         ]);
         $this->fixtures = new FixturesManager(self::$kernel->getContainer()->get('test.service_container'));
 
-        return $this->fixtures->createAdmin($email, $password);
+        return $this->fixtures->createAdmin($email, $password, $confirmToken);
     }
 
     protected function loginUser(string $email, string $password): void

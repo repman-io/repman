@@ -17,6 +17,7 @@ final class User implements UserInterface, EquatableInterface
     private string $status;
     private bool $emailConfirmed;
     private string $emailConfirmToken;
+    private bool $emailScanResult;
 
     /**
      * @var string[]
@@ -32,7 +33,7 @@ final class User implements UserInterface, EquatableInterface
      * @param string[]       $roles
      * @param Organization[] $organizations
      */
-    public function __construct(string $id, string $email, string $password, string $status, bool $emailConfirmed, string $emailConfirmToken, $roles, $organizations)
+    public function __construct(string $id, string $email, string $password, string $status, bool $emailConfirmed, string $emailConfirmToken, $roles, $organizations, bool $emailScanResult)
     {
         $this->id = $id;
         $this->email = $email;
@@ -42,6 +43,7 @@ final class User implements UserInterface, EquatableInterface
         $this->emailConfirmToken = $emailConfirmToken;
         $this->roles = $roles;
         $this->organizations = $organizations;
+        $this->emailScanResult = $emailScanResult;
     }
 
     public function id(): string
@@ -145,5 +147,10 @@ final class User implements UserInterface, EquatableInterface
         }
 
         return true;
+    }
+
+    public function emailScanResult(): bool
+    {
+        return $this->emailScanResult;
     }
 }

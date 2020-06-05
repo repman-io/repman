@@ -86,4 +86,23 @@ final class UserControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
         self::assertStringContainsString('Github has been successfully unlinked.', $this->lastResponseBody());
     }
+
+    public function testChangeEmailPreference(): void
+    {
+        $token = '3c5fb6d5-f8ff-49dd-a420-d8e77d979dc3';
+        $this->createAndLoginAdmin('email', 'pass', $token);
+        $this->fixtures->confirmUserEmail($token);
+
+        $this->client->request('GET', $this->urlTo('user_profile'));
+        $this->client->submitForm('changeEmailPreferences', [
+            'emailScanResult' => false,
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_profile')));
+
+        $this->client->followRedirect();
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Email preferences have been changed', $this->lastResponseBody());
+    }
 }

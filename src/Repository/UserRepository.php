@@ -97,4 +97,12 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $this->_em->remove($this->getById($id));
     }
+
+    public function setEmailScanResult(UuidInterface $id, bool $value): void
+    {
+        $user = $this->getById($id);
+        $user->setEmailScanResult($value);
+        $this->_em->persist($user);
+        $this->_em->flush();
+    }
 }
