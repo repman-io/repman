@@ -11,6 +11,26 @@ On next release:
 
 ## [Unreleased]
 
+## [0.3.0] - 2020-06-05
+### Added
+- Security vulnerability scanner for private packages (#170, #171, #176, #177, #182, #183, #184, #190, #197)
+- Sending scan results email to organization members (#194, #196)
+- Allow user to disable account registration (#152)
+- Create .htaccess (#163)
+- Add repman:create:user cli command (#181)
+- Add repman:package:synchronize cli command (#185, #186)
+
+### Changed
+- Hide oauth providers buttons when env var not configured (#167)
+- Create user security read model - clean user domain (#188)
+- Update symfony/mailer to 5.0.9 (#195)
+
+### Fixed
+- Fix GitLab custom instance url not being picked up by oauth client (#156)
+- Use gitlab custom url in ComposerPackageSynchronizer (#162)
+- Fix provider and dist removal (#168)
+- Write custom Gitlab URL to gitlab-domains composer option (#179)
+
 ## [0.2.1] - 2020-05-07
 ### Security
 - prevention of guessing package uuid for organization package endpoints (#148)
