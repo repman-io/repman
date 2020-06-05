@@ -71,17 +71,19 @@ final class SymfonyMailer implements Mailer
      */
     public function sendScanResult(array $emails, string $packageName, string $packageId, string $organizationAlias, array $result): void
     {
-        $this->mailer->send((new TemplatedEmail())
-            ->from(Address::fromString($this->sender))
-            ->addBcc(...$emails)
-            ->subject("Vulnerabilities found in $packageName package")
-            ->htmlTemplate('emails/scan-result.html.twig')
-            ->context([
-                'packageName' => $packageName,
-                'packageId' => $packageId,
-                'organizationAlias' => $organizationAlias,
-                'result' => $result,
-            ])
-        );
+        foreach ($emails as $email) {
+            $this->mailer->send((new TemplatedEmail())
+                ->from(Address::fromString($this->sender))
+                ->to($email)
+                ->subject("Vulnerabilities found in $packageName package")
+                ->htmlTemplate('emails/scan-result.html.twig')
+                ->context([
+                    'packageName' => $packageName,
+                    'packageId' => $packageId,
+                    'organizationAlias' => $organizationAlias,
+                    'result' => $result,
+                ])
+            );
+        }
     }
 }
