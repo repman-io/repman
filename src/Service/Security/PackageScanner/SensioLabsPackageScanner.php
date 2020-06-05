@@ -6,6 +6,7 @@ namespace Buddy\Repman\Service\Security\PackageScanner;
 
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
+use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
@@ -13,6 +14,7 @@ use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Composer\Semver\VersionParser;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class SensioLabsPackageScanner implements PackageScanner
 {
@@ -20,12 +22,14 @@ final class SensioLabsPackageScanner implements PackageScanner
     private VersionParser $versionParser;
     private PackageManager $packageManager;
     private ScanResultRepository $results;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(SecurityChecker $checker, PackageManager $packageManager, ScanResultRepository $results)
+    public function __construct(SecurityChecker $checker, PackageManager $packageManager, ScanResultRepository $results, MessageBusInterface $messageBus)
     {
         $this->checker = $checker;
         $this->packageManager = $packageManager;
         $this->results = $results;
+        $this->messageBus = $messageBus;
         $this->versionParser = new VersionParser();
     }
 
@@ -41,6 +45,10 @@ final class SensioLabsPackageScanner implements PackageScanner
 
         try {
             $lockFiles = $this->extractLockFiles($this->findDistribution($package));
+            if ($lockFiles === []) {
+                $status = ScanResult::STATUS_NOT_AVAILABLE;
+            }
+
             foreach ($lockFiles as $lockFileName => $content) {
                 $scanResults = $this->checker->check($content);
                 if ($scanResults !== []) {
@@ -50,11 +58,15 @@ final class SensioLabsPackageScanner implements PackageScanner
                 $result[$lockFileName] = $scanResults;
             }
         } catch (\Throwable $exception) {
-            $this->saveError($package, [
-                'exception' => [
-                    get_class($exception) => $exception->getMessage(),
+            $this->saveResult(
+                $package,
+                ScanResult::STATUS_ERROR,
+                [
+                    'exception' => [
+                        get_class($exception) => $exception->getMessage(),
+                    ],
                 ],
-            ]);
+            );
 
             return;
         }
@@ -70,17 +82,16 @@ final class SensioLabsPackageScanner implements PackageScanner
         $date = new \DateTimeImmutable();
         $package->setScanResult($status, $date, $result);
         $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $result));
-    }
 
-    /**
-     * @param array<string,array<string,string>> $error
-     */
-    private function saveError(Package $package, array $error): void
-    {
-        $status = ScanResult::STATUS_ERROR;
-        $date = new \DateTimeImmutable();
-        $package->setScanResult(ScanResult::STATUS_ERROR, $date, $error);
-        $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $error));
+        if ($status === ScanResult::STATUS_WARNING) {
+            $this->messageBus->dispatch(new SendScanResult(
+                $package->scanResultEmails(),
+                $package->organizationAlias(),
+                (string) $package->name(),
+                $package->id()->toString(),
+                $result
+            ));
+        }
     }
 
     private function findDistribution(Package $package): string
@@ -143,10 +154,6 @@ final class SensioLabsPackageScanner implements PackageScanner
         }
 
         $zip->close();
-
-        if ($lockFiles === []) {
-            throw new \RuntimeException('Lock file not found');
-        }
 
         return $lockFiles;
     }

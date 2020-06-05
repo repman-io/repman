@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Buddy\Repman\Form\Type\User\ChangeEmailPreferencesType;
 use Buddy\Repman\Form\Type\User\ChangePasswordType;
+use Buddy\Repman\Message\User\ChangeEmailPreferences;
 use Buddy\Repman\Message\User\ChangePassword;
 use Buddy\Repman\Message\User\RemoveOAuthToken;
 use Buddy\Repman\Message\User\RemoveUser;
@@ -32,15 +34,22 @@ final class UserController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
         $oauthTokens = $this->userQuery->findAllOAuthTokens($this->getUser()->id());
-        $form = $this->createForm(ChangePasswordType::class);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        $passwordForm = $this->createForm(ChangePasswordType::class);
+        $passwordForm->handleRequest($request);
+
+        $emailPreferencesForm = $this->createForm(ChangeEmailPreferencesType::class, [
+            'emailScanResult' => $this->getUser()->emailScanResult(),
+        ], [
+            'action' => $this->generateUrl('user_email_preferences'),
+        ]);
+
+        if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
             $this->dispatchMessage(new ChangePassword(
                 $this->getUser()->id(),
-                $form->get('plainPassword')->getData()
+                $passwordForm->get('plainPassword')->getData()
             ));
             $this->addFlash('success', 'Your password has been changed');
 
@@ -48,9 +57,29 @@ final class UserController extends AbstractController
         }
 
         return $this->render('user/profile.html.twig', [
-            'form' => $form->createView(),
-            'oauth_tokens' => $oauthTokens,
+            'passwordForm' => $passwordForm->createView(),
+            'emailPreferencesForm' => $emailPreferencesForm->createView(),
+            'oauthTokens' => $oauthTokens,
         ]);
+    }
+
+    /**
+     * @Route(path="/user/email-preferences", name="user_email_preferences", methods={"POST"})
+     */
+    public function emailPreferences(Request $request): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $emailPreferencesForm = $this->createForm(ChangeEmailPreferencesType::class);
+        $emailPreferencesForm->handleRequest($request);
+
+        $this->dispatchMessage(new ChangeEmailPreferences(
+            $this->getUser()->id(),
+            $emailPreferencesForm->get('emailScanResult')->getData()
+        ));
+        $this->addFlash('success', 'Email preferences have been changed');
+
+        return $this->redirectToRoute('user_profile');
     }
 
     /**

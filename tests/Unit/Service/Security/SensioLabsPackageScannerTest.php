@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Security;
 
+use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
@@ -13,6 +14,8 @@ use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBus;
 
 final class SensioLabsPackageScannerTest extends TestCase
 {
@@ -128,10 +131,16 @@ final class SensioLabsPackageScannerTest extends TestCase
 
         $packageManager->method('distFilename')->willReturn(Option::some($distFile));
 
+        $messageBusMock = $this->createMock(MessageBus::class);
+        $messageBusMock
+            ->method('dispatch')
+            ->willReturn(new Envelope(new SendScanResult(['test@example.com'], 'buddy', 'test/test', 'test', [])));
+
         return new SensioLabsPackageScanner(
             $this->checkerMock,
             $packageManager,
-            $this->repoMock
+            $this->repoMock,
+            $messageBusMock
         );
     }
 }

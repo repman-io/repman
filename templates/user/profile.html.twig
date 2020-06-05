@@ -23,15 +23,23 @@
         </div>
     </div>
     <hr/>
+{% else %}
+    <h3>Email preferences</h3>
+    <div class="row">
+        <div class="col-md-6 col-lg-4">
+            {{ form(emailPreferencesForm) }}
+        </div>
+    </div>
+    <hr/>
 {% endif %}
 
 <h3>OAuth</h3>
-{% if oauth_tokens is empty %}
+{% if oauthTokens is empty %}
     <div class="row">
         <div class="col">No linked accounts.</div>
     </div>
 {% endif %}
-{% for token in oauth_tokens %}
+{% for token in oauthTokens %}
     <div class="row">
         <div class="col-6">
             <p>Linked to <strong>{{ token.type|capitalize }}</strong> since <strong>{{ token.createdAt|date('Y-m-d H:i:s')}}</strong>.</p>
@@ -54,7 +62,7 @@
 <h3>Change password</h3>
 <div class="row">
     <div class="col-md-6 col-lg-4">
-        {{ form(form) }}
+        {{ form(passwordForm) }}
         <a href="{{ path('app_send_reset_password_link') }}" class="float-right" style="margin-top: -2em;">I forgot my password</a>
     </div>
 </div>

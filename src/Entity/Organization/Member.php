@@ -100,4 +100,14 @@ class Member
             self::ROLE_OWNER,
         ];
     }
+
+    public function emailScanResult(): bool
+    {
+        return $this->user->emailScanResult();
+    }
+
+    public function hasEmailConfirmed(): bool
+    {
+        return $this->user->hasEmailConfirmed();
+    }
 }

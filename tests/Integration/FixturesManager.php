@@ -15,6 +15,7 @@ use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\User\AddOAuthToken;
+use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
@@ -62,9 +63,9 @@ final class FixturesManager
         $this->dispatchMessage(new CreateOAuthUser($email));
     }
 
-    public function createAdmin(string $email, string $password): string
+    public function createAdmin(string $email, string $password, ?string $confirmToken = null): string
     {
-        return $this->createUser($email, $password, ['ROLE_ADMIN']);
+        return $this->createUser($email, $password, ['ROLE_ADMIN'], $confirmToken);
     }
 
     public function createOrganization(string $name, string $ownerId): string
@@ -235,6 +236,12 @@ final class FixturesManager
                 $content
             )
         );
+        $this->container->get(EntityManagerInterface::class)->flush();
+    }
+
+    public function confirmUserEmail(string $token): void
+    {
+        $this->dispatchMessage(new ConfirmEmail($token));
         $this->container->get(EntityManagerInterface::class)->flush();
     }
 

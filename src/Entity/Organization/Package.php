@@ -201,6 +201,17 @@ class Package
     }
 
     /**
+     * @return string[]
+     */
+    public function scanResultEmails(): array
+    {
+        return $this->organization->members()
+            ->filter(fn ($member) => $member->emailScanResult() && $member->hasEmailConfirmed())
+            ->map(fn ($member) => $member->email())
+            ->toArray();
+    }
+
+    /**
      * @return mixed
      */
     public function metadata(string $key)
