@@ -39,6 +39,7 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->ensureLocalRegistrationIsEnabled();
             $this->dispatchMessage(new CreateUser(
                 Uuid::uuid4()->toString(),
                 $email = $form->get('email')->getData(),
@@ -60,6 +61,8 @@ class RegistrationController extends AbstractController
 
         return $this->render('registration/register.html.twig', [
             'registrationForm' => $form->createView(),
+            'oauthRegistrationEnabled' => $this->config->oauthRegistrationEnabled(),
+            'localRegistrationEnabled' => $this->config->localRegistrationEnabled(),
         ]);
     }
 
@@ -68,7 +71,7 @@ class RegistrationController extends AbstractController
      */
     public function confirm(string $token): Response
     {
-        $this->ensureRegistrationIsEnabled();
+        $this->ensureLocalRegistrationIsEnabled();
 
         try {
             $this->dispatchMessage(new ConfirmEmail($token));
@@ -84,6 +87,13 @@ class RegistrationController extends AbstractController
     {
         if (!$this->config->userRegistrationEnabled()) {
             throw new NotFoundHttpException('Registration is disabled');
+        }
+    }
+
+    private function ensureLocalRegistrationIsEnabled(): void
+    {
+        if (!$this->config->localRegistrationEnabled()) {
+            throw new NotFoundHttpException('Local registration is disabled');
         }
     }
 }

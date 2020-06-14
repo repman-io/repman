@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Security;
 
 use Buddy\Repman\Entity\User;
+use Buddy\Repman\Service\Config;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,18 +31,21 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
     private UrlGeneratorInterface $urlGenerator;
     private CsrfTokenManagerInterface $csrfTokenManager;
     private UserPasswordEncoderInterface $passwordEncoder;
+    private Config $config;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, Config $config)
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->config = $config;
     }
 
     public function supports(Request $request)
     {
         return 'app_login' === $request->attributes->get('_route')
-            && $request->isMethod('POST');
+            && $request->isMethod('POST')
+            && $this->config->localLoginEnabled();
     }
 
     public function getCredentials(Request $request)

@@ -10,7 +10,7 @@
 
             <div class="card-title text-center">Sign up for free</div>
 
-            {% if oauth_enabled() %}
+            {% if oauthRegistrationEnabled and oauth_enabled() %}
                 <div class="text-center">
                     {% if oauth_enabled('github') %}
                         <a href="{{ url('register_github_start') }}" class="btn btn-github btn-sm">
@@ -40,10 +40,14 @@
 
                 <hr />
 
-                <div class="text-center"><small>or sign up with e-mail</small></div>
+                {% if localRegistrationEnabled %}
+                    <div class="text-center"><small>or sign up with e-mail</small></div>
+                {% endif %}
             {% endif %}
 
-            {{ form(registrationForm) }}
+            {% if localRegistrationEnabled %}
+                {{ form(registrationForm) }}
+            {% endif %}
 
             <div class="text-center mt-5">
                 <small>By creating an account you agree to our <a href="https://repman.io/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>.</small>

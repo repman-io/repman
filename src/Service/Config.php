@@ -32,9 +32,24 @@ final class Config
         return $this->getAll()[$key] ?? null;
     }
 
+    public function localLoginEnabled(): bool
+    {
+        return $this->get('local_authentication') !== 'disabled';
+    }
+
+    public function localRegistrationEnabled(): bool
+    {
+        return $this->get('local_authentication') === 'login_and_registration';
+    }
+
+    public function oauthRegistrationEnabled(): bool
+    {
+        return $this->get('oauth_registration') === 'enabled';
+    }
+
     public function userRegistrationEnabled(): bool
     {
-        return $this->get('user_registration') === 'enabled';
+        return $this->localRegistrationEnabled() || $this->oauthRegistrationEnabled();
     }
 
     /**

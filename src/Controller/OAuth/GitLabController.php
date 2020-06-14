@@ -23,7 +23,7 @@ final class GitLabController extends OAuthController
      */
     public function register(): Response
     {
-        $this->ensureRegistrationIsEnabled();
+        $this->ensureOAuthRegistrationIsEnabled();
 
         return $this->oauth->getClient('gitlab')->redirect(['read_user'], []);
     }
@@ -41,7 +41,7 @@ final class GitLabController extends OAuthController
      */
     public function registerCheck(Request $request): Response
     {
-        $this->ensureRegistrationIsEnabled();
+        $this->ensureOAuthRegistrationIsEnabled();
 
         return $this->createAndAuthenticateUser(
             'gitlab',

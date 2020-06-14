@@ -49,33 +49,37 @@
 
             <hr />
 
-            <div class="text-center"><small>or sign in with e-mail</small></div>
+            {% if localLoginEnabled %}
+                <div class="text-center"><small>or sign in with e-mail</small></div>
+            {% endif %}
         {% endif %}
 
-        <div class="mb-2">
-            <label for="inputEmail" class="form-label">Email address</label>
-            <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Enter email" required autofocus>
-        </div>
-        <div class="mb-2">
-            <a href="{{ path('app_send_reset_password_link') }}" class="float-right small">I forgot password</a>
-            <label for="inputPassword" class="form-label">
-                Password
-            </label>
-            <input type="password" name="password" id="inputPassword" class="form-control" required autocomplete="off">
-        </div>
+        {% if localLoginEnabled %}
+            <div class="mb-2">
+                <label for="inputEmail" class="form-label">Email address</label>
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" placeholder="Enter email" required autofocus>
+            </div>
+            <div class="mb-2">
+                <a href="{{ path('app_send_reset_password_link') }}" class="float-right small">I forgot password</a>
+                <label for="inputPassword" class="form-label">
+                    Password
+                </label>
+                <input type="password" name="password" id="inputPassword" class="form-control" required autocomplete="off">
+            </div>
 
-        <div class="mb-2">
-            <label class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" name="_remember_me"/>
-                <span class="custom-control-label">Remember me</span>
-            </label>
-        </div>
+            <div class="mb-2">
+                <label class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" name="_remember_me"/>
+                    <span class="custom-control-label">Remember me</span>
+                </label>
+            </div>
 
-        <div class="form-footer">
-            <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-        </div>
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+            </div>
 
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        {% endif %}
     </div>
 </form>
 {% include 'component/signUpLink.html.twig' %}

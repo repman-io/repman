@@ -18,7 +18,7 @@ final class BuddyController extends OAuthController
      */
     public function register(): Response
     {
-        $this->ensureRegistrationIsEnabled();
+        $this->ensureOAuthRegistrationIsEnabled();
 
         return $this->oauth->getClient('buddy')->redirect([Buddy::SCOPE_USER_EMAIL], []);
     }
@@ -39,7 +39,7 @@ final class BuddyController extends OAuthController
      */
     public function registerCheck(Request $request, BuddyApi $api): Response
     {
-        $this->ensureRegistrationIsEnabled();
+        $this->ensureOAuthRegistrationIsEnabled();
 
         return $this->createAndAuthenticateUser(
             'buddy',

@@ -115,10 +115,10 @@ abstract class OAuthController extends AbstractController
         }
     }
 
-    protected function ensureRegistrationIsEnabled(): void
+    protected function ensureOAuthRegistrationIsEnabled(): void
     {
-        if (!$this->config->userRegistrationEnabled()) {
-            throw new NotFoundHttpException('Registration is disabled');
+        if (!$this->config->oauthRegistrationEnabled()) {
+            throw new NotFoundHttpException('Registration using OAuth is disabled');
         }
     }
 }
