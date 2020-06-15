@@ -32,6 +32,18 @@
         {{ form_end(aliasForm) }}
     <hr />
 
+    <h4>Anonymous access</h4>
+        {{ form_start(anonymousAccessForm, {attr:{class:'row'}}) }}
+            <div class="col-4">
+                {{ form_widget(anonymousAccessForm.hasAnonymousAccess) }}
+                {{ form_errors(anonymousAccessForm.hasAnonymousAccess) }}
+            </div>
+            <div class="col-4 text-right">
+                {{ form_widget(anonymousAccessForm.changeAnonymousAccess, {attr:{class:'btn-danger'}}) }}
+            </div>
+        {{ form_end(anonymousAccessForm) }}
+    <hr />
+
     <h4>Delete this organization</h4>
     <div class="row">
         <div class="col-6">

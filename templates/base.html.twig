@@ -57,18 +57,20 @@
                                         <span class="d-none d-sm-block">Packages</span>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ current_route == 'organization_tokens' ? 'active' : '' }}" href="{{ path('organization_tokens', {"organization":organization.alias}) }}">
-                                        <span class="nav-icon">{% include 'svg/lock.svg' %}</span>
-                                        <span class="d-none d-sm-block">Tokens</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link {{ current_route == 'organization_members' ? 'active' : '' }}" href="{{ path('organization_members', {"organization":organization.alias}) }}">
-                                        <span class="nav-icon">{% include 'svg/users.svg' %}</span>
-                                        <span class="d-none d-sm-block">Members</span>
-                                    </a>
-                                </li>
+                                {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ current_route == 'organization_tokens' ? 'active' : '' }}" href="{{ path('organization_tokens', {"organization":organization.alias}) }}">
+                                            <span class="nav-icon">{% include 'svg/lock.svg' %}</span>
+                                            <span class="d-none d-sm-block">Tokens</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ current_route == 'organization_members' ? 'active' : '' }}" href="{{ path('organization_members', {"organization":organization.alias}) }}">
+                                            <span class="nav-icon">{% include 'svg/users.svg' %}</span>
+                                            <span class="d-none d-sm-block">Members</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
                                 {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
                                     <li class="nav-item">
                                         <a class="nav-link {{ current_route == 'organization_settings' ? 'active' : '' }}" href="{{ path('organization_settings', {"organization":organization.alias}) }}">

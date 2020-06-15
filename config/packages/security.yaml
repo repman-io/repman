@@ -20,6 +20,8 @@ security:
             guard:
                 authenticators:
                     - Buddy\Repman\Security\TokenAuthenticator
+                    - Buddy\Repman\Security\AnonymousUserAuthenticator
+                entry_point: Buddy\Repman\Security\AnonymousUserAuthenticator
         main:
             anonymous: lazy
             provider: user_provider
@@ -45,6 +47,8 @@ security:
          - { path: ^/user, roles: ROLE_USER }
          - { path: ^/organization/new, roles: ROLE_USER }
          - { path: ^/$, roles: ROLE_USER }
+         - { path: ^/organization/.+/overview$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
+         - { path: ^/organization/.+/package$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
          - { path: ^/downloads, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
          - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }

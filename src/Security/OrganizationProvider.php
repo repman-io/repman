@@ -22,6 +22,10 @@ final class OrganizationProvider implements UserProviderInterface
 
     public function loadUserByUsername(string $username)
     {
+        if (strpos($username, 'alias:') === 0) {
+            return $this->loadUserByAlias(\str_replace('alias:', '', $username));
+        }
+
         $data = $this->getUserDataByToken($username);
 
         if ($data === false) {
@@ -57,17 +61,41 @@ final class OrganizationProvider implements UserProviderInterface
         ]);
     }
 
+    private function loadUserByAlias(string $alias): Organization
+    {
+        $data = $this->getUserDataByAlias($alias);
+        if ($data === false) {
+            throw new BadCredentialsException();
+        }
+
+        return $this->hydrateOrganization($data);
+    }
+
     /**
      * @return false|mixed[]
      */
     private function getUserDataByToken(string $token)
     {
         return $this->connection->fetchAssoc('
-            SELECT t.value, o.name, o.alias, o.id FROM organization_token t 
-            JOIN organization o ON o.id = t.organization_id 
+            SELECT t.value, o.name, o.alias, o.id FROM organization_token t
+            JOIN organization o ON o.id = t.organization_id
             WHERE t.value = :token',
             [
                 ':token' => $token,
+            ]);
+    }
+
+    /**
+     * @return false|mixed[]
+     */
+    private function getUserDataByAlias(string $alias)
+    {
+        return $this->connection->fetchAssoc("
+            SELECT id, name, alias, 'anonymous' AS value
+            FROM organization
+            WHERE alias = :alias AND has_anonymous_access = true",
+            [
+                ':alias' => $alias,
             ]);
     }
 

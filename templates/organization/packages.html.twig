@@ -20,8 +20,10 @@
                 <th>Released</th>
                 <th>Description</th>
                 <th>Webhook</th>
-                <th>Security</th>
-                <th></th>
+                {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
+                    <th>Security</th>
+                    <th></th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -67,76 +69,78 @@
                             <small>N/A</small>
                         {% endif %}
                     </td>
-                    <td class="text-center">
-                        {% if package.isSynchronizedSuccessfully %}
-                            <a
-                                href="{{ path('organization_package_scan_results', {organization: organization.alias, package: package.id}) }}"
-                                data-content="{% apply escape %}{% include 'organization/package/scanResultContent.html.twig' with {'result': package.lastScanResultContent, 'simple': true} %}{% endapply %}"
-                                data-title="{{ package.scanResultDate|time_diff }}"
-                                data-toggle="scan-result-popover"
-                            >
-                                {% if package.isScanResultOk %}
-                                    <span class="badge badge-success">{{ package.scanResultStatus }}</span>
-                                {% elseif package.isScanResultPending or package.isScanResultNotAvailable %}
-                                    <span class="badge badge-warning">{{ package.scanResultStatus }}</span>
-                                {% else %}
-                                    <span class="badge badge-danger">{{ package.scanResultStatus }}</span>
-                                {% endif %}
-                            </a>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="dropdown ml-1">
-                            <button class="btn btn-secondary dropdown-toggle align-text-top" data-toggle="dropdown">Actions</button>
-                            <div class="dropdown-menu">
-                            {% if package.name %}
-                                <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
-                                    {% include 'svg/bar-chart.svg' %} Statistics
-                                </a>
-                                <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
-                                    {% include 'svg/link.svg' %} Webhook
-                                </a>
-                            {% endif %}
+                    {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
+                        <td class="text-center">
                             {% if package.isSynchronizedSuccessfully %}
                                 <a
-                                    class="dropdown-item"
-                                    data-target="confirmation"
-                                    data-action="{{ path('organization_package_scan', {organization: organization.alias, package: package.id }) }}"
-                                    data-method="POST"
-                                    href="#"
-                                    >
-                                        {% include 'svg/shield.svg' %} Scan
+                                    href="{{ path('organization_package_scan_results', {organization: organization.alias, package: package.id}) }}"
+                                    data-content="{% apply escape %}{% include 'organization/package/scanResultContent.html.twig' with {'result': package.lastScanResultContent, 'simple': true} %}{% endapply %}"
+                                    data-title="{{ package.scanResultDate|time_diff }}"
+                                    data-toggle="scan-result-popover"
+                                >
+                                    {% if package.isScanResultOk %}
+                                        <span class="badge badge-success">{{ package.scanResultStatus }}</span>
+                                    {% elseif package.isScanResultPending or package.isScanResultNotAvailable %}
+                                        <span class="badge badge-warning">{{ package.scanResultStatus }}</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">{{ package.scanResultStatus }}</span>
+                                    {% endif %}
                                 </a>
                             {% endif %}
-                            {% if package.name or package.lastSyncError %}
-                                <a
-                                    class="dropdown-item"
-                                    data-target="confirmation"
-                                    data-action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}"
-                                    data-method="POST"
-                                    href="#"
-                                    >
-                                        {% include 'svg/refresh.svg' %} Update
-                                </a>
-                                {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+                        </td>
+                        <td>
+                            <span class="dropdown ml-1">
+                                <button class="btn btn-secondary dropdown-toggle align-text-top" data-toggle="dropdown">Actions</button>
+                                <div class="dropdown-menu">
+                                {% if package.name %}
+                                    <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
+                                        {% include 'svg/bar-chart.svg' %} Statistics
+                                    </a>
+                                    <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
+                                        {% include 'svg/link.svg' %} Webhook
+                                    </a>
+                                {% endif %}
+                                {% if package.isSynchronizedSuccessfully %}
                                     <a
                                         class="dropdown-item"
                                         data-target="confirmation"
-                                        data-action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}"
-                                        data-method="DELETE"
+                                        data-action="{{ path('organization_package_scan', {organization: organization.alias, package: package.id }) }}"
+                                        data-method="POST"
                                         href="#"
                                         >
-                                            {% include 'svg/trash.svg' %} Remove
+                                            {% include 'svg/shield.svg' %} Scan
                                     </a>
                                 {% endif %}
-                            {% endif %}
-                            </div>
-                        </span>
-                    </td>
+                                {% if package.name or package.lastSyncError %}
+                                    <a
+                                        class="dropdown-item"
+                                        data-target="confirmation"
+                                        data-action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}"
+                                        data-method="POST"
+                                        href="#"
+                                        >
+                                            {% include 'svg/refresh.svg' %} Update
+                                    </a>
+                                    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+                                        <a
+                                            class="dropdown-item"
+                                            data-target="confirmation"
+                                            data-action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}"
+                                            data-method="DELETE"
+                                            href="#"
+                                            >
+                                                {% include 'svg/trash.svg' %} Remove
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                                </div>
+                            </span>
+                        </td>
+                    {% endif %}
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="6" class="text-center">no packages added</td>
+                    <td colspan="7" class="text-center">no packages added</td>
                 </tr>
             {% endfor %}
         </tbody>
