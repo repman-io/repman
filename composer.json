@@ -19,6 +19,7 @@
         "composer/semver": "^1.5",
         "knplabs/github-api": "^2.12",
         "knpuniversity/oauth2-client-bundle": "^2.0",
+        "league/flysystem-bundle": "^1.5",
         "league/oauth2-github": "^2.0",
         "m4tthumphrey/php-gitlab-api": "^9.17",
         "munusphp/munus": "^0.2.1",
