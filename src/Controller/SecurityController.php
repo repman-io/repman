@@ -8,6 +8,7 @@ use Buddy\Repman\Form\Type\User\ResetPasswordType;
 use Buddy\Repman\Form\Type\User\SendResetPasswordLinkType;
 use Buddy\Repman\Message\User\ResetPassword;
 use Buddy\Repman\Message\User\SendPasswordResetLink;
+use Buddy\Repman\Service\Config;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+    private Config $config;
+
+    public function __construct(Config $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * @Route("/login", name="app_login")
      */
@@ -29,6 +37,7 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $authenticationUtils->getLastUsername(),
             'error' => $authenticationUtils->getLastAuthenticationError(),
+            'localLoginEnabled' => $this->config->localLoginEnabled(),
         ]);
     }
 

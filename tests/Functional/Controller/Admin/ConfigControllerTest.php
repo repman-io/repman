@@ -22,14 +22,43 @@ final class ConfigControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Repman configuration', $this->lastResponseBody());
-        self::assertStringContainsString('User registration', $this->lastResponseBody());
+        self::assertStringContainsString('OAuth registration', $this->lastResponseBody());
     }
 
-    public function testToggleRegistration(): void
+    public function testToggleAuthenticationOptions(): void
     {
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
-            'user_registration' => 'disabled',
+            'local_authentication' => 'login_and_registration',
+            'oauth_registration' => 'disabled',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
+        $this->client->followRedirect();
+        self::assertStringContainsString(
+            'Configuration has been successfully changed',
+            $this->lastResponseBody()
+        );
+
+        $this->client->request('GET', $this->urlTo('app_register'));
+        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+
+        $this->client->request('GET', $this->urlTo('register_github_start'));
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+
+        $this->client->request('GET', $this->urlTo('register_gitlab_start'));
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+
+        $this->client->request('GET', $this->urlTo('register_bitbucket_start'));
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+
+        $this->client->request('GET', $this->urlTo('register_buddy_start'));
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+
+        $this->client->request('GET', $this->urlTo('admin_config'));
+        $this->client->submitForm('save', [
+            'local_authentication' => 'login_only',
+            'oauth_registration' => 'disabled',
         ]);
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
@@ -56,7 +85,8 @@ final class ConfigControllerTest extends FunctionalTestCase
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
-            'user_registration' => 'enabled',
+            'local_authentication' => 'login_and_registration',
+            'oauth_registration' => 'enabled',
         ]);
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
