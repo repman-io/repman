@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
 use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Dist\Storage\FileStorage;
-use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
+use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Downloader\NativeDownloader;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
-use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
@@ -27,11 +27,18 @@ final class ComposerPackageSynchronizerTest extends TestCase
     protected function setUp(): void
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
+
+        $localAdapter = new Local($this->baseDir);
+        $filesystem = new Filesystem($localAdapter);
+
+        $distStorage = new DistStorage($filesystem, new NativeDownloader());
+        $packageManager = new PackageManager($filesystem, $distStorage);
+
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
+            $packageManager,
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
-            new InMemoryStorage(),
+            $distStorage,
             'gitlab.com'
         );
         $this->resourcesDir = __DIR__.'/../../../Resources/';

@@ -50,9 +50,18 @@ services:
         class: Buddy\Repman\Service\Dist\Storage\FileStorage
 
     repman.organization.dist_storage:
-        class: Buddy\Repman\Service\Dist\Storage\FileStorage
+        class: Buddy\Repman\Service\Dist\DistStorage
         arguments:
-            $distsDir: '%repo_dir%'
+            $filesystem: '@repo.storage'
+
+    repman.proxy.dist_storage:
+        class: Buddy\Repman\Service\Dist\DistStorage
+        arguments:
+            $filesystem: '@proxy.storage'
+
+    Buddy\Repman\Controller\RepoController:
+        arguments:
+            $distStorage: '@repman.organization.dist_storage'
 
     Buddy\Repman\Service\Mailer\SymfonyMailer:
         arguments:
@@ -60,7 +69,6 @@ services:
 
     Buddy\Repman\Service\Organization\PackageManager:
         arguments:
-            $baseDir: '%repo_dir%'
             $distStorage: '@repman.organization.dist_storage'
 
     Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer:
@@ -79,6 +87,10 @@ services:
                 gitlab: '%env(OAUTH_GITLAB_CLIENT_ID)%'
                 bitbucket: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
                 buddy: '%env(OAUTH_BUDDY_CLIENT_ID)%'
+
+    Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner:
+        arguments:
+            $distStorage: '@repman.organization.dist_storage'
 
     Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker:
         arguments:

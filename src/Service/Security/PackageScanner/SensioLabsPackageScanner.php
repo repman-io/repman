@@ -9,6 +9,8 @@ use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Repository\ScanResultRepository;
+use Buddy\Repman\Service\Dist;
+use Buddy\Repman\Service\Dist\DistStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
@@ -23,13 +25,20 @@ final class SensioLabsPackageScanner implements PackageScanner
     private PackageManager $packageManager;
     private ScanResultRepository $results;
     private MessageBusInterface $messageBus;
+    private DistStorage $distStorage;
 
-    public function __construct(SecurityChecker $checker, PackageManager $packageManager, ScanResultRepository $results, MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        SecurityChecker $checker,
+        PackageManager $packageManager,
+        ScanResultRepository $results,
+        MessageBusInterface $messageBus,
+        DistStorage $distStorage
+    ) {
         $this->checker = $checker;
         $this->packageManager = $packageManager;
         $this->results = $results;
         $this->messageBus = $messageBus;
+        $this->distStorage = $distStorage;
         $this->versionParser = new VersionParser();
     }
 
@@ -94,7 +103,7 @@ final class SensioLabsPackageScanner implements PackageScanner
         }
     }
 
-    private function findDistribution(Package $package): string
+    private function findDistribution(Package $package): Dist
     {
         $packageName = $package->name();
         $latestReleasedVersion = $package->latestReleasedVersion();
@@ -113,18 +122,19 @@ final class SensioLabsPackageScanner implements PackageScanner
             $reference = $packageDist['reference'];
 
             if ($packageVersion === $normalizedVersion && isset($packageDist['url'], $reference)) {
-                $archiveType = $packageDist['type'];
-                $filename = $this->packageManager->distFilename(
+                $dist = new Dist(
                     $package->organizationAlias(),
                     (string) $packageName,
                     $normalizedVersion,
                     $reference,
-                    $archiveType
+                    $packageDist['type']
                 );
 
-                return $filename->getOrElseThrow(
-                    new \RuntimeException('Distribution file not found')
-                );
+                if (!$this->distStorage->has($dist)) {
+                    throw new \RuntimeException('Distribution file not found');
+                }
+
+                return $dist;
             }
         }
 
@@ -134,12 +144,16 @@ final class SensioLabsPackageScanner implements PackageScanner
     /**
      * @return array<string,string>
      */
-    private function extractLockFiles(string $distFilename): array
+    private function extractLockFiles(Dist $dist): array
     {
+        $tempFile = \tempnam(sys_get_temp_dir(), 'zip_');
+        $stream = $this->distStorage->getStream($dist);
+        \file_put_contents($tempFile, $stream);
+
         $zip = new \ZipArchive();
-        $result = $zip->open($distFilename);
+        $result = $zip->open($tempFile);
         if ($result !== true) {
-            throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
+            throw new \RuntimeException("Error while opening ZIP file '$tempFile', code: $result");
         }
 
         $lockFiles = [];

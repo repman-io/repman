@@ -7,7 +7,7 @@ namespace Buddy\Repman\Service\PackageSynchronizer;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Dist\DistStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer;
@@ -26,10 +26,10 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageManager $packageManager;
     private PackageNormalizer $packageNormalizer;
     private PackageRepository $packageRepository;
-    private Storage $distStorage;
+    private DistStorage $distStorage;
     private string $gitlabUrl;
 
-    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
+    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, DistStorage $distStorage, string $gitlabUrl)
     {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;

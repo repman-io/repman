@@ -7,12 +7,14 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Service\Dist;
+use Buddy\Repman\Service\Dist\DistStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -22,11 +24,13 @@ final class RepoController extends AbstractController
 {
     private PackageQuery $packageQuery;
     private PackageManager $packageManager;
+    private DistStorage $distStorage;
 
-    public function __construct(PackageQuery $packageQuery, PackageManager $packageManager)
+    public function __construct(PackageQuery $packageQuery, PackageManager $packageManager, DistStorage $distStorage)
     {
         $this->packageQuery = $packageQuery;
         $this->packageManager = $packageManager;
+        $this->distStorage = $distStorage;
     }
 
     /**
@@ -62,12 +66,26 @@ final class RepoController extends AbstractController
      *     methods={"GET"})
      * @Cache(public=false)
      */
-    public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): BinaryFileResponse
+    public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): StreamedResponse
     {
-        return new BinaryFileResponse($this->packageManager
-            ->distFilename($organization->alias(), $package, $version, $ref, $type)
-            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
-        );
+        $dist = new Dist($organization->alias(), $package, $version, $ref, $type);
+
+        /** @var resource $stream */
+        $stream = $this->distStorage->getStream($dist)
+            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
+
+        $headers = [
+            'Accept-Ranges' => 'bytes',
+            'Content-Type' => 'application/zip',
+            'Content-Length' => fstat($stream)['size'],
+        ];
+
+        return new StreamedResponse(function () use ($stream) {
+            $out = fopen('php://output', 'wb');
+            stream_copy_to_stream($stream, $out);
+            fclose($out);
+            fclose($stream);
+        }, 200, $headers);
     }
 
     /**

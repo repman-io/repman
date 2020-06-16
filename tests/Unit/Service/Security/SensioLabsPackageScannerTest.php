@@ -6,6 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Security;
 
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Repository\ScanResultRepository;
+use Buddy\Repman\Service\Dist\DistStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
@@ -129,18 +130,19 @@ final class SensioLabsPackageScannerTest extends TestCase
             'version_normalized' => '1.2.3.0',
         ]]]);
 
-        $packageManager->method('distFilename')->willReturn(Option::some($distFile));
-
         $messageBusMock = $this->createMock(MessageBus::class);
         $messageBusMock
             ->method('dispatch')
             ->willReturn(new Envelope(new SendScanResult(['test@example.com'], 'buddy', 'test/test', 'test', [])));
 
+        $distStorage = $this->createMock(DistStorage::class);
+
         return new SensioLabsPackageScanner(
             $this->checkerMock,
             $packageManager,
             $this->repoMock,
-            $messageBusMock
+            $messageBusMock,
+            $distStorage
         );
     }
 }
