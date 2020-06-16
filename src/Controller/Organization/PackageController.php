@@ -35,8 +35,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 final class PackageController extends AbstractController
 {
     private UserQuery $userQuery;
-    private GithubApi $githubApi;
-    private GitlabApi $gitlabApi;
+    private GitHubApi $githubApi;
+    private GitLabApi $gitlabApi;
     private BitbucketApi $bitbucketApi;
 
     public function __construct(UserQuery $userQuery, GitHubApi $githubApi, GitLabApi $gitlabApi, BitbucketApi $bitbucketApi)
