@@ -19,8 +19,8 @@
                 <th>Version</th>
                 <th>Released</th>
                 <th>Description</th>
-                <th>Webhook</th>
                 {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
+                    <th>Webhook</th>
                     <th>Security</th>
                     <th></th>
                 {% endif %}
@@ -62,14 +62,14 @@
                             {{ package.description }}
                         {% endif %}
                     </td>
-                    <td class="text-center">
-                        {% if package.webhookCreatedAt is not empty %}
-                            <span class="font-weight-bold" title="{{ package.webhookCreatedAt | date('Y-m-d H:i:s') }}">created</span>
-                        {% else %}
-                            <small>N/A</small>
-                        {% endif %}
-                    </td>
                     {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
+                        <td class="text-center">
+                            {% if package.webhookCreatedAt is not empty %}
+                                <span class="font-weight-bold" title="{{ package.webhookCreatedAt | date('Y-m-d H:i:s') }}">created</span>
+                            {% else %}
+                                <small>N/A</small>
+                            {% endif %}
+                        </td>
                         <td class="text-center">
                             {% if package.isSynchronizedSuccessfully %}
                                 <a

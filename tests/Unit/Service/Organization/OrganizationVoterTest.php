@@ -26,8 +26,8 @@ final class OrganizationVoterTest extends TestCase
     {
         $this->userId = 'some-id';
         $this->token = new UsernamePasswordToken(UserMother::withOrganizations($this->userId, [
-            new User\Organization('repman', 'name', 'owner'),
-            new User\Organization('buddy', 'name', 'member'),
+            new User\Organization('repman', 'name', 'owner', false),
+            new User\Organization('buddy', 'name', 'member', false),
         ]), 'password', 'key');
         $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
         $this->voter = new OrganizationVoter($queryMock);

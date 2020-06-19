@@ -20,8 +20,8 @@ security:
             guard:
                 authenticators:
                     - Buddy\Repman\Security\TokenAuthenticator
-                    - Buddy\Repman\Security\AnonymousUserAuthenticator
-                entry_point: Buddy\Repman\Security\AnonymousUserAuthenticator
+                    - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
+                entry_point: Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
         main:
             anonymous: lazy
             provider: user_provider

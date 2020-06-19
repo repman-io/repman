@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-final class AnonymousUserAuthenticator extends AbstractGuardAuthenticator
+final class AnonymousOrganizationUserAuthenticator extends AbstractGuardAuthenticator
 {
     /**
      * @codeCoverageIgnore
@@ -47,7 +47,11 @@ final class AnonymousUserAuthenticator extends AbstractGuardAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        return $userProvider->loadUserByUsername('alias:'.$credentials);
+        if (!$userProvider instanceof OrganizationProvider) {
+            throw new \InvalidArgumentException();
+        }
+
+        return $userProvider->loadUserByAlias($credentials);
     }
 
     public function checkCredentials($credentials, UserInterface $user)

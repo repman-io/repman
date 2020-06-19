@@ -22,10 +22,6 @@ final class OrganizationProvider implements UserProviderInterface
 
     public function loadUserByUsername(string $username)
     {
-        if (strpos($username, 'alias:') === 0) {
-            return $this->loadUserByAlias(\str_replace('alias:', '', $username));
-        }
-
         $data = $this->getUserDataByToken($username);
 
         if ($data === false) {
@@ -53,15 +49,7 @@ final class OrganizationProvider implements UserProviderInterface
         return $class === Organization::class;
     }
 
-    private function updateLastUsed(string $token): void
-    {
-        $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
-            ':now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-            ':value' => $token,
-        ]);
-    }
-
-    private function loadUserByAlias(string $alias): Organization
+    public function loadUserByAlias(string $alias): Organization
     {
         $data = $this->getUserDataByAlias($alias);
         if ($data === false) {
@@ -69,6 +57,14 @@ final class OrganizationProvider implements UserProviderInterface
         }
 
         return $this->hydrateOrganization($data);
+    }
+
+    private function updateLastUsed(string $token): void
+    {
+        $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
+            ':now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            ':value' => $token,
+        ]);
     }
 
     /**

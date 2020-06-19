@@ -22,4 +22,8 @@
         $(this).parent().find('[data-type="token"]').removeClass('d-none');
         $(this).remove();
     });
+
+    $('[data-toggle="tooltip"]').popover({
+        trigger: 'hover'
+    });
 })();

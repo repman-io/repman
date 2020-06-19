@@ -1,3 +1,13 @@
+{% macro anonymousIcon(subject) %}
+    {% if subject.hasAnonymousAccess %}
+        <span data-toggle="tooltip" data-placement="bottom" data-content="Organization with anonymous access">
+            {% include 'svg/unlock.svg' %}
+        </span>
+    {% endif %}
+{% endmacro %}
+
+{% import _self as icons %}
+
 {% if app.user %}
     {% if app.user.belongsToAnyOrganization %}
         <div class="dropdown">
@@ -5,7 +15,7 @@
                class="align-items-center ml-2 btn btn-secondary">
                 <span class="ml-2 d-none d-sm-block lh-1">
                     {% if organization is defined %}
-                        {{ organization.name }}
+                        {{ icons.anonymousIcon(organization) }} {{ organization.name }}
                     {% else %}
                         Select organization
                     {% endif %}
@@ -17,7 +27,7 @@
             <div class="dropdown-menu dropdown-menu-arrow">
                 {% for org in app.user.organizations %}
                     <a class="dropdown-item" href="{{ url('organization_overview', {"organization": org.alias}) }}">
-                        {{ org.name }}
+                        {{ icons.anonymousIcon(org) }} {{ org.name }}
                     </a>
                 {% endfor %}
                 <div class="dropdown-divider"></div>
