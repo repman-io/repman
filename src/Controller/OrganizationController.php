@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Form\Type\Organization\ChangeAliasType;
+use Buddy\Repman\Form\Type\Organization\ChangeAnonymousAccessType;
 use Buddy\Repman\Form\Type\Organization\ChangeNameType;
 use Buddy\Repman\Form\Type\Organization\CreateType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Message\Organization\ChangeAlias;
+use Buddy\Repman\Message\Organization\ChangeAnonymousAccess;
 use Buddy\Repman\Message\Organization\ChangeName;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
@@ -97,7 +99,8 @@ final class OrganizationController extends AbstractController
     public function packages(Organization $organization, Request $request): Response
     {
         $count = $this->packageQuery->count($organization->id());
-        if ($count === 0 && $organization->isOwner($this->getUser()->id())) {
+        $user = parent::getUser();
+        if ($count === 0 && $user instanceof User && $organization->isOwner($user->id())) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
         }
 
@@ -287,10 +290,20 @@ final class OrganizationController extends AbstractController
             return $this->redirectToRoute('organization_settings', ['organization' => $aliasForm->get('alias')->getData()]);
         }
 
+        $anonymousAccessForm = $this->createForm(ChangeAnonymousAccessType::class, ['hasAnonymousAccess' => $organization->hasAnonymousAccess()]);
+        $anonymousAccessForm->handleRequest($request);
+        if ($anonymousAccessForm->isSubmitted() && $anonymousAccessForm->isValid()) {
+            $this->dispatchMessage(new ChangeAnonymousAccess($organization->id(), $anonymousAccessForm->get('hasAnonymousAccess')->getData()));
+            $this->addFlash('success', 'Anonymous access has been successfully changed.');
+
+            return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
+        }
+
         return $this->render('organization/settings.html.twig', [
             'organization' => $organization,
             'renameForm' => $renameForm->createView(),
             'aliasForm' => $aliasForm->createView(),
+            'anonymousAccessForm' => $anonymousAccessForm->createView(),
         ]);
     }
 

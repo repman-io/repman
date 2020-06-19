@@ -453,6 +453,20 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Organization alias has been successfully changed.', $this->lastResponseBody());
     }
 
+    public function testChangeAnonymousAccess(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->followRedirects();
+        $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
+        $this->client->submitForm('changeAnonymousAccess', [
+            'hasAnonymousAccess' => true,
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('repman', $this->lastResponseBody());
+        self::assertStringContainsString('Anonymous access has been successfully changed.', $this->lastResponseBody());
+    }
+
     public function testRemoveOrganization(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy inc', $this->userId);
@@ -663,5 +677,55 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString($version, $this->lastResponseBody());
         self::assertStringContainsString('n/a', $this->lastResponseBody());
         self::assertStringContainsString('composer.lock not present', $this->lastResponseBody());
+    }
+
+    public function testOverviewAllowedForAnonymousUser(): void
+    {
+        $otherId = $this->fixtures->createAdmin('cto@buddy.works', 'strong');
+        $organizationId = $this->fixtures->createOrganization('public', $otherId);
+
+        $this->fixtures->enableAnonymousUserAccess($organizationId);
+
+        if (static::$booted) {
+            self::ensureKernelShutdown();
+        }
+        $this->client = static::createClient();
+
+        $this->client->request('GET', $this->urlTo('organization_overview', ['organization' => 'public']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testPackagesAllowedForAnonymousUser(): void
+    {
+        $otherId = $this->fixtures->createAdmin('cto@buddy.works', 'strong');
+        $organizationId = $this->fixtures->createOrganization('public', $otherId);
+
+        $this->fixtures->enableAnonymousUserAccess($organizationId);
+
+        if (static::$booted) {
+            self::ensureKernelShutdown();
+        }
+        $this->client = static::createClient();
+
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'public']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testTokensNotAllowedForAnonymousUser(): void
+    {
+        $otherId = $this->fixtures->createAdmin('cto@buddy.works', 'strong');
+        $organizationId = $this->fixtures->createOrganization('public', $otherId);
+
+        $this->fixtures->enableAnonymousUserAccess($organizationId);
+
+        if (static::$booted) {
+            self::ensureKernelShutdown();
+        }
+        $this->client = static::createClient();
+        $this->client->request('GET', $this->urlTo('organization_tokens', ['organization' => 'public']));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
     }
 }

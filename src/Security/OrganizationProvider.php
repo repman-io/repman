@@ -49,6 +49,16 @@ final class OrganizationProvider implements UserProviderInterface
         return $class === Organization::class;
     }
 
+    public function loadUserByAlias(string $alias): Organization
+    {
+        $data = $this->getUserDataByAlias($alias);
+        if ($data === false) {
+            throw new BadCredentialsException();
+        }
+
+        return $this->hydrateOrganization($data);
+    }
+
     private function updateLastUsed(string $token): void
     {
         $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
@@ -63,11 +73,25 @@ final class OrganizationProvider implements UserProviderInterface
     private function getUserDataByToken(string $token)
     {
         return $this->connection->fetchAssoc('
-            SELECT t.value, o.name, o.alias, o.id FROM organization_token t 
-            JOIN organization o ON o.id = t.organization_id 
+            SELECT t.value, o.name, o.alias, o.id FROM organization_token t
+            JOIN organization o ON o.id = t.organization_id
             WHERE t.value = :token',
             [
                 ':token' => $token,
+            ]);
+    }
+
+    /**
+     * @return false|mixed[]
+     */
+    private function getUserDataByAlias(string $alias)
+    {
+        return $this->connection->fetchAssoc("
+            SELECT id, name, alias, 'anonymous' AS value
+            FROM organization
+            WHERE alias = :alias AND has_anonymous_access = true",
+            [
+                ':alias' => $alias,
             ]);
     }
 

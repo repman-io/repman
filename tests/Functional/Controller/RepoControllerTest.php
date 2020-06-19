@@ -10,11 +10,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class RepoControllerTest extends FunctionalTestCase
 {
+    public function testAuthRequired(): void
+    {
+        $this->client->request('GET', '/', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
+
+        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+    }
+
     public function testAuthRequiredForOrganizationRepo(): void
     {
         $this->client->request('GET', '/packages.json', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
 
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
+        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testPackagesActionWithInvalidToken(): void
@@ -142,5 +149,15 @@ final class RepoControllerTest extends FunctionalTestCase
         ], (string) json_encode([]));
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testAnonymousUserAccess(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->fixtures->createUser());
+        $this->fixtures->enableAnonymousUserAccess($organizationId);
+
+        $this->client->request('GET', '/packages.json', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
+
+        self::assertTrue($this->client->getResponse()->isOk());
     }
 }

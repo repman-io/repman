@@ -9,11 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 
-final class TokenAuthenticator extends AbstractGuardAuthenticator
+final class AnonymousOrganizationUserAuthenticator extends AbstractGuardAuthenticator
 {
     /**
      * @codeCoverageIgnore
@@ -22,43 +23,47 @@ final class TokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        $data = [
+        return new JsonResponse([
             'message' => 'Authentication Required',
-        ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        ], Response::HTTP_UNAUTHORIZED);
     }
 
     public function supports(Request $request)
     {
-        return $request->headers->has('PHP_AUTH_USER') && $request->headers->has('PHP_AUTH_PW');
+        return $request->get('_route') !== 'repo_package_downloads'
+            && !$request->headers->has('PHP_AUTH_USER')
+            && !$request->headers->has('PHP_AUTH_PW');
     }
 
     public function getCredentials(Request $request)
     {
-        return [
-            'token' => $request->headers->get('PHP_AUTH_PW'),
-            'organization' => $request->get('organization'),
-        ];
+        $organizationAlias = $request->get('organization');
+        if ($organizationAlias === null) {
+            throw new BadCredentialsException();
+        }
+
+        return $organizationAlias;
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        return $userProvider->loadUserByUsername($credentials['token']);
+        if (!$userProvider instanceof OrganizationProvider) {
+            throw new \InvalidArgumentException();
+        }
+
+        return $userProvider->loadUserByAlias($credentials);
     }
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $credentials['organization'] === $user->getUsername();
+        return true;
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        $data = [
+        return new JsonResponse([
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ];
-
-        return new JsonResponse($data, Response::HTTP_FORBIDDEN);
+        ], Response::HTTP_FORBIDDEN);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
