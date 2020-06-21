@@ -6,14 +6,17 @@ namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\ProxySyncReleasesCommand;
 use Buddy\Repman\Service\Cache\InMemoryCache;
-use Buddy\Repman\Service\Dist\Storage\FileStorage;
+use Buddy\Repman\Service\Dist\DistStorage;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\MetadataProvider\CacheableMetadataProvider;
+use Buddy\Repman\Service\Proxy\PackageManager;
 use Buddy\Repman\Service\Proxy\ProxyFactory;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 use Munus\Control\Option;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -90,11 +93,14 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $storageDownloader = $this->createMock(Downloader::class);
         $storageDownloader->method('getContents')->willReturn(Option::of('test'));
 
+        $filesystem = new Filesystem(new Local($this->basePath));
+
         return new ProxySyncReleasesCommand(
             new ProxyRegister(
                 new ProxyFactory(
                     new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()),
-                    new FileStorage($this->basePath, $storageDownloader)
+                    new DistStorage($filesystem, $storageDownloader),
+                    new PackageManager($filesystem)
                 )
             ),
             $feedDownloader,

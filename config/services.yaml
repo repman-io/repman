@@ -76,6 +76,14 @@ services:
             $distStorage: '@repman.organization.dist_storage'
             $gitlabUrl: '%env(APP_GITLAB_API_URL)%'
 
+    Buddy\Repman\Service\Proxy\ProxyFactory:
+        arguments:
+            $distStorage: '@repman.proxy.dist_storage'
+
+    Buddy\Repman\Service\Proxy\PackageManager:
+        arguments:
+            $filesystem: '@proxy.storage'
+
     Buddy\Repman\Form\Type\Organization\AddPackageType:
         arguments:
             $allowedTypes: '%env(csv:APP_ALLOWED_PACKAGE_TYPES)%'

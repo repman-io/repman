@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
@@ -67,14 +68,27 @@ final class ProxyController extends AbstractController
      *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%"},
      *     methods={"GET"})
      */
-    public function distribution(string $package, string $version, string $ref, string $type): BinaryFileResponse
+    public function distribution(string $package, string $version, string $ref, string $type): StreamedResponse
     {
-        return new BinaryFileResponse($this->register->all()
-            ->map(fn (Proxy $proxy) => $proxy->distFilename($package, $version, $ref, $type))
+        /** @var resource $stream */
+        $stream = $this->register->all()
+            ->map(fn (Proxy $proxy) => $proxy->distStream($package, $version, $ref, $type))
             ->find(fn (Option $option) => !$option->isEmpty())
             ->map(fn (Option $option) => $option->get())
-            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
-        );
+            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
+
+        $headers = [
+            'Accept-Ranges' => 'bytes',
+            'Content-Type' => 'application/zip',
+            'Content-Length' => fstat($stream)['size'],
+        ];
+
+        return new StreamedResponse(function () use ($stream) {
+            $out = fopen('php://output', 'wb');
+            stream_copy_to_stream($stream, $out);
+            fclose($out);
+            fclose($stream);
+        }, 200, $headers);
     }
 
     /**

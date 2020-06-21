@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
-use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Dist\DistStorage;
 use Buddy\Repman\Service\Proxy\MetadataProvider;
+use Buddy\Repman\Service\Proxy\PackageManager;
 use Composer\Semver\VersionParser;
 use Munus\Collection\GenericList;
 use Munus\Control\Option;
@@ -18,30 +19,31 @@ final class Proxy
     private string $url;
     private string $name;
     private MetadataProvider $metadataProvider;
-    private Storage $distStorage;
+    private DistStorage $distStorage;
+    private PackageManager $packageManager;
     private VersionParser $versionParser;
 
-    public function __construct(string $name, string $url, MetadataProvider $metadataProvider, Storage $distStorage)
+    public function __construct(string $name, string $url, MetadataProvider $metadataProvider, DistStorage $distStorage, PackageManager $packageManager)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');
         $this->metadataProvider = $metadataProvider;
         $this->distStorage = $distStorage;
+        $this->packageManager = $packageManager;
         $this->versionParser = new VersionParser();
     }
 
     /**
-     * @return Option<string>
+     * @return Option<resource>
      */
-    public function distFilename(string $package, string $version, string $ref, string $format): Option
+    public function distStream(string $package, string $version, string $ref, string $format): Option
     {
         $dist = new Dist($this->name, $package, $version, $ref, $format);
         if (!$this->distStorage->has($dist)) {
             $this->tryToDownload($package, $version, $dist);
         }
-        $distFilename = $this->distStorage->filename($dist);
 
-        return Option::when(file_exists($distFilename), $distFilename);
+        return $this->distStorage->getStream($dist);
     }
 
     /**
@@ -66,7 +68,7 @@ final class Proxy
      */
     public function syncedPackages(): GenericList
     {
-        return $this->distStorage->packages($this->name);
+        return $this->packageManager->packages($this->name);
     }
 
     public function downloadByVersion(string $package, string $version, bool $fromCache = true): void

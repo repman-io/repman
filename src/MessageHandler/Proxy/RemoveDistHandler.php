@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Buddy\Repman\MessageHandler\Proxy;
 
 use Buddy\Repman\Message\Proxy\RemoveDist;
-use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Proxy\PackageManager;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RemoveDistHandler implements MessageHandlerInterface
 {
-    private Storage $distStorage;
+    private PackageManager $packageManager;
 
-    public function __construct(Storage $distStorage)
+    public function __construct(PackageManager $packageManager)
     {
-        $this->distStorage = $distStorage;
+        $this->packageManager = $packageManager;
     }
 
     public function __invoke(RemoveDist $message): void
     {
-        $this->distStorage->remove($message->packageName());
+        $this->packageManager->remove($message->proxy(), $message->packageName());
     }
 }

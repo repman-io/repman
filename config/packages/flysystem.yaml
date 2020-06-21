@@ -5,3 +5,8 @@ flysystem:
             adapter: 'local'
             options:
                 directory: '%repo_dir%'
+
+        proxy.storage:
+            adapter: 'local'
+            options:
+                directory: '%dists_dir%'
