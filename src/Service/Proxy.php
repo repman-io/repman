@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
-use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Proxy\MetadataProvider;
 use Buddy\Repman\Service\Proxy\PackageManager;
 use Composer\Semver\VersionParser;
@@ -19,11 +19,11 @@ final class Proxy
     private string $url;
     private string $name;
     private MetadataProvider $metadataProvider;
-    private DistStorage $distStorage;
+    private Storage $distStorage;
     private PackageManager $packageManager;
     private VersionParser $versionParser;
 
-    public function __construct(string $name, string $url, MetadataProvider $metadataProvider, DistStorage $distStorage, PackageManager $packageManager)
+    public function __construct(string $name, string $url, MetadataProvider $metadataProvider, Storage $distStorage, PackageManager $packageManager)
     {
         $this->name = $name;
         $this->url = rtrim($url, '/');

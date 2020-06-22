@@ -47,12 +47,12 @@ services:
             - '@Buddy\Repman\Service\Symfony\SentryExceptionHandler'
 
     repman.organization.dist_storage:
-        class: Buddy\Repman\Service\Dist\DistStorage
+        class: Buddy\Repman\Service\Dist\Storage
         arguments:
             $filesystem: '@repo.storage'
 
     repman.proxy.dist_storage:
-        class: Buddy\Repman\Service\Dist\DistStorage
+        class: Buddy\Repman\Service\Dist\Storage
         arguments:
             $filesystem: '@proxy.storage'
 

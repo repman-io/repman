@@ -9,7 +9,7 @@ use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class DistStorage
+class Storage
 {
     private FilesystemInterface $filesystem;
     private Downloader $downloader;

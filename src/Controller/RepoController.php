@@ -8,7 +8,7 @@ use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,9 +24,9 @@ final class RepoController extends AbstractController
 {
     private PackageQuery $packageQuery;
     private PackageManager $packageManager;
-    private DistStorage $distStorage;
+    private Storage $distStorage;
 
-    public function __construct(PackageQuery $packageQuery, PackageManager $packageManager, DistStorage $distStorage)
+    public function __construct(PackageQuery $packageQuery, PackageManager $packageManager, Storage $distStorage)
     {
         $this->packageQuery = $packageQuery;
         $this->packageManager = $packageManager;

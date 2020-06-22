@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service;
 
 use Buddy\Repman\Service\Cache\InMemoryCache;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\MetadataProvider\CacheableMetadataProvider;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
@@ -23,7 +23,7 @@ final class ProxyTest extends TestCase
             'packagist.org',
             'https://packagist.org',
             new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()),
-            $this->createMock(DistStorage::class),
+            $this->createMock(Storage::class),
             $this->createMock(Proxy\PackageManager::class)
         );
         $provider = $proxy->providerData('buddy-works/repman')->get();
@@ -41,7 +41,7 @@ final class ProxyTest extends TestCase
             'packagist.org',
             'https://packagist.org',
             new CacheableMetadataProvider(new FakeDownloader(), $cache),
-            $this->createMock(DistStorage::class),
+            $this->createMock(Storage::class),
             $this->createMock(Proxy\PackageManager::class)
         );
 
@@ -52,7 +52,7 @@ final class ProxyTest extends TestCase
     {
         $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip';
         /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(DistStorage::class);
+        $storage = $this->prophesize(Storage::class);
         $storage->has(Argument::type(Dist::class))->willReturn(false);
         $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
         $storage->download('https://api.github.com/repos/munusphp/munus/zipball/f0c896a759d4e2e1eff57978318e841911796305', Argument::type(Dist::class))
@@ -77,7 +77,7 @@ final class ProxyTest extends TestCase
     public function testReturnNoneWhenDistPackageNotExists(): void
     {
         /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(DistStorage::class);
+        $storage = $this->prophesize(Storage::class);
         $storage->has(Argument::type(Dist::class))->willReturn(false);
         $storage->filename(Argument::type(Dist::class))->willReturn('/not/exist');
         $storage->getStream(Argument::type(Dist::class))->willReturn(Option::none());
@@ -100,7 +100,7 @@ final class ProxyTest extends TestCase
         $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip';
 
         /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(DistStorage::class);
+        $storage = $this->prophesize(Storage::class);
         $storage->has(Argument::type(Dist::class))->willReturn(true);
         $storage->download(Argument::cetera())->shouldNotBeCalled();
         $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
@@ -124,7 +124,7 @@ final class ProxyTest extends TestCase
     {
         $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0cdaa0ab95de9fcf94ad9b1d2f80e15d_e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb.zip';
         /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(DistStorage::class);
+        $storage = $this->prophesize(Storage::class);
         $storage->has(Argument::type(Dist::class))->willReturn(false);
         $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
         $storage->download('https://api.github.com/repos/munusphp/munus/zipball/e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb', Argument::type(Dist::class))

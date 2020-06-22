@@ -100,7 +100,7 @@ final class PackageManagerTest extends TestCase
         $localAdapter = new Local($baseDirectory);
         $filesystem = new Filesystem($localAdapter);
 
-        $distStorage = new Dist\DistStorage($filesystem, new FakeDownloader());
+        $distStorage = new Dist\Storage($filesystem, new FakeDownloader());
         return new PackageManager($filesystem, $distStorage);
     }
 }

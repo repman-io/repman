@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\ProxySyncReleasesCommand;
 use Buddy\Repman\Service\Cache\InMemoryCache;
-use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\MetadataProvider\CacheableMetadataProvider;
 use Buddy\Repman\Service\Proxy\PackageManager;
@@ -99,7 +99,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
             new ProxyRegister(
                 new ProxyFactory(
                     new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()),
-                    new DistStorage($filesystem, $storageDownloader),
+                    new Storage($filesystem, $storageDownloader),
                     new PackageManager($filesystem)
                 )
             ),

@@ -10,7 +10,7 @@ use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
@@ -25,14 +25,14 @@ final class SensioLabsPackageScanner implements PackageScanner
     private PackageManager $packageManager;
     private ScanResultRepository $results;
     private MessageBusInterface $messageBus;
-    private DistStorage $distStorage;
+    private Storage $distStorage;
 
     public function __construct(
         SecurityChecker $checker,
         PackageManager $packageManager,
         ScanResultRepository $results,
         MessageBusInterface $messageBus,
-        DistStorage $distStorage
+        Storage $distStorage
     ) {
         $this->checker = $checker;
         $this->packageManager = $packageManager;

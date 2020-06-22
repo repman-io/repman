@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
 use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Dist\DistStorage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader\NativeDownloader;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
@@ -31,7 +31,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $localAdapter = new Local($this->baseDir);
         $filesystem = new Filesystem($localAdapter);
 
-        $distStorage = new DistStorage($filesystem, new NativeDownloader());
+        $distStorage = new Storage($filesystem, new NativeDownloader());
         $packageManager = new PackageManager($filesystem, $distStorage);
 
         $this->synchronizer = new ComposerPackageSynchronizer(
