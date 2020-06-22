@@ -46,9 +46,6 @@ services:
             - '%dists_dir%'
             - '@Buddy\Repman\Service\Symfony\SentryExceptionHandler'
 
-    Buddy\Repman\Service\Dist\Storage:
-        class: Buddy\Repman\Service\Dist\Storage\FileStorage
-
     repman.organization.dist_storage:
         class: Buddy\Repman\Service\Dist\DistStorage
         arguments:
