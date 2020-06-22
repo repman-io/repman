@@ -5,21 +5,16 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
-use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
-use Munus\Control\Option;
 
 class PackageManager
 {
     private FilesystemInterface $repoStorage;
-    private Storage $distStorage;
 
-    public function __construct(FilesystemInterface $repoStorage, Storage $distStorage)
+    public function __construct(FilesystemInterface $repoStorage)
     {
         $this->repoStorage = $repoStorage;
-        $this->distStorage = $distStorage;
     }
 
     /**
