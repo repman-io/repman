@@ -36,6 +36,25 @@ final class ProxyTest extends TestCase
         self::assertEquals(['package-metadata'], $proxy->providerData('buddy-works/repman')->get());
     }
 
+    public function testPackageProviderV2FromCache(): void
+    {
+        $cache = new InMemoryCache();
+        $cache->get('packagist.org/packages.json', fn () => ['metadata-url' => '/p2/%package%.json']);
+        $cache->get('packagist.org/p2/buddy-works/repman', fn () => ['package-metadata']);
+        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
+
+        self::assertEquals(['package-metadata'], $proxy->providerDataV2('buddy-works/repman')->get());
+    }
+
+    public function testPackageProviderV2NotFound(): void
+    {
+        $cache = new InMemoryCache();
+        $cache->get('packagist.org/packages.json', function (): array {return []; });
+        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
+
+        self::assertTrue($proxy->providerDataV2('buddy-works/repman')->isEmpty());
+    }
+
     public function testStorageDownloadDistWhenNotExists(): void
     {
         $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip';
