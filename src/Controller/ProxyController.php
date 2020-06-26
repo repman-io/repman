@@ -60,6 +60,24 @@ final class ProxyController extends AbstractController
     }
 
     /**
+     * @Route("/p2/{package}.json",
+     *     name="package_provider_v2",
+     *     host="repo.{domain}",
+     *     defaults={"domain"="%domain%"},
+     *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
+     *     methods={"GET"})
+     */
+    public function providerV2(string $package): JsonResponse
+    {
+        return new JsonResponse($this->register->all()
+            ->map(fn (Proxy $proxy) => $proxy->providerDataV2($package))
+            ->find(fn (Option $option) => !$option->isEmpty())
+            ->map(fn (Option $option) => $option->get())
+            ->getOrElse(['packages' => new \stdClass()])
+        );
+    }
+
+    /**
      * @Route("/dists/{package}/{version}/{ref}.{type}",
      *     name="package_dist",
      *     host="repo.{domain}",
