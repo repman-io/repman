@@ -147,6 +147,9 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         return $advisories;
     }
 
+    /**
+     * @return \RecursiveIteratorIterator<\RecursiveCallbackFilterIterator>
+     */
     private function getDatabase(): \RecursiveIteratorIterator
     {
         if (!is_dir($this->databaseDir)) {

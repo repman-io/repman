@@ -15,6 +15,7 @@ use Ramsey\Uuid\UuidInterface;
  * @method Package|null findOneBy(array $criteria, array $orderBy = null)
  * @method Package[]    findAll()
  * @method Package[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<Package>
  */
 class PackageRepository extends ServiceEntityRepository
 {

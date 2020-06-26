@@ -112,26 +112,21 @@ final class PackageController extends AbstractController
 
     /**
      * @param string[] $choices
-     *
-     * @return array<string|array>
      */
-    private function repositoriesChoiceType(array $choices): array
+    private function addRepositoriesChoiceType(FormInterface $form, array $choices): void
     {
-        return [
-            'repositories',
-            ChoiceType::class, [
-                'choices' => $choices,
-                'label' => false,
-                'expanded' => false,
-                'multiple' => true,
-                'attr' => [
-                    'class' => 'form-control selectpicker',
-                    'data-live-search' => 'true',
-                    'data-style' => 'btn-secondary',
-                    'title' => 'select repository',
-                ],
+        $form->add('repositories', ChoiceType::class, [
+            'choices' => $choices,
+            'label' => false,
+            'expanded' => false,
+            'multiple' => true,
+            'attr' => [
+                'class' => 'form-control selectpicker',
+                'data-live-search' => 'true',
+                'data-style' => 'btn-secondary',
+                'title' => 'select repository',
             ],
-        ];
+        ]);
     }
 
     private function packageHasBeenAdded(Organization $organization): Response
@@ -179,7 +174,7 @@ final class PackageController extends AbstractController
 
         $repos = $this->githubApi->repositories($token->get());
         $choices = array_combine($repos, $repos);
-        $form->add(...$this->repositoriesChoiceType(is_array($choices) ? $choices : []));
+        $this->addRepositoriesChoiceType($form, is_array($choices) ? $choices : []);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -209,7 +204,7 @@ final class PackageController extends AbstractController
         }
 
         $projects = $this->gitlabApi->projects($token->get());
-        $form->add(...$this->repositoriesChoiceType(array_flip($projects->names())));
+        $this->addRepositoriesChoiceType($form, array_flip($projects->names()));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -239,7 +234,7 @@ final class PackageController extends AbstractController
         }
 
         $repos = $this->bitbucketApi->repositories($token->get());
-        $form->add(...$this->repositoriesChoiceType(array_flip($repos->names())));
+        $this->addRepositoriesChoiceType($form, array_flip($repos->names()));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
