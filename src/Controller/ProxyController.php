@@ -60,7 +60,12 @@ final class ProxyController extends AbstractController
     }
 
     /**
-     * @Route("/p2/{package}.json", name="package_provider_v2", requirements={"package"="%package_name_pattern%"}, methods={"GET"})
+     * @Route("/p2/{package}.json",
+     *     name="package_provider_v2",
+     *     host="repo.{domain}",
+     *     defaults={"domain"="%domain%"},
+     *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
+     *     methods={"GET"})
      */
     public function providerV2(string $package): JsonResponse
     {
