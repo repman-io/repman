@@ -10,11 +10,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class RepoControllerTest extends FunctionalTestCase
 {
+    public function testAuthRequired(): void
+    {
+        $this->client->request('GET', '/', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
+
+        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+    }
+
     public function testAuthRequiredForOrganizationRepo(): void
     {
         $this->client->request('GET', '/packages.json', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
 
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
+        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testPackagesActionWithInvalidToken(): void
@@ -71,6 +78,7 @@ final class RepoControllerTest extends FunctionalTestCase
         self::assertMatchesPattern('
         {
             "packages": [],
+            "metadata-url": "/p2/%package%.json",
             "notify-batch": "http://buddy.repo.repman.wip/downloads",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
             "mirrors": [
@@ -147,5 +155,45 @@ final class RepoControllerTest extends FunctionalTestCase
         ], (string) json_encode([]));
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testAnonymousUserAccess(): void
+    {
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->fixtures->createUser());
+        $this->fixtures->enableAnonymousUserAccess($organizationId);
+
+        $this->client->request('GET', '/packages.json', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
+
+    public function testProviderV2Action(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'secret-org-token',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+
+        self::assertMatchesPattern('
+        {
+            "buddy-works/repman": {
+                "1.2.3": {
+                    "version": "1.2.3",
+                    "version_normalized": "1.2.3.0",
+                    "dist": {
+                        "type": "zip",
+                        "url": "/path/to/reference.zip",
+                        "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+                    }
+                }
+            }
+        }
+        ', $this->client->getResponse()->getContent());
     }
 }

@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-final class OrganizationVoter extends Voter
+final class OrganizationAnonymousUserVoter extends Voter
 {
     private OrganizationQuery $organizations;
 
@@ -23,8 +23,6 @@ final class OrganizationVoter extends Voter
     protected function supports(string $attribute, $subject): bool
     {
         return in_array($attribute, [
-            'ROLE_ORGANIZATION_MEMBER',
-            'ROLE_ORGANIZATION_OWNER',
             'ROLE_ORGANIZATION_ANONYMOUS_USER',
         ], true);
     }
@@ -35,7 +33,8 @@ final class OrganizationVoter extends Voter
      */
     public function vote(TokenInterface $token, $subject, array $attributes): int
     {
-        if (!$token->getUser() instanceof User) {
+        $user = $token->getUser();
+        if ($user instanceof User) {
             return self::ACCESS_ABSTAIN;
         }
 
@@ -47,27 +46,12 @@ final class OrganizationVoter extends Voter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        $user = $token->getUser();
-        if (!$user instanceof User) {
-            return false;
-        }
+        $organization = $subject instanceof Request
+            ? $this->organizations->getByAlias($subject->get('organization'))->get()
+            : $subject;
 
-        if ($subject instanceof Organization) {
-            return $attribute === 'ROLE_ORGANIZATION_OWNER' ? $subject->isOwner($user->id()) : $subject->isMember($user->id());
-        }
-
-        if ($subject instanceof Request) {
-            foreach ($user->organizations() as $organization) {
-                if ($organization->alias() !== $subject->get('organization')) {
-                    continue;
-                }
-
-                if ($attribute === 'ROLE_ORGANIZATION_OWNER') {
-                    return $organization->role() === 'owner';
-                }
-
-                return true;
-            }
+        if ($organization instanceof Organization) {
+            return $organization->hasAnonymousAccess();
         }
 
         return false;

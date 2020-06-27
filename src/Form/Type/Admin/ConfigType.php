@@ -22,11 +22,24 @@ class ConfigType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('user_registration', ChoiceType::class, [
+            ->add('local_authentication', ChoiceType::class, [
+                'choices' => [
+                    'allow login and registration' => 'login_and_registration',
+                    'allow login, disable registration' => 'login_only',
+                    'disabled' => 'disabled',
+                ],
+                'attr' => [
+                    'class' => 'form-control selectpicker',
+                    'data-style' => 'btn-secondary',
+                ],
+            ])
+            ->add('oauth_registration', ChoiceType::class, [
                 'choices' => [
                     'enabled' => 'enabled',
                     'disabled' => 'disabled',
                 ],
+                'label' => 'OAuth registration',
+                'help' => 'Note: login with OAuth can be set using the OAUTH_* environment variables',
                 'attr' => [
                     'class' => 'form-control selectpicker',
                     'data-style' => 'btn-secondary',

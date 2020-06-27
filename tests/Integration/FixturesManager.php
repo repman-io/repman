@@ -20,6 +20,7 @@ use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
+use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
@@ -243,6 +244,13 @@ final class FixturesManager
     {
         $this->dispatchMessage(new ConfirmEmail($token));
         $this->container->get(EntityManagerInterface::class)->flush();
+    }
+
+    public function enableAnonymousUserAccess(string $organizationId): void
+    {
+        $organization = $this->container->get(OrganizationRepository::class)->getById(Uuid::fromString($organizationId));
+        $organization->changeAnonymousAccess(true);
+        $this->container->get('doctrine.orm.entity_manager')->flush($organization);
     }
 
     private function dispatchMessage(object $message): void

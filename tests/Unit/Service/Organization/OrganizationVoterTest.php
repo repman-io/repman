@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\Organization\Member;
+use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\Organization\OrganizationVoter;
 use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
@@ -25,15 +26,16 @@ final class OrganizationVoterTest extends TestCase
     {
         $this->userId = 'some-id';
         $this->token = new UsernamePasswordToken(UserMother::withOrganizations($this->userId, [
-            new User\Organization('repman', 'name', 'owner'),
-            new User\Organization('buddy', 'name', 'member'),
+            new User\Organization('repman', 'name', 'owner', false),
+            new User\Organization('buddy', 'name', 'member', false),
         ]), 'password', 'key');
-        $this->voter = new OrganizationVoter();
+        $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
+        $this->voter = new OrganizationVoter($queryMock);
     }
 
-    public function testSupportOnlyUserInstance(): void
+    public function testAbstainForAnonymousUser(): void
     {
-        self::assertEquals(Voter::ACCESS_DENIED, $this->voter->vote(
+        self::assertEquals(Voter::ACCESS_ABSTAIN, $this->voter->vote(
             new AnonymousToken('secret', 'anon', []),
             'any',
             ['ROLE_ORGANIZATION_MEMBER']

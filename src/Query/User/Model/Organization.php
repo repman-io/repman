@@ -12,6 +12,8 @@ final class Organization
     private string $id;
     private string $name;
     private string $alias;
+    private bool $hasAnonymousAccess;
+
     /**
      * @var Member[]
      */
@@ -22,12 +24,13 @@ final class Organization
     /**
      * @param Member[] $members
      */
-    public function __construct(string $id, string $name, string $alias, array $members, ?string $token = null)
+    public function __construct(string $id, string $name, string $alias, array $members, bool $hasAnonymousAccess, ?string $token = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
         $this->members = array_map(fn (Member $member) => $member, $members);
+        $this->hasAnonymousAccess = $hasAnonymousAccess;
         $this->token = $token;
     }
 
@@ -92,5 +95,10 @@ final class Organization
         }
 
         return Option::none();
+    }
+
+    public function hasAnonymousAccess(): bool
+    {
+        return $this->hasAnonymousAccess;
     }
 }

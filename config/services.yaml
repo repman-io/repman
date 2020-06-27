@@ -4,7 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    package_name_pattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./-]+?'
+    package_name_pattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./~-]+?'
     organization_pattern: '[a-z0-9_-]+' # remember to change in security.yaml (access_control)
     uuid_pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
     dists_dir: '%env(resolve:PROXY_DIST_DIR)%'

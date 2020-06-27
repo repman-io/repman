@@ -13,6 +13,7 @@ use Doctrine\Common\Persistence\ManagerRegistry;
  * @method ScanResult|null findOneBy(array $criteria, array $orderBy = null)
  * @method ScanResult[]    findAll()
  * @method ScanResult[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @extends ServiceEntityRepository<ScanResult>
  */
 class ScanResultRepository extends ServiceEntityRepository
 {

@@ -28,7 +28,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, name, alias FROM "organization" WHERE alias = :alias', [
+            'SELECT id, name, alias, has_anonymous_access
+            FROM "organization" WHERE alias = :alias', [
             ':alias' => $alias,
         ]);
 
@@ -41,8 +42,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function getByInvitation(string $token, string $email): Option
     {
-        $data = $this->connection->fetchAssoc('SELECT o.id, o.name, o.alias
-            FROM "organization" o 
+        $data = $this->connection->fetchAssoc(
+            'SELECT o.id, o.name, o.alias, o.has_anonymous_access
+            FROM "organization" o
             JOIN organization_invitation i ON o.id = i.organization_id
             WHERE i.token = :token AND i.email = :email
         ', [
@@ -70,8 +72,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
                 $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
             );
         }, $this->connection->fetchAll('
-            SELECT name, value, created_at, last_used_at 
-            FROM organization_token 
+            SELECT name, value, created_at, last_used_at
+            FROM organization_token
             WHERE organization_id = :id
             ORDER BY UPPER(name) ASC
             LIMIT :limit OFFSET :offset', [
@@ -149,7 +151,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
                 $row['role']
             );
         }, $this->connection->fetchAll('
-            SELECT u.id, u.email, m.role 
+            SELECT u.id, u.email, m.role
             FROM organization_member AS m
             JOIN "user" u ON u.id = m.user_id
             WHERE m.organization_id = :id
@@ -214,6 +216,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['name'],
             $data['alias'],
             array_map(fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
+            $data['has_anonymous_access'],
             $token !== false ? $token : null
         );
     }

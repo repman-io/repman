@@ -62,6 +62,22 @@ final class ProxyControllerTest extends FunctionalTestCase
         ', $this->client->getResponse()->getContent());
     }
 
+    public function testProviderV2Action(): void
+    {
+        $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
+
+        self::assertMatchesPattern('
+        {
+            "packages":
+            {
+                "buddy-works/repman": "@array@"
+            }
+        }
+        ', $this->client->getResponse()->getContent());
+    }
+
     public function testDistributionAction(): void
     {
         $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip', [], [], [

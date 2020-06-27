@@ -6,6 +6,7 @@ namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
@@ -40,6 +41,7 @@ final class RepoController extends AbstractController
     {
         return new JsonResponse([
             'packages' => $this->packageManager->findProviders($organization->alias(), $this->packageQuery->getAllNames($organization->id())),
+            'metadata-url' => '/p2/%package%.json',
             'notify-batch' => $this->generateUrl('repo_package_downloads', [
                 'organization' => $organization->alias(),
             ], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -124,6 +126,24 @@ final class RepoController extends AbstractController
         }
 
         return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/p2/{package}.json",
+     *      host="{organization}.repo.{domain}",
+     *      name="repo_package_provider_v2",
+     *      methods={"GET"},
+     *      defaults={"domain":"%domain%"},
+     *      requirements={"domain"="%domain%","package"="%package_name_pattern%"})
+     */
+    public function providerV2(Organization $organization, string $package): JsonResponse
+    {
+        $providerData = $this->packageManager->findProviders(
+            $organization->alias(),
+            [new PackageName('', $package)]
+        );
+
+        return new JsonResponse($providerData === [] ? new \stdClass() : $providerData);
     }
 
     /**

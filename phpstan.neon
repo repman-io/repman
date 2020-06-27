@@ -27,7 +27,7 @@ parameters:
             count: 1
             path: src/Service/Downloader/NativeDownloader.php
 
-    autoload_files:
+    bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:
         container_xml_path: '%rootDir%/../../../var/cache/test/Buddy_Repman_KernelTestDebugContainer.xml'

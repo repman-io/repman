@@ -73,7 +73,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
     private function hydrateUser(array $data): User
     {
         $organizations = $this->connection->fetchAll('
-            SELECT o.name, o.alias, om.role FROM organization_member om
+            SELECT o.name, o.alias, om.role, o.has_anonymous_access FROM organization_member om
             JOIN organization o ON o.id = om.organization_id
             WHERE om.user_id = :userId ORDER BY o.name
         ', ['userId' => $data['id']]);
@@ -86,7 +86,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
             $data['email_confirmed_at'] !== null,
             $data['email_confirm_token'],
             json_decode($data['roles'], true),
-            array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role']), $organizations),
+            array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
             $data['email_scan_result'],
         );
     }
