@@ -7,11 +7,11 @@ use Munus\Collection\GenericList;
 
 class PackageManager
 {
-    private FilesystemInterface $filesystem;
+    private FilesystemInterface $proxyStorage;
 
-    public function __construct(FilesystemInterface $filesystem)
+    public function __construct(FilesystemInterface $proxyStorage)
     {
-        $this->filesystem = $filesystem;
+        $this->proxyStorage = $proxyStorage;
     }
 
     /**
@@ -20,10 +20,10 @@ class PackageManager
     public function packages(string $repo): GenericList
     {
         $packages = [];
-        $vendors = $this->filesystem->listContents("$repo/dist");
+        $vendors = $this->proxyStorage->listContents("$repo/dist");
 
         foreach ($vendors as $vendor) {
-            $vendorPackages = $this->filesystem->listContents("$repo/dist/{$vendor['basename']}");
+            $vendorPackages = $this->proxyStorage->listContents("$repo/dist/{$vendor['basename']}");
             foreach ($vendorPackages as $vendorPackage) {
                 $packages[] = str_replace("$repo/dist/", '', $vendorPackage['path']);
             }
@@ -34,12 +34,12 @@ class PackageManager
 
     public function remove(string $repo, string $package): void
     {
-        $this->filesystem->deleteDir("$repo/dist/$package");
+        $this->proxyStorage->deleteDir("$repo/dist/$package");
 
         $vendor = strstr($package, '/', true);
-        $vendorPackages = $this->filesystem->listContents("$repo/dist/$vendor");
+        $vendorPackages = $this->proxyStorage->listContents("$repo/dist/$vendor");
         if (empty($vendorPackages)) {
-            $this->filesystem->deleteDir("$repo/dist/$vendor");
+            $this->proxyStorage->deleteDir("$repo/dist/$vendor");
         }
     }
 }

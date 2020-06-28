@@ -73,10 +73,6 @@ services:
         arguments:
             $distStorage: '@repman.proxy.dist_storage'
 
-    Buddy\Repman\Service\Proxy\PackageManager:
-        arguments:
-            $filesystem: '@proxy.storage'
-
     Buddy\Repman\Form\Type\Organization\AddPackageType:
         arguments:
             $allowedTypes: '%env(csv:APP_ALLOWED_PACKAGE_TYPES)%'
