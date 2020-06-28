@@ -6,36 +6,31 @@ namespace Buddy\Repman\Tests\Unit\Service\Cache;
 
 use Buddy\Repman\Service\Cache\FileCache;
 use Buddy\Repman\Tests\Doubles\InMemoryExceptionHandler;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
 
 final class FileCacheTest extends TestCase
 {
-    private FileCache $cache;
     private InMemoryExceptionHandler $exceptionHandler;
+    private FileCache $cache;
     private string $basePath;
     private string $packagesPath;
 
     protected function setUp(): void
     {
         $this->basePath = sys_get_temp_dir().'/repman';
-        $this->exceptionHandler = new InMemoryExceptionHandler();
-        $this->cache = new FileCache($this->basePath, $this->exceptionHandler);
         $this->packagesPath = $this->basePath.'/packagist/packages.json';
+
+        $storage = new Filesystem(new Local($this->basePath));
+        $this->exceptionHandler = new InMemoryExceptionHandler();
+        $this->cache = new FileCache($storage, $this->exceptionHandler);
     }
 
     protected function tearDown(): void
     {
-        $filesystem = new Filesystem();
-        $filesystem->remove($this->basePath);
-    }
-
-    public function testThrowExceptionWhenCacheDirIsNotWritable(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        new FileCache('/proc/new', new InMemoryExceptionHandler());
+        (new \Symfony\Component\Filesystem\Filesystem())->remove($this->basePath);
     }
 
     public function testCacheHitAndExists(): void
@@ -85,7 +80,8 @@ final class FileCacheTest extends TestCase
 
     public function testCacheHitExpire(): void
     {
-        $cache = new FileCache(__DIR__.'/../../../Resources', new InMemoryExceptionHandler());
+        $storage = new Filesystem(new Local(__DIR__.'/../../../Resources'));
+        $cache = new FileCache($storage, new InMemoryExceptionHandler());
 
         self::assertTrue(Option::none()->equals($cache->get('packages.json', function (): void {
             // to prevent overwrite packages.json
@@ -97,11 +93,11 @@ final class FileCacheTest extends TestCase
     {
         $content = '{"some":"json"}';
 
-        self::assertTrue(!file_exists($this->packagesPath));
+        self::assertFileNotExists($this->packagesPath);
         self::assertTrue(Option::some($content)->equals(
             $this->cache->get('packagist/packages.json', fn () => $content)
         ));
-        self::assertTrue(file_exists($this->packagesPath));
+        self::assertFileExists($this->packagesPath);
     }
 
     public function testCacheRemoveByPattern(): void
@@ -111,7 +107,7 @@ final class FileCacheTest extends TestCase
         file_put_contents($this->basePath.$file, '{}');
 
         $this->cache->removeOld($file);
-        self::assertTrue(!file_exists($this->basePath.$file));
+        self::assertFileNotExists($this->basePath . $file);
     }
 
     public function testCacheNotRemoveWhenDollarSignIsMissing(): void
@@ -121,7 +117,7 @@ final class FileCacheTest extends TestCase
         file_put_contents($this->basePath.$file, '{}');
 
         $this->cache->removeOld($file);
-        self::assertTrue(file_exists($this->basePath.$file));
+        self::assertFileExists($this->basePath . $file);
         @unlink($this->basePath.$file);
     }
 }

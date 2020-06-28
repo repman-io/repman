@@ -4,103 +4,86 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Cache;
 
-use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Cache;
 use Buddy\Repman\Service\ExceptionHandler;
+use League\Flysystem\FileNotFoundException;
+use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
 use Munus\Control\TryTo;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 final class FileCache implements Cache
 {
-    private string $basePath;
+    private FilesystemInterface $proxyStorage;
     private ExceptionHandler $exceptionHandler;
 
-    public function __construct(string $basePath, ExceptionHandler $exceptionHandler)
+    public function __construct(FilesystemInterface $proxyStorage, ExceptionHandler $exceptionHandler)
     {
-        if (!is_dir($basePath)) {
-            @mkdir($basePath, 0777, true);
-        }
-        $basePath = rtrim($basePath, '/');
-        if (!is_writable($basePath)) {
-            throw new \InvalidArgumentException(sprintf('Cache path %s must be writable', $basePath));
-        }
-        $this->basePath = $basePath;
+        $this->proxyStorage = $proxyStorage;
         $this->exceptionHandler = $exceptionHandler;
     }
 
+    /**
+     * @return Option<array>
+     */
     public function get(string $path, callable $supplier, int $expireTime = 0): Option
     {
-        $filename = $this->getPath($path);
-        if (is_readable($filename) && ($expireTime === 0 || filemtime($filename) > time() - $expireTime)) {
-            return Option::some(unserialize((string) file_get_contents($filename)));
+        if ($this->exists($path, $expireTime)) {
+            $contents = $this->proxyStorage->read($path);
+            return Option::some(unserialize($contents, ['allowed_classes' => false]));
         }
 
-        $this->ensureDirExist($filename);
-
         return TryTo::run($supplier)
-            ->onSuccess(function ($value) use ($filename): void {AtomicFile::write($filename, serialize($value)); })
-            ->onFailure(function (\Throwable $throwable): void {$this->exceptionHandler->handle($throwable); })
+            ->onSuccess(fn ($value) => $this->proxyStorage->write($path, serialize($value)))
+            ->onFailure(fn (\Throwable $throwable) => $this->exceptionHandler->handle($throwable))
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());
     }
 
     public function removeOld(string $path): void
     {
-        $dir = $this->getPath(dirname($path));
-        if (false === ($length = strpos(basename($path), '$')) || !is_dir($dir)) {
-            return;
-        }
-
-        $pattern = substr(basename($path), 0, $length).'$*';
-        $files = Finder::create()->files()->ignoreVCS(true)->name($pattern)->in($dir);
-
-        foreach ($files as $file) {
-            /* @var SplFileInfo $file */
-            @unlink($file->getPathname());
+        if ($package = strstr($path, '$', true)) {
+            foreach ($this->findMatchingFiles($package) as $file) {
+                $this->proxyStorage->delete($file['path']);
+            }
         }
     }
 
+    /**
+     * @return Option<array>
+     */
     public function find(string $path, int $expireTime = 0): Option
     {
-        $dir = $this->getPath(dirname($path));
-        if (!is_dir($dir)) {
-            return Option::none();
+        foreach ($this->findMatchingFiles($path) as $file) {
+            if ($expireTime === 0 || $file['timestamp'] > time() - $expireTime) {
+                $contents = (string) $this->proxyStorage->read($file['path']);
+                return Option::some(unserialize($contents, ['allowed_classes' => false]));
+            }
         }
 
-        $pattern = basename($path).'$*';
-        /** @var SplFileInfo[] $files */
-        $files = iterator_to_array(Finder::create()->files()->ignoreVCS(true)->ignoreUnreadableDirs(true)->name($pattern)->in($dir)->getIterator());
-        if ($files === []) {
-            return Option::none();
-        }
-
-        $filename = current($files)->getPathname();
-        if ($expireTime !== 0 && filemtime($filename) <= time() - $expireTime) {
-            return Option::none();
-        }
-
-        return Option::some(unserialize((string) file_get_contents($filename)));
+        return Option::none();
     }
 
     public function exists(string $path, int $expireTime = 0): bool
     {
-        $filename = $this->getPath($path);
-
-        return is_readable($filename) && ($expireTime === 0 || filemtime($filename) > time() - $expireTime);
-    }
-
-    private function getPath(string $path): string
-    {
-        return sprintf('%s/%s', $this->basePath, $path);
-    }
-
-    private function ensureDirExist(string $filename): void
-    {
-        $dirname = dirname($filename);
-        if (!is_dir($dirname)) {
-            mkdir($dirname, 0777, true);
+        try {
+            return $this->proxyStorage->has($path) && ($expireTime === 0 || $this->proxyStorage->getTimestamp($path) > time() - $expireTime);
+        } catch (FileNotFoundException $e) {
+            return false;
         }
+    }
+
+    private function findMatchingFiles(string $path): array
+    {
+        $dir = dirname($path);
+        if (!$this->proxyStorage->has($dir)) {
+            return [];
+        }
+
+        $package = basename($path);
+
+        return array_filter(
+            $this->proxyStorage->listContents($dir),
+            fn (array $file) => strpos($file['basename'], "$package$") === 0
+        );
     }
 }
