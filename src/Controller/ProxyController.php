@@ -10,7 +10,6 @@ use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Munus\Control\Option;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
