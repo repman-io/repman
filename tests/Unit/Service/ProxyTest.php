@@ -53,7 +53,14 @@ final class ProxyTest extends TestCase
         $cache = new InMemoryCache();
         $cache->get('packagist.org/packages.json', fn () => ['metadata-url' => '/p2/%package%.json']);
         $cache->get('packagist.org/p2/buddy-works/repman', fn () => ['package-metadata']);
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
+
+        $proxy = new Proxy(
+            'packagist.org',
+            'https://packagist.org',
+            new CacheableMetadataProvider(new FakeDownloader(), $cache),
+            $this->createMock(Storage::class),
+            $this->createMock(Proxy\PackageManager::class)
+        );
 
         self::assertEquals(['package-metadata'], $proxy->providerDataV2('buddy-works/repman')->get());
     }
@@ -62,7 +69,14 @@ final class ProxyTest extends TestCase
     {
         $cache = new InMemoryCache();
         $cache->get('packagist.org/packages.json', function (): array {return []; });
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
+
+        $proxy = new Proxy(
+            'packagist.org',
+            'https://packagist.org',
+            new CacheableMetadataProvider(new FakeDownloader(), $cache),
+            $this->createMock(Storage::class),
+            $this->createMock(Proxy\PackageManager::class)
+        );
 
         self::assertTrue($proxy->providerDataV2('buddy-works/repman')->isEmpty());
     }
