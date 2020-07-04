@@ -32,7 +32,7 @@ services:
   consumer:
     restart: always
     image: buddy/repman:0.3.0
-    command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
+    command: ['bin/console', 'messenger:consume', 'async', '--limit=500', '-vv']
     env_file: .env.docker
     volumes:
       - app-var:/app/var
