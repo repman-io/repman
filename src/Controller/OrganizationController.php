@@ -142,6 +142,19 @@ final class OrganizationController extends AbstractController
     }
 
     /**
+     * @Route("/organization/{organization}/package/{package}/details", name="organization_package_details", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function packageDetails(Organization $organization, Package $package, Request $request): Response
+    {
+        return $this->render('organization/package/details.html.twig', [
+            'organization' => $organization,
+            'package' => $package,
+            'count' => $this->packageQuery->versionCount($package->id()),
+            'versions' => $this->packageQuery->getVersions($package->id(), 20, (int) $request->get('offset', 0)),
+        ]);
+    }
+
+    /**
      * @Route("/organization/{organization}/package/{package}/stats", name="organization_package_stats", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
     public function packageStats(Organization $organization, Package $package, Request $request): Response

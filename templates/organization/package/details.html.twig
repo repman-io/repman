@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}{{ package.name }} details{% endblock %}
+{% block header_btn %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
+        {% include 'svg/package.svg' %} Package list
+    </a>
+{% endblock %}
+
+{% block content %}
+
+    {% if package.name %}
+        <div class="row">
+            <div class="col-6">
+                <h4>Package name</h4>
+                <p>{{ package.name }}</p>
+            </div>
+            <div class="col-6">
+                <h4>Description</h4>
+                <p>{{ package.description }}</p>
+            </div>
+        </div>
+
+        {% if package.latestReleaseDate %}
+            <div class="row">
+                <div class="col-6">
+                    <h4>Latest version</h4>
+                    <p>{{ package.latestReleasedVersion }} (released: <span title="{{ package.latestReleaseDate | date('Y-m-d H:i:s') }}">{{ package.latestReleaseDate | time_diff }}</span>)</p>
+                </div>
+                <div class="col-6">
+                    <h4>Composer require command</h4>
+                    <div class="row">
+                        <div class="input-group col-11">
+                            <input id="composer-require" class="form-control" readonly value="composer require {{ package.name }}"/>
+                            <span class="input-group-append">
+                        <button data-clipboard-target="#composer-require" class="copy-to-clipboard btn btn-primary p-2" type="button" data-toggle="tooltip" data-placement="top" data-content="Copy composer require command">
+                            {% include 'svg/clipboard.svg' %}
+                        </button>
+                    </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <hr />
+
+        <h3>Available versions</h3>
+
+        {% if count == 0 %}
+            <p>
+                To see available versions of the package, please perform synchronization again.
+            </p>
+            <a
+                data-target="confirmation"
+                data-action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}"
+                data-method="POST"
+                href="#"
+                class="btn btn-success">
+                {% include 'svg/refresh.svg' %} Sync now
+            </a>
+        {% else %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Version</th>
+                    <th>Released</th>
+                    <th>Reference</th>
+                    <th>Size</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for version in versions %}
+                    <tr>
+                        <td>{{ version.version }}</td>
+                        <td>
+                            <span title="{{ version.date | date('Y-m-d H:i:s') }}">{{ version.date | time_diff }}</span>
+                        </td>
+                        <td>{{ version.reference }}</td>
+                        <td>{{ version.size | format_bytes }}</td>
+                        <td>
+                            <div class="input-group">
+                                <input id="version-{{ version.reference }}" class="form-control" readonly value="composer require {{ package.name }}:{{ version.version }}"/>
+                                <span class="input-group-append">
+                            <button data-clipboard-target="#version-{{ version.reference }}" class="copy-to-clipboard btn btn-primary p-2" type="button" data-toggle="tooltip" data-placement="top"
+                                    data-content="Copy composer require command for version to clipboard">
+                                {% include 'svg/clipboard.svg' %}
+                            </button>
+                        </span>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% include 'component/pagination.html.twig' with {'path_name': 'organization_package_details', 'path_params': {'organization': organization.alias, 'package': package.id}} %}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-warning">
+            This package is not synced yet!
+        </div>
+    {% endif %}
+
+{% endblock %}

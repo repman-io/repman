@@ -8,6 +8,7 @@ use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
+use Buddy\Repman\Query\User\Model\Version;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Munus\Control\Option;
 
@@ -29,6 +30,13 @@ interface PackageQuery
      * @return Option<Package>
      */
     public function getById(string $id): Option;
+
+    public function versionCount(string $packageId): int;
+
+    /**
+     * @return Version[]
+     */
+    public function getVersions(string $packageId, int $limit = 20, int $offset = 0): array;
 
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs;
 

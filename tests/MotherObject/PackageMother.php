@@ -53,7 +53,10 @@ final class PackageMother
         return $package;
     }
 
-    public static function synchronized(string $name, string $latestVersion, string $url = ''): Package
+    /**
+     * @param string[] $unencounteredVersions
+     */
+    public static function synchronized(string $name, string $latestVersion, string $url = '', array $unencounteredVersions = []): Package
     {
         $package = new Package(Uuid::uuid4(), 'path', $url);
         $package->setOrganization(new Organization(
@@ -66,6 +69,7 @@ final class PackageMother
             $name,
             'Package description',
             $latestVersion,
+            $unencounteredVersions,
             new \DateTimeImmutable()
         );
 

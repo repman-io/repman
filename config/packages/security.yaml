@@ -49,6 +49,7 @@ security:
          - { path: ^/$, roles: ROLE_USER }
          - { path: ^/organization/.+/overview$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+/package$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
+         - { path: ^/organization/.+/package/.+/details$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
          - { path: ^/downloads, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
          - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Doubles;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Service\PackageSynchronizer;
 
 final class FakePackageSynchronizer implements PackageSynchronizer
@@ -15,18 +16,27 @@ final class FakePackageSynchronizer implements PackageSynchronizer
     private \DateTimeImmutable $latestReleaseDate;
     private ?string $error = null;
 
+    /**
+     * @var Version[]
+     */
+    private array $versions = [];
+
     public function __construct()
     {
         $this->latestReleaseDate = new \DateTimeImmutable();
     }
 
-    public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
+    /**
+     * @param Version[] $versions
+     */
+    public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = []): void
     {
         $this->name = $name;
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
         $this->error = null;
+        $this->versions = $versions;
     }
 
     public function setError(string $error): void
@@ -42,10 +52,19 @@ final class FakePackageSynchronizer implements PackageSynchronizer
             return;
         }
 
+        foreach ($this->versions as $version) {
+            $package->addOrUpdateVersion($version);
+        }
+
+        $encounteredVersions = array_map(function (Version $version): string {
+            return $version->version();
+        }, $this->versions);
+
         $package->syncSuccess(
             $this->name,
             $this->description,
             $this->latestReleasedVersion,
+            $encounteredVersions,
             $this->latestReleaseDate
         );
     }

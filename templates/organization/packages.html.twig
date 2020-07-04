@@ -16,7 +16,7 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Version</th>
+                <th>Latest version</th>
                 <th>Released</th>
                 <th>Description</th>
                 {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
@@ -31,7 +31,11 @@
                 <tr>
                     <td>
                         {% if package.name %}
-                            <strong>{{ package.name }}</strong><br />
+                            <strong>
+                                <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}">
+                                    {{ package.name }}
+                                </a>
+                            </strong><br />
                             <small class="font-italic" style="font-size: 0.7em"><a href="{{ package.url }}" target="_blank" rel="nofollow noopener noreferrer">
                                 {{ package.url }}
                             </a></small><br />
@@ -93,6 +97,9 @@
                                 <button class="btn btn-secondary dropdown-toggle align-text-top" data-toggle="dropdown">Actions</button>
                                 <div class="dropdown-menu">
                                 {% if package.name %}
+                                    <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
+                                        {% include 'svg/package.svg' %} Details
+                                    </a>
                                     <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
                                         {% include 'svg/bar-chart.svg' %} Statistics
                                     </a>
