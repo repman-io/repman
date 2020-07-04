@@ -142,7 +142,12 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     {
         $this->filesystem->copy($this->repoDir.'/aws/aws-sdk-php/CVE-2015-5723.yaml', $this->repoDir.'/google/google-sdk-php/CVE-2015-5723.yaml');
         (new Process(['git', 'add', '.'], $this->repoDir))->run();
-        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'New CVE discovered'], $this->repoDir))->run();
+        (new Process([
+            'git',
+            '-c', 'commit.gpgsign=false',
+            '-c', 'user.email=repman@repman.io',
+            'commit', '-a', '-m', 'New CVE discovered'
+        ], $this->repoDir))->run();
     }
 
     private function createAdvisoriesDatabaseRepo(): void
@@ -154,7 +159,12 @@ final class SensioLabsSecurityCheckerTest extends TestCase
             $this->repoDir
         );
         (new Process(['git', 'add', '.'], $this->repoDir))->run();
-        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'AD repo'], $this->repoDir))->run();
+        (new Process([
+            'git',
+            '-c', 'commit.gpgsign=false',
+            '-c', 'user.email=repman@repman.io',
+            'commit', '-a', '-m', 'AD repo'
+        ], $this->repoDir))->run();
     }
 
     private function synchronizeAdvisoriesDatabase(): void
