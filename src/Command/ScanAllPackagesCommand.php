@@ -7,6 +7,7 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Security\PackageScanner;
+use Buddy\Repman\Service\Security\SecurityChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
@@ -16,13 +17,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class ScanAllPackagesCommand extends Command
 {
+    private SecurityChecker $checker;
     private PackageScanner $scanner;
     private PackageQuery $packageQuery;
     private PackageRepository $packageRepository;
     private EntityManagerInterface $em;
 
-    public function __construct(PackageScanner $scanner, PackageQuery $packageQuery, PackageRepository $packageRepository, EntityManagerInterface $em)
-    {
+    public function __construct(
+        SecurityChecker $checker,
+        PackageScanner $scanner,
+        PackageQuery $packageQuery,
+        PackageRepository $packageRepository,
+        EntityManagerInterface $em
+    ) {
+        $this->checker = $checker;
         $this->scanner = $scanner;
         $this->packageQuery = $packageQuery;
         $this->packageRepository = $packageRepository;
@@ -44,17 +52,22 @@ final class ScanAllPackagesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln("Updating advisories database...");
+        $this->checker->update();
+
         $count = $this->packageQuery->getAllSynchronizedCount();
         $limit = 50;
+
+        $output->writeln("Scanning packages...");
 
         $progressBar = new ProgressBar($output, $count);
         $progressBar->start();
 
         for ($offset = 0; $offset < $count; $offset += $limit) {
             foreach ($this->packageQuery->getAllSynchronized($limit, $offset) as $item) {
-                $this->scanner->scan(
-                    $this->packageRepository->getById(Uuid::fromString($item->id()))
-                );
+                $package = $this->packageRepository->getById(Uuid::fromString($item->id()));
+                $this->scanner->scan($package);
+
                 $progressBar->advance();
             }
             $this->em->clear();

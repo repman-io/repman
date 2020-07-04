@@ -11,4 +11,4 @@
     user="{{ system_user }}"
     minute=0
     hour="*/2"
-    job="{{ app_root }}/bin/console repman:security:update-db >>{{ app_root }}/var/log/cron.log 2>&1"
+    job="{{ app_root }}/bin/console repman:security:scan-all >>{{ app_root }}/var/log/cron.log 2>&1"

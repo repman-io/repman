@@ -146,8 +146,10 @@ final class SensioLabsPackageScanner implements PackageScanner
      */
     private function extractLockFiles(Dist $dist): array
     {
+        $stream = $this->distStorage->getStream($dist)
+            ->getOrElseThrow(new \RuntimeException("Dist file not found for {$dist->package()}"));
+
         $tempFile = \tempnam(sys_get_temp_dir(), 'zip_');
-        $stream = $this->distStorage->getStream($dist);
         \file_put_contents($tempFile, $stream);
 
         $zip = new \ZipArchive();

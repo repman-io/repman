@@ -22,7 +22,6 @@ services:
       bin/console cache:warmup &&
       bin/console d:m:m --no-interaction &&
       bin/console messenger:setup-transports --no-interaction &&
-      bin/console repman:security:update-db &&
       php-fpm'
     env_file: .env.docker
     volumes:
