@@ -34,8 +34,8 @@ final class ProxyTest extends TestCase
     public function testPackageProviderFromCache(): void
     {
         $cache = new InMemoryCache();
-        $cache->get('packagist.org/packages.json', fn(): array => ['metadata']);
-        $cache->get('packagist.org/p/buddy-works/repman', fn(): array => ['package-metadata']);
+        $cache->get('packagist.org/packages.json', fn (): array => ['metadata']);
+        $cache->get('packagist.org/p/buddy-works/repman', fn (): array => ['package-metadata']);
 
         $proxy = new Proxy(
             'packagist.org',

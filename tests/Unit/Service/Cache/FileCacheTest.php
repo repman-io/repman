@@ -107,7 +107,7 @@ final class FileCacheTest extends TestCase
         file_put_contents($this->basePath.$file, '{}');
 
         $this->cache->removeOld($file);
-        self::assertFileNotExists($this->basePath . $file);
+        self::assertFileNotExists($this->basePath.$file);
     }
 
     public function testCacheNotRemoveWhenDollarSignIsMissing(): void
@@ -117,7 +117,7 @@ final class FileCacheTest extends TestCase
         file_put_contents($this->basePath.$file, '{}');
 
         $this->cache->removeOld($file);
-        self::assertFileExists($this->basePath . $file);
+        self::assertFileExists($this->basePath.$file);
         @unlink($this->basePath.$file);
     }
 }

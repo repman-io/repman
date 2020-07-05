@@ -29,6 +29,7 @@ final class FileCache implements Cache
     {
         if ($this->exists($path, $expireTime)) {
             $contents = $this->proxyStorage->read($path);
+
             return Option::some(unserialize($contents, ['allowed_classes' => false]));
         }
 
@@ -56,6 +57,7 @@ final class FileCache implements Cache
         foreach ($this->findMatchingFiles($path) as $file) {
             if ($expireTime === 0 || $file['timestamp'] > time() - $expireTime) {
                 $contents = (string) $this->proxyStorage->read($file['path']);
+
                 return Option::some(unserialize($contents, ['allowed_classes' => false]));
             }
         }

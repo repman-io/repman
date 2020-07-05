@@ -146,7 +146,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
             'git',
             '-c', 'commit.gpgsign=false',
             '-c', 'user.email=repman@repman.io',
-            'commit', '-a', '-m', 'New CVE discovered'
+            'commit', '-a', '-m', 'New CVE discovered',
         ], $this->repoDir))->run();
     }
 
@@ -163,7 +163,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
             'git',
             '-c', 'commit.gpgsign=false',
             '-c', 'user.email=repman@repman.io',
-            'commit', '-a', '-m', 'AD repo'
+            'commit', '-a', '-m', 'AD repo',
         ], $this->repoDir))->run();
     }
 

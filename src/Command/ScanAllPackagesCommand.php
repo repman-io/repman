@@ -52,13 +52,13 @@ final class ScanAllPackagesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln("Updating advisories database...");
+        $output->writeln('Updating advisories database...');
         $this->checker->update();
 
         $count = $this->packageQuery->getAllSynchronizedCount();
         $limit = 50;
 
-        $output->writeln("Scanning packages...");
+        $output->writeln('Scanning packages...');
 
         $progressBar = new ProgressBar($output, $count);
         $progressBar->start();

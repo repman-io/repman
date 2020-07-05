@@ -89,7 +89,7 @@ final class ProxyControllerTest extends FunctionalTestCase
         $contents = ob_get_clean();
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringEqualsFile(__DIR__ . '/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', $contents);
+        self::assertStringEqualsFile(__DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', $contents);
     }
 
     public function testDistributionNotFoundAction(): void

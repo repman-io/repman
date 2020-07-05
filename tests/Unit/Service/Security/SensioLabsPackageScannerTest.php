@@ -11,7 +11,6 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
-use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;

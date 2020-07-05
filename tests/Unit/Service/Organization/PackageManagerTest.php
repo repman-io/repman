@@ -25,7 +25,7 @@ final class PackageManagerTest extends TestCase
 
     public function testFindProvidersForPackage(): void
     {
-        $packageManager = $this->createPackageManager(__DIR__ . '/../../../Resources/fixtures');
+        $packageManager = $this->createPackageManager(__DIR__.'/../../../Resources/fixtures');
 
         $providers = $packageManager->findProviders('buddy', [
             new PackageName('id', 'buddy-works/repman'),
@@ -101,6 +101,7 @@ final class PackageManagerTest extends TestCase
         $filesystem = new Filesystem($localAdapter);
 
         $distStorage = new Dist\Storage($filesystem, new FakeDownloader());
+
         return new PackageManager($filesystem, $distStorage);
     }
 }

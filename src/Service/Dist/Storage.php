@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Dist;
 
@@ -51,6 +53,7 @@ class Storage
     {
         try {
             $stream = $this->filesystem->readStream($this->filename($dist));
+
             return Option::some($stream);
         } catch (FileNotFoundException $e) {
             return Option::none();
