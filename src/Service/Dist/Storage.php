@@ -54,7 +54,7 @@ class Storage
         try {
             $stream = $this->filesystem->readStream($this->filename($dist));
 
-            return Option::some($stream);
+            return is_resource($stream) ? Option::some($stream) : Option::none();
         } catch (FileNotFoundException $e) {
             return Option::none();
         }

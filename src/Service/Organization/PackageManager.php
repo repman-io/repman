@@ -34,7 +34,7 @@ class PackageManager
                 continue;
             }
 
-            $json = unserialize($contents, ['allowed_classes' => false]);
+            $json = unserialize((string) $contents, ['allowed_classes' => false]);
             $data = array_merge($data, $json['packages'] ?? []);
         }
 

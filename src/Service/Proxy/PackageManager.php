@@ -31,7 +31,7 @@ class PackageManager
             }
         }
 
-        return GenericList::ofAll($packages);
+        return $packages !== [] ? GenericList::ofAll($packages) : GenericList::empty();
     }
 
     public function remove(string $repo, string $package): void
@@ -40,7 +40,7 @@ class PackageManager
 
         $vendor = strstr($package, '/', true);
         $vendorPackages = $this->proxyStorage->listContents("$repo/dist/$vendor");
-        if (empty($vendorPackages)) {
+        if ($vendorPackages === []) {
             $this->proxyStorage->deleteDir("$repo/dist/$vendor");
         }
     }

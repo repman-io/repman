@@ -87,7 +87,6 @@ final class ProxyController extends AbstractController
      */
     public function distribution(string $package, string $version, string $ref, string $type): StreamedResponse
     {
-        /** @var resource $stream */
         $stream = $this->register->all()
             ->map(fn (Proxy $proxy) => $proxy->distStream($package, $version, $ref, $type))
             ->find(fn (Option $option) => !$option->isEmpty())
@@ -97,10 +96,12 @@ final class ProxyController extends AbstractController
         $headers = [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
+            /* @phpstan-ignore-next-line */
             'Content-Length' => fstat($stream)['size'],
         ];
 
-        return new StreamedResponse(function () use ($stream) {
+        return new StreamedResponse(function () use ($stream): void {
+            /** @var resource $out */
             $out = fopen('php://output', 'wb');
             stream_copy_to_stream($stream, $out);
             fclose($out);

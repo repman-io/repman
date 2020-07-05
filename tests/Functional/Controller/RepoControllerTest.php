@@ -114,7 +114,7 @@ final class RepoControllerTest extends FunctionalTestCase
         $contents = ob_get_clean();
 
         self::assertInstanceOf(StreamedResponse::class, $this->client->getResponse());
-        self::assertStringEqualsFile(__DIR__.'/../../Resources/buddy/dist/buddy-works/repman/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip', $contents);
+        self::assertStringEqualsFile(__DIR__.'/../../Resources/buddy/dist/buddy-works/repman/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip', (string) $contents);
 
         $this->client->request('GET', '/dists/vendor/package/9.9.9.9/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',

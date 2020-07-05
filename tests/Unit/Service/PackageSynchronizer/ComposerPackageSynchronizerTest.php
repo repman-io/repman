@@ -32,7 +32,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $filesystem = new Filesystem($localAdapter);
 
         $distStorage = new Storage($filesystem, new NativeDownloader());
-        $packageManager = new PackageManager($filesystem, $distStorage);
+        $packageManager = new PackageManager($filesystem);
 
         $this->synchronizer = new ComposerPackageSynchronizer(
             $packageManager,

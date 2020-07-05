@@ -22,36 +22,33 @@ final class FileCache implements Cache
         $this->exceptionHandler = $exceptionHandler;
     }
 
-    /**
-     * @return Option<array>
-     */
     public function get(string $path, callable $supplier, int $expireTime = 0): Option
     {
         if ($this->exists($path, $expireTime)) {
             $contents = $this->proxyStorage->read($path);
 
-            return Option::some(unserialize($contents, ['allowed_classes' => false]));
+            return $contents === false
+                ? Option::none()
+                : Option::some(unserialize($contents, ['allowed_classes' => false]));
         }
 
         return TryTo::run($supplier)
             ->onSuccess(fn ($value) => $this->proxyStorage->put($path, serialize($value)))
-            ->onFailure(fn (\Throwable $throwable) => $this->exceptionHandler->handle($throwable))
+            ->onFailure(function (\Throwable $throwable): void { $this->exceptionHandler->handle($throwable); })
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());
     }
 
     public function removeOld(string $path): void
     {
-        if ($package = strstr($path, '$', true)) {
+        $package = strstr($path, '$', true);
+        if ($package !== false) {
             foreach ($this->findMatchingFiles($package) as $file) {
                 $this->proxyStorage->delete($file['path']);
             }
         }
     }
 
-    /**
-     * @return Option<array>
-     */
     public function find(string $path, int $expireTime = 0): Option
     {
         foreach ($this->findMatchingFiles($path) as $file) {
@@ -74,6 +71,9 @@ final class FileCache implements Cache
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function findMatchingFiles(string $path): array
     {
         $dir = dirname($path);

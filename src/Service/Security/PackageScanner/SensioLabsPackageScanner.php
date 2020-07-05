@@ -150,6 +150,9 @@ final class SensioLabsPackageScanner implements PackageScanner
             ->getOrElseThrow(new \RuntimeException("Dist file not found for {$dist->package()}"));
 
         $tempFile = \tempnam(sys_get_temp_dir(), 'zip_');
+        if ($tempFile === false) {
+            throw new \RuntimeException('Error creating temporary file');
+        }
         \file_put_contents($tempFile, $stream);
 
         $zip = new \ZipArchive();

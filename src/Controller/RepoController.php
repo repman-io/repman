@@ -72,17 +72,18 @@ final class RepoController extends AbstractController
     {
         $dist = new Dist($organization->alias(), $package, $version, $ref, $type);
 
-        /** @var resource $stream */
         $stream = $this->distStorage->getStream($dist)
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
         $headers = [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
+            /* @phpstan-ignore-next-line */
             'Content-Length' => fstat($stream)['size'],
         ];
 
-        return new StreamedResponse(function () use ($stream) {
+        return new StreamedResponse(function () use ($stream): void {
+            /** @var resource $out */
             $out = fopen('php://output', 'wb');
             stream_copy_to_stream($stream, $out);
             fclose($out);

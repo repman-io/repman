@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
-use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Organization\PackageManager;
-use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
@@ -100,8 +98,6 @@ final class PackageManagerTest extends TestCase
         $localAdapter = new Local($baseDirectory);
         $filesystem = new Filesystem($localAdapter);
 
-        $distStorage = new Dist\Storage($filesystem, new FakeDownloader());
-
-        return new PackageManager($filesystem, $distStorage);
+        return new PackageManager($filesystem);
     }
 }

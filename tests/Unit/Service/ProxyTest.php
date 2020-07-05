@@ -104,7 +104,7 @@ final class ProxyTest extends TestCase
 
         $stream = $proxy->distStream('buddy-works/repman', '0.1.2.0', 'f0c896a759d4e2e1eff57978318e841911796305', 'zip')->get();
 
-        self::assertStringEqualsFile($distFilepath, stream_get_contents($stream));
+        self::assertStringEqualsFile($distFilepath, (string) stream_get_contents($stream));
     }
 
     public function testReturnNoneWhenDistPackageNotExists(): void
@@ -150,7 +150,7 @@ final class ProxyTest extends TestCase
 
         $stream = $proxy->distStream('buddy-works/repman', '0.1.2.0', 'f0c896a759d4e2e1eff57978318e841911796305', 'zip')->get();
 
-        self::assertStringEqualsFile($distFilepath, stream_get_contents($stream));
+        self::assertStringEqualsFile($distFilepath, (string) stream_get_contents($stream));
     }
 
     public function testStorageHandleDistWithSlashInVersion(): void
@@ -175,7 +175,7 @@ final class ProxyTest extends TestCase
 
         $stream = $proxy->distStream('buddy-works/repman', 'dev-feature/awesome', 'e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb', 'zip')->get();
 
-        self::assertStringEqualsFile($distFilepath, stream_get_contents($stream));
+        self::assertStringEqualsFile($distFilepath, (string) stream_get_contents($stream));
         self::assertEquals('0cdaa0ab95de9fcf94ad9b1d2f80e15d', (new Dist('repo', 'package', 'dev-feature/awesome', 'ref', 'format'))->version());
     }
 }
