@@ -33,7 +33,7 @@ final class FileCache implements Cache
         }
 
         return TryTo::run($supplier)
-            ->onSuccess(fn ($value) => $this->proxyStorage->write($path, serialize($value)))
+            ->onSuccess(fn ($value) => $this->proxyStorage->put($path, serialize($value)))
             ->onFailure(fn (\Throwable $throwable) => $this->exceptionHandler->handle($throwable))
             ->map(fn ($value) => Option::some($value))
             ->getOrElse(Option::none());

@@ -1,12 +1,24 @@
 # Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
 flysystem:
     storages:
-        repo.storage:
+        storage.local:
             adapter: 'local'
             options:
                 directory: '%repo_dir%'
 
-        proxy.storage:
-            adapter: 'local'
+        storage.aws:
+            adapter: 'aws'
             options:
-                directory: '%dists_dir%'
+                client: 'Aws\S3\S3Client'
+                bucket: '%env(S3_STORAGE_BUCKET)%'
+                prefix: '%env(S3_STORAGE_PREFIX)%'
+
+        repo.storage:
+            adapter: 'lazy'
+            options:
+                source: '%env(STORAGE_SOURCE)%'
+
+        proxy.storage:
+            adapter: 'lazy'
+            options:
+                source: '%env(STORAGE_SOURCE)%'

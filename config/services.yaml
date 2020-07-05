@@ -137,3 +137,11 @@ services:
             $url: '%env(APP_GITLAB_API_URL)%'
 
     Buddy\Buddy:
+
+    Aws\S3\S3Client:
+        arguments:
+            - version: '2006-03-01'
+              region: '%env(S3_STORAGE_REGION)%'
+              credentials:
+                  key: '%env(S3_STORAGE_KEY)%'
+                  secret: '%env(S3_STORAGE_SECRET)%'
