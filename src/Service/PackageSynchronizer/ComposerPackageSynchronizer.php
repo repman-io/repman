@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
@@ -19,6 +20,7 @@ use Composer\Package\CompletePackage;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class ComposerPackageSynchronizer implements PackageSynchronizer
@@ -71,13 +73,27 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 throw new \RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
             }
 
+            $encounteredVersions = [];
             foreach ($packages as $p) {
                 if ($p->getDistUrl() !== null) {
+                    $dist = new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType());
+
                     $this->distStorage->download(
                         $p->getDistUrl(),
-                        new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType()),
+                        $dist,
                         $this->getAuthHeaders($package)
                     );
+
+                    $package->addOrUpdateVersion(
+                        new Version(
+                            Uuid::uuid4(),
+                            $p->getPrettyVersion(),
+                            $p->getDistReference() ?? $p->getDistSha1Checksum(),
+                            $this->distStorage->size($dist),
+                            \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime())
+                        )
+                    );
+                    $encounteredVersions[] = $p->getPrettyVersion();
                 }
             }
 
@@ -85,6 +101,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 $name,
                 $latest instanceof CompletePackage ? ($latest->getDescription() ?? 'n/a') : 'n/a',
                 $latest->getStability() === 'stable' ? $latest->getPrettyVersion() : 'no stable release',
+                $encounteredVersions,
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );
 

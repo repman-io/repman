@@ -18,6 +18,8 @@ interface Storage
 
     public function filename(Dist $dist): string;
 
+    public function size(Dist $dist): int;
+
     /**
      * @return GenericList<string>
      */

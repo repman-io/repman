@@ -43,6 +43,11 @@ final class InMemoryStorage implements Storage
         );
     }
 
+    public function size(Dist $dist): int
+    {
+        return 0;
+    }
+
     public function packages(string $repo): GenericList
     {
         return GenericList::ofAll($this->dists);

@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
+use Buddy\Repman\Entity\Organization\Package\Version;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -101,6 +104,12 @@ class Package
     private ?\DateTimeImmutable $lastScanDate = null;
 
     /**
+     * @var Collection<int,Version>|Version[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Version", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
+     */
+    private Collection $versions;
+
+    /**
      * @param mixed[] $metadata
      */
     public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [])
@@ -109,6 +118,7 @@ class Package
         $this->type = $type;
         $this->repositoryUrl = $url;
         $this->metadata = $metadata;
+        $this->versions = new ArrayCollection();
     }
 
     public function id(): UuidInterface
@@ -134,12 +144,20 @@ class Package
         return $this->repositoryUrl;
     }
 
-    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate): void
+    /**
+     * @param string[] $encounteredVersions
+     */
+    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, \DateTimeImmutable $latestReleaseDate): void
     {
         $this->setName($name);
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
+        foreach ($this->versions as $version) {
+            if (!in_array($version->version(), $encounteredVersions, true)) {
+                $this->versions->removeElement($version);
+            }
+        }
         $this->lastSyncAt = new \DateTimeImmutable();
         $this->lastSyncError = null;
     }
@@ -245,5 +263,34 @@ class Package
         }
 
         $this->name = $name;
+    }
+
+    /**
+     * @return Collection<int,Version>|Version[]
+     */
+    public function versions(): Collection
+    {
+        return $this->versions;
+    }
+
+    public function addOrUpdateVersion(Version $version): void
+    {
+        if ($this->getVersion($version->version()) !== false) {
+            $this->getVersion($version->version())->setReference($version->reference());
+            $this->getVersion($version->version())->setSize($version->size());
+
+            return;
+        }
+
+        $version->setPackage($this);
+        $this->versions->add($version);
+    }
+
+    /**
+     * @return Version|false
+     */
+    public function getVersion(string $versionString)
+    {
+        return $this->versions->filter(fn (Version $version) => $version->version() === $versionString)->first();
     }
 }

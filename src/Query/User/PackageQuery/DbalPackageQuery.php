@@ -8,6 +8,7 @@ use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
+use Buddy\Repman\Query\User\Model\Version;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
@@ -101,6 +102,47 @@ final class DbalPackageQuery implements PackageQuery
         }
 
         return Option::some($this->hydratePackage($data));
+    }
+
+    public function versionCount(string $packageId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(id) FROM "organization_package_version"
+                WHERE package_id = :package_id',
+                [
+                    ':package_id' => $packageId,
+                ]
+            );
+    }
+
+    /**
+     * @return Version[]
+     */
+    public function getVersions(string $packageId, int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $data): Version {
+            return new Version(
+                $data['version'],
+                $data['reference'],
+                $data['size'],
+                new \DateTimeImmutable($data['date'])
+            );
+        }, $this->connection->fetchAll(
+            'SELECT
+                version,
+                reference,
+                size,
+                date
+            FROM organization_package_version
+            WHERE package_id = :package_id
+            ORDER BY date DESC
+            LIMIT :limit OFFSET :offset', [
+            ':package_id' => $packageId,
+            ':limit' => $limit,
+            ':offset' => $offset,
+        ]));
     }
 
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs

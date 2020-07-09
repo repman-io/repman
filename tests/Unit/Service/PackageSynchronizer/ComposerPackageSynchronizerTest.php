@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
+use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
@@ -42,13 +43,16 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy'));
+        $package = PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy');
+        $this->synchronizer->synchronize($package);
 
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
         self::assertTrue($json['packages']['repman-io/repman'] !== []);
         @unlink($path);
+
+        self::assertCount(1, $package->versions());
     }
 
     public function testSynchronizeError(): void
@@ -63,13 +67,21 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy'));
+        $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy');
+        $this->synchronizer->synchronize($package);
 
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
         self::assertCount(4, $json['packages']['buddy-works/alpha']);
         @unlink($path);
+
+        self::assertCount(4, $package->versions());
+        $versionStrings = array_map(function (Version $version): string {
+            return $version->version();
+        }, $package->versions()->toArray());
+        sort($versionStrings, SORT_NATURAL);
+        self::assertEquals(['1.0.0', '1.1.0', '1.1.1', '1.2.0'], $versionStrings);
     }
 
     public function testSynchronizePackageThatAlreadyExists(): void

@@ -64,6 +64,13 @@ final class FileStorage implements Storage
         );
     }
 
+    public function size(Dist $dist): int
+    {
+        $size = filesize($this->filename($dist));
+
+        return $size === false ? 0 : $size;
+    }
+
     /**
      * @return GenericList<string>
      */

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Entity\Organization\Package\Metadata;
+use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Service\GitHubApi;
@@ -315,6 +316,32 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testPackageDetails(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $versions = [
+            new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable()),
+            new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1048576, new \DateTimeImmutable()),
+            new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable()),
+        ];
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions);
+
+        $this->client->request('GET', $this->urlTo('organization_package_details', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('buddy-works/buddy details', $this->lastResponseBody());
+        self::assertStringContainsString('Test', $this->lastResponseBody());
+        self::assertStringContainsString('Available versions', $this->lastResponseBody());
+        foreach ($versions as $version) {
+            self::assertStringContainsString($version->version(), $this->lastResponseBody());
+            self::assertStringContainsString($version->reference(), $this->lastResponseBody());
+        }
     }
 
     public function testPackageStats(): void
