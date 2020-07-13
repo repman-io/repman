@@ -1,8 +1,11 @@
 version: '3.4'
 
+x-restart-policy: &restart_policy
+  restart: unless-stopped
+
 services:
   database:
-    restart: always
+    << : *restart_policy
     image: postgres:11.7-alpine
     logging:
       driver: none
@@ -15,7 +18,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   app:
-    restart: always
+    << : *restart_policy
     image: buddy/repman:0.3.0
     command: >
       bash -c 'bin/console cache:clear &&
@@ -31,7 +34,7 @@ services:
       - database
 
   consumer:
-    restart: always
+    << : *restart_policy
     image: buddy/repman:0.3.0
     command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
     env_file: .env.docker
@@ -41,7 +44,7 @@ services:
       - app
 
   cron:
-    restart: always
+    << : *restart_policy
     image: buddy/repman:0.3.0
     command: ['crond', '-f', '-L', '/dev/stdout']
     env_file: .env.docker
@@ -52,7 +55,7 @@ services:
       - app
 
   nginx:
-    restart: always
+    << : *restart_policy
     image: nginx:1.17-alpine
     env_file: .env.docker
     command: ['/nginx/start.sh']
@@ -68,7 +71,7 @@ services:
       - docker-nginx-ssl-private:/etc/ssl/private
 
   mailhog:
-    restart: always
+    << : *restart_policy
     image: mailhog/mailhog
     logging:
       driver: none
