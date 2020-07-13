@@ -11,6 +11,19 @@ On next release:
 
 ## [Unreleased]
 
+## [0.4.0] - 2020-07-13
+### Added
+- Registration config options ([#200](https://github.com/repman-io/repman/pull/200), thanks @nickygerritsen)
+- Anonymous access to organization ([#201](https://github.com/repman-io/repman/pull/201))
+- Basic support for Composer v2 ([#205](https://github.com/repman-io/repman/pull/205))
+  - proxy support for metadata-url (thanks @sadortun)
+  - repo support for metadata-url
+- Package versions view ([#208](https://github.com/repman-io/repman/pull/208), thanks @nickygerritsen)
+
+### Changed
+- Unpack and update dependencies ([#204](https://github.com/repman-io/repman/pull/204))
+- Containers restart policy ([#211](https://github.com/repman-io/repman/pull/211))
+
 ## [0.3.0] - 2020-06-05
 ### Added
 - Security vulnerability scanner for private packages (#170, #171, #176, #177, #182, #183, #184, #190, #197)
@@ -42,7 +55,7 @@ On next release:
 - Cleanup JS; Fix number of days in admin stats view; Force referrer in GA (#143, #144)
 - handle package not found exception on app level (#142)
 - tuning php-fpm configuration for better resources utilization (Ansible) (#141)
-- add curl and pdo_pgsql to required php extensions (#140) 
+- add curl and pdo_pgsql to required php extensions (#140)
 
 ## [0.2.0] - 2020-05-05
 ### Added
@@ -79,17 +92,17 @@ On next release:
 
 ## [0.1.1] - 2020-04-22
 ### BC break
-- user email is now change to lowercase with migration 
+- user email is now change to lowercase with migration
     - if a user with the same e-mail registered in the application but with different character sizes then you will have to manually delete it before starting the migration
 
 ### Added
-- Clickable repo url link on packages list (#75) 
+- Clickable repo url link on packages list (#75)
 
-### Changed  
+### Changed
 - Use lock to prevent multiple jobs run simultaneously (#70)
 - Internal CI/CD configuration
 
-### Fixed 
+### Fixed
 - Fix issue with case sensitive emails (#88)
 - Typo on register form (#74)
 
