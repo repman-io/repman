@@ -766,4 +766,15 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
     }
+
+    public function testPublicOrganizationOverviewAllowedForAnotherUser(): void
+    {
+        $otherId = $this->fixtures->createAdmin('cto@buddy.works', 'strong');
+        $organizationId = $this->fixtures->createOrganization('public', $otherId);
+
+        $this->fixtures->enableAnonymousUserAccess($organizationId);
+        $this->client->request('GET', $this->urlTo('organization_overview', ['organization' => 'public']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
 }
