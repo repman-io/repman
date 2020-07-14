@@ -7,12 +7,10 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Form\Type\Organization\ChangeAliasType;
 use Buddy\Repman\Form\Type\Organization\ChangeAnonymousAccessType;
 use Buddy\Repman\Form\Type\Organization\ChangeNameType;
-use Buddy\Repman\Form\Type\Organization\CreateType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Message\Organization\ChangeAlias;
 use Buddy\Repman\Message\Organization\ChangeAnonymousAccess;
 use Buddy\Repman\Message\Organization\ChangeName;
-use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
@@ -33,7 +31,6 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\ExceptionHandler;
-use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,32 +51,6 @@ final class OrganizationController extends AbstractController
         $this->packageQuery = $packageQuery;
         $this->organizationQuery = $organizationQuery;
         $this->exceptionHandler = $exceptionHandler;
-    }
-
-    /**
-     * @Route("/organization/new", name="organization_create", methods={"GET","POST"})
-     */
-    public function create(Request $request, AliasGenerator $aliasGenerator): Response
-    {
-        $form = $this->createForm(CreateType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new CreateOrganization(
-                $id = Uuid::uuid4()->toString(),
-                $this->getUser()->id(),
-                $name = $form->get('name')->getData()
-            ));
-            $this->dispatchMessage(new GenerateToken($id, 'default'));
-
-            $this->addFlash('success', sprintf('Organization "%s" has been created', $name));
-
-            return $this->redirectToRoute('organization_overview', ['organization' => $aliasGenerator->generate($name)]);
-        }
-
-        return $this->render('organization/create.html.twig', [
-            'form' => $form->createView(),
-        ]);
     }
 
     /**

@@ -47,7 +47,7 @@ final class OrganizationAnonymousUserVoter extends Voter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $organization = $subject instanceof Request
-            ? $this->organizations->getByAlias($subject->get('organization'))->get()
+            ? $this->organizations->getByAlias($subject->get('organization'))->getOrNull()
             : $subject;
 
         if ($organization instanceof Organization) {

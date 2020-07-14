@@ -45,7 +45,6 @@ security:
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
          - { path: ^/user, roles: ROLE_USER }
-         - { path: ^/organization/new, roles: ROLE_USER }
          - { path: ^/$, roles: ROLE_USER }
          - { path: ^/organization/.+/overview$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+/package$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
