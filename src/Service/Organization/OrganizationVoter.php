@@ -47,16 +47,21 @@ final class OrganizationVoter extends Voter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
+        /**
+         * @var User
+         */
         $user = $token->getUser();
-        if (!$user instanceof User) {
-            return false;
-        }
 
         if ($subject instanceof Organization) {
             return $attribute === 'ROLE_ORGANIZATION_OWNER' ? $subject->isOwner($user->id()) : $subject->isMember($user->id());
         }
 
         if ($subject instanceof Request) {
+            $checkOrganization = $this->organizations->getByAlias($subject->get('organization'))->getOrNull();
+            if ($checkOrganization instanceof Organization && $checkOrganization->hasAnonymousAccess()) {
+                return true;
+            }
+
             foreach ($user->organizations() as $organization) {
                 if ($organization->alias() !== $subject->get('organization')) {
                     continue;

@@ -119,5 +119,11 @@ final class OrganizationVoterTest extends TestCase
             new Request([], ['organization' => 'other']),
             ['ROLE_ORGANIZATION_OWNER']
         ));
+
+        self::assertEquals(Voter::ACCESS_ABSTAIN, $this->voter->vote(
+            new AnonymousToken('secret', 'anon', []),
+            new Request([], ['organization' => 'buddy']),
+            []
+        ));
     }
 }
