@@ -66,7 +66,7 @@ class Organization
     private ?Collection $members = null;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", options={"default": false})
      */
     private bool $hasAnonymousAccess = false;
 
