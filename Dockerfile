@@ -33,6 +33,9 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     printf '[PHP]\ndate.timezone = "%s"\n', "$TIMEZONE" > \
     /usr/local/etc/php/conf.d/tzone.ini && "date"
 
+# set memory limit
+RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory-limit.ini
+
 # automatically add new host keys to the user known hosts
 RUN printf "Host *\n    StrictHostKeyChecking no" > /etc/ssh/ssh_config
 
