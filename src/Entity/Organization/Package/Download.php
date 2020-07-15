@@ -43,7 +43,7 @@ class Download
     private string $version;
 
     /**
-     * @ORM\Column(type="string", length=39, nullable=true)
+     * @ORM\Column(type="string", length=45, nullable=true)
      */
     private ?string $ip;
 
