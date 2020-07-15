@@ -11,6 +11,11 @@ On next release:
 
 ## [Unreleased]
 
+## [0.4.1] - 2020-07-15
+### Fixed
+- Add support for IPv6 addresses ([#216](https://github.com/repman-io/repman/pull/216), thanks @nickygerritsen)
+- Fix user voters with anonymous access ([#215](https://github.com/repman-io/repman/pull/215))
+
 ## [0.4.0] - 2020-07-13
 ### Added
 - Registration config options ([#200](https://github.com/repman-io/repman/pull/200), thanks @nickygerritsen)
