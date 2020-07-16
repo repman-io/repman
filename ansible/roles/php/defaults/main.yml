@@ -7,7 +7,7 @@ php_listen_group: 'www-data'
 php_fastcgi_listen: "/run/php/www.sock"
 php_upload_max_filesize: "{{ nginx_client_max_body_size }}"
 php_post_max_size: "{{ nginx_client_max_body_size }}"
-php_memory_limit: "256M"
+php_memory_limit: "512M"
 php_max_execution_time: 30
 
 php_version: "7.4"
