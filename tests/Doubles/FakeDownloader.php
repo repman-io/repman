@@ -24,6 +24,7 @@ final class FakeDownloader implements Downloader
     public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option
     {
         $path = $this->basePath.parse_url($url, PHP_URL_PATH);
+
         if (file_exists($path)) {
             return Option::some((string) file_get_contents($path));
         }

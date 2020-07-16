@@ -342,14 +342,6 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    protected function getUser(): User
-    {
-        /** @var User $user */
-        $user = parent::getUser();
-
-        return $user;
-    }
-
     private function tryToRemoveWebhook(Package $package): void
     {
         if ($package->webhookCreatedAt() !== null) {
