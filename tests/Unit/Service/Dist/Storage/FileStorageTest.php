@@ -34,7 +34,7 @@ final class FileStorageTest extends TestCase
         $packagePath = $this->basePath.'/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896.zip';
         self::assertFileNotExists($packagePath);
 
-        $this->storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
+        $this->storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
             'packagist.org',
             'buddy-works/repman',
             '0.1.2.0',

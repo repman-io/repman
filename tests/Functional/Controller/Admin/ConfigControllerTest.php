@@ -83,6 +83,9 @@ final class ConfigControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('register_buddy_start'));
         self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
 
+        $this->client->request('GET', $this->urlTo('app_register_confirm', ['token' => '825f33c5-2311-41ec-ba18-e967027b3f6f']));
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
             'local_authentication' => 'login_and_registration',
