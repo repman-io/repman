@@ -1,0 +1,12 @@
+# Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
+flysystem:
+    storages:
+        storage.local.proxy:
+            adapter: 'local'
+            options:
+                directory: '%dists_dir%'
+
+        proxy.storage:
+            adapter: 'lazy'
+            options:
+                source: '%env(STORAGE_SOURCE)%.proxy'

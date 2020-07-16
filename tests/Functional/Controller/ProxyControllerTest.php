@@ -35,9 +35,9 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testProviderAction(): void
     {
-        $this->client->request('GET', '/p/buddy-works/repman', [], [], [
+        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
-        ]);
+        ]));
 
         self::assertMatchesPattern('
         {
@@ -46,27 +46,28 @@ final class ProxyControllerTest extends FunctionalTestCase
                 "buddy-works/repman": "@array@"
             }
         }
-        ', $this->client->getResponse()->getContent());
+        ', $response);
+        self::assertTrue($this->client->getResponse()->isCacheable());
     }
 
     public function testProviderActionEmptyPackagesWhenNotExist(): void
     {
-        $this->client->request('GET', '/p/buddy-works/example-app', [], [], [
+        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/example-app', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
-        ]);
+        ]));
 
         self::assertMatchesPattern('
         {
             "packages": {}
         }
-        ', $this->client->getResponse()->getContent());
+        ', $response);
     }
 
     public function testProviderV2Action(): void
     {
-        $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
+        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
-        ]);
+        ]));
 
         self::assertMatchesPattern('
         {
@@ -75,16 +76,27 @@ final class ProxyControllerTest extends FunctionalTestCase
                 "buddy-works/repman": "@array@"
             }
         }
-        ', $this->client->getResponse()->getContent());
+        ', $response);
+        self::assertTrue($this->client->getResponse()->isCacheable());
+    }
+
+    public function testProviderV2ActionWhenPackageNotExist(): void
+    {
+        $this->client->request('GET', '/p2/buddy-works/example-app.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
     }
 
     public function testDistributionAction(): void
     {
-        $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip', [], [], [
+        $file = $this->contentFromStream(fn () => $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
-        ]);
+        ]));
 
         self::assertTrue($this->client->getResponse()->isOk());
+        self::assertTrue($this->client->getResponse()->isCacheable());
     }
 
     public function testDistributionNotFoundAction(): void
