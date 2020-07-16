@@ -36,6 +36,9 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
 # set memory limit
 RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory-limit.ini
 
+# hide X-Powered-By in reponse header
+RUN echo "expose_php=off" > /usr/local/etc/php/conf.d/expose.ini
+
 # automatically add new host keys to the user known hosts
 RUN printf "Host *\n    StrictHostKeyChecking no" > /etc/ssh/ssh_config
 
