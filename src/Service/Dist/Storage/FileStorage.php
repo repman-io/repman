@@ -8,9 +8,6 @@ use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
-use Munus\Collection\GenericList;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class FileStorage implements Storage
@@ -69,42 +66,6 @@ final class FileStorage implements Storage
         $size = filesize($this->filename($dist));
 
         return $size === false ? 0 : $size;
-    }
-
-    /**
-     * @return GenericList<string>
-     */
-    public function packages(string $repo): GenericList
-    {
-        $dir = $this->distsDir.'/'.$repo.'/dist';
-        if (!is_dir($dir)) {
-            return GenericList::empty();
-        }
-
-        $files = Finder::create()->directories()->sortByName()->depth(1)->ignoreVCS(true)->in($dir);
-
-        return GenericList::ofAll(array_map(
-            fn (SplFileInfo $fileInfo) => $fileInfo->getRelativePathname(),
-            iterator_to_array($files->getIterator()
-            )));
-    }
-
-    public function remove(string $packageName): void
-    {
-        $dirs = [];
-        foreach (Finder::create()->directories()->path($packageName)->ignoreVCS(true)->in($this->distsDir) as $dir) {
-            /* @var SplFileInfo $dir */
-            $dirs[] = $dir->getPathname();
-            foreach (Finder::create()->files()->in($dir->getPathname()) as $file) {
-                /* @var SplFileInfo $file */
-                @unlink($file->getPathname());
-            }
-        }
-
-        // can't remove dir in Finder loop, RecursiveDirectoryIterator throws error
-        foreach ($dirs as $dir) {
-            @rmdir($dir);
-        }
     }
 
     private function ensureDirExist(string $filename): void

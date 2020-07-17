@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Dist;
 
 use Buddy\Repman\Service\Dist;
-use Munus\Collection\GenericList;
 
 interface Storage
 {
@@ -19,11 +18,4 @@ interface Storage
     public function filename(Dist $dist): string;
 
     public function size(Dist $dist): int;
-
-    /**
-     * @return GenericList<string>
-     */
-    public function packages(string $repo): GenericList;
-
-    public function remove(string $packageName): void;
 }

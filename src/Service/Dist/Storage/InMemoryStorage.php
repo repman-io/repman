@@ -6,7 +6,6 @@ namespace Buddy\Repman\Service\Dist\Storage;
 
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
-use Munus\Collection\GenericList;
 
 /**
  * @codeCoverageIgnore
@@ -46,15 +45,5 @@ final class InMemoryStorage implements Storage
     public function size(Dist $dist): int
     {
         return 0;
-    }
-
-    public function packages(string $repo): GenericList
-    {
-        return GenericList::ofAll($this->dists);
-    }
-
-    public function remove(string $packageName): void
-    {
-        // TODO: Implement remove() method.
     }
 }

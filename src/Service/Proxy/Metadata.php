@@ -22,11 +22,11 @@ final class Metadata
         $this->stream = $stream;
     }
 
-    public static function fromString(string $string): self
+    public static function fromString(string $string, string $streamName = 'php://memory'): self
     {
-        $stream = fopen('php://memory', 'r+');
+        $stream = @fopen($streamName, 'r+');
         if ($stream === false) {
-            throw new \RuntimeException('Failed to open in-memory stream');
+            throw new \RuntimeException(sprintf('Failed to open %s stream', $streamName));
         }
         fwrite($stream, $string);
         rewind($stream);

@@ -60,7 +60,7 @@ final class ProxyController extends AbstractController
      */
     public function remove(string $proxy, string $packageName): Response
     {
-        $this->dispatchMessage(new RemoveDist($packageName));
+        $this->dispatchMessage(new RemoveDist($proxy, $packageName));
 
         $this->addFlash('success', sprintf('Dist files for package %s will be removed.', $packageName));
 
