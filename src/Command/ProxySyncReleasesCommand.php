@@ -80,7 +80,7 @@ final class ProxySyncReleasesCommand extends Command
             list($name, $version) = explode(' ', (string) $item->guid);
             if (isset($syncedPackages[$name])) {
                 $this->lock->refresh();
-                $proxy->downloadByVersion($name, $version);
+                $proxy->download($name, $version);
             }
         }
     }

@@ -86,7 +86,7 @@ final class Proxy
         return $packages;
     }
 
-    public function downloadByVersion(string $package, string $version): void
+    public function download(string $package, string $version): void
     {
         $lastDist = null;
 
@@ -99,6 +99,15 @@ final class Proxy
                 break;
             }
         }
+    }
+
+    public function removeDist(string $package): void
+    {
+        if (mb_strlen($package) === 0) {
+            throw new \InvalidArgumentException('Empty package name');
+        }
+
+        $this->filesystem->deleteDir(sprintf('%s/dist/%s', $this->name, $package));
     }
 
     /**
