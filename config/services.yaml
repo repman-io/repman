@@ -85,6 +85,10 @@ services:
             $databaseDir: '%security_advisories_db_dir%'
             $databaseRepo: '%security_advisories_db_repo%'
 
+    Buddy\Repman\Service\Telemetry:
+        arguments:
+            $instanceIdFile: '%kernel.project_dir%/var/instance-id'
+
     ### Vendor
     Github\Client:
         arguments:

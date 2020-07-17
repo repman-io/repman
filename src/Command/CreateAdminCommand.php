@@ -4,22 +4,28 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
+use Buddy\Repman\Message\Admin\ChangeConfig;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\Service\Telemetry;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class CreateAdminCommand extends Command
 {
     private MessageBusInterface $bus;
+    private Telemetry $telemetry;
 
-    public function __construct(MessageBusInterface $bus)
+    public function __construct(MessageBusInterface $bus, Telemetry $telemetry)
     {
         $this->bus = $bus;
+        $this->telemetry = $telemetry;
+
         parent::__construct();
     }
 
@@ -52,6 +58,17 @@ final class CreateAdminCommand extends Command
             Uuid::uuid4()->toString(),
             ['ROLE_ADMIN']
         ));
+
+        $question = new ConfirmationQuestion('Allow for sending anonymous usage statistic? (y/n) ', true);
+        $answer = $this
+            ->getHelper('question')
+            ->ask($input, $output, $question);
+
+        $this->bus->dispatch(new ChangeConfig([
+            'telemetry' => $answer ? 'enabled' : 'disabled',
+        ]));
+
+        $this->telemetry->generateInstanceId();
 
         $output->writeln(sprintf('Created admin user with id: %s', $id));
 
