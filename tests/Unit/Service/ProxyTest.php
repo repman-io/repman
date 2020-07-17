@@ -42,4 +42,26 @@ final class ProxyTest extends TestCase
         fclose($distribution->get());
         unlink($distPath);
     }
+
+    public function testDistRemove(): void
+    {
+        $distDir = __DIR__.'/../../Resources/packagist.org/dist/';
+        mkdir($distDir.'vendor/package', 0777, true);
+        file_put_contents($distDir.'vendor/package/some.zip', 'package-data');
+
+        $this->proxy->removeDist('vendor/package');
+
+        self::assertFileNotExists($distDir.'vendor/package/some.zip');
+        self::assertDirectoryNotExists($distDir.'vendor/package');
+
+        // test if remove package that not exist does not cause error
+        $this->proxy->removeDist('vendor/package');
+    }
+
+    public function testPreventRemoveDist(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->proxy->removeDist('');
+    }
 }
