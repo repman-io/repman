@@ -5,6 +5,13 @@
     minute="*/5"
     job="{{ app_root }}/bin/console repman:proxy:sync-releases >>{{ app_root }}/var/log/cron.log 2>&1"
 
+- name: Add sync proxy metadata command to cron
+  cron:
+    name="Sync proxy metadata with origins"
+    user="{{ system_user }}"
+    minute="*/6"
+    job="{{ app_root }}/bin/console repman:proxy:sync-metadata >>{{ app_root }}/var/log/cron.log 2>&1"
+
 - name: Add security update-db command to cron
   cron:
     name="Update security advisories database"

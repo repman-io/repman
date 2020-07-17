@@ -32,4 +32,10 @@ final class NativeDownloaderTest extends TestCase
 
         (new NativeDownloader())->getContents('https://repman.io/not-exist', [], function (): void {throw new \LogicException('Not found'); });
     }
+
+    public function testLastModified(): void
+    {
+        self::assertTrue((new NativeDownloader())->getLastModified('https://repman.io')->getOrElse(0) > 0);
+        self::assertTrue((new NativeDownloader())->getLastModified('/tmp/not-exists')->isEmpty());
+    }
 }
