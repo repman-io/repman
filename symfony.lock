@@ -229,6 +229,9 @@
             "var/storage/.gitignore"
         ]
     },
+    "league/flysystem-memory": {
+        "version": "1.0.2"
+    },
     "league/oauth2-client": {
         "version": "2.4.1"
     },

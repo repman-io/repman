@@ -34,6 +34,19 @@ final class NativeDownloader implements Downloader
     }
 
     /**
+     * @return Option<int>
+     */
+    public function getLastModified(string $url): Option
+    {
+        $headers = @get_headers($url, 1, stream_context_create(['http' => ['method' => 'HEAD']]));
+        if (!is_array($headers) || !isset($headers['Last-Modified'])) {
+            return Option::none();
+        }
+
+        return Option::some((int) strtotime($headers['Last-Modified']));
+    }
+
+    /**
      * @param string[] $headers
      *
      * @return resource
