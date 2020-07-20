@@ -10,6 +10,7 @@ RUN apk update && \
     $PHPIZE_DEPS \
     bash \
     git \
+    subversion \
     zip \
     unzip \
     postgresql-dev \
