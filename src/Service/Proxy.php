@@ -46,7 +46,7 @@ final class Proxy
         if (!$this->filesystem->has($path)) {
             foreach ($this->decodeMetadata($package) as $packageData) {
                 if (($packageData['dist']['reference'] ?? '') === $ref) {
-                    $this->filesystem->write($path, $this->downloader->getContents($packageData['dist']['url'])
+                    $this->filesystem->writeStream($path, $this->downloader->getContents($packageData['dist']['url'])
                         ->getOrElseThrow(new \RuntimeException(sprintf('Failed to download file from %s', $packageData['dist']['url'])))
                     );
                     break;
@@ -94,7 +94,7 @@ final class Proxy
             $lastDist = $packageData['dist'] ?? $lastDist;
             $path = $this->distPath($package, $lastDist['reference'], $lastDist['type']);
             if ($version === $packageData['version'] && !$this->filesystem->has($path)) {
-                $this->filesystem->write($path, $this->downloader->getContents($lastDist['url'])
+                $this->filesystem->writeStream($path, $this->downloader->getContents($lastDist['url'])
                     ->getOrElseThrow(new \RuntimeException(sprintf('Failed to download file from %s', $lastDist['url'])))
                 );
                 break;
@@ -123,6 +123,7 @@ final class Proxy
                 fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json')
             );
         }
+        $this->downloader->run();
     }
 
     /**
@@ -133,14 +134,13 @@ final class Proxy
         foreach ($files as $file) {
             $url = sprintf('%s://%s', parse_url($this->url, PHP_URL_SCHEME), $file['path']);
             // todo: what if proxy do not return `Last-Modified` header?
-            if ($this->downloader->getLastModified($url)->getOrElse(0) > ($file['timestamp'] ?? time())) {
-                $metadata = $this->downloader->getContents($url)->getOrNull();
-                if ($metadata === null) {
-                    continue;
+            $this->downloader->getLastModified($url, function (int $timestamp) use ($url, $file): void {
+                if ($timestamp > ($file['timestamp'] ?? time())) {
+                    $this->downloader->getAsyncContents($url, [], function ($stream) use ($file): void {
+                        $this->filesystem->putStream($file['path'], $stream);
+                    });
                 }
-
-                $this->filesystem->put($file['path'], $metadata);
-            }
+            });
         }
     }
 
@@ -167,7 +167,7 @@ final class Proxy
             if ($metadata === null) {
                 return Option::none();
             }
-            $this->filesystem->write($path, $metadata);
+            $this->filesystem->writeStream($path, $metadata);
         }
 
         $stream = $this->filesystem->readStream($path);

@@ -29,6 +29,7 @@
         "munusphp/munus": "^0.2.1",
         "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
+        "react/http": "^1.0",
         "sensio/framework-extra-bundle": "^5.5",
         "sentry/sentry-symfony": "^3.4",
         "stevenmaguire/oauth2-bitbucket": "^3.0",
