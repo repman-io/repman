@@ -29,6 +29,8 @@ final class ProxyTest extends TestCase
 
     public function testPackageMetadataDownload(): void
     {
+        $this->downloader->addContent('https://packagist.org/p2/buddy-works/repman.json', 'metadata');
+
         $metadata = $this->proxy->metadata('buddy-works/repman');
 
         self::assertTrue($metadata->isPresent());
@@ -79,6 +81,7 @@ final class ProxyTest extends TestCase
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/repman')->get();
         self::assertTrue($metadata->timestamp() > $oldTimestamp);
+        self:self::assertEquals('new', stream_get_contents($metadata->stream()));
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/old')->get();

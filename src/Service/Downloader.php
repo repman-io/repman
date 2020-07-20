@@ -9,14 +9,24 @@ use Munus\Control\Option;
 interface Downloader
 {
     /**
+     * todo: replace with getAsyncContents.
+     *
      * @param string[] $headers
      *
-     * @return Option<string>
+     * @return Option<resource>
      */
     public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option;
 
     /**
-     * @return Option<int>
+     * @param string[]                $headers
+     * @param callable(resource):void $onFulfilled
      */
-    public function getLastModified(string $url): Option;
+    public function getAsyncContents(string $url, array $headers, callable $onFulfilled): void;
+
+    /**
+     * @param callable(int):void $onFulfilled
+     */
+    public function getLastModified(string $url, callable $onFulfilled): void;
+
+    public function run(): void;
 }
