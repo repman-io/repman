@@ -50,6 +50,13 @@ services:
     Buddy\Repman\Service\Dist\Storage:
         class: Buddy\Repman\Service\Dist\Storage\FileStorage
 
+    proxy.storage.public:
+        public: true
+        alias: 'proxy.storage'
+
+    Buddy\Repman\Service\Proxy\ProxyRegister:
+        public: true
+
     repman.organization.dist_storage:
         class: Buddy\Repman\Service\Dist\Storage\FileStorage
         arguments:

@@ -126,6 +126,11 @@ final class Proxy
         $this->downloader->run();
     }
 
+    public function url(): string
+    {
+        return $this->url;
+    }
+
     /**
      * @param mixed[] $files
      */
