@@ -15,6 +15,7 @@ parameters:
     router.request_context.host: '%env(default:domain:APP_PUBLIC_HOST)%'
     security_advisories_db_dir: '%env(resolve:SECURITY_ADVISORIES_DB_DIR)%'
     security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
+    instance_id_file: '%kernel.project_dir%/var/instance-id'
 
 services:
     # default configuration for services in *this* file
@@ -26,6 +27,7 @@ services:
             $resetPasswordTokenTtl: 86400 # 24h
             Symfony\Component\HttpFoundation\Session\Session $session: '@session'
             $proxyFilesystem: '@proxy.storage'
+            $instanceIdFile: '%instance_id_file%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

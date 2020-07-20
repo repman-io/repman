@@ -45,6 +45,17 @@ class ConfigType extends AbstractType
                     'data-style' => 'btn-secondary',
                 ],
             ])
+            ->add('telemetry', ChoiceType::class, [
+                'choices' => [
+                    'enabled' => 'enabled',
+                    'disabled' => 'disabled',
+                ],
+                'help' => 'Enable collecting and sending anonymous usage data',
+                'attr' => [
+                    'class' => 'form-control selectpicker',
+                    'data-style' => 'btn-secondary',
+                ],
+            ])
             ->add('save', SubmitType::class, ['label' => 'Save'])
         ;
     }
