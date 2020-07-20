@@ -99,4 +99,40 @@ final class ConfigControllerTest extends FunctionalTestCase
             $this->lastResponseBody()
         );
     }
+
+    public function testEnableTelemetry(): void
+    {
+        $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic';
+        $instanceIdFile = $this->container()->getParameter('instance_id_file');
+        @unlink($instanceIdFile);
+        $this->client->request('GET', $this->urlTo('index'));
+        self::assertStringContainsString($prompt, $this->lastResponseBody());
+
+        $this->client->request('POST', $this->urlTo('admin_config_telemetry_enable'));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->client->followRedirect();
+
+        self::assertStringNotContainsString($prompt, $this->lastResponseBody());
+        self::assertFileExists($instanceIdFile);
+        @unlink($instanceIdFile);
+    }
+
+    public function testDisableTelemetry(): void
+    {
+        $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic';
+        $instanceIdFile = $this->container()->getParameter('instance_id_file');
+        @unlink($instanceIdFile);
+        $this->client->request('GET', $this->urlTo('index'));
+        self::assertStringContainsString($prompt, $this->lastResponseBody());
+
+        $this->client->request('DELETE', $this->urlTo('admin_config_telemetry_enable'));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->client->followRedirect();
+
+        self::assertStringNotContainsString($prompt, $this->lastResponseBody());
+        self::assertFileExists($instanceIdFile);
+        @unlink($instanceIdFile);
+    }
 }

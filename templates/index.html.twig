@@ -3,8 +3,11 @@
 {% block page %}
 <div class="content-page">
     <main class="container my-4 flex-fill">
-
         {% include 'component/flash.html.twig' %}
+
+        {% if is_granted('ROLE_ADMIN') and showTelemetryPrompt %}
+            {% include 'component/telemetryPrompt.html.twig' %}
+        {% endif %}
 
         <div class="row justify-content-center">
             <div class="col-lg-6">
