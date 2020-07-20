@@ -15,6 +15,11 @@ final class Telemetry
         $this->instanceIdFile = $instanceIdFile;
     }
 
+    public function docsUrl(): string
+    {
+        return 'https://repman.io/docs/telemetry';
+    }
+
     public function generateInstanceId(): void
     {
         if (!$this->isInstanceIdPresent()) {

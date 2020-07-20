@@ -59,16 +59,21 @@ final class CreateAdminCommand extends Command
             ['ROLE_ADMIN']
         ));
 
-        $question = new ConfirmationQuestion('Allow for sending anonymous usage statistic? (y/n) ', true);
-        $answer = $this
-            ->getHelper('question')
-            ->ask($input, $output, $question);
+        if (!$this->telemetry->isInstanceIdPresent()) {
+            $question = new ConfirmationQuestion(
+                "Allow for sending anonymous usage statistic? [{$this->telemetry->docsUrl()}] (y/n)",
+                true
+            );
+            $answer = $this
+                ->getHelper('question')
+                ->ask($input, $output, $question);
 
-        $this->bus->dispatch(new ChangeConfig([
-            'telemetry' => $answer ? 'enabled' : 'disabled',
-        ]));
+            $this->bus->dispatch(new ChangeConfig([
+                'telemetry' => $answer ? 'enabled' : 'disabled',
+            ]));
 
-        $this->telemetry->generateInstanceId();
+            $this->telemetry->generateInstanceId();
+        }
 
         $output->writeln(sprintf('Created admin user with id: %s', $id));
 

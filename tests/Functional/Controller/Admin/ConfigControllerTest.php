@@ -99,7 +99,7 @@ final class ConfigControllerTest extends FunctionalTestCase
 
     public function testEnableTelemetry(): void
     {
-        $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic.';
+        $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic';
         $instanceIdFile = $this->container()->getParameter('instance_id_file');
         @unlink($instanceIdFile);
         $this->client->request('GET', $this->urlTo('index'));
@@ -117,7 +117,7 @@ final class ConfigControllerTest extends FunctionalTestCase
 
     public function testDisableTelemetry(): void
     {
-        $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic.';
+        $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic';
         $instanceIdFile = $this->container()->getParameter('instance_id_file');
         @unlink($instanceIdFile);
         $this->client->request('GET', $this->urlTo('index'));
