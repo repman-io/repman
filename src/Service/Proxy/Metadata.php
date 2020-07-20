@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Proxy;
 
+use Buddy\Repman\Service\Stream;
+
 final class Metadata
 {
     private int $timestamp;
@@ -22,16 +24,9 @@ final class Metadata
         $this->stream = $stream;
     }
 
-    public static function fromString(string $string, string $streamName = 'php://memory'): self
+    public static function fromString(string $string): self
     {
-        $stream = @fopen($streamName, 'r+');
-        if ($stream === false) {
-            throw new \RuntimeException(sprintf('Failed to open %s stream', $streamName));
-        }
-        fwrite($stream, $string);
-        rewind($stream);
-
-        return new self(time(), $stream);
+        return new self(time(), Stream::fromString($string));
     }
 
     public function timestamp(): int

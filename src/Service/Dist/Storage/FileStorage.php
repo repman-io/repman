@@ -40,11 +40,11 @@ final class FileStorage implements Storage
 
         AtomicFile::write(
             $filename,
-            $this->downloader->getContents($url, $headers, function () use ($url): void {
+            (string) stream_get_contents($this->downloader->getContents($url, $headers, function () use ($url): void {
                 throw new NotFoundHttpException(sprintf('File not found at %s', $url));
             })->getOrElseThrow(
                 new \RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))
-            )
+            ))
         );
     }
 

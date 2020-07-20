@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Functional\Command;
 use Buddy\Repman\Command\ProxySyncReleasesCommand;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
+use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
@@ -80,7 +81,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         }
 
         $feedDownloader = $this->createMock(Downloader::class);
-        $feedDownloader->method('getContents')->willReturn(Option::of($feed));
+        $feedDownloader->method('getContents')->willReturn(Option::of(Stream::fromString($feed)));
 
         return new ProxySyncReleasesCommand(
             $this->container()->get(ProxyRegister::class),

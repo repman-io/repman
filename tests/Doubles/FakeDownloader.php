@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Doubles;
 
 use Buddy\Repman\Service\Downloader;
+use Buddy\Repman\Service\Stream;
 use Munus\Control\Option;
 
 final class FakeDownloader implements Downloader
@@ -25,18 +26,18 @@ final class FakeDownloader implements Downloader
     /**
      * @param string[] $headers
      *
-     * @return Option<string>
+     * @return Option<resource>
      */
     public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option
     {
         if (isset($this->content[$url])) {
-            return Option::some($this->content[$url]['content']);
+            return Option::some(Stream::fromString($this->content[$url]['content']));
         }
 
         $path = $this->basePath.parse_url($url, PHP_URL_PATH);
 
         if (file_exists($path)) {
-            return Option::some((string) file_get_contents($path));
+            return Option::some(Stream::fromString((string) file_get_contents($path)));
         }
 
         if (strstr($path, 'not-found') !== false && $notFoundHandler !== null) {
@@ -47,20 +48,32 @@ final class FakeDownloader implements Downloader
     }
 
     /**
-     * @return Option<int>
+     * @param callable(resource):void $onFulfilled
      */
-    public function getLastModified(string $url): Option
+    public function getAsyncContents(string $url, array $headers, callable $onFulfilled): void
+    {
+        if (isset($this->content[$url]) && $this->content[$url]['content'] !== null) {
+            $onFulfilled(Stream::fromString($this->content[$url]['content']));
+        }
+    }
+
+    /**
+     * @param callable(int):void $onFulfilled
+     */
+    public function getLastModified(string $url, callable $onFulfilled): void
     {
         if (isset($this->content[$url])) {
-            return Option::some($this->content[$url]['timestamp']);
+            $timestamp = $this->content[$url]['timestamp'];
         }
 
         $path = $this->basePath.parse_url($url, PHP_URL_PATH);
         if (file_exists($path)) {
-            return Option::some((int) filemtime($path));
+            $timestamp = (int) filemtime($path);
         }
 
-        return Option::none();
+        if (isset($timestamp)) {
+            $onFulfilled($timestamp);
+        }
     }
 
     public function addContent(string $url, ?string $content, int $timestamp = null): void
@@ -69,5 +82,10 @@ final class FakeDownloader implements Downloader
             'timestamp' => $timestamp ?? time(),
             'content' => $content,
         ];
+    }
+
+    public function run(): void
+    {
+        // TODO: Implement run() method.
     }
 }
