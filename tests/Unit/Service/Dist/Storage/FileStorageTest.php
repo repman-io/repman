@@ -8,9 +8,9 @@ use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
-use Munus\Collection\GenericList;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class FileStorageTest extends TestCase
 {
@@ -34,7 +34,7 @@ final class FileStorageTest extends TestCase
         $packagePath = $this->basePath.'/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896.zip';
         self::assertFileNotExists($packagePath);
 
-        $this->storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
+        $this->storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
             'packagist.org',
             'buddy-works/repman',
             '0.1.2.0',
@@ -86,23 +86,30 @@ final class FileStorageTest extends TestCase
         )));
     }
 
-    public function testDistPackageRemove(): void
+    public function testSize(): void
     {
         $this->createTempFile($packagePath = $this->basePath.'/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896.zip');
-        $this->createTempFile($otherPath = $this->basePath.'/packagist.org/dist/buddy-works/other-package/0.1.2.0_f0c896.zip');
 
-        self::assertFileExists($packagePath);
-        self::assertFileExists($otherPath);
-
-        $this->storage->remove('buddy-works/repman');
-
-        self::assertFileNotExists($packagePath);
-        self::assertFileExists($otherPath);
+        self::assertEquals(7, $this->storage->size(new Dist(
+            'packagist.org',
+            'buddy-works/repman',
+            '0.1.2.0',
+            'f0c896',
+            'zip'
+        )));
     }
 
-    public function testReturnEmptyPackagesListWhenDirNotExist(): void
+    public function testThrowHttpNotFoundExceptionWhenFileNotFound(): void
     {
-        self::assertTrue(GenericList::empty()->equals($this->storage->packages('not-exist')));
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->storage->download('https://some.domain/packagist.org/dist/not-found', new Dist(
+            'packagist.org',
+            'buddy-works/repman',
+            '0.1.2.0',
+            'f0c896',
+            'zip'
+        ));
     }
 
     private function createTempFile(string $path): void

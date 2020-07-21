@@ -4,122 +4,117 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service;
 
-use Buddy\Repman\Service\Cache\InMemoryCache;
-use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage;
-use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
 use Buddy\Repman\Service\Proxy;
-use Buddy\Repman\Service\Proxy\MetadataProvider\CacheableMetadataProvider;
+use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
-use Buddy\Repman\Tests\Doubles\FakeMetadataProvider;
-use Munus\Control\Option;
+use League\Flysystem\Filesystem;
+use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
 
 final class ProxyTest extends TestCase
 {
-    public function testPackageProvider(): void
+    private Proxy $proxy;
+    private Filesystem $filesystem;
+    private FakeDownloader $downloader;
+
+    protected function setUp(): void
     {
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), new InMemoryStorage());
-        $provider = $proxy->providerData('buddy-works/repman')->get();
-
-        self::assertEquals('0.1.0', $provider['packages']['buddy-works/repman']['0.1.0']['version']);
-    }
-
-    public function testPackageProviderFromCache(): void
-    {
-        $cache = new InMemoryCache();
-        $cache->get('packagist.org/packages.json', function (): array {return ['metadata']; });
-        $cache->get('packagist.org/p/buddy-works/repman', function (): array {return ['package-metadata']; });
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
-
-        self::assertEquals(['package-metadata'], $proxy->providerData('buddy-works/repman')->get());
-    }
-
-    public function testPackageProviderV2FromCache(): void
-    {
-        $cache = new InMemoryCache();
-        $cache->get('packagist.org/packages.json', fn () => ['metadata-url' => '/p2/%package%.json']);
-        $cache->get('packagist.org/p2/buddy-works/repman', fn () => ['package-metadata']);
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
-
-        self::assertEquals(['package-metadata'], $proxy->providerDataV2('buddy-works/repman')->get());
-    }
-
-    public function testPackageProviderV2NotFound(): void
-    {
-        $cache = new InMemoryCache();
-        $cache->get('packagist.org/packages.json', function (): array {return []; });
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), $cache), new InMemoryStorage());
-
-        self::assertTrue($proxy->providerDataV2('buddy-works/repman')->isEmpty());
-    }
-
-    public function testStorageDownloadDistWhenNotExists(): void
-    {
-        $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip';
-        /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(Storage::class);
-        $storage->has(Argument::type(Dist::class))->willReturn(false);
-        $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
-        $storage->download('https://api.github.com/repos/munusphp/munus/zipball/f0c896a759d4e2e1eff57978318e841911796305', Argument::type(Dist::class))
-            ->shouldBeCalledOnce();
-
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), $storage->reveal());
-
-        self::assertStringContainsString(
-            '0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip',
-            $proxy->distFilename('buddy-works/repman', '0.1.2.0', 'f0c896a759d4e2e1eff57978318e841911796305', 'zip')->get()
+        $this->proxy = new Proxy(
+            'packagist.org',
+            'https://packagist.org',
+            $this->filesystem = new Filesystem(new MemoryAdapter()),
+            $this->downloader = new FakeDownloader()
         );
     }
 
-    public function testReturnNoneWhenDistPackageNotExists(): void
+    public function testPackageMetadataDownload(): void
     {
-        /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(Storage::class);
-        $storage->has(Argument::type(Dist::class))->willReturn(false);
-        $storage->filename(Argument::type(Dist::class))->willReturn('/not/exist');
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), $storage->reveal());
+        $this->downloader->addContent('https://packagist.org/p2/buddy-works/repman.json', 'metadata');
 
-        self::assertTrue(Option::none()->equals(
-            $proxy->distFilename('not-exist-vendor/not-exist-package', '0.1.2.0', 'f0c896a759d4e2e1eff57978318e841911796305', 'zip')
-        ));
+        $metadata = $this->proxy->metadata('buddy-works/repman');
+
+        self::assertTrue($metadata->isPresent());
     }
 
-    public function testStorageNotForceToDownloadWhenDistExists(): void
+    public function testDownloadDistWhenNotExists(): void
     {
-        /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(Storage::class);
-        $storage->has(Argument::type(Dist::class))->willReturn(true);
-        $storage->download(Argument::cetera())->shouldNotBeCalled();
-        $storage->filename(Argument::type(Dist::class))->willReturn(
-            __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip'
-        );
-
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new FakeMetadataProvider(), $storage->reveal());
-
-        self::assertStringContainsString(
-            '0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip',
-            $proxy->distFilename('buddy-works/repman', '0.1.2.0', 'f0c896a759d4e2e1eff57978318e841911796305', 'zip')->get()
-        );
+        $this->filesystem->write('packagist.org/p2/buddy-works/repman.json', (string) file_get_contents(__DIR__.'/../../Resources/packagist.org/p2/buddy-works/repman.json'));
+        self::assertFalse($this->filesystem->has('packagist.org/dist/buddy-works/repman/61e39aa8197cf1bc7fcb16a6f727b0c291bc9b76.zip'));
+        $distribution = $this->proxy->distribution('buddy-works/repman', '1.2.3', '61e39aa8197cf1bc7fcb16a6f727b0c291bc9b76', 'zip');
+        self::assertTrue($distribution->isPresent());
     }
 
-    public function testStorageHandleDistWithSlashInVersion(): void
+    public function testDistRemove(): void
     {
-        $distFilepath = __DIR__.'/../../Resources/packagist.org/dist/buddy-works/repman/0cdaa0ab95de9fcf94ad9b1d2f80e15d_e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb.zip';
-        /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(Storage::class);
-        $storage->has(Argument::type(Dist::class))->willReturn(false);
-        $storage->filename(Argument::type(Dist::class))->willReturn($distFilepath);
-        $storage->download('https://api.github.com/repos/munusphp/munus/zipball/e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb', Argument::type(Dist::class))
-            ->shouldBeCalledOnce();
+        $this->filesystem->write('packagist.org/dist/vendor/package/some.zip', 'package-data');
 
-        $proxy = new Proxy('packagist.org', 'https://packagist.org', new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()), $storage->reveal());
+        $this->proxy->removeDist('vendor/package');
 
-        self::assertStringContainsString(
-            '0cdaa0ab95de9fcf94ad9b1d2f80e15d_e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb.zip',
-            $proxy->distFilename('buddy-works/repman', 'dev-feature/awesome', 'e738ed3634a11f6b5e23aca3d1c3f9be4efd8cfb', 'zip')->get()
-        );
-        self::assertEquals('0cdaa0ab95de9fcf94ad9b1d2f80e15d', (new Dist('repo', 'package', 'dev-feature/awesome', 'ref', 'format'))->version());
+        self::assertFalse($this->filesystem->has('packagist.org/dist/vendor/package'));
+
+        // test if remove package that not exist does not cause error
+        $this->proxy->removeDist('vendor/package');
+    }
+
+    public function testPreventRemoveDist(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->proxy->removeDist('');
+    }
+
+    public function testSyncMetadata(): void
+    {
+        $oldTimestamp = strtotime('2019-01-01 08:00:00');
+        $this->filesystem->write('packagist.org/dist/some.json', 'content'); // should be ignored
+        $this->filesystem->write('packagist.org/p2/buddy-works/repman.json', 'content', ['timestamp' => $oldTimestamp]);
+        $this->filesystem->write('packagist.org/p2/buddy-works/old.json', 'content', ['timestamp' => $oldTimestamp]);
+        $this->downloader->addContent('https://packagist.org/p2/buddy-works/repman.json', 'new');
+        $this->downloader->addContent('https://packagist.org/p2/buddy-works/old.json', 'content', $oldTimestamp);
+
+        /** @var Metadata $metadata */
+        $metadata = $this->proxy->metadata('buddy-works/repman')->get();
+        self::assertEquals($oldTimestamp, $metadata->timestamp());
+
+        $this->proxy->syncMetadata();
+
+        /** @var Metadata $metadata */
+        $metadata = $this->proxy->metadata('buddy-works/repman')->get();
+        self::assertTrue($metadata->timestamp() > $oldTimestamp);
+        self:self::assertEquals('new', stream_get_contents($metadata->stream()));
+
+        /** @var Metadata $metadata */
+        $metadata = $this->proxy->metadata('buddy-works/old')->get();
+        self::assertEquals($oldTimestamp, $metadata->timestamp());
+    }
+
+    public function testIgnoreSyncIfCannotDownload(): void
+    {
+        $oldTimestamp = strtotime('2019-01-01 08:00:00');
+        $this->filesystem->write('packagist.org/p2/buddy-works/repman.json', 'content', ['timestamp' => $oldTimestamp]);
+        $this->downloader->addContent('https://packagist.org/p2/buddy-works/repman.json', null);
+
+        $this->proxy->syncMetadata();
+
+        /** @var Metadata $metadata */
+        $metadata = $this->proxy->metadata('buddy-works/repman')->get();
+        self::assertEquals($oldTimestamp, $metadata->timestamp());
+    }
+
+    public function testSyncLegacyMetadata(): void
+    {
+        $oldTimestamp = strtotime('2019-01-01 08:00:00');
+        $this->filesystem->write('packagist.org/p/buddy-works/repman.json', 'content', ['timestamp' => $oldTimestamp]);
+        $this->downloader->addContent('https://packagist.org/p/buddy-works/repman.json', 'new');
+
+        /** @var Metadata $metadata */
+        $metadata = $this->proxy->legacyMetadata('buddy-works/repman')->get();
+        self::assertEquals($oldTimestamp, $metadata->timestamp());
+
+        $this->proxy->syncMetadata();
+
+        /** @var Metadata $metadata */
+        $metadata = $this->proxy->legacyMetadata('buddy-works/repman')->get();
+        self::assertTrue($metadata->timestamp() > $oldTimestamp);
     }
 }

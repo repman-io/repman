@@ -5,13 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\ProxySyncReleasesCommand;
-use Buddy\Repman\Service\Cache\InMemoryCache;
-use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Downloader;
-use Buddy\Repman\Service\Proxy\MetadataProvider\CacheableMetadataProvider;
-use Buddy\Repman\Service\Proxy\ProxyFactory;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
-use Buddy\Repman\Tests\Doubles\FakeDownloader;
+use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
@@ -25,7 +21,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 {
     private string $basePath = __DIR__.'/../../Resources';
     private FilesystemAdapter $cache;
-    private string $newDistPath = '/packagist.org/dist/buddy-works/repman/1.2.3.0_5e77ad71826b9411cb873c0947a7d541d822dff1.zip';
+    private string $newDistPath = '/packagist.org/dist/buddy-works/repman/61e39aa8197cf1bc7fcb16a6f727b0c291bc9b76.zip';
     private string $feedPath = '/packagist.org/feed/releases.rss';
 
     public function testSyncReleases(): void
@@ -85,18 +81,10 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         }
 
         $feedDownloader = $this->createMock(Downloader::class);
-        $feedDownloader->method('getContents')->willReturn(Option::of($feed));
-
-        $storageDownloader = $this->createMock(Downloader::class);
-        $storageDownloader->method('getContents')->willReturn(Option::of('test'));
+        $feedDownloader->method('getContents')->willReturn(Option::of(Stream::fromString($feed)));
 
         return new ProxySyncReleasesCommand(
-            new ProxyRegister(
-                new ProxyFactory(
-                    new CacheableMetadataProvider(new FakeDownloader(), new InMemoryCache()),
-                    new FileStorage($this->basePath, $storageDownloader)
-                )
-            ),
+            $this->container()->get(ProxyRegister::class),
             $feedDownloader,
             $this->cache(),
             $lockFactory

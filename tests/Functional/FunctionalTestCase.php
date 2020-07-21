@@ -24,6 +24,16 @@ abstract class FunctionalTestCase extends WebTestCase
         $this->fixtures = new FixturesManager(self::$kernel->getContainer()->get('test.service_container'));
     }
 
+    public function contentFromStream(callable $request): string
+    {
+        ob_start();
+        $request();
+        $content = (string) ob_get_contents();
+        ob_end_clean();
+
+        return $content;
+    }
+
     /**
      * @param array<mixed> $parameters
      */

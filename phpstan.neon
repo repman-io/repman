@@ -25,7 +25,7 @@ parameters:
         -
             message: "#^Variable \\$http_response_header in isset\\(\\) always exists and is not nullable\\.$#"
             count: 1
-            path: src/Service/Downloader/NativeDownloader.php
+            path: src/Service/Downloader/ReactDownloader.php
 
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
