@@ -34,7 +34,7 @@ final class ProxyController extends AbstractController
      */
     public function packages(): JsonResponse
     {
-        return new JsonResponse([
+        return (new JsonResponse([
             'notify-batch' => $this->generateUrl('package_downloads', [], RouterInterface::ABSOLUTE_URL),
             'providers-url' => '/p/%package%$%hash%.json',
             'metadata-url' => '/p2/%package%.json',
@@ -46,7 +46,10 @@ final class ProxyController extends AbstractController
                 ],
             ],
             'providers-lazy-url' => '/p/%package%',
-        ]);
+        ]))
+            ->setPublic()
+            ->setTtl(86400)
+        ;
     }
 
     /**

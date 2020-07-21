@@ -32,6 +32,7 @@ final class RepoController extends AbstractController
 
     /**
      * @Route("/packages.json", host="{organization}.repo.{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%"}, requirements={"domain"="%domain%"})
+     * @Cache(public=false)
      */
     public function packages(Organization $organization): JsonResponse
     {
@@ -117,6 +118,7 @@ final class RepoController extends AbstractController
      *      methods={"GET"},
      *      defaults={"domain":"%domain%"},
      *      requirements={"domain"="%domain%","package"="%package_name_pattern%"})
+     * @Cache(public=false)
      */
     public function providerV2(Organization $organization, string $package): JsonResponse
     {
