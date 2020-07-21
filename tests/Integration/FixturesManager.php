@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Integration;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Entity\Organization\Package\Version;
+use Buddy\Repman\Message\Admin\ChangeConfig;
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\CreateOrganization;
@@ -255,6 +256,11 @@ final class FixturesManager
         $organization = $this->container->get(OrganizationRepository::class)->getById(Uuid::fromString($organizationId));
         $organization->changeAnonymousAccess(true);
         $this->container->get('doctrine.orm.entity_manager')->flush($organization);
+    }
+
+    public function changeConfig(string $key, string $value): void
+    {
+        $this->dispatchMessage(new ChangeConfig([$key => $value]));
     }
 
     private function dispatchMessage(object $message): void

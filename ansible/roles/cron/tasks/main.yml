@@ -19,3 +19,11 @@
     minute=0
     hour="*/2"
     job="{{ app_root }}/bin/console repman:security:update-db >>{{ app_root }}/var/log/cron.log 2>&1"
+
+- name: Add telemetry send command to cron
+  cron:
+    name="Send telemetry data"
+    user="{{ system_user }}"
+    minute=0
+    hour=0
+    job="{{ app_root }}/bin/console repman:telemetry:send >>{{ app_root }}/var/log/cron.log 2>&1"

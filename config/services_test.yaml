@@ -37,3 +37,6 @@ services:
 
     Buddy\Repman\Service\Security\SecurityChecker:
         class: Buddy\Repman\Tests\Doubles\FakeSecurityChecker
+
+    Buddy\Repman\Service\Telemetry\TelemetryEndpoint:
+        class: Buddy\Repman\Tests\Doubles\FakeTelemetryEndpoint

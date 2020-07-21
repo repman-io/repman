@@ -52,6 +52,11 @@ final class Config
         return $this->localRegistrationEnabled() || $this->oauthRegistrationEnabled();
     }
 
+    public function telemetryEnabled(): bool
+    {
+        return $this->get('telemetry') === 'enabled';
+    }
+
     /**
      * @return array<string,string>
      */
