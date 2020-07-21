@@ -1,6 +1,6 @@
 ---
 server:
-    packages: [curl, wget, git, vim, acl, bzip2, software-properties-common]
+    packages: [curl, wget, git, subversion, vim, acl, bzip2, software-properties-common]
     timezone: Europe/Warsaw
     locale: en_US en_US.UTF-8 pl_PL pl_PL.UTF-8
 
