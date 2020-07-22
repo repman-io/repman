@@ -48,7 +48,6 @@ final class Telemetry
     public function collectAndSend(\DateTimeImmutable $date): void
     {
         $this->endpoint->send(
-            $this->userAgent(),
             new Entry(
                 $date,
                 $this->instanceId(),
@@ -62,16 +61,6 @@ final class Telemetry
                 $this->query->allTokensCount($date),
                 $this->query->allUsersCount($date),
             )
-        );
-    }
-
-    private function userAgent(): string
-    {
-        return sprintf(
-            'Repman/%s (%s; %s)',
-            Kernel::REPMAN_VERSION,
-            $this->osVersion(),
-            $this->phpVersion(),
         );
     }
 

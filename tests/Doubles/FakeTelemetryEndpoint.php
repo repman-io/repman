@@ -9,7 +9,7 @@ use Buddy\Repman\Service\Telemetry\Entry;
 
 final class FakeTelemetryEndpoint implements Endpoint
 {
-    public function send(string $userAgent, Entry $entry): void
+    public function send(Entry $entry): void
     {
         $entry->toString();
     }
