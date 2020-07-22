@@ -4,61 +4,49 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry;
 
+use Buddy\Repman\Service\Telemetry\Entry\Downloads;
+use Buddy\Repman\Service\Telemetry\Entry\Instance;
+use Buddy\Repman\Service\Telemetry\Entry\Organization;
+use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+
 final class Entry
 {
     private \DateTimeImmutable $date;
-    private string $instanceId;
-    private string $repmanVersion;
-    private string $osVersion;
-    private string $phpVersion;
-    private int $allOrganizationsCount;
-    private int $publicOrganizationsCount;
-    private int $allPackagesCount;
-    private int $allPackagesInstalls;
-    private int $allTokensCount;
-    private int $allUsersCount;
+    private Instance $instance;
+    private Downloads $downloads;
+    private Proxy $proxy;
 
+    /**
+     * @var Organization[]
+     */
+    private array $organizations;
+
+    /**
+     * @param Organization[] $organizations
+     */
     public function __construct(
         \DateTimeImmutable $date,
-        string $instanceId,
-        string $repmanVersion,
-        string $osVersion,
-        string $phpVersion,
-        int $allOrganizationsCount,
-        int $publicOrganizationsCount,
-        int $allPackagesCount,
-        int $allPackagesInstalls,
-        int $allTokensCount,
-        int $allUsersCount
+        Instance $instance,
+        array $organizations,
+        Downloads $downloads,
+        Proxy $proxy
     ) {
         $this->date = $date;
-        $this->instanceId = $instanceId;
-        $this->repmanVersion = $repmanVersion;
-        $this->osVersion = $osVersion;
-        $this->phpVersion = $phpVersion;
-        $this->allOrganizationsCount = $allOrganizationsCount;
-        $this->publicOrganizationsCount = $publicOrganizationsCount;
-        $this->allPackagesCount = $allPackagesCount;
-        $this->allPackagesInstalls = $allPackagesInstalls;
-        $this->allTokensCount = $allTokensCount;
-        $this->allUsersCount = $allUsersCount;
+        $this->instance = $instance;
+        $this->organizations = $organizations;
+        $this->downloads = $downloads;
+        $this->proxy = $proxy;
     }
 
     public function toString(): string
     {
         return (string) \json_encode([
-            'id' => \sprintf('%s_%s', $this->date->format('Ymd'), $this->instanceId),
-            'date' => $this->date->format('Y-m-d\T00:00:00.000\Z'),
-            'instance_id' => $this->instanceId,
-            'repman_version' => $this->repmanVersion,
-            'os_version' => $this->osVersion,
-            'php_version' => $this->phpVersion,
-            'all_organizations_count' => $this->allOrganizationsCount,
-            'public_organizations_count' => $this->publicOrganizationsCount,
-            'all_packages_count' => $this->allPackagesCount,
-            'all_packages_installs' => $this->allPackagesInstalls,
-            'all_tokens_count' => $this->allTokensCount,
-            'all_users_count' => $this->allUsersCount,
+            'id' => \sprintf('%s_%s', $this->date->format('Ymd'), $this->instance->id()),
+            'date' => $this->date->setTime(0, 0)->format(\DateTime::ATOM),
+            'instance' => $this->instance->toArray(),
+            'organizations' => array_map(fn ($organization) => $organization->toArray(), $this->organizations),
+            'downloads' => $this->downloads->toArray(),
+            'proxy' => $this->proxy->toArray(),
         ]);
     }
 }

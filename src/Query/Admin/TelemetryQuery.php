@@ -4,17 +4,28 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin;
 
+use Buddy\Repman\Service\Telemetry\Entry\Organization;
+use Buddy\Repman\Service\Telemetry\Entry\Package;
+
 interface TelemetryQuery
 {
-    public function allOrganizationsCount(\DateTimeImmutable $date): int;
+    /**
+     * @return Organization[]
+     */
+    public function organizations(int $limit = 100, int $offset = 0): array;
 
-    public function publicOrganizationsCount(\DateTimeImmutable $date): int;
+    public function organizationsCount(): int;
 
-    public function allPackagesCount(\DateTimeImmutable $date): int;
+    /**
+     * @return Package[]
+     */
+    public function packages(string $organizationId, int $limit = 100, int $offset = 0): array;
 
-    public function allPackagesInstalls(\DateTimeImmutable $date): int;
+    public function packagesCount(string $organizationId): int;
 
-    public function allTokensCount(\DateTimeImmutable $date): int;
+    public function usersCount(): int;
 
-    public function allUsersCount(\DateTimeImmutable $date): int;
+    public function publicDownloads(): int;
+
+    public function privateDownloads(): int;
 }
