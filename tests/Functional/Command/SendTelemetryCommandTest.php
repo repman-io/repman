@@ -4,42 +4,42 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Command;
 
-use Buddy\Repman\Command\TelemetrySendCommand;
+use Buddy\Repman\Command\SendTelemetryCommand;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 
-final class TelemetrySendCommandTest extends FunctionalTestCase
+final class SendTelemetryCommandTest extends FunctionalTestCase
 {
-    public function testTelemetrySendWithoutInstanceIdFile(): void
+    public function testSendTelemetryWithoutInstanceIdFile(): void
     {
         @unlink($this->instanceIdFile());
 
         $commandTester = new CommandTester(
-            $this->container()->get(TelemetrySendCommand::class)
+            $this->container()->get(SendTelemetryCommand::class)
         );
 
         self::assertEquals(0, $commandTester->execute([]));
     }
 
-    public function testTelemetrySendWithTelemetryDisabled(): void
+    public function testSendTelemetryWithTelemetryDisabled(): void
     {
         $this->generateInstanceIdFile();
 
         $commandTester = new CommandTester(
-            $this->container()->get(TelemetrySendCommand::class)
+            $this->container()->get(SendTelemetryCommand::class)
         );
 
         self::assertEquals(0, $commandTester->execute([]));
     }
 
-    public function testTelemetrySend(): void
+    public function testSendTelemetry(): void
     {
         $this->generateInstanceIdFile();
         $this->fixtures->changeConfig('telemetry', 'enabled');
 
         $commandTester = new CommandTester(
-            $this->container()->get(TelemetrySendCommand::class)
+            $this->container()->get(SendTelemetryCommand::class)
         );
 
         self::assertEquals(0, $commandTester->execute([]));

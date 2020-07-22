@@ -21,7 +21,7 @@ final class TelemetryEndpointTest extends TestCase
             return new MockResponse();
         });
         $endpoint = new TelemetryEndpoint($client);
-        $endpoint->send('TestAgent', $this->entry());
+        $endpoint->send($this->entry());
 
         self::assertEquals(1, $called);
     }
@@ -34,7 +34,7 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint(
             new MockHttpClient([new MockResponse('', ['http_code' => 500])])
         );
-        $endpoint->send('TestAgent', $this->entry());
+        $endpoint->send($this->entry());
     }
 
     private function entry(): Entry

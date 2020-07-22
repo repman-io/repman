@@ -6,5 +6,5 @@ namespace Buddy\Repman\Service\Telemetry;
 
 interface Endpoint
 {
-    public function send(string $userAgent, Entry $entry): void;
+    public function send(Entry $entry): void;
 }

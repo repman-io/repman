@@ -15,16 +15,13 @@ final class TelemetryEndpoint implements Endpoint
         $this->client = $client;
     }
 
-    public function send(string $userAgent, Entry $entry): void
+    public function send(Entry $entry): void
     {
         $response = $this->client->request(
             'POST',
             'https://telemetry.repman.io',
             [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'User-Agent' => $userAgent,
-                ],
+                'headers' => ['Content-Type' => 'application/json'],
                 'body' => $entry->toString(),
             ]
         );
