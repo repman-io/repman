@@ -95,6 +95,10 @@ services:
             $databaseDir: '%security_advisories_db_dir%'
             $databaseRepo: '%security_advisories_db_repo%'
 
+    Buddy\Repman\Service\Telemetry:
+        arguments:
+            $failedTransport: '@messenger.transport.failed'
+
     ### Vendor
     Github\Client:
         arguments:
