@@ -15,7 +15,7 @@ use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Transport\Receiver\ListableReceiverInterface;
+use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 
 final class Telemetry
 {
@@ -23,10 +23,10 @@ final class Telemetry
     private TelemetryQuery $query;
     private Endpoint $endpoint;
     private Config $config;
-    private ListableReceiverInterface $failedTransport;
+    private MessageCountAwareInterface $failedTransport;
     private ProxyRegister $proxies;
 
-    public function __construct(string $instanceIdFile, TelemetryQuery $query, Endpoint $endpoint, Config $config, ListableReceiverInterface $failedTransport, ProxyRegister $proxies)
+    public function __construct(string $instanceIdFile, TelemetryQuery $query, Endpoint $endpoint, Config $config, MessageCountAwareInterface $failedTransport, ProxyRegister $proxies)
     {
         $this->instanceIdFile = $instanceIdFile;
         $this->query = $query;
@@ -60,11 +60,6 @@ final class Telemetry
 
     public function collectAndSend(\DateTimeImmutable $date): void
     {
-        $failedMessages = 0;
-        foreach ($this->failedTransport->all() as $_) {
-            ++$failedMessages;
-        }
-
         $proxyPackages = 0;
         $this->proxies
             ->all()
@@ -81,7 +76,7 @@ final class Telemetry
                     sprintf('%s %s', php_uname('s'), php_uname('r')),
                     PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION,
                     $this->query->usersCount(),
-                    $failedMessages,
+                    $this->failedTransport->getMessageCount(),
                     $this->config->getAll(),
                 ),
                 $this->getOrganizations(),

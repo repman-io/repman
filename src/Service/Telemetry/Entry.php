@@ -9,7 +9,7 @@ use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 
-final class Entry
+final class Entry implements \JsonSerializable
 {
     private \DateTimeImmutable $date;
     private Instance $instance;
@@ -38,15 +38,18 @@ final class Entry
         $this->proxy = $proxy;
     }
 
-    public function toString(): string
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
     {
-        return (string) \json_encode([
+        return [
             'id' => \sprintf('%s_%s', $this->date->format('Ymd'), $this->instance->id()),
-            'date' => $this->date->setTime(0, 0)->format(\DateTime::ATOM),
+            'date' => $this->date->format('Y-m-d'),
             'instance' => $this->instance->toArray(),
             'organizations' => array_map(fn ($organization) => $organization->toArray(), $this->organizations),
             'downloads' => $this->downloads->toArray(),
             'proxy' => $this->proxy->toArray(),
-        ]);
+        ];
     }
 }

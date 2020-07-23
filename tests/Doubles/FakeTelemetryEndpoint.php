@@ -11,6 +11,6 @@ final class FakeTelemetryEndpoint implements Endpoint
 {
     public function send(Entry $entry): void
     {
-        $entry->toString();
+        json_encode($entry);
     }
 }

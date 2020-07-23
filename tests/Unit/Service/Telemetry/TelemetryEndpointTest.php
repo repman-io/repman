@@ -36,7 +36,7 @@ final class TelemetryEndpointTest extends TestCase
             '
             {
                 "id": "20200721_8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
-                "date": "2020-07-21T00:00:00+00:00",
+                "date": "2020-07-21",
                 "instance": {
                     "id": "8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
                     "version": "0.5.0",
@@ -118,7 +118,7 @@ final class TelemetryEndpointTest extends TestCase
         ]);
 
         return new Entry(
-            new \DateTimeImmutable('2020-07-21 00:00:00'),
+            new \DateTimeImmutable('2020-07-21 12:13:13'),
             new Instance(
                 '8f43446b-52a3-4bd9-9a8a-ecc955ac754d',
                 '0.5.0',

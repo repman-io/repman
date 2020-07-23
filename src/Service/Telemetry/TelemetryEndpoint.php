@@ -22,7 +22,7 @@ final class TelemetryEndpoint implements Endpoint
             'https://telemetry.repman.io',
             [
                 'headers' => ['Content-Type' => 'application/json'],
-                'body' => $entry->toString(),
+                'body' => json_encode($entry),
             ]
         );
 
