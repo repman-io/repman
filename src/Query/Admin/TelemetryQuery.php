@@ -25,7 +25,7 @@ interface TelemetryQuery
 
     public function usersCount(): int;
 
-    public function publicDownloads(): int;
+    public function privateDownloads(\DateTimeImmutable $till): int;
 
-    public function privateDownloads(): int;
+    public function proxyDownloads(\DateTimeImmutable $till): int;
 }

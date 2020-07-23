@@ -127,29 +127,25 @@ final class DbalTelemetryQuery implements TelemetryQuery
             );
     }
 
-    public function publicDownloads(): int
+    public function proxyDownloads(\DateTimeImmutable $till): int
     {
         return (int) $this
             ->connection
             ->fetchColumn(
-                'SELECT COUNT(pd.id) FROM "organization_package_download" pd
-                JOIN "organization_package" p ON p.id = pd.package_id
-                JOIN "organization" o ON o.id = p.organization_id
-                WHERE o.has_anonymous_access = true
-                GROUP BY pd.id',
+                'SELECT COUNT(date) FROM "proxy_package_download"
+                WHERE date::date <= :till',
+                [':till' => $till->format('Y-m-d')]
             );
     }
 
-    public function privateDownloads(): int
+    public function privateDownloads(\DateTimeImmutable $till): int
     {
         return (int) $this
             ->connection
             ->fetchColumn(
-                'SELECT COUNT(pd.id) FROM "organization_package_download" pd
-                JOIN "organization_package" p ON p.id = pd.package_id
-                JOIN "organization" o ON o.id = p.organization_id
-                WHERE o.has_anonymous_access = false
-                GROUP BY pd.id',
+                'SELECT COUNT(date) FROM "organization_package_download"
+                WHERE date::date <= :till',
+                [':till' => $till->format('Y-m-d')]
             );
     }
 }

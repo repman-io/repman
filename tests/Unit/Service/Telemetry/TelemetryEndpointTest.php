@@ -72,7 +72,7 @@ final class TelemetryEndpointTest extends TestCase
                     }
                 ],
                 "downloads": {
-                    "public": 1,
+                    "proxy": 1,
                     "private": 1
                 },
                 "proxy": {

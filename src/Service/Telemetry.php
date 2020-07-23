@@ -81,8 +81,8 @@ final class Telemetry
                 ),
                 $this->getOrganizations(),
                 new Downloads(
-                    $this->query->publicDownloads(),
-                    $this->query->privateDownloads()
+                    $this->query->proxyDownloads($date),
+                    $this->query->privateDownloads($date)
                 ),
                 new Proxy($proxyPackages)
             )

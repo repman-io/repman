@@ -6,12 +6,12 @@ namespace Buddy\Repman\Service\Telemetry\Entry;
 
 final class Downloads
 {
-    private int $public;
+    private int $proxy;
     private int $private;
 
-    public function __construct(int $public, int $private)
+    public function __construct(int $proxy, int $private)
     {
-        $this->public = $public;
+        $this->proxy = $proxy;
         $this->private = $private;
     }
 
@@ -21,7 +21,7 @@ final class Downloads
     public function toArray(): array
     {
         return [
-            'public' => $this->public,
+            'proxy' => $this->proxy,
             'private' => $this->private,
         ];
     }
