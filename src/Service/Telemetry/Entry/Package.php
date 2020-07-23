@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-final class Package
+final class Package implements \JsonSerializable
 {
     private string $type;
     private ?\DateTimeImmutable $lastRelease;
@@ -39,9 +39,9 @@ final class Package
     }
 
     /**
-     * @return array<string,bool|string|int|null>
+     * @return array<string,mixed>
      */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
             'type' => $this->type,

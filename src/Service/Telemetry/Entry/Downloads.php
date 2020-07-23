@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-final class Downloads
+final class Downloads implements \JsonSerializable
 {
     private int $proxy;
     private int $private;
@@ -16,9 +16,9 @@ final class Downloads
     }
 
     /**
-     * @return array<string,int>
+     * @return array<string,mixed>
      */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
             'proxy' => $this->proxy,

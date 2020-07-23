@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-final class Instance
+final class Instance implements \JsonSerializable
 {
     private string $id;
     private string $version;
@@ -45,9 +45,9 @@ final class Instance
     }
 
     /**
-     * @return array<string,array<string,string>|int|string>
+     * @return array<string,mixed>
      */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,

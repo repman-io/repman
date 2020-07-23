@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-final class Organization
+final class Organization implements \JsonSerializable
 {
     private string $id;
     private int $tokens;
@@ -42,10 +42,10 @@ final class Organization
     /**
      * @return array<string,mixed>
      */
-    public function toArray(): array
+    public function jsonSerialize(): array
     {
         return [
-            'packages' => array_map(fn ($package) => $package->toArray(), $this->packages),
+            'packages' => $this->packages,
             'tokens' => $this->tokens,
             'public' => $this->public,
             'members' => $this->members,

@@ -46,10 +46,10 @@ final class Entry implements \JsonSerializable
         return [
             'id' => \sprintf('%s_%s', $this->date->format('Ymd'), $this->instance->id()),
             'date' => $this->date->format('Y-m-d'),
-            'instance' => $this->instance->toArray(),
-            'organizations' => array_map(fn ($organization) => $organization->toArray(), $this->organizations),
-            'downloads' => $this->downloads->toArray(),
-            'proxy' => $this->proxy->toArray(),
+            'instance' => $this->instance,
+            'organizations' => $this->organizations,
+            'downloads' => $this->downloads,
+            'proxy' => $this->proxy,
         ];
     }
 }
