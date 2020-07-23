@@ -50,7 +50,9 @@
         {{- form_label(form) -}}
         {{- form_widget(form, widget_attr) -}}
         {{- form_errors(form) -}}
-        {{- form_help(form) -}}
+        {% if form.vars.help ?? false %}
+            <small class="form-text text-muted">{{- form.vars.help|raw -}}</small>
+        {% endif %}
     </{{ element|default('div') }}>
 {%- endblock form_row %}
 

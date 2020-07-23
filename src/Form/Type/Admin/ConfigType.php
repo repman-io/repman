@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Form\Type\Admin;
 
+use Buddy\Repman\Service\Telemetry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -11,6 +12,13 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class ConfigType extends AbstractType
 {
+    private Telemetry $telemetry;
+
+    public function __construct(Telemetry $telemetry)
+    {
+        $this->telemetry = $telemetry;
+    }
+
     public function getBlockPrefix(): string
     {
         return '';
@@ -50,7 +58,7 @@ class ConfigType extends AbstractType
                     'enabled' => 'enabled',
                     'disabled' => 'disabled',
                 ],
-                'help' => 'Enable collecting and sending anonymous usage data',
+                'help' => "Enable collecting and sending anonymous usage data (<a href=\"{$this->telemetry->docsUrl()}\" target=\"_blank\" rel=\"noopener noreferrer\">more info</a>)",
                 'attr' => [
                     'class' => 'form-control selectpicker',
                     'data-style' => 'btn-secondary',

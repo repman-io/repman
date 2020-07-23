@@ -44,26 +44,13 @@ final class ConfigController extends AbstractController
     }
 
     /**
-     * @Route("/admin/config/telemetry", name="admin_config_telemetry_enable", methods={"POST"})
+     * @Route("/admin/config/telemetry", name="admin_config_toggle_telemetry", methods={"POST","DELETE"})
      */
-    public function enableTelemetry(Request $request): Response
+    public function toggleTelemetry(Request $request): Response
     {
         $this->telemetry->generateInstanceId();
         $this->dispatchMessage(new ChangeConfig([
-            'telemetry' => 'enable',
-        ]));
-
-        return $this->redirectToRoute('index');
-    }
-
-    /**
-     * @Route("/admin/config/telemetry", name="admin_config_telemetry_disable", methods={"DELETE"})
-     */
-    public function disableTelemetry(Request $request): Response
-    {
-        $this->telemetry->generateInstanceId();
-        $this->dispatchMessage(new ChangeConfig([
-            'telemetry' => 'disable',
+            'telemetry' => $request->isMethod(Request::METHOD_POST) ? 'enable' : 'disable',
         ]));
 
         return $this->redirectToRoute('index');

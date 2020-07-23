@@ -108,7 +108,7 @@ final class ConfigControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('index'));
         self::assertStringContainsString($prompt, $this->lastResponseBody());
 
-        $this->client->request('POST', $this->urlTo('admin_config_telemetry_enable'));
+        $this->client->request('POST', $this->urlTo('admin_config_toggle_telemetry'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
         $this->client->followRedirect();
@@ -126,7 +126,7 @@ final class ConfigControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('index'));
         self::assertStringContainsString($prompt, $this->lastResponseBody());
 
-        $this->client->request('DELETE', $this->urlTo('admin_config_telemetry_enable'));
+        $this->client->request('DELETE', $this->urlTo('admin_config_toggle_telemetry'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
         $this->client->followRedirect();
