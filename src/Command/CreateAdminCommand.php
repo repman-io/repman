@@ -64,13 +64,21 @@ final class CreateAdminCommand extends Command
                 "Allow for sending anonymous usage statistic? [{$this->telemetry->docsUrl()}] (y/n)",
                 true
             );
-            $answer = $this
-                ->getHelper('question')
-                ->ask($input, $output, $question);
 
-            $this->bus->dispatch(new ChangeConfig([
-                'telemetry' => $answer ? 'enabled' : 'disabled',
-            ]));
+            if ($this->getHelper('question')->ask($input, $output, $question) === true) {
+                $question = new ConfirmationQuestion(
+                    'Allow for sending emails with software updates? (y/n)',
+                    true
+                );
+                $answer = $this
+                    ->getHelper('question')
+                    ->ask($input, $output, $question);
+
+                $this->bus->dispatch(new ChangeConfig([
+                    'telemetry' => 'enabled',
+                    'technical_email' => $answer === true ? $email : '',
+                ]));
+            }
 
             $this->telemetry->generateInstanceId();
         }

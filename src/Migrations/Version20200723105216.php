@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200716105216 extends AbstractMigration
+final class Version20200723105216 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -22,7 +22,7 @@ final class Version20200716105216 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql("INSERT INTO config (key, value) VALUES ('telemetry', 'disabled')");
+        $this->addSql("INSERT INTO config (key, value) VALUES ('telemetry', 'disabled'), ('technical_email', '')");
     }
 
     public function down(Schema $schema): void
@@ -30,6 +30,6 @@ final class Version20200716105216 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql("DELETE FROM config WHERE key = 'telemetry'");
+        $this->addSql("DELETE FROM config WHERE key IN ('telemetry', 'technical_email'");
     }
 }

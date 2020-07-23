@@ -23,7 +23,7 @@ class ConfigRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param array<string,string> $values
+     * @param array<string,mixed> $values
      */
     public function change(array $values): void
     {
@@ -31,7 +31,7 @@ class ConfigRepository extends ServiceEntityRepository
             $config = $this->findOneBy(['key' => $key]);
 
             if ($config instanceof Config) {
-                $config->setValue($value);
+                $config->setValue((string) $value);
             }
         }
     }
