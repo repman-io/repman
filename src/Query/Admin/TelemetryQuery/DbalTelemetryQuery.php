@@ -75,7 +75,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
     /**
      * @return Package[]
      */
-    public function packages(string $organizationId, int $limit = 100, int $offset = 0): array
+    public function packages(string $organizationId, \DateTimeImmutable $till, int $limit = 100, int $offset = 0): array
     {
         return array_map(function (array $data): Package {
             return new Package(
@@ -102,12 +102,14 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 COUNT(w.date) webhooks
             FROM "organization_package" p
             LEFT JOIN "organization_package_download" d ON d.package_id = p.id
-            LEFT JOIN "organization_package_webhook_request" w ON w.package_id = p.id
+            LEFT JOIN "organization_package_webhook_request" w
+                ON w.package_id = p.id AND w.date::date <= :till
             WHERE p.organization_id = :organization_id
             GROUP BY p.id
             LIMIT :limit OFFSET :offset',
             [
                 ':organization_id' => $organizationId,
+                ':till' => $till->format('Y-m-d'),
                 ':limit' => $limit,
                 ':offset' => $offset,
             ])

@@ -19,7 +19,7 @@ interface TelemetryQuery
     /**
      * @return Package[]
      */
-    public function packages(string $organizationId, int $limit = 100, int $offset = 0): array;
+    public function packages(string $organizationId, \DateTimeImmutable $till, int $limit = 100, int $offset = 0): array;
 
     public function packagesCount(string $organizationId): int;
 

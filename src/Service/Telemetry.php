@@ -79,7 +79,7 @@ final class Telemetry
                     $this->failedTransport->getMessageCount(),
                     $this->config->getAll(),
                 ),
-                $this->getOrganizations(),
+                $this->getOrganizations($date),
                 new Downloads(
                     $this->query->proxyDownloads($date),
                     $this->query->privateDownloads($date)
@@ -92,7 +92,7 @@ final class Telemetry
     /**
      * @return Organization[]
      */
-    private function getOrganizations(): array
+    private function getOrganizations(\DateTimeImmutable $date): array
     {
         $count = $this->query->organizationsCount();
         $limit = 100;
@@ -100,7 +100,7 @@ final class Telemetry
         $organizations = [];
         for ($offset = 0; $offset < $count; $offset += $limit) {
             foreach ($this->query->organizations($limit, $offset) as $organization) {
-                $this->getPackages($organization);
+                $this->getPackages($organization, $date);
 
                 $organizations[] = $organization;
             }
@@ -109,14 +109,14 @@ final class Telemetry
         return $organizations;
     }
 
-    private function getPackages(Organization $organization): void
+    private function getPackages(Organization $organization, \DateTimeImmutable $date): void
     {
         $count = $this->query->packagesCount($organization->id());
         $limit = 100;
 
         for ($offset = 0; $offset < $count; $offset += $limit) {
             $organization->addPackages(
-                $this->query->packages($organization->id(), $limit, $offset)
+                $this->query->packages($organization->id(), $date, $limit, $offset)
             );
         }
     }
