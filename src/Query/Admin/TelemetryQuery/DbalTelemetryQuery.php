@@ -80,12 +80,12 @@ final class DbalTelemetryQuery implements TelemetryQuery
         return array_map(function (array $data): Package {
             return new Package(
                 $data['type'],
-                new \DateTimeImmutable($data['latest_release_date']),
-                new \DateTimeImmutable($data['last_sync_at']),
-                new \DateTimeImmutable($data['last_scan_date']),
+                $data['latest_release_date'] === null ? null : new \DateTimeImmutable($data['latest_release_date']),
+                $data['last_sync_at'] === null ? null : new \DateTimeImmutable($data['last_sync_at']),
+                $data['last_scan_date'] === null ? null : new \DateTimeImmutable($data['last_scan_date']),
                 $data['last_sync_error'] !== null,
                 $data['webhook_created_at'] !== null,
-                $data['last_scan_status'],
+                $data['last_scan_status'] ?? '',
                 $data['downloads'],
                 $data['webhooks'],
             );

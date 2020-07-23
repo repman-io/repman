@@ -25,6 +25,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
     public function testSendTelemetryWithTelemetryDisabled(): void
     {
         $this->generateInstanceIdFile();
+        $this->fixtures->changeConfig('telemetry', 'disabled');
 
         $commandTester = new CommandTester(
             $this->container()->get(SendTelemetryCommand::class)
@@ -35,6 +36,8 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
 
     public function testSendTelemetry(): void
     {
+        $this->fixtures->createPackage(Uuid::uuid4()->toString());
+
         $this->generateInstanceIdFile();
         $this->fixtures->changeConfig('telemetry', 'enabled');
 
