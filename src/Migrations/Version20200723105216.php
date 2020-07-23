@@ -22,7 +22,7 @@ final class Version20200723105216 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql("INSERT INTO config (key, value) VALUES ('telemetry', 'disabled'), ('technical_email', '')");
+        $this->addSql("INSERT INTO config (key, value) VALUES ('telemetry', 'disabled')");
     }
 
     public function down(Schema $schema): void
@@ -30,6 +30,6 @@ final class Version20200723105216 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql("DELETE FROM config WHERE key IN ('telemetry', 'technical_email'");
+        $this->addSql("DELETE FROM config WHERE key IN ('telemetry'");
     }
 }

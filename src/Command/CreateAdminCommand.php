@@ -66,17 +66,8 @@ final class CreateAdminCommand extends Command
             );
 
             if ($this->getHelper('question')->ask($input, $output, $question) === true) {
-                $question = new ConfirmationQuestion(
-                    'Allow for sending emails with software updates? (y/n)',
-                    true
-                );
-                $answer = $this
-                    ->getHelper('question')
-                    ->ask($input, $output, $question);
-
                 $this->bus->dispatch(new ChangeConfig([
                     'telemetry' => 'enabled',
-                    'technical_email' => $answer === true ? $email : '',
                 ]));
             }
 

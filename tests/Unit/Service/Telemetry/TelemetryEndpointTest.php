@@ -46,8 +46,7 @@ final class TelemetryEndpointTest extends TestCase
                     "config": {
                         "local_authentication": "login_and_registration",
                         "oauth_registration": "enabled",
-                        "telemetry": "enabled",
-                        "technical_email": "john.doe@example.com"
+                        "telemetry": "enabled"
                     },
                     "failedMessages": 0
                 },
@@ -131,7 +130,6 @@ final class TelemetryEndpointTest extends TestCase
                     'local_authentication' => 'login_and_registration',
                     'oauth_registration' => 'enabled',
                     'telemetry' => 'enabled',
-                    'technical_email' => 'john.doe@example.com',
                 ],
             ),
             [$organization],
