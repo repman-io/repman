@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\SendTelemetryCommand;
+use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -46,6 +47,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
         );
 
         self::assertEquals(0, $commandTester->execute([]));
+        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->sent());
     }
 
     private function generateInstanceIdFile(): void

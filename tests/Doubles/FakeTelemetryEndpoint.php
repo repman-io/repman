@@ -9,8 +9,17 @@ use Buddy\Repman\Service\Telemetry\Entry;
 
 final class FakeTelemetryEndpoint implements Endpoint
 {
+    private bool $sent = false;
+
     public function send(Entry $entry): void
     {
         json_encode($entry);
+
+        $this->sent = true;
+    }
+
+    public function sent(): bool
+    {
+        return $this->sent;
     }
 }
