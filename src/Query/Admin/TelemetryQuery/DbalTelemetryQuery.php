@@ -46,12 +46,11 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 o.id,
                 COUNT(t.value) tokens,
                 o.has_anonymous_access,
-                COUNT(m.id) members,
-                COUNT(ow.id) owners
+                COUNT(m.id) FILTER (WHERE m.role = :role_member) members,
+                COUNT(m.id) FILTER (WHERE m.role = :role_owner) owners
             FROM "organization" o
             LEFT JOIN "organization_token" t ON t.organization_id = o.id
-            LEFT JOIN "organization_member" m ON m.organization_id = o.id AND m.role = :role_member
-            LEFT JOIN "organization_member" ow ON ow.organization_id = o.id AND ow.role = :role_owner
+            LEFT JOIN "organization_member" m ON m.organization_id = o.id
             GROUP BY o.id
             LIMIT :limit OFFSET :offset',
             [
@@ -98,14 +97,10 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 p.last_sync_error,
                 p.webhook_created_at,
                 p.last_scan_status,
-                COUNT(d.id) downloads,
-                COUNT(w.date) webhooks
+                (SELECT COUNT(d.id) FROM "organization_package_download" d WHERE d.package_id = p.id AND d.date::date <= :till) downloads,
+                (SELECT COUNT(w.date) FROM "organization_package_webhook_request" w WHERE w.package_id = p.id AND w.date::date <= :till) webhooks
             FROM "organization_package" p
-            LEFT JOIN "organization_package_download" d ON d.package_id = p.id
-            LEFT JOIN "organization_package_webhook_request" w
-                ON w.package_id = p.id AND w.date::date <= :till
             WHERE p.organization_id = :organization_id
-            GROUP BY p.id
             LIMIT :limit OFFSET :offset',
             [
                 ':organization_id' => $organizationId,
