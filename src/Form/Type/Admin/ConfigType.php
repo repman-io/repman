@@ -8,6 +8,7 @@ use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -64,6 +65,10 @@ class ConfigType extends AbstractType
                     'class' => 'form-control selectpicker',
                     'data-style' => 'btn-secondary',
                 ],
+            ])
+            ->add('technical_email', EmailType::class, [
+                'required' => false,
+                'help' => 'Fill in your email address to receive software updates',
             ])
             ->add('save', SubmitType::class, ['label' => 'Save'])
         ;

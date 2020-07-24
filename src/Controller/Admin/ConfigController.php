@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller\Admin;
 
 use Buddy\Repman\Form\Type\Admin\ConfigType;
+use Buddy\Repman\Message\Admin\AddTechnicalEmail;
 use Buddy\Repman\Message\Admin\ChangeConfig;
+use Buddy\Repman\Message\Admin\RemoveTechnicalEmail;
 use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +34,7 @@ final class ConfigController extends AbstractController
         $form = $this->createForm(ConfigType::class, $this->config->getAll());
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->handleTechnicalEmail((string) $form->get(Config::TECHNICAL_EMAIL)->getData());
             $this->dispatchMessage(new ChangeConfig($form->getData()));
             $this->addFlash('success', 'Configuration has been successfully changed');
 
@@ -56,5 +59,18 @@ final class ConfigController extends AbstractController
         ]));
 
         return $this->redirectToRoute('index');
+    }
+
+    private function handleTechnicalEmail(string $newTechnicalEmail): void
+    {
+        $oldTechnicalEmail = (string) $this->config->get(Config::TECHNICAL_EMAIL);
+
+        if ($newTechnicalEmail === $oldTechnicalEmail) {
+            return;
+        }
+
+        $newTechnicalEmail === ''
+            ? $this->dispatchMessage(new RemoveTechnicalEmail($oldTechnicalEmail))
+            : $this->dispatchMessage(new AddTechnicalEmail($newTechnicalEmail));
     }
 }

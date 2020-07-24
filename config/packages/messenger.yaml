@@ -22,3 +22,5 @@ framework:
             'Buddy\Repman\Message\Proxy\AddDownloads': async
             'Buddy\Repman\Message\Security\ScanPackage': async
             'Buddy\Repman\Message\Security\SendScanResult': async
+            'Buddy\Repman\Message\Admin\AddTechnicalEmail': async
+            'Buddy\Repman\Message\Admin\RemoveTechnicalEmail': async
