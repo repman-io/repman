@@ -3,6 +3,7 @@ parameters:
     repo_dir: '%kernel.project_dir%/tests/Resources'
     security_advisories_db_dir: '%kernel.project_dir%/tests/Resources/fixtures/security/security-advisories'
     security_advisories_db_repo: 'bogus'
+    instance_id_file: '%kernel.cache_dir%/test-instance-id'
 
 services:
     Buddy\Repman\Service\Downloader:
@@ -36,3 +37,6 @@ services:
 
     Buddy\Repman\Service\Security\SecurityChecker:
         class: Buddy\Repman\Tests\Doubles\FakeSecurityChecker
+
+    Buddy\Repman\Service\Telemetry\TelemetryEndpoint:
+        class: Buddy\Repman\Tests\Doubles\FakeTelemetryEndpoint

@@ -17,6 +17,8 @@
         {%- endif -%}
         {% if required -%}
             {% set label_attr = label_attr|merge({class: (label_attr.class|default('form-label mt-2') ~ ' required')|trim}) %}
+        {%- else -%}
+            {% set label_attr = label_attr|merge({class: (label_attr.class|default('form-label mt-2'))|trim}) %}
         {%- endif -%}
         {% if label is empty -%}
             {%- if label_format is not empty -%}
@@ -50,7 +52,9 @@
         {{- form_label(form) -}}
         {{- form_widget(form, widget_attr) -}}
         {{- form_errors(form) -}}
-        {{- form_help(form) -}}
+        {% if form.vars.help ?? false %}
+            <small class="form-text text-muted">{{- form.vars.help|raw -}}</small>
+        {% endif %}
     </{{ element|default('div') }}>
 {%- endblock form_row %}
 

@@ -1,3 +1,4 @@
 */5 * * * * /app/bin/console repman:proxy:sync-releases
 */6 * * * * /app/bin/console repman:proxy:sync-metadata
 0 */2 * * * /app/bin/console repman:security:update-db
+0 0 * * * /app/bin/console repman:telemetry:send

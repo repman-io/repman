@@ -7,6 +7,7 @@ namespace Buddy\Repman\Controller\Admin;
 use Buddy\Repman\Form\Type\Admin\ConfigType;
 use Buddy\Repman\Message\Admin\ChangeConfig;
 use Buddy\Repman\Service\Config;
+use Buddy\Repman\Service\Telemetry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +16,12 @@ use Symfony\Component\Routing\Annotation\Route;
 final class ConfigController extends AbstractController
 {
     private Config $config;
+    private Telemetry $telemetry;
 
-    public function __construct(Config $config)
+    public function __construct(Config $config, Telemetry $telemetry)
     {
         $this->config = $config;
+        $this->telemetry = $telemetry;
     }
 
     /**
@@ -38,5 +41,20 @@ final class ConfigController extends AbstractController
         return $this->render('admin/config/edit.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/admin/config/telemetry", name="admin_config_toggle_telemetry", methods={"POST","DELETE"})
+     */
+    public function toggleTelemetry(Request $request): Response
+    {
+        $this->telemetry->generateInstanceId();
+        $this->dispatchMessage(new ChangeConfig([
+            Config::TELEMETRY => $request->isMethod(Request::METHOD_POST)
+                ? Config::TELEMETRY_ENABLED
+                : Config::TELEMETRY_DISABLED,
+        ]));
+
+        return $this->redirectToRoute('index');
     }
 }

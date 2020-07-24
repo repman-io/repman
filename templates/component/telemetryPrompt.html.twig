@@ -1,0 +1,17 @@
+<div class="alert alert-info">
+    <h4>Telemetry</h4>
+    <p>
+        Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic
+        (<a href="{{ telemetryDocsUrl }}" target="_blank" rel="noopener noreferrer">more info</a>).
+    </p>
+    <div class="btn-list">
+        <form class="card" action="{{ path('admin_config_toggle_telemetry') }}" method="POST">
+            <input type="hidden" name="_method" value="POST">
+            <button class="btn btn-info" type="submit">Okay</button>
+        </form>
+        <form class="card" action="{{ path('admin_config_toggle_telemetry') }}" method="POST">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="btn btn-secondary" type="submit">No, thanks</button>
+        </form>
+    </div>
+</div>
