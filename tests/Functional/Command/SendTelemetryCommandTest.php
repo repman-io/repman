@@ -22,6 +22,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
         );
 
         self::assertEquals(0, $commandTester->execute([]));
+        self::assertFalse($this->container()->get(TelemetryEndpoint::class)->sent());
     }
 
     public function testSendTelemetryWithTelemetryDisabled(): void
@@ -34,6 +35,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
         );
 
         self::assertEquals(0, $commandTester->execute([]));
+        self::assertFalse($this->container()->get(TelemetryEndpoint::class)->sent());
     }
 
     public function testSendTelemetry(): void

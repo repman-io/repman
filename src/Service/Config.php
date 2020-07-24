@@ -57,7 +57,7 @@ final class Config
 
     public function telemetryEnabled(): bool
     {
-        return $this->get('telemetry') === self::TELEMETRY_ENABLED;
+        return $this->get(self::TELEMETRY) === self::TELEMETRY_ENABLED;
     }
 
     /**

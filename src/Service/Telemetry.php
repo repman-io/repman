@@ -38,7 +38,7 @@ final class Telemetry
 
     public function docsUrl(): string
     {
-        return 'https://repman.io/docs/telemetry';
+        return 'https://repman.io/docs/standalone#telemetry';
     }
 
     public function generateInstanceId(): void
