@@ -1,0 +1,18 @@
+* text=auto
+
+/ansible export-ignore
+/bin/coverage-checker export-ignore
+/docker export-ignore
+/tests export-ignore
+/.codecov.yml export-ignore
+/.dockerignore export-ignore
+/.env.docker export-ignore
+/.env.test export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/.php_cs.dist export-ignore
+/buddy.yml export-ignore
+/docker-compose.yml export-ignore
+/Dockerfile export-ignore
+/phpstan.neon export-ignore
+/phpunit.xml.dist export-ignore
