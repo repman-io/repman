@@ -26,7 +26,7 @@ final class TelemetryEndpoint implements Endpoint
             ]
         );
 
-        if ($response->getStatusCode() >= 300) {
+        if ($response->getStatusCode() >= 400) {
             throw new \RuntimeException(sprintf('Error while sending telemetry data. HTTP error: %d', $response->getStatusCode()));
         }
     }

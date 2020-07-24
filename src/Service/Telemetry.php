@@ -60,13 +60,6 @@ final class Telemetry
 
     public function collectAndSend(\DateTimeImmutable $date): void
     {
-        $proxyPackages = 0;
-        $this->proxies
-            ->all()
-            ->forEach(function (PackageProxy $proxy) use (&$proxyPackages): void {
-                $proxyPackages += $proxy->syncedPackages()->length();
-            });
-
         $this->endpoint->send(
             new Entry(
                 $date,
@@ -84,7 +77,7 @@ final class Telemetry
                     $this->query->proxyDownloads($date),
                     $this->query->privateDownloads($date)
                 ),
-                new Proxy($proxyPackages)
+                new Proxy((int) $this->proxies->all()->map(fn (PackageProxy $p) => $p->syncedPackages()->length())->sum())
             )
         );
     }
