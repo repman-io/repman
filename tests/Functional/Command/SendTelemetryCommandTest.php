@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\SendTelemetryCommand;
+use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
@@ -26,7 +27,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
     public function testSendTelemetryWithTelemetryDisabled(): void
     {
         $this->generateInstanceIdFile();
-        $this->fixtures->changeConfig('telemetry', 'disabled');
+        $this->fixtures->changeConfig(Config::TELEMETRY, Config::TELEMETRY_DISABLED);
 
         $commandTester = new CommandTester(
             $this->container()->get(SendTelemetryCommand::class)
@@ -40,7 +41,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
         $this->fixtures->createPackage(Uuid::uuid4()->toString());
 
         $this->generateInstanceIdFile();
-        $this->fixtures->changeConfig('telemetry', 'enabled');
+        $this->fixtures->changeConfig(Config::TELEMETRY, Config::TELEMETRY_ENABLED);
 
         $commandTester = new CommandTester(
             $this->container()->get(SendTelemetryCommand::class)

@@ -10,6 +10,9 @@ use Symfony\Contracts\Cache\CacheInterface;
 final class Config
 {
     const CACHE_KEY = 'values';
+    const TELEMETRY = 'telemetry';
+    const TELEMETRY_ENABLED = 'enabled';
+    const TELEMETRY_DISABLED = 'disabled';
 
     private ConfigQuery $configQuery;
     private CacheInterface $cache;
@@ -54,7 +57,7 @@ final class Config
 
     public function telemetryEnabled(): bool
     {
-        return $this->get('telemetry') === 'enabled';
+        return $this->get('telemetry') === self::TELEMETRY_ENABLED;
     }
 
     /**

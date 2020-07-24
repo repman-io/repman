@@ -6,6 +6,7 @@ namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Message\Admin\ChangeConfig;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
@@ -67,7 +68,7 @@ final class CreateAdminCommand extends Command
 
             if ($this->getHelper('question')->ask($input, $output, $question) === true) {
                 $this->bus->dispatch(new ChangeConfig([
-                    'telemetry' => 'enabled',
+                    Config::TELEMETRY => Config::TELEMETRY_ENABLED,
                 ]));
             }
 

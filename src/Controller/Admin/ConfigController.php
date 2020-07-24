@@ -50,7 +50,9 @@ final class ConfigController extends AbstractController
     {
         $this->telemetry->generateInstanceId();
         $this->dispatchMessage(new ChangeConfig([
-            'telemetry' => $request->isMethod(Request::METHOD_POST) ? 'enable' : 'disable',
+            Config::TELEMETRY => $request->isMethod(Request::METHOD_POST)
+                ? Config::TELEMETRY_ENABLED
+                : Config::TELEMETRY_DISABLED,
         ]));
 
         return $this->redirectToRoute('index');

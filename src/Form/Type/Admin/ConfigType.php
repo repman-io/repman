@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Form\Type\Admin;
 
+use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -53,10 +54,10 @@ class ConfigType extends AbstractType
                     'data-style' => 'btn-secondary',
                 ],
             ])
-            ->add('telemetry', ChoiceType::class, [
+            ->add(Config::TELEMETRY, ChoiceType::class, [
                 'choices' => [
-                    'enabled' => 'enabled',
-                    'disabled' => 'disabled',
+                    Config::TELEMETRY_ENABLED => Config::TELEMETRY_ENABLED,
+                    Config::TELEMETRY_DISABLED => Config::TELEMETRY_DISABLED,
                 ],
                 'help' => "Enable collecting and sending anonymous usage data (<a href=\"{$this->telemetry->docsUrl()}\" target=\"_blank\" rel=\"noopener noreferrer\">more info</a>)",
                 'attr' => [
