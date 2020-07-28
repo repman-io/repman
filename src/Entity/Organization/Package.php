@@ -278,6 +278,7 @@ class Package
         if ($this->getVersion($version->version()) !== false) {
             $this->getVersion($version->version())->setReference($version->reference());
             $this->getVersion($version->version())->setSize($version->size());
+            $this->getVersion($version->version())->setDate($version->date());
 
             return;
         }
