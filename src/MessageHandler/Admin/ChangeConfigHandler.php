@@ -9,8 +9,10 @@ use Buddy\Repman\Message\Admin\ChangeConfig;
 use Buddy\Repman\Message\Admin\RemoveTechnicalEmail;
 use Buddy\Repman\Repository\ConfigRepository;
 use Buddy\Repman\Service\Config;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
 final class ChangeConfigHandler implements MessageHandlerInterface
 {
@@ -44,7 +46,17 @@ final class ChangeConfigHandler implements MessageHandlerInterface
         }
 
         $newTechnicalEmail === ''
-            ? $this->messageBus->dispatch(new RemoveTechnicalEmail($oldTechnicalEmail))
-            : $this->messageBus->dispatch(new AddTechnicalEmail($newTechnicalEmail));
+            ? $this->dispatchAfterCurrentBusStamp(new RemoveTechnicalEmail($oldTechnicalEmail))
+            : $this->dispatchAfterCurrentBusStamp(new AddTechnicalEmail($newTechnicalEmail));
+    }
+
+    /**
+     * @param object $message
+     */
+    private function dispatchAfterCurrentBusStamp($message): void
+    {
+        $this->messageBus->dispatch(
+            (new Envelope($message))->with(new DispatchAfterCurrentBusStamp())
+        );
     }
 }
