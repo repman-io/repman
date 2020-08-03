@@ -87,6 +87,11 @@ class Version
         return $this->size;
     }
 
+    public function date(): \DateTimeImmutable
+    {
+        return $this->date;
+    }
+
     public function setReference(string $reference): void
     {
         $this->reference = $reference;
@@ -95,6 +100,11 @@ class Version
     public function setSize(int $size): void
     {
         $this->size = $size;
+    }
+
+    public function setDate(\DateTimeImmutable $date): void
+    {
+        $this->date = $date;
     }
 
     public function setPackage(Package $package): void
