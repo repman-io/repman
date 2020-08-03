@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Buddy\Repman\Service\Telemetry\Email;
 use Buddy\Repman\Service\Telemetry\Endpoint;
 use Buddy\Repman\Service\Telemetry\Entry;
+use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 
 final class FakeTelemetryEndpoint implements Endpoint
 {
@@ -21,14 +21,14 @@ final class FakeTelemetryEndpoint implements Endpoint
         $this->sent = true;
     }
 
-    public function addTechnicalEmail(Email $email): void
+    public function addTechnicalEmail(TechnicalEmail $email): void
     {
         json_encode($email);
 
         $this->emailAdded = true;
     }
 
-    public function removeTechnicalEmail(Email $email): void
+    public function removeTechnicalEmail(TechnicalEmail $email): void
     {
         json_encode($email);
 

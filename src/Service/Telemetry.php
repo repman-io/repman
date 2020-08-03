@@ -8,13 +8,13 @@ use Buddy\Repman\Kernel;
 use Buddy\Repman\Query\Admin\TelemetryQuery;
 use Buddy\Repman\Service\Proxy as PackageProxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
-use Buddy\Repman\Service\Telemetry\Email;
 use Buddy\Repman\Service\Telemetry\Endpoint;
 use Buddy\Repman\Service\Telemetry\Entry;
 use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 
@@ -89,7 +89,7 @@ final class Telemetry
             $this->generateInstanceId();
         }
 
-        $this->endpoint->addTechnicalEmail(new Email($technicalEmail, $this->instanceId()));
+        $this->endpoint->addTechnicalEmail(new TechnicalEmail($technicalEmail, $this->instanceId()));
     }
 
     public function removeTechnicalEmail(string $technicalEmail): void
@@ -98,7 +98,7 @@ final class Telemetry
             return;
         }
 
-        $this->endpoint->removeTechnicalEmail(new Email($technicalEmail, $this->instanceId()));
+        $this->endpoint->removeTechnicalEmail(new TechnicalEmail($technicalEmail, $this->instanceId()));
     }
 
     /**

@@ -29,7 +29,7 @@ final class TelemetryEndpoint implements Endpoint
         ));
     }
 
-    public function addTechnicalEmail(Email $email): void
+    public function addTechnicalEmail(TechnicalEmail $email): void
     {
         $this->checkResponse($this->client->request('POST', $this->emailUrl(), [
                 'headers' => self::HEADERS,
@@ -38,7 +38,7 @@ final class TelemetryEndpoint implements Endpoint
         ));
     }
 
-    public function removeTechnicalEmail(Email $email): void
+    public function removeTechnicalEmail(TechnicalEmail $email): void
     {
         $this->checkResponse($this->client->request('DELETE', $this->emailUrl(), [
                 'headers' => self::HEADERS,

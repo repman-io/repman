@@ -8,7 +8,7 @@ interface Endpoint
 {
     public function send(Entry $entry): void;
 
-    public function addTechnicalEmail(Email $email): void;
+    public function addTechnicalEmail(TechnicalEmail $email): void;
 
-    public function removeTechnicalEmail(Email $email): void;
+    public function removeTechnicalEmail(TechnicalEmail $email): void;
 }

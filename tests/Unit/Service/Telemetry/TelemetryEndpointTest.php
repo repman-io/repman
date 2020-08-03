@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Telemetry;
 
-use Buddy\Repman\Service\Telemetry\Email;
 use Buddy\Repman\Service\Telemetry\Entry;
 use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Package;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -211,8 +211,8 @@ final class TelemetryEndpointTest extends TestCase
         );
     }
 
-    private function email(): Email
+    private function email(): TechnicalEmail
     {
-        return new Email('john.doe@example.com', '8f43446b-52a3-4bd9-9a8a-ecc955ac754d');
+        return new TechnicalEmail('john.doe@example.com', '8f43446b-52a3-4bd9-9a8a-ecc955ac754d');
     }
 }
