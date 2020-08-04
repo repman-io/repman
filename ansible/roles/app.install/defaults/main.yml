@@ -1,1 +1,2 @@
-app_git_branch: master
+---
+app_legacy_dir: "{{ app_root }}/../repman-legacy"

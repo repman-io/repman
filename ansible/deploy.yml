@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  name: Repman deploy
+  name: Repman atomic deploy
   become: true
   become_user: repman
 
@@ -8,45 +8,3 @@
     - vars/public.yml
   roles:
     - app.deploy
-    - app.env
-  tasks:
-    - name: Stop message consumers
-      become: yes
-      become_user: root
-      supervisorctl:
-        name: "{{ item }}:"
-        state: stopped
-      with_items:
-        - "{{ app_message_consumers_name }}"
-
-    - name: Install composer dependencies
-      composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes
-
-    - name: Clear doctrine metadata cache
-      command: bin/console doctrine:cache:clear-metadata --env=prod --no-debug --flush
-      args:
-        chdir: "{{ app_root }}"
-
-    - name: Clear symfony application cache
-      file:
-        path: "{{ app_root }}/var/cache/prod"
-        state: absent
-
-    - name: Warmup symfony application cache
-      command: bin/console cache:warmup --env=prod --no-debug
-      args:
-        chdir: "{{ app_root }}"
-
-    - name: Run database migrations
-      command: bin/console d:m:m --no-interaction --env=prod
-      args:
-        chdir: "{{ app_root }}"
-
-    - name: Start message consumers
-      become: yes
-      become_user: root
-      supervisorctl:
-        name: "{{ item }}:"
-        state: started
-      with_items:
-        - "{{ app_message_consumers_name }}"
