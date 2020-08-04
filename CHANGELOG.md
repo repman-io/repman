@@ -11,6 +11,27 @@ On next release:
 
 ## [Unreleased]
 
+## [0.5.0] - 2020-08-04
+### Changed
+- higher memory limits ([#219](https://github.com/repman-io/repman/pull/219), [#220](https://github.com/repman-io/repman/pull/220))
+- move all proxy logic to Proxy class ([#223](https://github.com/repman-io/repman/pull/223))
+- use async and stream for downloading metadata and distributions files ([#226](https://github.com/repman-io/repman/pull/226))
+
+### Added
+- serve static proxy metadata and use v2 endpoint for dist lookup ([#222](https://github.com/repman-io/repman/pull/222))
+- sync proxy metadata command ([#224](https://github.com/repman-io/repman/pull/224))
+- migration for better auto upgrade to 0.5.0 ([#227](https://github.com/repman-io/repman/pull/227))
+- static proxy with metadata cache ([#229](https://github.com/repman-io/repman/pull/229))
+- cache headers for packages.json ([#232](https://github.com/repman-io/repman/pull/232))
+- subversion client ([#230](https://github.com/repman-io/repman/pull/230), [#231](https://github.com/repman-io/repman/pull/231))
+- create `.gitattributes` for better dist export ([#235](https://github.com/repman-io/repman/pull/235))
+- telemetry ([#225](https://github.com/repman-io/repman/pull/225), [#234](https://github.com/repman-io/repman/pull/234))
+- technical email ([#237](https://github.com/repman-io/repman/pull/237/files))
+
+### Fixed
+- migration syntax ([#236](https://github.com/repman-io/repman/pull/236))
+- updating version date ([#238](https://github.com/repman-io/repman/pull/238), thanks @nickygerritsen)
+
 ## [0.4.1] - 2020-07-15
 ### Fixed
 - Add support for IPv6 addresses ([#216](https://github.com/repman-io/repman/pull/216), thanks @nickygerritsen)
