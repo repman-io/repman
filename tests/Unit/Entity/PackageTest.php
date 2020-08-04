@@ -56,7 +56,8 @@ final class PackageTest extends TestCase
 
     public function testPackageGetProperties(): void
     {
-        $version = new Version($id = Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable());
+        $date = new \DateTimeImmutable();
+        $version = new Version($id = Uuid::uuid4(), '1.0.0', 'someref', 1234, $date);
         $this->package->addOrUpdateVersion($version);
 
         self::assertInstanceOf(Version::class, $returnedVersion = $this->package->getVersion('1.0.0'));
@@ -64,6 +65,7 @@ final class PackageTest extends TestCase
         self::assertEquals('1.0.0', $returnedVersion->version());
         self::assertEquals('someref', $returnedVersion->reference());
         self::assertEquals(1234, $returnedVersion->size());
+        self::assertEquals($date, $returnedVersion->date());
     }
 
     public function testPackageNonExisting(): void
@@ -76,8 +78,10 @@ final class PackageTest extends TestCase
 
     public function testPackageUpdateVersion(): void
     {
-        $version = new Version($id1 = Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable());
-        $versionUpdated = new Version($id2 = Uuid::uuid4(), '1.0.0', 'newref', 5678, new \DateTimeImmutable());
+        $date = new \DateTimeImmutable('tomorrow');
+        // Make sure the dates do not match so we can test that it is updated
+        $version = new Version($id1 = Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable('today'));
+        $versionUpdated = new Version($id2 = Uuid::uuid4(), '1.0.0', 'newref', 5678, $date);
         $this->package->addOrUpdateVersion($version);
         $this->package->addOrUpdateVersion($versionUpdated);
 
@@ -86,6 +90,7 @@ final class PackageTest extends TestCase
         self::assertEquals('1.0.0', $returnedVersion->version());
         self::assertEquals('newref', $returnedVersion->reference());
         self::assertEquals(5678, $returnedVersion->size());
+        self::assertEquals($date, $returnedVersion->date());
     }
 
     public function testPackageAddSameVersion(): void
