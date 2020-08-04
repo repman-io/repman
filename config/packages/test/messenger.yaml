@@ -7,3 +7,5 @@ framework:
             'Buddy\Repman\Message\User\SendPasswordResetLink': sync
             'Buddy\Repman\Message\User\SendConfirmToken': sync
             'Buddy\Repman\Message\Organization\SynchronizePackage': sync
+            'Buddy\Repman\Message\Admin\AddTechnicalEmail': sync
+            'Buddy\Repman\Message\Admin\RemoveTechnicalEmail': sync

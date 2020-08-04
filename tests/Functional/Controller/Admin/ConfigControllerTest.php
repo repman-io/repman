@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\Admin;
 
+use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ConfigControllerTest extends FunctionalTestCase
@@ -134,5 +136,59 @@ final class ConfigControllerTest extends FunctionalTestCase
         self::assertStringNotContainsString($prompt, $this->lastResponseBody());
         self::assertFileExists($instanceIdFile);
         @unlink($instanceIdFile);
+    }
+
+    public function testAddTechnicalEmail(): void
+    {
+        $this->client->request('GET', $this->urlTo('admin_config'));
+        $this->client->submitForm('save', [
+            'technical_email' => 'john.doe@example.com',
+        ]);
+
+        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->emailAdded());
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
+        $this->client->followRedirect();
+        self::assertStringContainsString(
+            'Configuration has been successfully changed',
+            $this->lastResponseBody()
+        );
+    }
+
+    public function testRemoveTechnicalEmail(): void
+    {
+        file_put_contents($this->container()->getParameter('instance_id_file'), Uuid::uuid4()->toString());
+
+        $this->client->request('GET', $this->urlTo('admin_config'));
+        $this->client->submitForm('save', [
+            'technical_email' => null,
+        ]);
+
+        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->emailRemoved());
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
+        $this->client->followRedirect();
+        self::assertStringContainsString(
+            'Configuration has been successfully changed',
+            $this->lastResponseBody()
+        );
+    }
+
+    public function testRemoveTechnicalEmailWithoutInstanceId(): void
+    {
+        $this->client->request('GET', $this->urlTo('admin_config'));
+        $this->client->submitForm('save', [
+            'technical_email' => 'john.doe@example.com',
+        ]);
+
+        $instanceIdFile = $this->container()->getParameter('instance_id_file');
+        @unlink($instanceIdFile);
+
+        $this->client->request('GET', $this->urlTo('admin_config'));
+        $this->client->submitForm('save', [
+            'technical_email' => null,
+        ]);
+
+        self::assertFalse($this->container()->get(TelemetryEndpoint::class)->emailRemoved());
     }
 }

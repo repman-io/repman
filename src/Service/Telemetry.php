@@ -14,6 +14,7 @@ use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 
@@ -70,7 +71,7 @@ final class Telemetry
                     PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION,
                     $this->query->usersCount(),
                     $this->failedTransport->getMessageCount(),
-                    $this->config->getAll(),
+                    $this->getConfig(),
                 ),
                 $this->getOrganizations($date),
                 new Downloads(
@@ -80,6 +81,24 @@ final class Telemetry
                 new Proxy((int) $this->proxies->all()->map(fn (PackageProxy $p) => $p->syncedPackages()->length())->sum())
             )
         );
+    }
+
+    public function addTechnicalEmail(string $technicalEmail): void
+    {
+        if (!$this->isInstanceIdPresent()) {
+            $this->generateInstanceId();
+        }
+
+        $this->endpoint->addTechnicalEmail(new TechnicalEmail($technicalEmail, $this->instanceId()));
+    }
+
+    public function removeTechnicalEmail(string $technicalEmail): void
+    {
+        if (!$this->isInstanceIdPresent()) {
+            return;
+        }
+
+        $this->endpoint->removeTechnicalEmail(new TechnicalEmail($technicalEmail, $this->instanceId()));
     }
 
     /**
@@ -112,5 +131,16 @@ final class Telemetry
                 $this->query->packages($organization->id(), $date, $limit, $offset)
             );
         }
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private function getConfig(): array
+    {
+        return array_filter(
+            $this->config->getAll(),
+            fn ($k) => $k !== Config::TECHNICAL_EMAIL, ARRAY_FILTER_USE_KEY
+        );
     }
 }

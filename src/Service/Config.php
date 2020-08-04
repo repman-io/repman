@@ -10,9 +10,12 @@ use Symfony\Contracts\Cache\CacheInterface;
 final class Config
 {
     const CACHE_KEY = 'values';
+
     const TELEMETRY = 'telemetry';
     const TELEMETRY_ENABLED = 'enabled';
     const TELEMETRY_DISABLED = 'disabled';
+
+    const TECHNICAL_EMAIL = 'technical_email';
 
     private ConfigQuery $configQuery;
     private CacheInterface $cache;
@@ -58,6 +61,11 @@ final class Config
     public function telemetryEnabled(): bool
     {
         return $this->get(self::TELEMETRY) === self::TELEMETRY_ENABLED;
+    }
+
+    public function isTechnicalEmailSet(): bool
+    {
+        return trim((string) $this->get(self::TECHNICAL_EMAIL)) !== '';
     }
 
     /**

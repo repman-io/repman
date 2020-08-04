@@ -10,6 +10,7 @@ use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Package;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -17,7 +18,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class TelemetryEndpointTest extends TestCase
 {
-    public function testSuccessfulRequest(): void
+    public function testSuccessfulSend(): void
     {
         $called = 0;
         $response = [];
@@ -83,7 +84,7 @@ final class TelemetryEndpointTest extends TestCase
         );
     }
 
-    public function testFailedRequest(): void
+    public function testFailedSend(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Error while sending telemetry data. HTTP error: 500');
@@ -92,6 +93,78 @@ final class TelemetryEndpointTest extends TestCase
             new MockHttpClient([new MockResponse('', ['http_code' => 500])])
         );
         $endpoint->send($this->entry());
+    }
+
+    public function testSuccessfulAddTechnicalEmail(): void
+    {
+        $called = 0;
+        $response = [];
+        $client = new MockHttpClient(function ($method, $url, $options) use (&$called, &$response): MockResponse {
+            ++$called;
+            $response = $options['body'];
+
+            return new MockResponse();
+        });
+        $endpoint = new TelemetryEndpoint($client);
+        $endpoint->addTechnicalEmail($this->email());
+
+        self::assertEquals(1, $called);
+        self::assertJsonStringEqualsJsonString(
+            $response,
+            '
+            {
+                "instanceId": "8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
+                "email": "john.doe@example.com"
+            }
+            '
+        );
+    }
+
+    public function testFailedAddTechnicalEmailAddress(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Error while sending telemetry data. HTTP error: 403');
+
+        $endpoint = new TelemetryEndpoint(
+            new MockHttpClient([new MockResponse('', ['http_code' => 403])])
+        );
+        $endpoint->addTechnicalEmail($this->email());
+    }
+
+    public function testSuccessfulRemoveTechnicalEmail(): void
+    {
+        $called = 0;
+        $response = [];
+        $client = new MockHttpClient(function ($method, $url, $options) use (&$called, &$response): MockResponse {
+            ++$called;
+            $response = $options['body'];
+
+            return new MockResponse();
+        });
+        $endpoint = new TelemetryEndpoint($client);
+        $endpoint->removeTechnicalEmail($this->email());
+
+        self::assertEquals(1, $called);
+        self::assertJsonStringEqualsJsonString(
+            $response,
+            '
+            {
+                "instanceId": "8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
+                "email": "john.doe@example.com"
+            }
+            '
+        );
+    }
+
+    public function testFailedRemoveTechnicalEmailAddress(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Error while sending telemetry data. HTTP error: 403');
+
+        $endpoint = new TelemetryEndpoint(
+            new MockHttpClient([new MockResponse('', ['http_code' => 403])])
+        );
+        $endpoint->removeTechnicalEmail($this->email());
     }
 
     private function entry(): Entry
@@ -136,5 +209,10 @@ final class TelemetryEndpointTest extends TestCase
             new Downloads(1, 1),
             new Proxy(1)
         );
+    }
+
+    private function email(): TechnicalEmail
+    {
+        return new TechnicalEmail('john.doe@example.com', '8f43446b-52a3-4bd9-9a8a-ecc955ac754d');
     }
 }
