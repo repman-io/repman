@@ -19,7 +19,7 @@ services:
 
   app:
     << : *restart_policy
-    image: buddy/repman:0.4.1
+    image: buddy/repman:0.5.0
     command: >
       bash -c 'bin/console cache:clear &&
       bin/console cache:warmup &&
@@ -35,7 +35,7 @@ services:
 
   consumer:
     << : *restart_policy
-    image: buddy/repman:0.4.1
+    image: buddy/repman:0.5.0
     command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
     env_file: .env.docker
     volumes:
@@ -45,7 +45,7 @@ services:
 
   cron:
     << : *restart_policy
-    image: buddy/repman:0.4.1
+    image: buddy/repman:0.5.0
     command: ['crond', '-f', '-L', '/dev/stdout']
     env_file: .env.docker
     volumes:
