@@ -5,10 +5,23 @@ server:
     locale: en_US en_US.UTF-8 pl_PL pl_PL.UTF-8
 
 system_user: repman
-app_git_repo: 'https://github.com/repman-io/repman.git'
-app_git_branch: master
-app_version: "{{ app_git_branch }}"
+app_git_repo: 'https://github.com/repman-io/repman'
+app_git_version: master
+app_version: "{{ app_git_version }}"
 app_root: /var/www/repman
+app_current_dir: "{{ app_root }}/current"
+app_shared_dir: "{{ app_root }}/shared"
+app_releases_dir: "{{ app_root }}/releases"
+app_keep_releases: 5
+# This will be changed for version sha
+app_current_release_dir: "{{ app_releases_dir }}/{{ app_version }}"
+app_shared_resources:
+    - 'var/log'
+    - 'var/proxy'
+    - 'var/repo'
+    - 'var/security-advisories'
+    - 'var/instance-id'
+
 app_secret: "{{ lookup('env', 'REPMAN_APP_SECRET') or 'c6bd0523-77dd-4201-9c62-47a71234d0a5' }}"
 server_hostname: 'repman.io'
 

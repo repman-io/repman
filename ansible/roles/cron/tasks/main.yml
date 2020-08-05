@@ -3,14 +3,14 @@
     name="Sync proxy releases with packagist.org"
     user="{{ system_user }}"
     minute="*/5"
-    job="{{ app_root }}/bin/console repman:proxy:sync-releases >>{{ app_root }}/var/log/cron.log 2>&1"
+    job="{{ app_current_dir }}/bin/console repman:proxy:sync-releases >>{{ app_current_dir }}/var/log/cron.log 2>&1"
 
 - name: Add sync proxy metadata command to cron
   cron:
     name="Sync proxy metadata with origins"
     user="{{ system_user }}"
     minute="*/6"
-    job="{{ app_root }}/bin/console repman:proxy:sync-metadata >>{{ app_root }}/var/log/cron.log 2>&1"
+    job="{{ app_current_dir }}/bin/console repman:proxy:sync-metadata >>{{ app_current_dir }}/var/log/cron.log 2>&1"
 
 - name: Add security update-db command to cron
   cron:
@@ -18,7 +18,7 @@
     user="{{ system_user }}"
     minute=0
     hour="*/2"
-    job="{{ app_root }}/bin/console repman:security:update-db >>{{ app_root }}/var/log/cron.log 2>&1"
+    job="{{ app_current_dir }}/bin/console repman:security:update-db >>{{ app_current_dir }}/var/log/cron.log 2>&1"
 
 - name: Add telemetry send command to cron
   cron:
@@ -26,4 +26,4 @@
     user="{{ system_user }}"
     minute=0
     hour=0
-    job="{{ app_root }}/bin/console repman:telemetry:send >>{{ app_root }}/var/log/cron.log 2>&1"
+    job="{{ app_current_dir }}/bin/console repman:telemetry:send >>{{ app_current_dir }}/var/log/cron.log 2>&1"

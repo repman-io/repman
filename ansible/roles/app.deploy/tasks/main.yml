@@ -1,13 +1,90 @@
 ---
-- name: Fetch files from git
+- name: Fetch commit hash from git ref
   git:
-    repo: "{{ app_git_repo }}"
-    dest: "{{ app_root }}"
-    version: master
-    accept_hostkey: yes
-    force: yes
+    repo: "{{ app_git_repo }}.git"
+    version: "{{ app_git_version }}"
+    clone: no
+    accept_hostkey: true
   register: git_result
 
 - name: Overwrite app version with git sha-1
   set_fact:
     app_version: "{{ git_result.after }}"
+    app_current_release_dir: "{{ app_releases_dir }}/{{ git_result.after }}"
+    app_extracted_dir: "{{ app_releases_dir }}/repman-{{ git_result.after }}"
+
+- name: Download and unpack release code
+  unarchive:
+    remote_src: yes
+    src: "{{ app_git_repo }}/archive/{{ git_result.after }}.zip"
+    dest: "{{ app_releases_dir }}"
+    creates: "{{ app_current_release_dir }}"
+  become_user: "{{ system_user }}"
+
+- name: Create current release dir with code
+  shell: "mv {{ app_extracted_dir }} {{ app_current_release_dir }}"
+  args:
+    creates: "{{ app_current_release_dir }}"
+  become_user: "{{ system_user }}"
+
+- name: Configure application environment
+  template:
+    src: .env.local
+    dest: "{{ app_current_release_dir }}/.env.local"
+    mode: 0644
+  become_user: "{{ system_user }}"
+
+- name: Install composer dependencies
+  composer:
+    command: install
+    working_dir: "{{ app_current_release_dir }}"
+    no_dev: yes
+    optimize_autoloader: yes
+  become_user: "{{ system_user }}"
+
+- name: Create symlinks to shared folders
+  file:
+    src: "{{ app_shared_dir }}/{{ item }}"
+    dest: "{{ app_current_release_dir }}/{{ item }}"
+    state: link
+    force: yes
+  with_items: "{{ app_shared_resources }}"
+  become_user: "{{ system_user }}"
+
+- name: Warmup symfony application cache
+  command: bin/console cache:warmup --env=prod --no-debug
+  args:
+    chdir: "{{ app_current_release_dir }}"
+  become_user: "{{ system_user }}"
+
+- name: Run database migrations
+  command: bin/console d:m:m --no-interaction --env=prod
+  args:
+    chdir: "{{ app_current_release_dir }}"
+  become_user: "{{ system_user }}"
+
+- name: Setup messenger transports
+  command: bin/console messenger:setup-transports --no-interaction --env=prod
+  args:
+    chdir: "{{ app_current_release_dir }}"
+  become_user: "{{ system_user }}"
+
+- name: Create link to shiny new application code
+  file:
+    src: "{{ app_current_release_dir }}"
+    dest: "{{ app_current_dir }}"
+    state: link
+
+- name: Restart message consumers
+  become: yes
+  become_user: root
+  supervisorctl:
+    name: "{{ item }}:"
+    state: restarted
+  with_items:
+    - "{{ app_message_consumers_name }}"
+
+- name: Cleanup old releases
+  shell: "ls -t1 {{ app_releases_dir }} | tail -n +{{ app_keep_releases }} | xargs rm -rf"
+  args:
+    chdir: "{{ app_releases_dir }}"

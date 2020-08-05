@@ -1,6 +1,0 @@
-- name: Configure application environment
-  template:
-    src: .env.local
-    dest: "{{ app_root }}/.env.local"
-    mode: 0644
-  become_user: "{{ system_user }}"
