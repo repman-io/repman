@@ -3,7 +3,6 @@ nginx_servername: '{{ server_hostname }}'
 nginx_port: 443
 nginx_client_max_body_size: 200M
 nginx_read_timeout: 300
-nginx_app_root: '{{ app_root }}'
 nginx_app_error_log: '/var/log/nginx/app_error.log'
 nginx_app_access_log: '/var/log/nginx/app_access.log'
 dhparam_size: 2048

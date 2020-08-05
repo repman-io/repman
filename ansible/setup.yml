@@ -10,53 +10,13 @@
     - openssl
     - nginx
     - php
-    - app.install
-    - app.env
     - supervisor
+    - app.install
+    - app.deploy
     - cron
   tasks:
-    - name: Stop message consumers
-      become: true
-      supervisorctl:
-        name: "{{ item }}:"
-        state: stopped
-      with_items:
-        - "{{ app_message_consumers_name }}"
-
-    - name: Clear doctrine metadata cache
-      become_user: "{{ system_user }}"
-      command: bin/console doctrine:cache:clear-metadata --env=prod --no-debug --flush
+    - name: Download security database
+      command: bin/console repman:security:update-db
       args:
-        chdir: "{{ app_root }}"
-
-    - name: Clear symfony application cache
+        chdir: "{{ app_current_release_dir }}"
       become_user: "{{ system_user }}"
-      file:
-        path: "{{ app_root }}/symfony/cache/prod"
-        state: absent
-
-    - name: Warmup symfony application cache
-      become_user: "{{ system_user }}"
-      command: bin/console cache:warmup --env=prod --no-debug
-      args:
-        chdir: "{{ app_root }}"
-
-    - name: Run database migrations
-      become_user: "{{ system_user }}"
-      command: bin/console d:m:m --no-interaction --env=prod
-      args:
-        chdir: "{{ app_root }}"
-
-    - name: Setup messenger transports
-      become_user: "{{ system_user }}"
-      command: bin/console messenger:setup-transports --no-interaction --env=prod
-      args:
-        chdir: "{{ app_root }}"
-
-    - name: Start message consumers
-      become: true
-      supervisorctl:
-        name: "{{ item }}:"
-        state: started
-      with_items:
-        - "{{ app_message_consumers_name }}"

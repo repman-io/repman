@@ -1,0 +1,21 @@
+- name: Move current structure to legacy dir
+  shell: "mv {{ app_root }} {{ app_legacy_dir }}"
+
+- name: Create project deployment structure
+  file:
+      path: "{{ item }}"
+      state: directory
+      recurse: yes
+      owner: "{{ system_user }}"
+      group: "{{ system_user }}"
+      mode: 0755
+  with_items: ["{{ app_releases_dir }}", "{{ app_shared_dir }}/var/security-advisories"]
+
+- name: Move legacy shared files to shared dir
+  shell: "mv -T {{ app_legacy_dir }}/{{ item }} {{ app_shared_dir }}/{{ item }}"
+  ignore_errors: yes
+  with_items: "{{ app_shared_resources }}"
+  become_user: "{{ system_user }}"
+
+- name: Remove legacy dir
+  shell: "rm -rf {{ app_legacy_dir }}"

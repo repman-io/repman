@@ -1,20 +1,18 @@
-- name: Create project directory
+- name: Check if current dir exists
+  stat:
+    path: "{{ app_current_dir }}"
+  register: current_dir
+
+- name: Migrate legacy structure
+  include_tasks: migrate.yml
+  when: current_dir.stat.exists == false
+
+- name: Create project deployment structure
   file:
-    path: "{{ app_root }}"
+    path: "{{ item }}"
     state: directory
+    recurse: yes
     owner: "{{ system_user }}"
     group: "{{ system_user }}"
     mode: 0755
-
-- name: Fetch files from git
-  become_user: "{{ system_user }}"
-  git:
-    repo: "{{ app_git_repo }}"
-    dest: "{{ app_root }}"
-    version: "{{ app_git_branch }}"
-    accept_hostkey: yes
-    force: yes
-
-- name: Install composer dependencies
-  become_user: "{{ system_user }}"
-  composer: command=install working_dir="{{ app_root }}" no_dev=yes optimize_autoloader=yes
+  with_items: ["{{ app_releases_dir }}", "{{ app_shared_dir }}/var/security-advisories"]
