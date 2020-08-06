@@ -1,6 +1,7 @@
 sentry:
     dsn: '%env(SENTRY_DSN)%'
     options:
+        release: '%env(string:default:kernel_version:APP_VERSION)%'
         excluded_exceptions:
             - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
             - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'

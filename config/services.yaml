@@ -16,6 +16,7 @@ parameters:
     security_advisories_db_dir: '%env(resolve:SECURITY_ADVISORIES_DB_DIR)%'
     security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
     instance_id_file: '%kernel.project_dir%/var/instance-id'
+    kernel_version: !php/const Buddy\Repman\Kernel::REPMAN_VERSION
 
 services:
     # default configuration for services in *this* file
