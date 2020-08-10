@@ -146,13 +146,13 @@ final class FixturesManager
         $this->container->get('doctrine.orm.entity_manager')->flush($package);
     }
 
-    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0'): void
+    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0', ?\DateTimeImmutable $date = null): void
     {
-        Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version): void {
+        Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version, $date): void {
             $this->dispatchMessage(new AddDownload(
                 $packageId,
                 $version,
-                new \DateTimeImmutable(),
+                $date ?? new \DateTimeImmutable(),
                 '192.168.0.1',
                 'Composer 19.10'
             ));
@@ -187,11 +187,23 @@ final class FixturesManager
     /**
      * @param Version[] $versions
      */
-    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = []): void
+    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], ?\DateTime $lastSyncAt = null): void
     {
         $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions);
         $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
+
+        if ($lastSyncAt !== null) {
+            $this->container->get(EntityManagerInterface::class)
+                ->createQueryBuilder()
+                ->update('Buddy\Repman\Entity\Organization\Package', 'p')
+                ->set('p.lastSyncAt', '?1')
+                ->where('p.id = ?2')
+                ->setParameter(1, $lastSyncAt->format('Y-m-d H:i:s'))
+                ->setParameter(2, $packageId)
+                ->getQuery()
+                ->execute();
+        }
     }
 
     public function createOauthToken(
