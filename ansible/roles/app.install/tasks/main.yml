@@ -3,9 +3,16 @@
     path: "{{ app_current_dir }}"
   register: current_dir
 
+- name: Check if root dir exists
+  stat:
+    path: "{{ app_root }}"
+  register: root_dir
+
 - name: Migrate legacy structure
   include_tasks: migrate.yml
-  when: current_dir.stat.exists == false
+  when:
+    - current_dir.stat.exists == false
+    - root_dir.stat.exists == true
 
 - name: Create project deployment structure
   file:
