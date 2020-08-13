@@ -6,10 +6,15 @@ namespace Buddy\Repman\Query\Admin;
 
 interface VersionQuery
 {
-    public function oldDistsCount(int $daysOld): int;
+    public function oldDistsCount(): int;
 
     /**
      * @return array<array<string,string>>
      */
-    public function findOldDists(int $daysOld = 30, int $limit = 100, int $offset = 0): array;
+    public function findPackagesWithDevVersions(int $limit = 100, int $offset = 0): array;
+
+    /**
+     * @return array<array<string,string>>
+     */
+    public function findPackagesDevVersions(string $packageId): array;
 }

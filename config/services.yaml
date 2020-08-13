@@ -17,6 +17,7 @@ parameters:
     security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
     instance_id_file: '%kernel.project_dir%/var/instance-id'
     kernel_version: !php/const Buddy\Repman\Kernel::REPMAN_VERSION
+    clear_dists_older_than_days: '%env(resolve:CLEAR_DISTS_OLDER_THAN_DAYS)%'
 
 services:
     # default configuration for services in *this* file
@@ -29,6 +30,7 @@ services:
             Symfony\Component\HttpFoundation\Session\Session $session: '@session'
             $proxyFilesystem: '@proxy.storage'
             $instanceIdFile: '%instance_id_file%'
+            $clearDistsOlderThan: '%clear_dists_older_than_days%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin\VersionQuery;
 
+use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Query\Admin\VersionQuery;
 use Doctrine\DBAL\Connection;
 
@@ -16,25 +17,21 @@ final class DbalVersionQuery implements VersionQuery
         $this->connection = $connection;
     }
 
-    public function oldDistsCount(int $daysOld): int
+    public function oldDistsCount(): int
     {
         return (int) $this
             ->connection
             ->fetchColumn(
-                'SELECT COUNT(v.id)
-                FROM organization_package_version v
-                JOIN organization_package p ON p.id = v.package_id
-                JOIN organization o ON o.id = p.organization_id
-                WHERE p.last_sync_at::date <= :date
-                AND v.package_id NOT IN (
-                    SELECT d.package_id
-                    FROM organization_package_download d
-                    WHERE d.package_id = v.package_id AND d.date > :date
-                )',
+                'SELECT COUNT(*) FROM (
+                    SELECT COUNT(v.package_id)
+                    FROM organization_package_version v
+                    JOIN organization_package p ON p.id = v.package_id
+                    WHERE v.stability != :stability
+                    GROUP BY p.id
+                    HAVING COUNT(v.id) > 1
+                ) count',
             [
-                ':date' => (new \DateTimeImmutable())
-                    ->modify(sprintf('-%s days', $daysOld))
-                    ->format('Y-m-d'),
+                ':stability' => Version::STABILITY_STABLE,
             ]
         );
     }
@@ -42,32 +39,50 @@ final class DbalVersionQuery implements VersionQuery
     /**
      * @return array<array<string,string>>
      */
-    public function findOldDists(int $daysOld = 30, int $limit = 100, int $offset = 0): array
+    public function findPackagesWithDevVersions(int $limit = 100, int $offset = 0): array
+    {
+        return $this->connection->fetchAll(
+            'SELECT
+                p.id,
+                p.name,
+                o.alias organization
+            FROM organization_package p
+            JOIN organization_package_version v ON p.id = v.package_id AND v.stability != :stability
+            JOIN organization o ON o.id = p.organization_id
+            GROUP BY p.id, o.alias
+            HAVING COUNT(v.id) > 1
+            LIMIT :limit OFFSET :offset',
+            [
+                ':stability' => Version::STABILITY_STABLE,
+                ':limit' => $limit,
+                ':offset' => $offset,
+            ]
+        );
+    }
+
+    /**
+     * @return array<array<string,string>>
+     */
+    public function findPackagesDevVersions(string $packageId): array
     {
         return $this->connection->fetchAll(
             'SELECT
                 v.id,
                 v.version,
-                v.reference,
-                o.alias organization,
-                p.name package_name
+                v.reference
             FROM organization_package_version v
-            JOIN organization_package p ON p.id = v.package_id
-            JOIN organization o ON o.id = p.organization_id
-            WHERE p.last_sync_at::date <= :date
-            AND v.package_id NOT IN (
-                SELECT d.package_id
-                FROM organization_package_download d
-                WHERE d.package_id = v.package_id AND d.date > :date
-            )
-            GROUP BY v.id, v.version, v.reference, organization, package_name
-            LIMIT :limit OFFSET :offset',
+            WHERE v.stability != :stability
+            AND v.package_id = :package_id
+            AND v.id != (
+                SELECT vv.id
+                FROM organization_package_version vv
+                WHERE vv.package_id = v.package_id AND stability != :stability
+                ORDER BY vv.date DESC
+                LIMIT 1
+            )',
             [
-                ':date' => (new \DateTimeImmutable())
-                    ->modify(sprintf('-%s days', $daysOld))
-                    ->format('Y-m-d'),
-                ':limit' => $limit,
-                ':offset' => $offset,
+                ':package_id' => $packageId,
+                ':stability' => Version::STABILITY_STABLE,
             ]
         );
     }

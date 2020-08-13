@@ -85,8 +85,7 @@ class PackageManager
 
     public function removeVersionDist(string $organizationAlias, string $packageName, string $version, string $ref, string $format): self
     {
-        $distFile = $this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_'.$ref.'.'.$format;
-        $this->filesystem->remove($distFile);
+        $this->filesystem->remove($this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_'.$ref.'.'.$format);
 
         return $this;
     }

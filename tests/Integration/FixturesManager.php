@@ -187,23 +187,11 @@ final class FixturesManager
     /**
      * @param Version[] $versions
      */
-    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], ?\DateTime $lastSyncAt = null): void
+    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = []): void
     {
         $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions);
         $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
-
-        if ($lastSyncAt !== null) {
-            $this->container->get(EntityManagerInterface::class)
-                ->createQueryBuilder()
-                ->update('Buddy\Repman\Entity\Organization\Package', 'p')
-                ->set('p.lastSyncAt', '?1')
-                ->where('p.id = ?2')
-                ->setParameter(1, $lastSyncAt->format('Y-m-d H:i:s'))
-                ->setParameter(2, $packageId)
-                ->getQuery()
-                ->execute();
-        }
     }
 
     public function createOauthToken(
@@ -231,7 +219,9 @@ final class FixturesManager
     {
         $this->filesystem->mirror(
             __DIR__.'/../Resources/fixtures/buddy/dist/buddy-works/repman',
-            __DIR__.'/../Resources/buddy/dist/buddy-works/repman'
+            __DIR__.'/../Resources/buddy/dist/buddy-works/repman',
+            null,
+            ['delete' => true]
         );
     }
 

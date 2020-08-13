@@ -8,6 +8,7 @@ use Buddy\Repman\Command\ClearOldPrivateDistsCommand;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\VersionRepository;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Composer\Semver\VersionParser;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -17,114 +18,144 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
     private string $packageName = 'buddy-works/repman';
     private string $version = '1.2.3';
 
-    public function testSuccessfulCleanupAfter30DaysWithoutDownloads(): void
+    public function testWillNotRemoveStableVersion(): void
     {
         $packageId = Uuid::uuid4()->toString();
         $this->fixtures->createPackage($packageId);
 
-        $lastSyncAt = new \DateTime();
-        $lastSyncAt->modify('-30 days');
-
-        $this->fixtures->syncPackageWithData($packageId, $this->packageName, 'description', $this->version, new \DateTimeImmutable(), $this->prepareVersions(), $lastSyncAt);
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            $this->packageName,
+            'description',
+            $this->version,
+            new \DateTimeImmutable(),
+            [
+                $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
+            ]
+        );
         $this->fixtures->prepareRepoFiles();
         $commandTester = new CommandTester(
             $this->container()->get(ClearOldPrivateDistsCommand::class)
         );
 
-        self::assertFileExists($this->distFilePath());
+        self::assertFileExists($this->distFilePath($this->version, $this->ref));
         self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
+
         self::assertEquals(0, $commandTester->execute([]));
-        self::assertCount(0, $this->container()->get(VersionRepository::class)->findAll());
-        self::assertFileNotExists($this->distFilePath());
+
+        self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
+        self::assertFileExists($this->distFilePath($this->version, $this->ref));
 
         $this->fixtures->prepareRepoFiles();
     }
 
-    public function testNoCleanupWhenPackageIsNew(): void
+    public function testWillNotRemoveLastDevVersion(): void
     {
         $packageId = Uuid::uuid4()->toString();
         $this->fixtures->createPackage($packageId);
-        $this->fixtures->syncPackageWithData($packageId, $this->packageName, 'description', $this->version, new \DateTimeImmutable(), $this->prepareVersions());
+        $devRef = sha1(uniqid());
+
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            $this->packageName,
+            'description',
+            $this->version,
+            new \DateTimeImmutable(),
+            [
+                $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
+                $this->createVersion('dev-master', $devRef, 'dev'),
+            ]
+        );
         $this->fixtures->prepareRepoFiles();
+        $this->prepareTestDist($this->distFilePath('dev-master', $devRef));
+
         $commandTester = new CommandTester(
             $this->container()->get(ClearOldPrivateDistsCommand::class)
         );
 
-        self::assertFileExists($this->distFilePath());
-        self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
+        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        self::assertFileExists($this->distFilePath('dev-master', $devRef));
+        self::assertCount(2, $this->container()->get(VersionRepository::class)->findAll());
+
         self::assertEquals(0, $commandTester->execute([]));
-        self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
-        self::assertFileExists($this->distFilePath());
+
+        self::assertCount(2, $this->container()->get(VersionRepository::class)->findAll());
+        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        self::assertFileExists($this->distFilePath('dev-master', $devRef));
 
         $this->fixtures->prepareRepoFiles();
     }
 
-    public function testSuccessfulCleanupAfter30DaysWithDownloads(): void
+    public function testWillRemoveAllDevVersionsExceptLast(): void
     {
         $packageId = Uuid::uuid4()->toString();
         $this->fixtures->createPackage($packageId);
+        $dev1Ref = sha1(uniqid());
+        $dev2Ref = sha1(uniqid());
+        $dev3Ref = sha1(uniqid());
 
-        $lastSyncAt = new \DateTime();
-        $lastSyncAt->modify('-30 days');
-
-        $this->fixtures->syncPackageWithData($packageId, $this->packageName, 'description', $this->version, new \DateTimeImmutable(), $this->prepareVersions(), $lastSyncAt);
-        $this->fixtures->addPackageDownload(1, $packageId, $this->version, \DateTimeImmutable::createFromMutable($lastSyncAt));
-
+        $this->fixtures->syncPackageWithData(
+            $packageId,
+            $this->packageName,
+            'description',
+            $this->version,
+            new \DateTimeImmutable(),
+            [
+                $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
+                $this->createVersion('dev-master', $dev1Ref, 'dev', 1),
+                $this->createVersion('dev-test2', $dev2Ref, 'dev', 2),
+                $this->createVersion('dev-test-prod', $dev3Ref, 'dev', 3),
+            ]
+        );
         $this->fixtures->prepareRepoFiles();
+        $this->prepareTestDist($this->distFilePath('dev-master', $dev1Ref));
+        $this->prepareTestDist($this->distFilePath('dev-test2', $dev2Ref));
+        $this->prepareTestDist($this->distFilePath('dev-test-prod', $dev3Ref));
+
         $commandTester = new CommandTester(
             $this->container()->get(ClearOldPrivateDistsCommand::class)
         );
 
-        self::assertFileExists($this->distFilePath());
-        self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
+        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        self::assertFileExists($this->distFilePath('dev-master', $dev1Ref));
+        self::assertFileExists($this->distFilePath('dev-test2', $dev2Ref));
+        self::assertFileExists($this->distFilePath('dev-test-prod', $dev3Ref));
+        self::assertCount(4, $this->container()->get(VersionRepository::class)->findAll());
+
         self::assertEquals(0, $commandTester->execute([]));
-        self::assertCount(0, $this->container()->get(VersionRepository::class)->findAll());
-        self::assertFileNotExists($this->distFilePath());
+
+        self::assertCount(2, $this->container()->get(VersionRepository::class)->findAll());
+        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        self::assertFileNotExists($this->distFilePath('dev-master', $dev1Ref));
+        self::assertFileNotExists($this->distFilePath('dev-test2', $dev2Ref));
+        self::assertFileExists($this->distFilePath('dev-test-prod', $dev3Ref));
 
         $this->fixtures->prepareRepoFiles();
     }
 
-    public function testNoCleanupWithFreshDownloads(): void
-    {
-        $packageId = Uuid::uuid4()->toString();
-        $this->fixtures->createPackage($packageId);
-
-        $lastSyncAt = new \DateTime();
-        $lastSyncAt->modify('-30 days');
-
-        $lastDownload = new \DateTime();
-        $lastDownload->modify('-29 days');
-
-        $this->fixtures->syncPackageWithData($packageId, $this->packageName, 'description', $this->version, new \DateTimeImmutable(), $this->prepareVersions(), $lastSyncAt);
-        $this->fixtures->addPackageDownload(1, $packageId, $this->version, \DateTimeImmutable::createFromMutable($lastDownload));
-
-        $this->fixtures->prepareRepoFiles();
-        $commandTester = new CommandTester(
-            $this->container()->get(ClearOldPrivateDistsCommand::class)
-        );
-
-        self::assertFileExists($this->distFilePath());
-        self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
-        self::assertEquals(0, $commandTester->execute([]));
-        self::assertCount(1, $this->container()->get(VersionRepository::class)->findAll());
-        self::assertFileExists($this->distFilePath());
-
-        $this->fixtures->prepareRepoFiles();
-    }
-
-    private function distFilePath(): string
+    private function distFilePath(string $version, string $ref): string
     {
         return $this->container()->getParameter('dists_dir')
-            .'/buddy/dist/'.$this->packageName.'/'.$this->version.'.0_'.$this->ref.'.zip';
+            .'/buddy/dist/'
+            .$this->packageName.'/'
+            .(new VersionParser())->normalize($version)
+            .'_'.$ref.'.zip';
     }
 
-    /**
-     * @return Version[]
-     */
-    private function prepareVersions(): array
+    private function prepareTestDist(string $path): void
     {
-        return [
-            new Version(Uuid::uuid4(), $this->version, $this->ref, 1234, new \DateTimeImmutable()),
-        ];
+        file_put_contents($path, 'test dist');
+    }
+
+    private function createVersion(string $version, string $ref, string $stability, int $dateOffset = 0): Version
+    {
+        return new Version(
+            Uuid::uuid4(),
+            $version,
+            $ref,
+            1234,
+            \DateTimeImmutable::createFromMutable((new \DateTime())->modify("+$dateOffset seconds")),
+            $stability
+        );
     }
 }

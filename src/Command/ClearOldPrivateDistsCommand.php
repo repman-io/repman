@@ -34,25 +34,26 @@ final class ClearOldPrivateDistsCommand extends Command
     {
         $this
             ->setName('repman:package:clear-old-dists')
-            ->setDescription('Clear private distributions files older than 30 days');
+            ->setDescription('Clear old private dev distributions files');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $daysOld = 30;
         $limit = 100;
-        $count = $this->query->oldDistsCount($daysOld);
+        $count = $this->query->oldDistsCount();
+
         for ($offset = 0; $offset < $count; $offset += $limit) {
-            $versions = $this->query->findOldDists($daysOld, $limit, $offset);
-            foreach ($versions as $version) {
-                $this->repository->remove(Uuid::fromString($version['id']));
-                $this->packageManager->removeVersionDist(
-                    $version['organization'],
-                    $version['package_name'],
-                    $version['version'],
-                    $version['reference'],
-                    'zip'
-                );
+            foreach ($this->query->findPackagesWithDevVersions($limit, $offset) as $package) {
+                foreach ($this->query->findPackagesDevVersions($package['id']) as $version) {
+                    $this->repository->remove(Uuid::fromString($version['id']));
+                    $this->packageManager->removeVersionDist(
+                        $package['organization'],
+                        $package['name'],
+                        $version['version'],
+                        $version['reference'],
+                        'zip'
+                    );
+                }
             }
         }
 

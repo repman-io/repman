@@ -30,14 +30,16 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageRepository $packageRepository;
     private Storage $distStorage;
     private string $gitlabUrl;
+    private int $clearDistsOlderThan;
 
-    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
+    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl, int $clearDistsOlderThan)
     {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
         $this->gitlabUrl = $gitlabUrl;
+        $this->clearDistsOlderThan = $clearDistsOlderThan;
     }
 
     public function synchronize(Package $package): void
@@ -76,6 +78,12 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $encounteredVersions = [];
             foreach ($packages as $p) {
                 if ($p->getDistUrl() !== null) {
+                    $releaseDate = \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime());
+
+                    if ($p->getStability() !== 'stable' && $releaseDate <= (new \DateTime())->modify("-{$this->clearDistsOlderThan} days")) {
+                        continue;
+                    }
+
                     $dist = new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType());
 
                     $this->distStorage->download(
@@ -90,7 +98,8 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                             $p->getPrettyVersion(),
                             $p->getDistReference() ?? $p->getDistSha1Checksum(),
                             $this->distStorage->size($dist),
-                            \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime())
+                            $releaseDate,
+                            $p->getStability()
                         )
                     );
                     $encounteredVersions[] = $p->getPrettyVersion();
