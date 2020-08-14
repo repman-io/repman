@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin\VersionQuery;
 
-use Buddy\Repman\Entity\Organization\Package\Version;
+use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\Admin\VersionQuery;
+use Buddy\Repman\Query\User\Model\Version;
 use Doctrine\DBAL\Connection;
 
 final class DbalVersionQuery implements VersionQuery
@@ -17,55 +18,20 @@ final class DbalVersionQuery implements VersionQuery
         $this->connection = $connection;
     }
 
-    public function oldDistsCount(): int
-    {
-        return (int) $this
-            ->connection
-            ->fetchColumn(
-                'SELECT COUNT(*) FROM (
-                    SELECT COUNT(v.package_id)
-                    FROM organization_package_version v
-                    JOIN organization_package p ON p.id = v.package_id
-                    WHERE v.stability != :stability
-                    GROUP BY p.id
-                    HAVING COUNT(v.id) > 1
-                ) count',
-            [
-                ':stability' => Version::STABILITY_STABLE,
-            ]
-        );
-    }
-
     /**
-     * @return array<array<string,string>>
+     * @return Version[]
      */
-    public function findPackagesWithDevVersions(int $limit = 100, int $offset = 0): array
+    public function findDevVersions(string $packageId): array
     {
-        return $this->connection->fetchAll(
-            'SELECT
-                p.id,
-                p.name,
-                o.alias organization
-            FROM organization_package p
-            JOIN organization_package_version v ON p.id = v.package_id AND v.stability != :stability
-            JOIN organization o ON o.id = p.organization_id
-            GROUP BY p.id, o.alias
-            HAVING COUNT(v.id) > 1
-            LIMIT :limit OFFSET :offset',
-            [
-                ':stability' => Version::STABILITY_STABLE,
-                ':limit' => $limit,
-                ':offset' => $offset,
-            ]
-        );
-    }
-
-    /**
-     * @return array<array<string,string>>
-     */
-    public function findPackagesDevVersions(string $packageId): array
-    {
-        return $this->connection->fetchAll(
+        return array_map(function (array $data): Version {
+            return new Version(
+                $data['id'],
+                $data['version'],
+                $data['reference'],
+                0,
+                new \DateTimeImmutable()
+            );
+        }, $this->connection->fetchAll(
             'SELECT
                 v.id,
                 v.version,
@@ -82,8 +48,8 @@ final class DbalVersionQuery implements VersionQuery
             )',
             [
                 ':package_id' => $packageId,
-                ':stability' => Version::STABILITY_STABLE,
+                ':stability' => VersionEntity::STABILITY_STABLE,
             ]
-        );
+        ));
     }
 }

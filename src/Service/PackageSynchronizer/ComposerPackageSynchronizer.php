@@ -32,14 +32,13 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private string $gitlabUrl;
     private int $clearDistsOlderThan;
 
-    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl, int $clearDistsOlderThan)
+    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
     {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
         $this->gitlabUrl = $gitlabUrl;
-        $this->clearDistsOlderThan = $clearDistsOlderThan;
     }
 
     public function synchronize(Package $package): void
@@ -79,11 +78,6 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             foreach ($packages as $p) {
                 if ($p->getDistUrl() !== null) {
                     $releaseDate = \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime());
-
-                    if ($p->getStability() !== 'stable' && $releaseDate <= (new \DateTime())->modify("-{$this->clearDistsOlderThan} days")) {
-                        continue;
-                    }
-
                     $dist = new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType());
 
                     $this->distStorage->download(

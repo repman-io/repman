@@ -124,6 +124,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): Version {
             return new Version(
+                $data['id'],
                 $data['version'],
                 $data['reference'],
                 $data['size'],
@@ -131,6 +132,7 @@ final class DbalPackageQuery implements PackageQuery
             );
         }, $this->connection->fetchAll(
             'SELECT
+                id,
                 version,
                 reference,
                 size,
@@ -235,11 +237,14 @@ final class DbalPackageQuery implements PackageQuery
     public function getAllSynchronized(int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): PackageName {
-            return new PackageName($data['id'], $data['name']);
+            return new PackageName($data['id'], $data['name'], $data['alias']);
         }, $this->connection->fetchAll(
-            'SELECT id, name FROM organization_package
-            WHERE name IS NOT NULL AND last_sync_error IS NULL
-            ORDER BY last_sync_at ASC
+            'SELECT p.id, p.name, o.alias
+            FROM organization_package p
+            JOIN organization o ON o.id = p.organization_id
+            WHERE p.name IS NOT NULL AND p.last_sync_error IS NULL
+            GROUP BY p.id, o.alias
+            ORDER BY p.last_sync_at ASC
             LIMIT :limit OFFSET :offset', [
                 ':limit' => $limit,
                 ':offset' => $offset,

@@ -33,8 +33,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage(),
-            'gitlab.com',
-            30
+            'gitlab.com'
         );
         $this->resourcesDir = __DIR__.'/../../../Resources/';
     }
@@ -171,31 +170,6 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $this->synchronizer->synchronize($package);
 
         self::assertEquals('no stable release', $this->getProperty($package, 'latestReleasedVersion'));
-        @unlink($this->baseDir.'/buddy/p/some/package.json');
-        @unlink($tmpPath);
-    }
-
-    public function testSkipSynchronizationOnOldDevRelease(): void
-    {
-        $resPath = $this->resourcesDir.'path/unstable/composer.json';
-        $tmpPath = sys_get_temp_dir().'/repman/path/unstable/composer.json';
-        if (!is_dir(dirname($tmpPath))) {
-            mkdir(dirname($tmpPath), 0777, true);
-        }
-        copy($resPath, $tmpPath);
-
-        $package = PackageMother::withOrganization('path', dirname($tmpPath), 'buddy');
-
-        (new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
-            new PackageNormalizer(),
-            $this->repoMock = $this->createMock(PackageRepository::class),
-            new InMemoryStorage(),
-            'gitlab.com',
-            0
-        ))->synchronize($package);
-
-        self::assertCount(0, $package->versions());
         @unlink($this->baseDir.'/buddy/p/some/package.json');
         @unlink($tmpPath);
     }

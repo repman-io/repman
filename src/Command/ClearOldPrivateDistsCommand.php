@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Query\Admin\VersionQuery;
+use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Repository\VersionRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Ramsey\Uuid\Uuid;
@@ -14,13 +15,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class ClearOldPrivateDistsCommand extends Command
 {
-    private VersionQuery $query;
+    private VersionQuery $versionQuery;
+    private PackageQuery $packageQuery;
     private VersionRepository $repository;
     private PackageManager $packageManager;
 
-    public function __construct(VersionQuery $query, VersionRepository $repository, PackageManager $packageManager)
+    public function __construct(VersionQuery $versionQuery, PackageQuery $packageQuery, VersionRepository $repository, PackageManager $packageManager)
     {
-        $this->query = $query;
+        $this->versionQuery = $versionQuery;
+        $this->packageQuery = $packageQuery;
         $this->repository = $repository;
         $this->packageManager = $packageManager;
 
@@ -40,17 +43,17 @@ final class ClearOldPrivateDistsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $limit = 100;
-        $count = $this->query->oldDistsCount();
+        $count = $this->packageQuery->getAllSynchronizedCount();
 
         for ($offset = 0; $offset < $count; $offset += $limit) {
-            foreach ($this->query->findPackagesWithDevVersions($limit, $offset) as $package) {
-                foreach ($this->query->findPackagesDevVersions($package['id']) as $version) {
-                    $this->repository->remove(Uuid::fromString($version['id']));
+            foreach ($this->packageQuery->getAllSynchronized($limit, $offset) as $package) {
+                foreach ($this->versionQuery->findDevVersions($package->id()) as $version) {
+                    $this->repository->remove(Uuid::fromString($version->id()));
                     $this->packageManager->removeVersionDist(
-                        $package['organization'],
-                        $package['name'],
-                        $version['version'],
-                        $version['reference'],
+                        $package->organization(),
+                        $package->name(),
+                        $version->version(),
+                        $version->reference(),
                         'zip'
                     );
                 }
