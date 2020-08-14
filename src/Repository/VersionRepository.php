@@ -25,12 +25,11 @@ class VersionRepository extends ServiceEntityRepository
 
     public function remove(UuidInterface $id): void
     {
-        $version = $this->find($id);
-        if (!$version instanceof Version) {
-            throw new \InvalidArgumentException(sprintf('Version %s not found.', $id->toString()));
-        }
-
-        $this->_em->remove($version);
-        $this->_em->flush();
+        $this->_em->createQueryBuilder()
+            ->delete(Version::class, 'v')
+            ->where('v.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->execute();
     }
 }
