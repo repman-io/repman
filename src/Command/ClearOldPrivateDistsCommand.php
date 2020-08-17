@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
-use Buddy\Repman\Query\Admin\VersionQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Repository\VersionRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
@@ -15,15 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class ClearOldPrivateDistsCommand extends Command
 {
-    private VersionQuery $versionQuery;
-    private PackageQuery $packageQuery;
+    private PackageQuery $query;
     private VersionRepository $repository;
     private PackageManager $packageManager;
 
-    public function __construct(VersionQuery $versionQuery, PackageQuery $packageQuery, VersionRepository $repository, PackageManager $packageManager)
+    public function __construct(PackageQuery $query, VersionRepository $repository, PackageManager $packageManager)
     {
-        $this->versionQuery = $versionQuery;
-        $this->packageQuery = $packageQuery;
+        $this->query = $query;
         $this->repository = $repository;
         $this->packageManager = $packageManager;
 
@@ -43,11 +40,11 @@ final class ClearOldPrivateDistsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $limit = 100;
-        $count = $this->packageQuery->getAllSynchronizedCount();
+        $count = $this->query->getAllSynchronizedCount();
 
         for ($offset = 0; $offset < $count; $offset += $limit) {
-            foreach ($this->packageQuery->getAllSynchronized($limit, $offset) as $package) {
-                foreach ($this->versionQuery->findDevVersions($package->id()) as $version) {
+            foreach ($this->query->getAllSynchronized($limit, $offset) as $package) {
+                foreach ($this->query->findOldNonStableVersions($package->id()) as $version) {
                     $this->repository->remove(Uuid::fromString($version->id()));
                     $this->packageManager->removeVersionDist(
                         $package->organization(),

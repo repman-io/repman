@@ -63,4 +63,9 @@ interface PackageQuery
     public function getAllSynchronized(int $limit = 20, int $offset = 0): array;
 
     public function getAllSynchronizedCount(): int;
+
+    /**
+     * @return Version[]
+     */
+    public function findOldNonStableVersions(string $packageId): array;
 }

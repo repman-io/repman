@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
+use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -287,5 +288,40 @@ final class DbalPackageQuery implements PackageQuery
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
             $scanResult
         );
+    }
+
+    /**
+     * @return Version[]
+     */
+    public function findOldNonStableVersions(string $packageId): array
+    {
+        return array_map(function (array $data): Version {
+            return new Version(
+                $data['id'],
+                $data['version'],
+                $data['reference'],
+                0,
+                new \DateTimeImmutable()
+            );
+        }, $this->connection->fetchAll(
+            'SELECT
+                v.id,
+                v.version,
+                v.reference
+            FROM organization_package_version v
+            WHERE v.stability != :stability
+            AND v.package_id = :package_id
+            AND v.id != (
+                SELECT vv.id
+                FROM organization_package_version vv
+                WHERE vv.package_id = v.package_id AND stability != :stability
+                ORDER BY vv.date DESC
+                LIMIT 1
+            )',
+            [
+                ':package_id' => $packageId,
+                ':stability' => VersionEntity::STABILITY_STABLE,
+            ]
+        ));
     }
 }
