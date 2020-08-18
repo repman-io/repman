@@ -60,7 +60,7 @@ final class ProxyController extends AbstractController
      *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
      *     methods={"GET"})
      */
-    public function legacyMetadata(string $package): Response
+    public function legacyMetadata(string $package, Request $request): Response
     {
         /** @var Metadata $metadata */
         $metadata = $this->register->all()
@@ -69,7 +69,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElse(Metadata::fromString('{"packages": {}}'));
 
-        return (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+        $response = (new StreamedResponse(null, 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             /* @phpstan-ignore-next-line */
@@ -78,6 +78,14 @@ final class ProxyController extends AbstractController
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
+
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        $response->setCallback(ResponseCallback::fromStream($metadata->stream()));
+
+        return $response;
     }
 
     /**
@@ -88,7 +96,7 @@ final class ProxyController extends AbstractController
      *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
      *     methods={"GET"})
      */
-    public function metadata(string $package): Response
+    public function metadata(string $package, Request $request): Response
     {
         /** @var Metadata $metadata */
         $metadata = $this->register->all()
@@ -97,7 +105,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException());
 
-        return (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+        $response = (new StreamedResponse(null, 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             /* @phpstan-ignore-next-line */
@@ -106,6 +114,14 @@ final class ProxyController extends AbstractController
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
+
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        $response->setCallback(ResponseCallback::fromStream($metadata->stream()));
+
+        return $response;
     }
 
     /**
