@@ -93,6 +93,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
         $dev1Ref = sha1(uniqid());
         $dev2Ref = sha1(uniqid());
         $dev3Ref = sha1(uniqid());
+        $dev4Ref = sha1(uniqid());
 
         $this->fixtures->syncPackageWithData(
             $packageId,
@@ -103,14 +104,16 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
                 $this->createVersion('dev-master', $dev1Ref, 'dev', 1),
-                $this->createVersion('dev-test2', $dev2Ref, 'dev', 2),
-                $this->createVersion('dev-test-prod', $dev3Ref, 'dev', 3),
+                $this->createVersion('dev-master', $dev2Ref, 'dev', 1),
+                $this->createVersion('dev-test2', $dev3Ref, 'dev', 2),
+                $this->createVersion('dev-master', $dev4Ref, 'dev', 3),
             ]
         );
         $this->fixtures->prepareRepoFiles();
         $this->prepareTestDist($this->distFilePath('dev-master', $dev1Ref));
-        $this->prepareTestDist($this->distFilePath('dev-test2', $dev2Ref));
-        $this->prepareTestDist($this->distFilePath('dev-test-prod', $dev3Ref));
+        $this->prepareTestDist($this->distFilePath('dev-master', $dev2Ref));
+        $this->prepareTestDist($this->distFilePath('dev-test2', $dev3Ref));
+        $this->prepareTestDist($this->distFilePath('dev-master', $dev4Ref));
 
         $commandTester = new CommandTester(
             $this->container()->get(ClearOldPrivateDistsCommand::class)
@@ -118,17 +121,19 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
 
         self::assertFileExists($this->distFilePath($this->version, $this->ref));
         self::assertFileExists($this->distFilePath('dev-master', $dev1Ref));
-        self::assertFileExists($this->distFilePath('dev-test2', $dev2Ref));
-        self::assertFileExists($this->distFilePath('dev-test-prod', $dev3Ref));
-        self::assertCount(4, $this->container()->get(VersionRepository::class)->findAll());
+        self::assertFileExists($this->distFilePath('dev-master', $dev2Ref));
+        self::assertFileExists($this->distFilePath('dev-test2', $dev3Ref));
+        self::assertFileExists($this->distFilePath('dev-master', $dev4Ref));
+        self::assertCount(3, $this->container()->get(VersionRepository::class)->findAll());
 
         self::assertEquals(0, $commandTester->execute([]));
 
         self::assertCount(2, $this->container()->get(VersionRepository::class)->findAll());
         self::assertFileExists($this->distFilePath($this->version, $this->ref));
         self::assertFileNotExists($this->distFilePath('dev-master', $dev1Ref));
-        self::assertFileNotExists($this->distFilePath('dev-test2', $dev2Ref));
-        self::assertFileExists($this->distFilePath('dev-test-prod', $dev3Ref));
+        self::assertFileNotExists($this->distFilePath('dev-master', $dev2Ref));
+        self::assertFileNotExists($this->distFilePath('dev-test2', $dev3Ref));
+        self::assertFileExists($this->distFilePath('dev-master', $dev4Ref));
 
         $this->fixtures->prepareRepoFiles();
     }

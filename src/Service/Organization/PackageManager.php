@@ -83,9 +83,14 @@ class PackageManager
         return $this;
     }
 
-    public function removeVersionDist(string $organizationAlias, string $packageName, string $version, string $ref, string $format): self
+    public function removeVersionDists(string $organizationAlias, string $packageName, string $version, string $format, string $excludeRef): self
     {
-        $this->filesystem->remove($this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_'.$ref.'.'.$format);
+        $baseFilename = $this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_';
+
+        $this->filesystem->remove(
+            array_filter((array) glob($baseFilename.'*.'.$format), fn ($file) => $file !== $baseFilename.$excludeRef.'.'.$format
+            )
+        );
 
         return $this;
     }

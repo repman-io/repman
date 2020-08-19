@@ -67,5 +67,7 @@ interface PackageQuery
     /**
      * @return Version[]
      */
-    public function findOldNonStableVersions(string $packageId): array;
+    public function findNonStableVersions(string $packageId): array;
+
+    public function findLatestNonStableVersion(string $packageId): ?Version;
 }

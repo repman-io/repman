@@ -44,14 +44,22 @@ final class ClearOldPrivateDistsCommand extends Command
 
         for ($offset = 0; $offset < $count; $offset += $limit) {
             foreach ($this->query->getAllSynchronized($limit, $offset) as $package) {
-                foreach ($this->query->findOldNonStableVersions($package->id()) as $version) {
-                    $this->repository->remove(Uuid::fromString($version->id()));
-                    $this->packageManager->removeVersionDist(
+                $excludeVersion = $this->query->findLatestNonStableVersion($package->id());
+                if ($excludeVersion === null) {
+                    continue;
+                }
+
+                foreach ($this->query->findNonStableVersions($package->id()) as $version) {
+                    if ($excludeVersion->id() !== $version->id()) {
+                        $this->repository->remove(Uuid::fromString($version->id()));
+                    }
+
+                    $this->packageManager->removeVersionDists(
                         $package->organization(),
                         $package->name(),
                         $version->version(),
-                        $version->reference(),
-                        'zip'
+                        'zip',
+                        $excludeVersion->reference(),
                     );
                 }
             }

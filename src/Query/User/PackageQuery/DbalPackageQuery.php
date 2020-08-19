@@ -293,7 +293,7 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return Version[]
      */
-    public function findOldNonStableVersions(string $packageId): array
+    public function findNonStableVersions(string $packageId): array
     {
         return array_map(function (array $data): Version {
             return new Version(
@@ -310,18 +310,41 @@ final class DbalPackageQuery implements PackageQuery
                 v.reference
             FROM organization_package_version v
             WHERE v.stability != :stability
-            AND v.package_id = :package_id
-            AND v.id != (
-                SELECT vv.id
-                FROM organization_package_version vv
-                WHERE vv.package_id = v.package_id AND stability != :stability
-                ORDER BY vv.date DESC
-                LIMIT 1
-            )',
+            AND v.package_id = :package_id',
             [
                 ':package_id' => $packageId,
                 ':stability' => VersionEntity::STABILITY_STABLE,
             ]
         ));
+    }
+
+    public function findLatestNonStableVersion(string $packageId): ?Version
+    {
+        $data = $this->connection->fetchAssoc(
+            'SELECT
+                id,
+                version,
+                reference
+            FROM organization_package_version
+            WHERE package_id = :package_id AND stability != :stability
+            ORDER BY date DESC
+            LIMIT 1',
+            [
+                ':package_id' => $packageId,
+                ':stability' => VersionEntity::STABILITY_STABLE,
+            ]
+        );
+
+        if ($data === false) {
+            return null;
+        }
+
+        return new Version(
+            $data['id'],
+            $data['version'],
+            $data['reference'],
+            0,
+            new \DateTimeImmutable()
+        );
     }
 }
