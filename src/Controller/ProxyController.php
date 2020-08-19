@@ -32,9 +32,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/packages.json", host="repo.{domain}", name="packages", methods={"GET"}, defaults={"domain"="%domain%"}, requirements={"domain"="%domain%"})
      */
-    public function packages(): JsonResponse
+    public function packages(Request $request): JsonResponse
     {
-        return (new JsonResponse([
+        $response = (new JsonResponse([
             'notify-batch' => $this->generateUrl('package_downloads', [], RouterInterface::ABSOLUTE_URL),
             'providers-url' => '/p/%package%$%hash%.json',
             'metadata-url' => '/p2/%package%.json',
@@ -50,6 +50,10 @@ final class ProxyController extends AbstractController
             ->setPublic()
             ->setTtl(86400)
         ;
+
+        $response->isNotModified($request);
+
+        return $response;
     }
 
     /**
@@ -69,7 +73,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElse(Metadata::fromString('{"packages": {}}'));
 
-        $response = (new StreamedResponse(null, 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             /* @phpstan-ignore-next-line */
@@ -79,11 +83,7 @@ final class ProxyController extends AbstractController
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
-        if ($response->isNotModified($request)) {
-            return $response;
-        }
-
-        $response->setCallback(ResponseCallback::fromStream($metadata->stream()));
+        $response->isNotModified($request);
 
         return $response;
     }
@@ -105,7 +105,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException());
 
-        $response = (new StreamedResponse(null, 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             /* @phpstan-ignore-next-line */
@@ -115,11 +115,7 @@ final class ProxyController extends AbstractController
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
-        if ($response->isNotModified($request)) {
-            return $response;
-        }
-
-        $response->setCallback(ResponseCallback::fromStream($metadata->stream()));
+        $response->isNotModified($request);
 
         return $response;
     }
@@ -132,7 +128,7 @@ final class ProxyController extends AbstractController
      *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%"},
      *     methods={"GET"})
      */
-    public function distribution(string $package, string $version, string $ref, string $type): Response
+    public function distribution(string $package, string $version, string $ref, string $type, Request $request): Response
     {
         /** @var resource $stream */
         $stream = $this->register->all()
@@ -141,7 +137,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
-        return (new StreamedResponse(ResponseCallback::fromStream($stream), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($stream), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
             /* @phpstan-ignore-next-line */
@@ -150,6 +146,10 @@ final class ProxyController extends AbstractController
             ->setPublic()
             ->setEtag($ref)
         ;
+
+        $response->isNotModified($request);
+
+        return $response;
     }
 
     /**
