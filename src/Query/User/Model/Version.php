@@ -6,24 +6,17 @@ namespace Buddy\Repman\Query\User\Model;
 
 final class Version
 {
-    private string $id;
     private string $version;
     private string $reference;
     private int $size;
     private \DateTimeImmutable $date;
 
-    public function __construct(string $id, string $version, string $reference, int $size, \DateTimeImmutable $date)
+    public function __construct(string $version, string $reference, int $size, \DateTimeImmutable $date)
     {
-        $this->id = $id;
         $this->version = $version;
         $this->reference = $reference;
         $this->size = $size;
         $this->date = $date;
-    }
-
-    public function id(): string
-    {
-        return $this->id;
     }
 
     public function version(): string

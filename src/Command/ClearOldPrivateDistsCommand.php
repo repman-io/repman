@@ -46,7 +46,7 @@ final class ClearOldPrivateDistsCommand extends Command
                         $package->name(),
                         $version->version(),
                         'zip',
-                        $this->query->findLatestNonStableVersion($version->version())->reference(),
+                        $version->reference(),
                     );
                 }
             }

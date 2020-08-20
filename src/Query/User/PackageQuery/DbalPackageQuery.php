@@ -125,7 +125,6 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): Version {
             return new Version(
-                $data['id'],
                 $data['version'],
                 $data['reference'],
                 $data['size'],
@@ -297,7 +296,6 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): Version {
             return new Version(
-                $data['id'],
                 $data['version'],
                 $data['reference'],
                 0,
@@ -316,35 +314,5 @@ final class DbalPackageQuery implements PackageQuery
                 ':stability' => VersionEntity::STABILITY_STABLE,
             ]
         ));
-    }
-
-    public function findLatestNonStableVersion(string $version): Version
-    {
-        $data = $this->connection->fetchAssoc(
-            'SELECT
-                id,
-                version,
-                reference
-            FROM organization_package_version
-            WHERE version = :version AND stability != :stability
-            ORDER BY date DESC
-            LIMIT 1',
-            [
-                ':version' => $version,
-                ':stability' => VersionEntity::STABILITY_STABLE,
-            ]
-        );
-
-        if ($data === false) {
-            throw new \InvalidArgumentException("Version {$version} not found");
-        }
-
-        return new Version(
-            $data['id'],
-            $data['version'],
-            $data['reference'],
-            0,
-            new \DateTimeImmutable()
-        );
     }
 }
