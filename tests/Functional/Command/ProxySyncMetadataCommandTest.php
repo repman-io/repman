@@ -6,7 +6,6 @@ namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\ProxySyncMetadataCommand;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
-use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Lock\LockFactory;
@@ -14,13 +13,11 @@ use Symfony\Component\Lock\Store\FlockStore;
 
 final class ProxySyncMetadataCommandTest extends FunctionalTestCase
 {
-    private FakeDownloader $downloader;
     private LockFactory $lockFactory;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->downloader = new FakeDownloader();
         $this->lockFactory = new LockFactory(new FlockStore());
     }
 
@@ -57,7 +54,6 @@ final class ProxySyncMetadataCommandTest extends FunctionalTestCase
     {
         return new ProxySyncMetadataCommand(
             $this->container()->get(ProxyRegister::class),
-            $this->downloader,
             $this->lockFactory
         );
     }

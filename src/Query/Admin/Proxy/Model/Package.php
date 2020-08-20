@@ -17,6 +17,11 @@ final class Package
         $this->lastDownload = $lastDownload;
     }
 
+    public function name(): string
+    {
+        return $this->name;
+    }
+
     public function downloads(): int
     {
         return $this->downloads;

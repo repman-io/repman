@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
-use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Symfony\Component\Console\Command\Command;
@@ -18,13 +17,11 @@ final class ProxySyncMetadataCommand extends Command
     public const LOCK_NAME = 'proxy_metadata';
 
     private ProxyRegister $register;
-    private Downloader $downloader;
     private LockFactory $lockFactory;
 
-    public function __construct(ProxyRegister $register, Downloader $downloader, LockFactory $lockFactory)
+    public function __construct(ProxyRegister $register, LockFactory $lockFactory)
     {
         $this->register = $register;
-        $this->downloader = $downloader;
         $this->lockFactory = $lockFactory;
 
         parent::__construct();
