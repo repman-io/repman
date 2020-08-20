@@ -26,6 +26,13 @@ parameters:
             message: "#^Variable \\$http_response_header in isset\\(\\) always exists and is not nullable\\.$#"
             count: 1
             path: src/Service/Downloader/ReactDownloader.php
+        -
+            message: "#^Property .+ is never read, only written\\.$#"
+            path: src/Entity/
+        -
+            message: "#^Property .+\\:\\:\\$key is unused\\.$#"
+            count: 1
+            path: src/Entity/Config.php
 
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions

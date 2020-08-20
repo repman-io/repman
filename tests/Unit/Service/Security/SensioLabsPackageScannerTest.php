@@ -13,7 +13,6 @@ use Buddy\Repman\Tests\MotherObject\PackageMother;
 use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBus;
 
@@ -23,19 +22,14 @@ final class SensioLabsPackageScannerTest extends TestCase
 
     private SensioLabsPackageScanner $scanner;
     private SecurityChecker $checkerMock;
-    private string $baseDir;
     /** @var ScanResultRepository|MockObject */
     private $repoMock;
-    private Filesystem $filesystem;
 
     protected function setUp(): void
     {
         $this->checkerMock = $this->createMock(SecurityChecker::class);
         $this->checkerMock->method('check')->willReturn([]);
         $this->repoMock = $this->createMock(ScanResultRepository::class);
-
-        $this->filesystem = new Filesystem();
-        $this->baseDir = sys_get_temp_dir().'/repman';
 
         $this->scanner = $this->prepareScanner();
     }
