@@ -180,6 +180,9 @@
     "http-interop/http-factory-guzzle": {
         "version": "1.0.0"
     },
+    "jdorn/sql-formatter": {
+        "version": "v1.2.17"
+    },
     "jean85/pretty-package-versions": {
         "version": "1.2"
     },
