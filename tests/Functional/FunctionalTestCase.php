@@ -77,4 +77,15 @@ abstract class FunctionalTestCase extends WebTestCase
     {
         return self::$kernel->getContainer()->get('test.service_container');
     }
+
+    protected function loginApiUser(string $token): void
+    {
+        if (static::$booted) {
+            self::ensureKernelShutdown();
+        }
+
+        $this->client = static::createClient([], [
+            'HTTP_X-API-TOKEN' => $token,
+        ]);
+    }
 }

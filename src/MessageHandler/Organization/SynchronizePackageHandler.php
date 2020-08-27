@@ -26,6 +26,7 @@ final class SynchronizePackageHandler implements MessageHandlerInterface
         $this->synchronizer = $synchronizer;
         $this->packages = $packages;
         $this->messageBus = $messageBus;
+        $this->messageBus = $messageBus;
     }
 
     public function __invoke(SynchronizePackage $message): void

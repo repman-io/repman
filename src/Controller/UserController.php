@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller;
 
 use Buddy\Repman\Form\Type\Organization\CreateType;
+use Buddy\Repman\Form\Type\Organization\GenerateApiTokenType;
 use Buddy\Repman\Form\Type\User\ChangeEmailPreferencesType;
 use Buddy\Repman\Form\Type\User\ChangePasswordType;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\User\ChangeEmailPreferences;
 use Buddy\Repman\Message\User\ChangePassword;
+use Buddy\Repman\Message\User\GenerateApiToken;
+use Buddy\Repman\Message\User\RegenerateApiToken;
+use Buddy\Repman\Message\User\RemoveApiToken;
 use Buddy\Repman\Message\User\RemoveOAuthToken;
 use Buddy\Repman\Message\User\RemoveUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
@@ -124,6 +128,73 @@ final class UserController extends AbstractController
         $this->addFlash('success', sprintf('%s has been successfully unlinked.', \ucfirst($type)));
 
         return $this->redirectToRoute('user_profile');
+    }
+
+    /**
+     * @Route("/user/token",
+     *  name="user_api_tokens",
+     *  methods={"GET"})
+     */
+    public function apiTokens(Request $request): Response
+    {
+        return $this->render('user/apiTokens.html.twig', [
+            'tokens' => $this->userQuery->findAllApiTokens($this->getUser()->id(), 20, (int) $request->get('offset', 0)),
+            'count' => $this->userQuery->apiTokenCount($this->getUser()->id()),
+        ]);
+    }
+
+    /**
+     * @Route("/user/api-token/new",
+     *  name="user_api_token_new",
+     *  methods={"GET","POST"})
+     */
+    public function generateApiToken(Request $request): Response
+    {
+        $form = $this->createForm(GenerateApiTokenType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->dispatchMessage(new GenerateApiToken(
+                $this->getUser()->id(),
+                $name = $form->get('name')->getData()
+            ));
+
+            $this->addFlash('success', sprintf('API Token "%s" has been successfully generated.', $name));
+
+            return $this->redirectToRoute('user_api_tokens');
+        }
+
+        return $this->render('user/generateApiToken.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/user/token/{token}/regenerate",
+     *  name="user_api_token_regenerate",
+     * methods={"POST"})
+     */
+    public function regenerateApiToken(string $token): Response
+    {
+        $this->dispatchMessage(new RegenerateApiToken($this->getUser()->id(), $token));
+
+        $this->addFlash('success', 'API token has been successfully regenerated');
+
+        return $this->redirectToRoute('user_api_tokens');
+    }
+
+    /**
+     * @Route("/user/token/{token}",
+     *  name="user_api_token_remove",
+     * methods={"DELETE"})
+     */
+    public function removeApiToken(string $token): Response
+    {
+        $this->dispatchMessage(new RemoveApiToken($this->getUser()->id(), $token));
+
+        $this->addFlash('success', 'API token has been successfully removed');
+
+        return $this->redirectToRoute('user_api_tokens');
     }
 
     protected function getUser(): User

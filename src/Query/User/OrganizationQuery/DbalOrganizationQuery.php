@@ -65,12 +65,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): Token {
-            return new Token(
-                $data['name'],
-                $data['value'],
-                new \DateTimeImmutable($data['created_at']),
-                $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
-            );
+            return $this->hydrateToken($data);
         }, $this->connection->fetchAll('
             SELECT name, value, created_at, last_used_at
             FROM organization_token
@@ -200,6 +195,48 @@ final class DbalOrganizationQuery implements OrganizationQuery
     }
 
     /**
+     * @return Option<Token>
+     */
+    public function findToken(string $organizationId, string $value): Option
+    {
+        $data = $this->connection->fetchAssoc(
+            'SELECT name, value, created_at, last_used_at
+            FROM organization_token
+            WHERE organization_id = :organization_id AND value = :value
+            LIMIT 1', [
+            ':organization_id' => $organizationId,
+            ':value' => $value,
+        ]);
+
+        if ($data === false) {
+            return Option::none();
+        }
+
+        return Option::some($this->hydrateToken($data));
+    }
+
+    /**
+     * @return Option<Token>
+     */
+    public function findTokenByName(string $organizationId, string $name): Option
+    {
+        $data = $this->connection->fetchAssoc(
+            'SELECT name, value, created_at, last_used_at
+            FROM organization_token
+            WHERE organization_id = :organization_id AND name = :name
+            ORDER BY created_at DESC', [
+            ':organization_id' => $organizationId,
+            ':name' => $name,
+        ]);
+
+        if ($data === false) {
+            return Option::none();
+        }
+
+        return Option::some($this->hydrateToken($data));
+    }
+
+    /**
      * @param array<mixed> $data
      */
     private function hydrateOrganization(array $data): Organization
@@ -218,6 +255,19 @@ final class DbalOrganizationQuery implements OrganizationQuery
             array_map(fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
             $data['has_anonymous_access'],
             $token !== false ? $token : null
+        );
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function hydrateToken(array $data): Token
+    {
+        return new Token(
+            $data['name'],
+            $data['value'],
+            new \DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

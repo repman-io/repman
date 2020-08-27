@@ -105,4 +105,57 @@ final class UserControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Email preferences have been changed', $this->lastResponseBody());
     }
+
+    public function testApiTokens(): void
+    {
+        $this->fixtures->createApiToken($this->userId);
+        $this->client->request('GET', $this->urlTo('user_api_tokens'));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Showing 1 to 2 of 2 entries', $this->lastResponseBody());
+    }
+
+    public function testGenerateApiTokens(): void
+    {
+        $this->client->request('GET', $this->urlTo('user_api_token_new'));
+        $this->client->submitForm('Generate', [
+            'name' => 'to-generate',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_api_tokens')));
+        $this->client->followRedirect();
+        self::assertStringContainsString('to-generate', $this->lastResponseBody());
+    }
+
+    public function testRemoveApiTokens(): void
+    {
+        $this->fixtures->createApiToken($this->userId, 'to-delete');
+
+        $this->client->request('GET', $this->urlTo('user_api_tokens'));
+        self::assertStringContainsString('to-delete', $this->lastResponseBody());
+
+        $this->client->request('DELETE', $this->urlTo('user_api_token_remove', [
+            'token' => 'to-delete',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_api_tokens')));
+        $this->client->followRedirect();
+        self::assertStringNotContainsString('to-delete', $this->lastResponseBody());
+    }
+
+    public function testRegenerateApiTokens(): void
+    {
+        $this->fixtures->createApiToken($this->userId, 'to-regenerate');
+
+        $this->client->request('GET', $this->urlTo('user_api_tokens'));
+        self::assertStringContainsString('to-regenerate', $this->lastResponseBody());
+
+        $this->client->request('POST', $this->urlTo('user_api_token_regenerate', [
+            'token' => 'to-regenerate',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_api_tokens')));
+        $this->client->followRedirect();
+        self::assertStringNotContainsString('to-regenerate', $this->lastResponseBody());
+    }
 }

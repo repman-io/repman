@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
-final class Package
+final class Package implements \JsonSerializable
 {
     private string $id;
     private string $organizationId;
@@ -143,5 +143,26 @@ final class Package
     public function lastScanResultContent(): array
     {
         return $this->scanResult !== null ? $this->scanResult->content() : [];
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id(),
+            'organizationId' => $this->organizationId(),
+            'type' => $this->type(),
+            'url' => $this->url(),
+            'name' => $this->name(),
+            'latestReleasedVersion' => $this->latestReleasedVersion(),
+            'latestReleaseDate' => $this->latestReleaseDate() !== null ? $this->latestReleaseDate()->format(\DateTime::ATOM) : null,
+            'description' => $this->description(),
+            'lastSyncAt' => $this->lastSyncAt() !== null ? $this->lastSyncAt()->format(\DateTime::ATOM) : null,
+            'lastSyncError' => $this->lastSyncError(),
+            'webhookCreatedAt' => $this->webhookCreatedAt() !== null ? $this->webhookCreatedAt()->format(\DateTime::ATOM) : null,
+            'scanResult' => $this->scanResult,
+        ];
     }
 }
