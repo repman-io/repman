@@ -6,13 +6,11 @@ namespace Buddy\Repman\Query\Admin\Proxy\Model;
 
 final class Package
 {
-    private string $name;
     private int $downloads;
     private \DateTimeImmutable $lastDownload;
 
-    public function __construct(string $name, int $downloads, \DateTimeImmutable $lastDownload)
+    public function __construct(int $downloads, \DateTimeImmutable $lastDownload)
     {
-        $this->name = $name;
         $this->downloads = $downloads;
         $this->lastDownload = $lastDownload;
     }
