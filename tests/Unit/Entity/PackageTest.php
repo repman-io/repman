@@ -28,9 +28,9 @@ final class PackageTest extends TestCase
 
     public function testSyncSuccessRemovesUnencounteredVersions(): void
     {
-        $this->package->addOrUpdateVersion($version1 = new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable()));
-        $this->package->addOrUpdateVersion($version2 = new Version(Uuid::uuid4(), '1.0.1', 'anotherref', 5678, new \DateTimeImmutable()));
-        $this->package->addOrUpdateVersion($version3 = new Version(Uuid::uuid4(), '1.1.0', 'lastref', 6543, new \DateTimeImmutable()));
+        $this->package->addOrUpdateVersion($version1 = new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable(), Version::STABILITY_STABLE));
+        $this->package->addOrUpdateVersion($version2 = new Version(Uuid::uuid4(), '1.0.1', 'anotherref', 5678, new \DateTimeImmutable(), Version::STABILITY_STABLE));
+        $this->package->addOrUpdateVersion($version3 = new Version(Uuid::uuid4(), '1.1.0', 'lastref', 6543, new \DateTimeImmutable(), Version::STABILITY_STABLE));
 
         $this->package->syncSuccess('some/package', 'desc', '1.1.0', ['1.0.0', '1.1.0'], new \DateTimeImmutable());
 
@@ -57,7 +57,7 @@ final class PackageTest extends TestCase
     public function testPackageGetProperties(): void
     {
         $date = new \DateTimeImmutable();
-        $version = new Version($id = Uuid::uuid4(), '1.0.0', 'someref', 1234, $date);
+        $version = new Version($id = Uuid::uuid4(), '1.0.0', 'someref', 1234, $date, Version::STABILITY_STABLE);
         $this->package->addOrUpdateVersion($version);
 
         self::assertInstanceOf(Version::class, $returnedVersion = $this->package->getVersion('1.0.0'));
@@ -70,7 +70,7 @@ final class PackageTest extends TestCase
 
     public function testPackageNonExisting(): void
     {
-        $version = new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable());
+        $version = new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable(), Version::STABILITY_STABLE);
         $this->package->addOrUpdateVersion($version);
 
         self::assertEquals(false, $this->package->getVersion('1.0.1'));
@@ -80,8 +80,8 @@ final class PackageTest extends TestCase
     {
         $date = new \DateTimeImmutable('tomorrow');
         // Make sure the dates do not match so we can test that it is updated
-        $version = new Version($id1 = Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable('today'));
-        $versionUpdated = new Version($id2 = Uuid::uuid4(), '1.0.0', 'newref', 5678, $date);
+        $version = new Version($id1 = Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable('today'), Version::STABILITY_STABLE);
+        $versionUpdated = new Version($id2 = Uuid::uuid4(), '1.0.0', 'newref', 5678, $date, Version::STABILITY_STABLE);
         $this->package->addOrUpdateVersion($version);
         $this->package->addOrUpdateVersion($versionUpdated);
 
@@ -95,7 +95,7 @@ final class PackageTest extends TestCase
 
     public function testPackageAddSameVersion(): void
     {
-        $version = new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable());
+        $version = new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable(), Version::STABILITY_STABLE);
         $this->package->addOrUpdateVersion($version);
         $this->package->addOrUpdateVersion($version); // this should not throw exception
 

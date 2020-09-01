@@ -27,3 +27,11 @@
     minute=0
     hour=0
     job="{{ app_current_dir }}/bin/console repman:telemetry:send >>{{ app_current_dir }}/var/log/cron.log 2>&1"
+
+- name: Clear old private dev distributions files
+  cron:
+    name="Clear old dists"
+    user="{{ system_user }}"
+    minute=0
+    hour=1
+    job="{{ app_current_dir }}/bin/console repman:package:clear-old-dists >>{{ app_current_dir }}/var/log/cron.log 2>&1"

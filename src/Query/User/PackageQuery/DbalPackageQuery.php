@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
+use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -131,6 +132,7 @@ final class DbalPackageQuery implements PackageQuery
             );
         }, $this->connection->fetchAll(
             'SELECT
+                id,
                 version,
                 reference,
                 size,
@@ -235,11 +237,14 @@ final class DbalPackageQuery implements PackageQuery
     public function getAllSynchronized(int $limit = 20, int $offset = 0): array
     {
         return array_map(function (array $data): PackageName {
-            return new PackageName($data['id'], $data['name']);
+            return new PackageName($data['id'], $data['name'], $data['alias']);
         }, $this->connection->fetchAll(
-            'SELECT id, name FROM organization_package
-            WHERE name IS NOT NULL AND last_sync_error IS NULL
-            ORDER BY last_sync_at ASC
+            'SELECT p.id, p.name, o.alias
+            FROM organization_package p
+            JOIN organization o ON o.id = p.organization_id
+            WHERE p.name IS NOT NULL AND p.last_sync_error IS NULL
+            GROUP BY p.id, o.alias
+            ORDER BY p.last_sync_at ASC
             LIMIT :limit OFFSET :offset', [
                 ':limit' => $limit,
                 ':offset' => $offset,
@@ -282,5 +287,32 @@ final class DbalPackageQuery implements PackageQuery
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
             $scanResult
         );
+    }
+
+    /**
+     * @return Version[]
+     */
+    public function findNonStableVersions(string $packageId): array
+    {
+        return array_map(function (array $data): Version {
+            return new Version(
+                $data['version'],
+                $data['reference'],
+                0,
+                new \DateTimeImmutable()
+            );
+        }, $this->connection->fetchAll(
+            'SELECT
+                id,
+                version,
+                reference
+            FROM organization_package_version
+            WHERE stability != :stability
+            AND package_id = :package_id',
+            [
+                ':package_id' => $packageId,
+                ':stability' => VersionEntity::STABILITY_STABLE,
+            ]
+        ));
     }
 }

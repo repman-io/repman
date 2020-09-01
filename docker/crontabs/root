@@ -2,3 +2,4 @@
 */6 * * * * /app/bin/console repman:proxy:sync-metadata
 0 */2 * * * /app/bin/console repman:security:update-db
 0 0 * * * /app/bin/console repman:telemetry:send
+0 1 * * * /app/bin/console repman:package:clear-old-dists

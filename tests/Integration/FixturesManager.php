@@ -146,13 +146,13 @@ final class FixturesManager
         $this->container->get('doctrine.orm.entity_manager')->flush($package);
     }
 
-    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0'): void
+    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0', ?\DateTimeImmutable $date = null): void
     {
-        Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version): void {
+        Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version, $date): void {
             $this->dispatchMessage(new AddDownload(
                 $packageId,
                 $version,
-                new \DateTimeImmutable(),
+                $date ?? new \DateTimeImmutable(),
                 '192.168.0.1',
                 'Composer 19.10'
             ));
@@ -219,7 +219,9 @@ final class FixturesManager
     {
         $this->filesystem->mirror(
             __DIR__.'/../Resources/fixtures/buddy/dist/buddy-works/repman',
-            __DIR__.'/../Resources/buddy/dist/buddy-works/repman'
+            __DIR__.'/../Resources/buddy/dist/buddy-works/repman',
+            null,
+            ['delete' => true]
         );
     }
 

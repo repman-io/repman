@@ -8,6 +8,7 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
+use Composer\Semver\VersionParser;
 use Munus\Control\Option;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -16,12 +17,14 @@ class PackageManager
     private Storage $distStorage;
     private string $baseDir;
     private Filesystem $filesystem;
+    private VersionParser $versionParser;
 
     public function __construct(Storage $distStorage, string $baseDir, Filesystem $filesystem)
     {
         $this->distStorage = $distStorage;
         $this->baseDir = $baseDir;
         $this->filesystem = $filesystem;
+        $this->versionParser = new VersionParser();
     }
 
     /**
@@ -76,6 +79,18 @@ class PackageManager
         if (is_dir($distDir)) {
             $this->filesystem->remove($distDir);
         }
+
+        return $this;
+    }
+
+    public function removeVersionDists(string $organizationAlias, string $packageName, string $version, string $format, string $excludeRef): self
+    {
+        $baseFilename = $this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_';
+
+        $this->filesystem->remove(
+            array_filter((array) glob($baseFilename.'*.'.$format), fn ($file) => $file !== $baseFilename.$excludeRef.'.'.$format
+            )
+        );
 
         return $this;
     }
