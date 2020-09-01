@@ -16,6 +16,8 @@ final class ProxySyncMetadataCommand extends Command
     public const LOCK_TTL = 60;
     public const LOCK_NAME = 'proxy_metadata';
 
+    protected static $defaultName = 'repman:proxy:sync-metadata';
+
     private ProxyRegister $register;
     private LockFactory $lockFactory;
 
@@ -33,7 +35,6 @@ final class ProxySyncMetadataCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:proxy:sync-metadata')
             ->setDescription('Sync proxy metadata with origins')
         ;
     }

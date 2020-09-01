@@ -16,6 +16,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class SynchronizePackageCommand extends Command
 {
+    protected static $defaultName = 'repman:package:synchronize';
+
     private MessageBusInterface $bus;
     private PackageRepository $packages;
 
@@ -33,7 +35,6 @@ final class SynchronizePackageCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:package:synchronize')
             ->setDescription('Synchronize given package')
             ->addArgument('packageId', InputArgument::REQUIRED, 'package UUID')
         ;

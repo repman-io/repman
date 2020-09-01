@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class SendTelemetryCommand extends Command
 {
+    protected static $defaultName = 'repman:telemetry:send';
+
     private Config $config;
     private Telemetry $telemetry;
 
@@ -29,7 +31,6 @@ final class SendTelemetryCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:telemetry:send')
             ->setDescription('Send telemetry data');
     }
 

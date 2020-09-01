@@ -12,6 +12,8 @@ use Symfony\Component\Finder\SplFileInfo;
 
 final class ClearMetadataCacheCommand extends Command
 {
+    protected static $defaultName = 'repman:metadata:clear-cache';
+
     private string $distsDir;
 
     public function __construct(string $distsDir)
@@ -26,7 +28,6 @@ final class ClearMetadataCacheCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:metadata:clear-cache')
             ->setDescription('Clear packages metadata cache (json files)')
         ;
     }
