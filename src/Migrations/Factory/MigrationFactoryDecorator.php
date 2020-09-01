@@ -11,13 +11,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MigrationFactoryDecorator implements MigrationFactory
 {
-    private $migrationFactory;
-    private $container;
+    private MigrationFactory $migrationFactory;
+    private ContainerInterface $container;
 
     public function __construct(MigrationFactory $migrationFactory, ContainerInterface $container)
     {
         $this->migrationFactory = $migrationFactory;
-        $this->container        = $container;
+        $this->container = $container;
     }
 
     public function createVersion(string $migrationClassName): AbstractMigration

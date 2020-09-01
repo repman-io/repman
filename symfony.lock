@@ -235,6 +235,9 @@
     "league/flysystem-memory": {
         "version": "1.0.2"
     },
+    "league/mime-type-detection": {
+        "version": "1.4.0"
+    },
     "league/oauth2-client": {
         "version": "2.4.1"
     },
