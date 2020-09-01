@@ -141,9 +141,6 @@
     "doctrine/reflection": {
         "version": "v1.1.0"
     },
-    "doctrine/sql-formatter": {
-        "version": "1.1.0"
-    },
     "egulias/email-validator": {
         "version": "2.1.15"
     },
@@ -237,9 +234,6 @@
     },
     "league/flysystem-memory": {
         "version": "1.0.2"
-    },
-    "league/mime-type-detection": {
-        "version": "1.4.0"
     },
     "league/oauth2-client": {
         "version": "2.4.1"

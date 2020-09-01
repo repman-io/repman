@@ -1,3 +1,5 @@
 doctrine_migrations:
     migrations_paths:
         Buddy\Repman\Migrations: '%kernel.project_dir%/src/Migrations'
+    services:
+         Doctrine\Migrations\Version\MigrationFactory: Buddy\Repman\Migrations\Factory\MigrationFactoryDecorator
