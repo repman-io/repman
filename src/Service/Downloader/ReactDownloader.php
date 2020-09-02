@@ -6,22 +6,32 @@ namespace Buddy\Repman\Service\Downloader;
 
 use Buddy\Repman\Kernel;
 use Buddy\Repman\Service\Downloader;
+use Clue\React\Mq\Queue;
 use Munus\Control\Option;
 use Psr\Http\Message\ResponseInterface;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use React\Http\Browser;
+use React\Promise\PromiseInterface;
 use React\Socket\Connector;
 
 final class ReactDownloader implements Downloader
 {
     private LoopInterface $loop;
     private Browser $browser;
+    private Queue $headQueue;
+    private Queue $getQueue;
 
     public function __construct()
     {
         $this->loop = Factory::create();
         $this->browser = new Browser($this->loop, new Connector($this->loop, ['timeout' => 10]));
+        $this->headQueue = new Queue(50, null, function (string $url): PromiseInterface {
+            return $this->browser->head($url, ['User-Agent' => $this->userAgent()]);
+        });
+        $this->getQueue = new Queue(50, null, function (string $url, array $headers): PromiseInterface {
+            return $this->browser->get($url, array_merge($headers, ['User-Agent' => $this->userAgent()]));
+        });
     }
 
     /**
@@ -49,7 +59,7 @@ final class ReactDownloader implements Downloader
 
     public function getAsyncContents(string $url, array $headers, callable $onFulfilled): void
     {
-        $this->browser->get($url, array_merge($headers, ['User-Agent' => $this->userAgent()]))
+        ($this->getQueue)($url, $headers)
             ->then(function (ResponseInterface $response) use ($onFulfilled): void {
                 $stream = $response->getBody()->detach();
                 if (!is_resource($stream)) {
@@ -64,7 +74,7 @@ final class ReactDownloader implements Downloader
      */
     public function getLastModified(string $url, callable $onFulfilled): void
     {
-        $this->browser->head($url, ['User-Agent' => $this->userAgent()])->then(function (ResponseInterface $response) use ($onFulfilled): void {
+        ($this->headQueue)($url)->then(function (ResponseInterface $response) use ($onFulfilled): void {
             $lastModified = $response->getHeader('Last-Modified');
             if ($lastModified !== []) {
                 $onFulfilled((int) strtotime($lastModified[0]));

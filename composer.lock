@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b25c1fcb7b50afce5723e5cb7e18a6dc",
+    "content-hash": "20c9518a085f663554dde30d540be699",
     "packages": [
         {
             "name": "bitbucket/client",
@@ -314,6 +314,73 @@
                 "user agent"
             ],
             "time": "2020-04-14T18:46:44+00:00"
+        },
+        {
+            "name": "clue/mq-react",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/clue/reactphp-mq.git",
+                "reference": "d04c4fa7ba607f649a83d946c23fc7b7c57f1125"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/clue/reactphp-mq/zipball/d04c4fa7ba607f649a83d946c23fc7b7c57f1125",
+                "reference": "d04c4fa7ba607f649a83d946c23fc7b7c57f1125",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://repo.repman.io/dists/%package%/%version%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "php": ">=5.3",
+                "react/promise": "^2.2.1 || ^1.2.1"
+            },
+            "require-dev": {
+                "clue/block-react": "^1.0",
+                "clue/buzz-react": "^2.4",
+                "phpunit/phpunit": "^7.0 || ^6.4 || ^5.7 || ^4.8.35",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Clue\\React\\Mq\\": "src/"
+                }
+            },
+            "notification-url": "https://repo.repman.io/downloads",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christian Lück",
+                    "email": "christian@clue.engineering"
+                }
+            ],
+            "description": "Mini Queue, the lightweight in-memory message queue to concurrently do many (but not too many) things at once, built on top of ReactPHP",
+            "homepage": "https://github.com/clue/reactphp-mq",
+            "keywords": [
+                "Mini Queue",
+                "async",
+                "concurrency",
+                "job",
+                "message",
+                "message queue",
+                "queue",
+                "rate limit",
+                "reactphp",
+                "throttle",
+                "worker"
+            ],
+            "support": {
+                "issues": "https://github.com/clue/reactphp-mq/issues",
+                "source": "https://github.com/clue/reactphp-mq/tree/v1.2.0"
+            },
+            "time": "2019-12-05T08:45:06+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -15077,5 +15144,5 @@
         "ext-zip": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.0.0"
 }
