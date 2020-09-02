@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -14,12 +13,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 final class ApiUserProvider implements UserProviderInterface
 {
     private Connection $connection;
-    private UserRepository $userRepository;
 
-    public function __construct(Connection $connection, UserRepository $userRepository)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->userRepository = $userRepository;
     }
 
     public function loadUserByUsername(string $username): UserInterface
