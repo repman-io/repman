@@ -18,6 +18,8 @@ final class ProxySyncReleasesCommand extends Command
 {
     const LOCK_TTL = 30;
 
+    protected static $defaultName = 'repman:proxy:sync-releases';
+
     private ProxyRegister $register;
     private Downloader $downloader;
     private AdapterInterface $cache;
@@ -40,7 +42,6 @@ final class ProxySyncReleasesCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:proxy:sync-releases')
             ->setDescription('Sync proxy releases with packagist.org')
         ;
     }

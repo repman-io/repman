@@ -36,8 +36,8 @@ final class AddDownloadsHandlerTest extends IntegrationTestCase
             ->findByNames(['buddy-works/oauth2-client', 'subctrine/dbal']);
 
         self::assertEquals([
-            'buddy-works/oauth2-client' => new DownloadPackage('buddy-works/oauth2-client', 2, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
-            'subctrine/dbal' => new DownloadPackage('subctrine/dbal', 1, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
+            'buddy-works/oauth2-client' => new DownloadPackage(2, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
+            'subctrine/dbal' => new DownloadPackage(1, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
         ], $packages);
     }
 }

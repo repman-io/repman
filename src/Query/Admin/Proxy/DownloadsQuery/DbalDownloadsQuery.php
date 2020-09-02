@@ -32,7 +32,6 @@ final class DbalDownloadsQuery implements DownloadsQuery
             ':packages' => Connection::PARAM_STR_ARRAY,
         ]) as $row) {
             $packages[$row['package']] = new Package(
-                $row['package'],
                 $row['downloads'],
                 new \DateTimeImmutable($row['date'])
             );

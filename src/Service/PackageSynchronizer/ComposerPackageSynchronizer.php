@@ -30,7 +30,6 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageRepository $packageRepository;
     private Storage $distStorage;
     private string $gitlabUrl;
-    private int $clearDistsOlderThan;
 
     public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
     {

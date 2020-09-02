@@ -20,6 +20,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class CreateAdminCommand extends Command
 {
+    protected static $defaultName = 'repman:create:admin';
+
     private MessageBusInterface $bus;
     private Telemetry $telemetry;
     private Config $config;
@@ -39,7 +41,6 @@ final class CreateAdminCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:create:admin')
             ->setDescription('Create admin user')
             ->addArgument('email', InputArgument::REQUIRED, 'e-mail used to log in')
             ->addArgument('password', InputArgument::OPTIONAL, 'plain password, if you don\'t provide it, you\'ll be asked for it')
