@@ -42,4 +42,17 @@ final class ReactDownloaderTest extends TestCase
         });
         $downloader->run();
     }
+
+    public function testAsyncContent(): void
+    {
+        $downloader = new ReactDownloader();
+        $downloader->getAsyncContents('https://repman.io', [], function ($stream): void {
+            $meta = stream_get_meta_data($stream);
+            self::assertTrue($meta['uri'] === 'https://repman.io');
+        });
+        $downloader->getAsyncContents('/tmp/not-exists', [], function ($stream): void {
+            throw new \LogicException('Should not happen');
+        });
+        $downloader->run();
+    }
 }
