@@ -14,6 +14,9 @@
     "cbschuld/browser.php": {
         "version": "1.9.4"
     },
+    "clue/mq-react": {
+        "version": "v1.2.0"
+    },
     "clue/stream-filter": {
         "version": "v1.4.1"
     },
