@@ -9,6 +9,7 @@ use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,13 +77,9 @@ final class TokenController extends ApiController
      *     methods={"DELETE"}),
      *     requirements={"organization"="%organization_pattern%"})
      */
-    public function removeToken(Organization $organization, string $token): JsonResponse
+    public function removeToken(Organization $organization, Token $token): JsonResponse
     {
-        if ($this->organizationQuery->findToken($organization->id(), $token)->isEmpty()) {
-            return $this->notFound();
-        }
-
-        $this->dispatchMessage(new RemoveToken($organization->id(), $token));
+        $this->dispatchMessage(new RemoveToken($organization->id(), $token->value()));
 
         return $this->json(null);
     }
@@ -93,13 +90,9 @@ final class TokenController extends ApiController
      *     methods={"PUT"})
      *     requirements={"organization"="%organization_pattern%"})
      */
-    public function regenerateToken(Organization $organization, string $token): JsonResponse
+    public function regenerateToken(Organization $organization, Token $token): JsonResponse
     {
-        if ($this->organizationQuery->findToken($organization->id(), $token)->isEmpty()) {
-            return $this->notFound();
-        }
-
-        $this->dispatchMessage(new RegenerateToken($organization->id(), $token));
+        $this->dispatchMessage(new RegenerateToken($organization->id(), $token->value()));
 
         return $this->json(null);
     }
