@@ -82,11 +82,6 @@ abstract class ApiController extends AbstractController
         ];
     }
 
-    protected function notFound(): JsonResponse
-    {
-        return $this->json(null, Response::HTTP_NOT_FOUND);
-    }
-
     /**
      * @param mixed $data
      */
