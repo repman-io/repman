@@ -6,10 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 On next release:
+- [ ] check if upgrade info is required (UPGRADE.md)
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
 ## [Unreleased]
+
+## [0.6.0] - 2020-09-03
+### Added
+- implement command for clearing old private distributions files ([#244](https://github.com/repman-io/repman/pull/244))
+
+### Security
+- update symfony to 5.1.5 ([CVE-2020-15094](https://github.com/advisories/GHSA-754h-5r27-7x3r))
+
+### Changed
+- add queue for downloader to limit concurrent requests ([#253](https://github.com/repman-io/repman/pull/253))
+- bump symfony to 5.1 ([#250](https://github.com/repman-io/repman/pull/250), thanks @marmichalski )
+- atomic deployment with ansible playbook ([#241](https://github.com/repman-io/repman/pull/241), [#242](https://github.com/repman-io/repman/pull/242), [#243](https://github.com/repman-io/repman/pull/243), [#245](https://github.com/repman-io/repman/pull/245))
+- set `ulimit -n` for system user ([#251](https://github.com/repman-io/repman/pull/251))
+
+### Fixed
+- fix Proxy response caching ([#247](https://github.com/repman-io/repman/pull/247), thanks @giggsey)
 
 ## [0.5.0] - 2020-08-04
 ### Changed
