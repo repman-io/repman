@@ -9,6 +9,7 @@ use Coduo\PHPMatcher\PHPUnit\PHPMatcherAssertions;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class FunctionalTestCase extends WebTestCase
 {
@@ -37,9 +38,9 @@ abstract class FunctionalTestCase extends WebTestCase
     /**
      * @param array<mixed> $parameters
      */
-    protected function urlTo(string $path, array $parameters = []): string
+    protected function urlTo(string $path, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
-        return $this->container()->get('router')->generate($path, $parameters);
+        return $this->container()->get('router')->generate($path, $parameters, $referenceType);
     }
 
     protected function lastResponseBody(): string

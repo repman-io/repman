@@ -27,6 +27,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class PackageController extends ApiController
@@ -56,7 +57,10 @@ final class PackageController extends ApiController
             fn ($perPage, $offset) => $this->packageQuery->findAll($organization->id(), $perPage, $offset),
             $this->packageQuery->count($organization->id()),
             20,
-            (int) $request->get('page', 1)
+            (int) $request->get('page', 1),
+            $this->generateUrl('api_packages', [
+                'organization' => $organization->alias(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL)
         ));
     }
 

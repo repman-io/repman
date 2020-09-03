@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Functional\Controller\Api;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class TokenControllerTest extends FunctionalTestCase
 {
@@ -41,10 +42,8 @@ final class TokenControllerTest extends FunctionalTestCase
         self::assertEquals($json['data'][0]['value'], 'test-list-value');
         self::assertNotEmpty($json['data'][0]['createdAt']);
         self::assertEquals($json['data'][0]['lastUsedAt'], null);
-        self::assertEquals($json['page'], 1);
-        self::assertEquals($json['pages'], 1);
-        self::assertEquals($json['perPage'], 20);
         self::assertEquals($json['total'], 1);
+        self::assertNotEmpty($json['links']);
     }
 
     public function testTokensListPagination(): void
@@ -64,11 +63,16 @@ final class TokenControllerTest extends FunctionalTestCase
         $json = $this->jsonResponse();
 
         self::assertEquals(count($json['data']), 20);
-        self::assertEquals($json['page'], 2);
-        self::assertEquals($json['pages'], 3);
-        self::assertEquals($json['total'], 41);
         self::assertEquals($json['data'][0]['name'], 'test-list-name#28');
         self::assertEquals($json['data'][19]['name'], 'test-list-name#8');
+
+        self::assertEquals($json['total'], 41);
+
+        $baseUrl = $this->urlTo('api_tokens', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['prev']);
+        self::assertEquals($baseUrl.'?page=3', $json['links']['next']);
+        self::assertEquals($baseUrl.'?page=3', $json['links']['last']);
     }
 
     public function testEmptyTokensList(): void
@@ -80,10 +84,13 @@ final class TokenControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
         self::assertEquals($json['data'], []);
-        self::assertEquals($json['page'], 0);
-        self::assertEquals($json['pages'], 0);
-        self::assertEquals($json['perPage'], 20);
         self::assertEquals($json['total'], 0);
+
+        $baseUrl = $this->urlTo('api_tokens', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
+        self::assertEquals(null, $json['links']['prev']);
+        self::assertEquals(null, $json['links']['next']);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['last']);
     }
 
     public function testGenerateToken(): void

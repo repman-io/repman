@@ -60,19 +60,25 @@ abstract class ApiController extends AbstractController
      *
      * @return array<string,mixed>
      */
-    protected function paginate($listFunction, int $total, int $perPage, int $page): array
+    protected function paginate($listFunction, int $total, int $perPage, int $page, string $baseUrl): array
     {
-        $pages = ceil($total / $perPage);
+        $pages = (int) ceil($total / $perPage);
+        if ($pages === 0) {
+            $pages = 1;
+        }
         $page = $page <= 0 ? $page = 1 : $page;
         $page = $page > $pages ? $pages : $page;
-        $offset = (int) (($perPage * $page) - $perPage);
+        $offset = ($perPage * $page) - $perPage;
 
         return [
             'data' => $listFunction($perPage, $offset < 0 ? 0 : $offset),
             'total' => $total,
-            'page' => $page,
-            'pages' => $pages,
-            'perPage' => $perPage,
+            'links' => [
+                'first' => $this->generatePaginationUrl($baseUrl, 1),
+                'prev' => $page <= 1 ? null : $this->generatePaginationUrl($baseUrl, $page - 1),
+                'next' => $page === $pages ? null : $this->generatePaginationUrl($baseUrl, $page + 1),
+                'last' => $this->generatePaginationUrl($baseUrl, $pages),
+            ],
         ];
     }
 
@@ -95,5 +101,10 @@ abstract class ApiController extends AbstractController
     protected function errors(array $errors): JsonResponse
     {
         return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
+    }
+
+    private function generatePaginationUrl(string $baseUrl, int $page): string
+    {
+        return "$baseUrl?page=$page";
     }
 }

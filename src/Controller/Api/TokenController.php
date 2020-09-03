@@ -13,6 +13,7 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class TokenController extends ApiController
 {
@@ -35,7 +36,10 @@ final class TokenController extends ApiController
             fn ($perPage, $offset) => $this->organizationQuery->findAllTokens($organization->id(), $perPage, $offset),
             $this->organizationQuery->tokenCount($organization->id()),
             20,
-            (int) $request->get('page', 1)
+            (int) $request->get('page', 1),
+            $this->generateUrl('api_tokens', [
+                'organization' => $organization->alias(),
+            ], UrlGeneratorInterface::ABSOLUTE_URL)
         ));
     }
 

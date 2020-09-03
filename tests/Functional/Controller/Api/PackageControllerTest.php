@@ -9,6 +9,7 @@ use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class PackageControllerTest extends FunctionalTestCase
 {
@@ -108,9 +109,12 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ],
                 "total": 1,
-                "page": 1,
-                "pages": 1,
-                "perPage": 20
+                "links": {
+                    "first": "http://localhost/api/buddy/package?page=1",
+                    "last": "http://localhost/api/buddy/package?page=1",
+                    "next": null,
+                    "prev": null
+                }
             }
             '
         );
@@ -134,11 +138,13 @@ final class PackageControllerTest extends FunctionalTestCase
         $json = $this->jsonResponse();
 
         self::assertEquals(count($json['data']), 20);
-        self::assertEquals($json['page'], 2);
-        self::assertEquals($json['pages'], 3);
         self::assertEquals($json['total'], 41);
-        self::assertEquals($json['data'][0]['id'], $baseId.'21');
-        self::assertEquals($json['data'][19]['id'], $baseId.'40');
+
+        $baseUrl = $this->urlTo('api_packages', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['prev']);
+        self::assertEquals($baseUrl.'?page=3', $json['links']['next']);
+        self::assertEquals($baseUrl.'?page=3', $json['links']['last']);
     }
 
     public function testEmptyPackagesList(): void
@@ -150,10 +156,13 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
         self::assertEquals($json['data'], []);
-        self::assertEquals($json['page'], 0);
-        self::assertEquals($json['pages'], 0);
-        self::assertEquals($json['perPage'], 20);
         self::assertEquals($json['total'], 0);
+
+        $baseUrl = $this->urlTo('api_packages', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
+        self::assertEquals(null, $json['links']['prev']);
+        self::assertEquals(null, $json['links']['next']);
+        self::assertEquals($baseUrl.'?page=1', $json['links']['last']);
     }
 
     public function testFindPackage(): void
