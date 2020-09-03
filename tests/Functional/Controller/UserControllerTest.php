@@ -112,7 +112,7 @@ final class UserControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('user_api_tokens'));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Showing 1 to 2 of 2 entries', $this->lastResponseBody());
+        self::assertStringContainsString('Showing 1 to 1 of 1 entries', $this->lastResponseBody());
     }
 
     public function testGenerateApiTokens(): void

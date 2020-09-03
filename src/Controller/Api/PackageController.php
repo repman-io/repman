@@ -62,11 +62,11 @@ final class PackageController extends ApiController
 
     /**
      * @Route("/api/{organization}/package/{package}",
-     *     name="api_package_find",
+     *     name="api_package_get",
      *     methods={"GET"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function findPackage(Organization $organization, string $package): JsonResponse
+    public function getPackage(Organization $organization, string $package): JsonResponse
     {
         $package = $this->packageQuery->findWithinOrganization($organization->id(), $package);
         if ($package->isEmpty()) {

@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 abstract class ApiController extends AbstractController
 {
@@ -28,7 +29,17 @@ abstract class ApiController extends AbstractController
      */
     protected function parseJson(Request $request): array
     {
-        return (array) json_decode($request->getContent(), true);
+        if ($request->getContent() === '') {
+            return [];
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new HttpException(400, 'Invalid json');
+        }
+
+        return $data;
     }
 
     protected function renderFormErrors(FormInterface $form): JsonResponse

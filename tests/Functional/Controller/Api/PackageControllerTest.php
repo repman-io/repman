@@ -162,7 +162,7 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->createPackage($packageId, '', $this->organizationId);
 
         $this->loginApiUser($this->apiToken);
-        $this->client->request('GET', $this->urlTo('api_package_find', [
+        $this->client->request('GET', $this->urlTo('api_package_get', [
             'organization' => self::$organization,
             'package' => $packageId,
         ]));
@@ -193,7 +193,7 @@ final class PackageControllerTest extends FunctionalTestCase
     public function testFindPackageNonExisting(): void
     {
         $this->loginApiUser($this->apiToken);
-        $this->client->request('GET', $this->urlTo('api_package_find', [
+        $this->client->request('GET', $this->urlTo('api_package_get', [
             'organization' => self::$organization,
             'package' => self::$fakeId,
         ]));

@@ -110,6 +110,17 @@ final class TokenControllerTest extends FunctionalTestCase
         );
     }
 
+    public function testInvalidJson(): void
+    {
+        $this->loginApiUser($this->apiToken);
+
+        $this->client->request('POST', $this->urlTo('api_token_generate', [
+            'organization' => self::$organization,
+        ]), [], [], [], 'invalid');
+
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+    }
+
     public function testGenerateTokenBadRequest(): void
     {
         $this->loginApiUser($this->apiToken);
@@ -174,7 +185,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'token' => 'test-regenerate-value',
         ]));
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         self::assertNotEquals(
             $this->container()
                 ->get(DbalOrganizationQuery::class)

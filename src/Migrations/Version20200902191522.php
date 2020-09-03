@@ -28,17 +28,6 @@ final class Version20200902191522 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN user_api_token.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('COMMENT ON COLUMN user_api_token.last_used_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('ALTER TABLE user_api_token ADD CONSTRAINT FK_7B42780FA76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-
-        foreach ($this->connection->fetchAll('SELECT id FROM "user"') as $user) {
-            $this->addSql(
-                'INSERT INTO "user_api_token" (value, name, user_id, created_at)
-                VALUES (:value, \'default\', :user_id, NOW())',
-                [
-                    ':value' => bin2hex(random_bytes(32)),
-                    ':user_id' => $user['id'],
-                ]
-            );
-        }
     }
 
     public function down(Schema $schema): void

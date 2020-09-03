@@ -59,9 +59,11 @@ final class TokenController extends ApiController
             $name = $form->get('name')->getData()
         ));
 
-        $token = $this->organizationQuery->findTokenByName($organization->id(), $name);
-
-        return $this->created($token->get());
+        return $this->created(
+            $this->organizationQuery
+                ->findTokenByName($organization->id(), $name)
+                ->get()
+        );
     }
 
     /**
@@ -95,6 +97,6 @@ final class TokenController extends ApiController
 
         $this->dispatchMessage(new RegenerateToken($organization->id(), $token));
 
-        return $this->created(null);
+        return $this->json(null);
     }
 }
