@@ -14,6 +14,7 @@ use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
@@ -70,14 +71,9 @@ final class PackageController extends ApiController
      *     methods={"GET"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function getPackage(Organization $organization, string $package): JsonResponse
+    public function getPackage(Organization $organization, Package $package): JsonResponse
     {
-        $package = $this->packageQuery->findWithinOrganization($organization->id(), $package);
-        if ($package->isEmpty()) {
-            return $this->notFound();
-        }
-
-        return $this->json($package->get());
+        return $this->json($package);
     }
 
     /**
@@ -86,14 +82,9 @@ final class PackageController extends ApiController
      *     methods={"DELETE"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function removePackage(Organization $organization, string $package): JsonResponse
+    public function removePackage(Organization $organization, Package $package): JsonResponse
     {
-        $package = $this->packageQuery->findWithinOrganization($organization->id(), $package);
-        if ($package->isEmpty()) {
-            return $this->notFound();
-        }
-
-        $this->dispatchMessage(new RemovePackage($package->get()->id(), $organization->id()));
+        $this->dispatchMessage(new RemovePackage($package->id(), $organization->id()));
 
         return $this->json(null);
     }
@@ -104,14 +95,9 @@ final class PackageController extends ApiController
      *     methods={"PUT"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function updatePackage(Organization $organization, string $package): JsonResponse
+    public function updatePackage(Organization $organization, Package $package): JsonResponse
     {
-        $package = $this->packageQuery->findWithinOrganization($organization->id(), $package);
-        if ($package->isEmpty()) {
-            return $this->notFound();
-        }
-
-        $this->dispatchMessage(new SynchronizePackage($package->get()->id()));
+        $this->dispatchMessage(new SynchronizePackage($package->id()));
 
         return $this->json(null);
     }

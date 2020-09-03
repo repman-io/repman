@@ -261,25 +261,6 @@ final class DbalPackageQuery implements PackageQuery
     }
 
     /**
-     * @return Option<Package>
-     */
-    public function findWithinOrganization(string $organizationId, string $id): Option
-    {
-        $data = $this->connection->fetchAssoc(
-            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
-            FROM "organization_package"
-            WHERE organization_id = :organization_id AND id = :id', [
-            ':organization_id' => $organizationId,
-            ':id' => $id,
-        ]);
-        if ($data === false) {
-            return Option::none();
-        }
-
-        return Option::some($this->hydratePackage($data));
-    }
-
-    /**
      * @param array<mixed> $data
      */
     private function hydratePackage(array $data): Package

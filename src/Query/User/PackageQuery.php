@@ -68,9 +68,4 @@ interface PackageQuery
      * @return Version[]
      */
     public function findNonStableVersions(string $packageId): array;
-
-    /**
-     * @return Option<Package>
-     */
-    public function findWithinOrganization(string $organizationId, string $id): Option;
 }
