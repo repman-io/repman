@@ -50,4 +50,14 @@ interface OrganizationQuery
     public function invitationsCount(string $organizationId): int;
 
     public function isInvited(string $organizationId, string $email): bool;
+
+    /**
+     * @return Option<Token>
+     */
+    public function findToken(string $organizationId, string $value): Option;
+
+    /**
+     * @return Option<Token>
+     */
+    public function findTokenByName(string $organizationId, string $name): Option;
 }

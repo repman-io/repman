@@ -6,7 +6,7 @@ namespace Buddy\Repman\Query\User\Model;
 
 use Buddy\Repman\Entity\Organization\Package\ScanResult as ScanResultEntity;
 
-final class ScanResult
+final class ScanResult implements \JsonSerializable
 {
     private \DateTimeImmutable $date;
     private string $status = ScanResultEntity::STATUS_PENDING;
@@ -62,5 +62,18 @@ final class ScanResult
     public function content(): array
     {
         return json_decode($this->content, true);
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'date' => $this->date()->format(\DateTime::ATOM),
+            'status' => $this->status(),
+            'version' => $this->version(),
+            'content' => $this->content(),
+        ];
     }
 }

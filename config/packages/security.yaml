@@ -7,6 +7,8 @@ security:
             id: Buddy\Repman\Security\UserProvider
         organization_provider:
             id: Buddy\Repman\Security\OrganizationProvider
+        api_user_provider:
+            id: Buddy\Repman\Security\ApiUserProvider
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -22,6 +24,13 @@ security:
                     - Buddy\Repman\Security\TokenAuthenticator
                     - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
                 entry_point: Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: api_user_provider
+            guard:
+                authenticators:
+                    - Buddy\Repman\Security\ApiTokenAuthenticator
         main:
             anonymous: true
             lazy: true
@@ -53,3 +62,4 @@ security:
          - { path: ^/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
          - { path: ^/downloads, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
          - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }
+         - { path: ^/api/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
