@@ -1,11 +1,11 @@
 {% extends "base.html.twig" %}
 
 {% block header_btn %}
-    <a href="{{ path('organization_token_new', {"organization":organization.alias}) }}" class="btn btn-success">
-        {% include 'svg/lock.svg' %} Generate a new token
+    <a href="{{ path('user_api_token_new') }}" class="btn btn-success">
+        {% include 'svg/lock.svg' %} Generate a new API token
     </a>
 {% endblock %}
-{% block header %} {{ organization.name }} tokens:{% endblock %}
+{% block header %} API tokens:{% endblock %}
 
 {% block content %}
 
@@ -44,7 +44,7 @@
                             class="btn btn-warning btn-sm"
                             type="button"
                             data-target="confirmation"
-                            data-action="{{ path('organization_token_regenerate', {organization: organization.alias, token: token.value}) }}"
+                            data-action="{{ path('user_api_token_regenerate', {token: token.value}) }}"
                             data-method="POST"
                         >
                             Regenerate
@@ -53,7 +53,7 @@
                             class="btn btn-danger btn-sm"
                             type="submit"
                             data-target="confirmation"
-                            data-action="{{ path('organization_token_remove', {organization: organization.alias, token: token.value}) }}"
+                            data-action="{{ path('user_api_token_remove', {token: token.value}) }}"
                             data-method="DELETE"
                         >
                             Remove
@@ -63,6 +63,6 @@
             {% endfor %}
         </tbody>
     </table>
-    {% include 'component/pagination.html.twig' with {'path_name': 'organization_tokens', 'path_params': {'organization': organization.alias}} %}
+    {% include 'component/pagination.html.twig' with {'path_name': 'user_api_tokens'} %}
 </div>
 {% endblock %}

@@ -8,16 +8,11 @@ use Buddy\Repman\Service\Organization\TokenGenerator;
 
 final class FakeTokenGenerator implements TokenGenerator
 {
-    private string $nextToken;
-
-    public function __construct()
-    {
-        $this->nextToken = (string) time();
-    }
+    private ?string $nextToken = null;
 
     public function generate(): string
     {
-        return $this->nextToken;
+        return $this->nextToken !== null ? $this->nextToken : bin2hex(random_bytes(32));
     }
 
     public function setNextToken(string $token): void

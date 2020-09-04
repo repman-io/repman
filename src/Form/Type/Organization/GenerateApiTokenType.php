@@ -11,7 +11,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class GenerateTokenType extends AbstractType
+class GenerateApiTokenType extends AbstractType
 {
     public function getBlockPrefix(): string
     {
