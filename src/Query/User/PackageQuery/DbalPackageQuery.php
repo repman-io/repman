@@ -59,6 +59,42 @@ final class DbalPackageQuery implements PackageQuery
     }
 
     /**
+     * @return Package[]
+     */
+    public function find(string $organizationId, string $searchString, int $limit = 20, int $offset = 0): array
+    {
+        return array_map(function (array $data): Package {
+            return $this->hydratePackage($data);
+        }, $this->connection->fetchAll(
+            'SELECT
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result
+            FROM organization_package
+            WHERE organization_id = :organization_id
+            AND name LIKE :search
+            GROUP BY id
+            ORDER BY name ASC
+            LIMIT :limit OFFSET :offset', [
+            ':organization_id' => $organizationId,
+            ':search' => '%' . $searchString . '%',
+            ':limit' => $limit,
+            ':offset' => $offset,
+        ]));
+    }
+
+    /**
      * @return PackageName[]
      */
     public function getAllNames(string $organizationId): array

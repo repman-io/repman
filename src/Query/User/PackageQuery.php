@@ -20,6 +20,11 @@ interface PackageQuery
     public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array;
 
     /**
+     * @return Package[]
+     */
+    public function find(string $organizationId, string $searchString, int $limit = 20, int $offset = 0): array;
+
+    /**
      * @return PackageName[]
      */
     public function getAllNames(string $organizationId): array;
