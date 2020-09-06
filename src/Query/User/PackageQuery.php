@@ -23,6 +23,11 @@ interface PackageQuery
     public function count(string $organizationId, Filter $filter): int;
 
     /**
+     * @return Package[]
+     */
+    public function find(string $organizationId, string $searchString, int $limit = 20, int $offset = 0): array;
+
+    /**
      * @return PackageName[]
      */
     public function getAllNames(string $organizationId): array;
