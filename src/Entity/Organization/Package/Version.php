@@ -21,6 +21,8 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Version
 {
+    const STABILITY_STABLE = 'stable';
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid")
@@ -53,18 +55,27 @@ class Version
      */
     private \DateTimeImmutable $date;
 
+    /**
+     * @ORM\Column(type="string")
+     *
+     * (dev, alpha, beta, RC, stable)
+     */
+    private string $stability;
+
     public function __construct(
         UuidInterface $id,
         string $version,
         string $reference,
         int $size,
-        \DateTimeImmutable $date
+        \DateTimeImmutable $date,
+        string $stability
     ) {
         $this->id = $id;
         $this->version = $version;
         $this->reference = $reference;
         $this->size = $size;
         $this->date = $date;
+        $this->stability = $stability;
     }
 
     public function id(): UuidInterface

@@ -23,7 +23,8 @@ security:
                     - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
                 entry_point: Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
         main:
-            anonymous: lazy
+            anonymous: true
+            lazy: true
             provider: user_provider
             guard:
                 authenticators:

@@ -100,6 +100,11 @@ services:
         arguments:
             $failedTransport: '@messenger.transport.failed'
 
+    Doctrine\Migrations\Version\DbalMigrationFactory: ~
+    Buddy\Repman\Migrations\Factory\MigrationFactoryDecorator:
+        decorates: Doctrine\Migrations\Version\DbalMigrationFactory
+        arguments: ['@Buddy\Repman\Migrations\Factory\MigrationFactoryDecorator.inner', '@service_container']
+
     ### Vendor
     Github\Client:
         arguments:

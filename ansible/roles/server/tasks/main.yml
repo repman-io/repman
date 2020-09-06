@@ -13,3 +13,17 @@
   user:
     name: "{{ system_user }}"
     shell: /bin/bash
+
+- name: Set nofile soft limit for the main system user
+  pam_limits:
+    domain: "{{ system_user }}"
+    limit_type: soft
+    limit_item: nofile
+    value: "65535"
+
+- name: Set nofile hard limit for the main system user
+  pam_limits:
+    domain: "{{ system_user }}"
+    limit_type: hard
+    limit_item: nofile
+    value: "65535"

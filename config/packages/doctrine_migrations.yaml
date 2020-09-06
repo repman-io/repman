@@ -1,5 +1,8 @@
 doctrine_migrations:
-    dir_name: '%kernel.project_dir%/src/Migrations'
-    # namespace is arbitrary but should be different from App\Migrations
-    # as migrations classes should NOT be autoloaded
-    namespace: Buddy\Repman\Migrations
+    migrations_paths:
+        Buddy\Repman\Migrations: '%kernel.project_dir%/src/Migrations'
+    services:
+         Doctrine\Migrations\Version\MigrationFactory: Buddy\Repman\Migrations\Factory\MigrationFactoryDecorator
+    storage:
+      table_storage:
+        table_name: 'migration_versions'

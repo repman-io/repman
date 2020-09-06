@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Service\GitHubApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -22,14 +21,12 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 final class GitLabAuthenticator extends SocialAuthenticator
 {
     private ClientRegistry $clientRegistry;
-    private GitHubApi $gitHubApi;
     private RouterInterface $router;
     private Session $session;
 
-    public function __construct(ClientRegistry $clientRegistry, GitHubApi $gitHubApi, RouterInterface $router, Session $session)
+    public function __construct(ClientRegistry $clientRegistry, RouterInterface $router, Session $session)
     {
         $this->clientRegistry = $clientRegistry;
-        $this->gitHubApi = $gitHubApi;
         $this->router = $router;
         $this->session = $session;
     }

@@ -103,6 +103,7 @@ symfony proxy:domain:attach your-organization.repman
 - `bin/console repman:security:scan-all` - scan all synchronized packages
 - `bin/console repman:security:update-db` - update security advisories database, scan all packages if updated
 - `bin/console repman:package:synchronize <packageId>` - synchronize given package
+- `bin/console repman:package:clear-old-dists` - clear old private dev distributions files
 
 ## API Integration
 

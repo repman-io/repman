@@ -323,9 +323,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $versions = [
-            new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable()),
-            new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1048576, new \DateTimeImmutable()),
-            new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable()),
+            new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable(), Version::STABILITY_STABLE),
+            new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1048576, new \DateTimeImmutable(), Version::STABILITY_STABLE),
+            new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable(), Version::STABILITY_STABLE),
         ];
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions);
 

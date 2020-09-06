@@ -76,6 +76,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $encounteredVersions = [];
             foreach ($packages as $p) {
                 if ($p->getDistUrl() !== null) {
+                    $releaseDate = \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime());
                     $dist = new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType());
 
                     $this->distStorage->download(
@@ -90,7 +91,8 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                             $p->getPrettyVersion(),
                             $p->getDistReference() ?? $p->getDistSha1Checksum(),
                             $this->distStorage->size($dist),
-                            \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime())
+                            $releaseDate,
+                            $p->getStability()
                         )
                     );
                     $encounteredVersions[] = $p->getPrettyVersion();

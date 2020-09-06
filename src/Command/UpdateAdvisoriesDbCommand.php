@@ -13,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class UpdateAdvisoriesDbCommand extends Command
 {
+    protected static $defaultName = 'repman:security:update-db';
+
     private SecurityChecker $checker;
     private ScanAllPackagesCommand $scanCommand;
 
@@ -30,7 +32,6 @@ final class UpdateAdvisoriesDbCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('repman:security:update-db')
             ->setDescription('Update security advisories database, scan all packages if updated.')
         ;
     }
