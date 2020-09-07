@@ -68,7 +68,10 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
     {
         return new JsonResponse([
             'errors' => [
-                'credentials' => [$message],
+                [
+                    'field' => 'credentials',
+                    'message' => $message,
+                ],
             ],
         ], Response::HTTP_UNAUTHORIZED);
     }

@@ -101,11 +101,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "name": [
-                        "This value should not be blank."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "name",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
@@ -123,11 +124,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "name": [
-                        "Organization \"Buddy works\" already exists."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "name",
+                        "message": "Organization \"Buddy works\" already exists."
+                    }
+                ]
             }
             '
         );

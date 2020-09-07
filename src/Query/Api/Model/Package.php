@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Query\User\Model;
+namespace Buddy\Repman\Query\Api\Model;
+
+use Buddy\Repman\Query\User\Model\ScanResult;
 
 final class Package
 {
     private string $id;
-    private string $organizationId;
     private string $type;
     private string $url;
     private ?string $name;
@@ -21,7 +22,6 @@ final class Package
 
     public function __construct(
         string $id,
-        string $organizationId,
         string $type,
         string $url,
         ?string $name = null,
@@ -34,7 +34,6 @@ final class Package
         ?ScanResult $scanResult = null
     ) {
         $this->id = $id;
-        $this->organizationId = $organizationId;
         $this->type = $type;
         $this->url = $url;
         $this->name = $name;
@@ -47,100 +46,75 @@ final class Package
         $this->scanResult = $scanResult ?? null;
     }
 
-    public function id(): string
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function organizationId(): string
-    {
-        return $this->organizationId;
-    }
-
-    public function type(): string
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function url(): string
+    public function getUrl(): string
     {
         return $this->url;
     }
 
-    public function name(): ?string
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function latestReleasedVersion(): ?string
+    public function getLatestReleasedVersion(): ?string
     {
         return $this->latestReleasedVersion;
     }
 
-    public function latestReleaseDate(): ?\DateTimeImmutable
+    public function getLatestReleaseDate(): ?\DateTimeImmutable
     {
         return $this->latestReleaseDate;
     }
 
-    public function description(): ?string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function lastSyncAt(): ?\DateTimeImmutable
+    public function getLastSyncAt(): ?\DateTimeImmutable
     {
         return $this->lastSyncAt;
     }
 
-    public function lastSyncError(): ?string
+    public function getLastSyncError(): ?string
     {
         return $this->lastSyncError;
     }
 
-    public function webhookCreatedAt(): ?\DateTimeImmutable
+    public function getWebhookCreatedAt(): ?\DateTimeImmutable
     {
         return $this->webhookCreatedAt;
     }
 
-    public function allowToAutoAddWebhook(): bool
+    public function getIsSynchronizedSuccessfully(): bool
     {
-        return in_array($this->type, ['github-oauth', 'gitlab-oauth', 'bitbucket-oauth'], true);
+        return $this->getName() !== null && $this->getLastSyncError() === null;
     }
 
-    public function isSynchronizedSuccessfully(): bool
-    {
-        return $this->name() !== null && $this->lastSyncError() === null;
-    }
-
-    public function scanResultStatus(): string
+    public function getScanResultStatus(): string
     {
         return $this->scanResult !== null ? $this->scanResult->status() : ScanResult::statusPending();
     }
 
-    public function scanResultDate(): ?\DateTimeImmutable
+    public function getScanResultDate(): ?\DateTimeImmutable
     {
         return $this->scanResult !== null ? $this->scanResult->date() : null;
     }
 
-    public function isScanResultOk(): ?bool
-    {
-        return $this->scanResult !== null ? $this->scanResult->isOk() : false;
-    }
-
-    public function isScanResultPending(): bool
-    {
-        return $this->scanResult !== null ? $this->scanResult->isPending() : true;
-    }
-
-    public function isScanResultNotAvailable(): bool
-    {
-        return $this->scanResult !== null ? $this->scanResult->isNotAvailable() : true;
-    }
-
     /**
-     * @return mixed[]
+     * @return string[]
      */
-    public function lastScanResultContent(): array
+    public function getLastScanResultContent(): array
     {
         return $this->scanResult !== null ? $this->scanResult->content() : [];
     }

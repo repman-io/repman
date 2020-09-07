@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Query\User\Model\Organization;
+namespace Buddy\Repman\Query\Api\Model;
 
 final class Token
 {
@@ -19,22 +19,22 @@ final class Token
         $this->lastUsedAt = $lastUsedAt;
     }
 
-    public function name(): string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function value(): string
+    public function getValue(): string
     {
         return $this->value;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function lastUsedAt(): ?\DateTimeImmutable
+    public function getLastUsedAt(): ?\DateTimeImmutable
     {
         return $this->lastUsedAt;
     }

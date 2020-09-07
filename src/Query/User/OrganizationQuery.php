@@ -16,11 +16,6 @@ interface OrganizationQuery
     /**
      * @return Option<Organization>
      */
-    public function getById(string $id): Option;
-
-    /**
-     * @return Option<Organization>
-     */
     public function getByAlias(string $alias): Option;
 
     /**
@@ -59,9 +54,4 @@ interface OrganizationQuery
      * @return Option<Token>
      */
     public function findToken(string $organizationId, string $value): Option;
-
-    /**
-     * @return Option<Token>
-     */
-    public function findTokenByName(string $organizationId, string $name): Option;
 }
