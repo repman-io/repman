@@ -8,7 +8,7 @@
             <ul class="pagination ml-auto">
                 {% for i in 0..(count/offset) %}
                     <li class="page-item {% if currentOffset == i*offset %}active{% endif %}">
-                        <a class="page-link" href="{{ path(path_name, {offset: i*offset} | merge(path_params | default({}))) }}">{{ i+1 }}</a>
+                        <a class="page-link" href="{{ path(path_name, (path_params | default({})) | merge({offset: i*offset})) }}">{{ i+1 }}</a>
                     </li>
                 {% endfor %}
             </ul>

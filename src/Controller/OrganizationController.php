@@ -24,6 +24,7 @@ use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\Security\ScanPackage;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
@@ -31,7 +32,6 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\ExceptionHandler;
-use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -69,22 +69,23 @@ final class OrganizationController extends AbstractController
      */
     public function packages(Organization $organization, Request $request): Response
     {
-        $count = $this->packageQuery->count($organization->id()); // @todo
+        $filter = Filter::fromRequest($request);
+
+        $count = $this->packageQuery->count($organization->id(), $filter);
         $user = parent::getUser();
-        if ($count === 0 && $user instanceof User && $organization->isOwner($user->id())) {
+
+        // If the filtered version returned 0 results, we need to count again, but without any filters
+        if ($count === 0 &&
+            $this->packageQuery->count($organization->id(), (new Filter())) === 0 &&
+            $user instanceof User &&
+            $organization->isOwner($user->id())
+        ) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
         }
 
-        $searchTerm = $request->get('search');
-
-        if ($searchTerm) {
-            $packages = $this->packageQuery->find($organization->id(), $searchTerm, 20, (int) $request->get('offset', 0));
-        } else {
-            $packages = $this->packageQuery->findAll($organization->id(), 20, (int) $request->get('offset', 0));
-        }
-
         return $this->render('organization/packages.html.twig', [
-            'packages' => $packages,
+            'packages' => $this->packageQuery->findAll($organization->id(), $filter),
+            'filter' => $filter,
             'count' => $count,
             'organization' => $organization,
         ]);
