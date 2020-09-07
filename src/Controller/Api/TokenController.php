@@ -94,6 +94,10 @@ final class TokenController extends ApiController
     {
         $this->dispatchMessage(new RegenerateToken($organization->id(), $token->value()));
 
-        return $this->json(null);
+        return $this->json(
+            $this->organizationQuery
+                ->findTokenByName($organization->id(), $token->name())
+                ->get()
+        );
     }
 }

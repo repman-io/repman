@@ -108,6 +108,7 @@ final class TokenControllerTest extends FunctionalTestCase
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         self::assertEquals($json['name'], 'new-token');
         self::assertNotEmpty($json['createdAt']);
+        self::assertNotEmpty($json['value']);
         self::assertEquals($json['lastUsedAt'], null);
         self::assertFalse(
             $this->container()
@@ -192,6 +193,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'token' => 'test-regenerate-value',
         ]));
 
+        $json = $this->jsonResponse();
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         self::assertNotEquals(
             $this->container()
@@ -201,6 +203,10 @@ final class TokenControllerTest extends FunctionalTestCase
                 ->value(),
             'test-regenerate-value'
         );
+        self::assertEquals($json['name'], 'test-regenerate-name');
+        self::assertNotEmpty($json['createdAt']);
+        self::assertNotEmpty($json['value']);
+        self::assertEquals($json['lastUsedAt'], null);
     }
 
     public function testRegenerateTokenNonExisting(): void
