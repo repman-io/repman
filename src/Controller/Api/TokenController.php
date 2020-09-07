@@ -28,7 +28,7 @@ final class TokenController extends ApiController
     /**
      * @Route("/api/organization/{organization}/token",
      *     name="api_tokens",
-     *     methods={"GET"}),
+     *     methods={"GET"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function tokens(Organization $organization, Request $request): JsonResponse
@@ -47,7 +47,7 @@ final class TokenController extends ApiController
     /**
      * @Route("/api/organization/{organization}/token",
      *     name="api_token_generate",
-     *     methods={"POST"}),
+     *     methods={"POST"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function generateToken(Organization $organization, Request $request): JsonResponse
@@ -74,7 +74,7 @@ final class TokenController extends ApiController
     /**
      * @Route("/api/organization/{organization}/token/{token}",
      *     name="api_token_remove",
-     *     methods={"DELETE"}),
+     *     methods={"DELETE"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function removeToken(Organization $organization, Token $token): JsonResponse
