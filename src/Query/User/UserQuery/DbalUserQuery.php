@@ -7,7 +7,7 @@ namespace Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Entity\User\OAuthToken\ExpiredOAuthTokenException;
 use Buddy\Repman\Query\User\Model\ApiToken;
 use Buddy\Repman\Query\User\Model\OAuthToken;
-use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\UserOrganization;
 use Buddy\Repman\Query\User\UserQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
@@ -94,11 +94,11 @@ final class DbalUserQuery implements UserQuery
     }
 
     /**
-     * @return Organization[]
+     * @return UserOrganization[]
      */
     public function getAllOrganizations(string $userId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(function (array $data): Organization {
+        return array_map(function (array $data): UserOrganization {
             return $this->hydrateOrganization($data);
         }, $this->connection->fetchAll(
             'SELECT o.id, o.name, o.alias, om.role, o.has_anonymous_access
@@ -142,13 +142,11 @@ final class DbalUserQuery implements UserQuery
     /**
      * @param array<string,mixed> $data
      */
-    private function hydrateOrganization(array $data): Organization
+    private function hydrateOrganization(array $data): UserOrganization
     {
-        return new Organization(
-            $data['id'],
+        return new UserOrganization(
             $data['name'],
             $data['alias'],
-            [],
             $data['has_anonymous_access']
         );
     }

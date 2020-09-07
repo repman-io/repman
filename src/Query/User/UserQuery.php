@@ -6,7 +6,7 @@ namespace Buddy\Repman\Query\User;
 
 use Buddy\Repman\Query\User\Model\ApiToken;
 use Buddy\Repman\Query\User\Model\OAuthToken;
-use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\UserOrganization;
 use Munus\Control\Option;
 
 interface UserQuery
@@ -29,7 +29,7 @@ interface UserQuery
     public function apiTokenCount(string $userId): int;
 
     /**
-     * @return Organization[]
+     * @return UserOrganization[]
      */
     public function getAllOrganizations(string $userId, int $limit = 20, int $offset = 0): array;
 
