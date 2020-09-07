@@ -20,6 +20,7 @@ final class Filter
     public function setOffset(int $offset): Filter
     {
         $this->offset = $offset;
+
         return $this;
     }
 
@@ -31,6 +32,7 @@ final class Filter
     public function setLimit(int $limit): Filter
     {
         $this->limit = $limit;
+
         return $this;
     }
 
@@ -42,6 +44,7 @@ final class Filter
     public function setSearchTerm(?string $searchTerm): Filter
     {
         $this->searchTerm = $searchTerm;
+
         return $this;
     }
 

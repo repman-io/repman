@@ -38,7 +38,7 @@ final class SendScanResultHandlerTest extends IntegrationTestCase
         $package = $this
             ->container()
             ->get(PackageQuery::class)
-            ->findAll($this->organizationId, new Filter)[0];
+            ->findAll($this->organizationId, new Filter())[0];
 
         self::assertEquals($package->scanResultStatus(), 'pending');
     }

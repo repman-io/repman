@@ -57,8 +57,8 @@ final class DbalPackageQuery implements PackageQuery
                 ':organization_id' => $organizationId,
                 ':limit' => $filter->getLimit(),
                 ':offset' => $filter->getOffset(),
-                ':namesearch' => '%' . $filter->getSearchTerm() . '%',
-                ':descsearch' => '%' . $filter->getSearchTerm() . '%',
+                ':namesearch' => '%'.$filter->getSearchTerm().'%',
+                ':descsearch' => '%'.$filter->getSearchTerm().'%',
         ]));
     }
 
@@ -88,8 +88,8 @@ final class DbalPackageQuery implements PackageQuery
                 AND (name LIKE :namesearch OR description LIKE :descsearch)',
                 [
                     ':organization_id' => $organizationId,
-                    ':namesearch' => '%' . $filter->getSearchTerm() . '%',
-                    ':descsearch' => '%' . $filter->getSearchTerm() . '%',
+                    ':namesearch' => '%'.$filter->getSearchTerm().'%',
+                    ':descsearch' => '%'.$filter->getSearchTerm().'%',
                 ]
             );
     }
