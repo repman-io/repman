@@ -26,6 +26,24 @@ final class DbalOrganizationQuery implements OrganizationQuery
     /**
      * @return Option<Organization>
      */
+    public function getById(string $id): Option
+    {
+        $data = $this->connection->fetchAssoc(
+            'SELECT id, name, alias, has_anonymous_access
+            FROM "organization" WHERE id = :id', [
+            ':id' => $id,
+        ]);
+
+        if ($data === false) {
+            return Option::none();
+        }
+
+        return Option::some($this->hydrateOrganization($data));
+    }
+
+    /**
+     * @return Option<Organization>
+     */
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssoc(

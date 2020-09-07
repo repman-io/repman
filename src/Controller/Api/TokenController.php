@@ -26,9 +26,9 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token",
+     * @Route("/api/organization/{organization}/token",
      *     name="api_tokens",
-     *     methods={"GET"}),
+     *     methods={"GET"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function tokens(Organization $organization, Request $request): JsonResponse
@@ -45,9 +45,9 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token",
+     * @Route("/api/organization/{organization}/token",
      *     name="api_token_generate",
-     *     methods={"POST"}),
+     *     methods={"POST"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function generateToken(Organization $organization, Request $request): JsonResponse
@@ -72,9 +72,9 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token/{token}",
+     * @Route("/api/organization/{organization}/token/{token}",
      *     name="api_token_remove",
-     *     methods={"DELETE"}),
+     *     methods={"DELETE"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function removeToken(Organization $organization, Token $token): JsonResponse
@@ -85,7 +85,7 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token/{token}",
+     * @Route("/api/organization/{organization}/token/{token}",
      *     name="api_token_regenerate",
      *     methods={"PUT"})
      *     requirements={"organization"="%organization_pattern%"})
@@ -94,6 +94,10 @@ final class TokenController extends ApiController
     {
         $this->dispatchMessage(new RegenerateToken($organization->id(), $token->value()));
 
-        return $this->json(null);
+        return $this->json(
+            $this->organizationQuery
+                ->findTokenByName($organization->id(), $token->name())
+                ->get()
+        );
     }
 }
