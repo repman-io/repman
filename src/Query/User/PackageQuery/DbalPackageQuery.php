@@ -50,7 +50,7 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_result
             FROM organization_package
             WHERE organization_id = :organization_id
-            AND (name LIKE :namesearch OR description LIKE :descsearch)
+            AND (name ILIKE :namesearch OR description ILIKE :descsearch)
             GROUP BY id
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
@@ -85,7 +85,7 @@ final class DbalPackageQuery implements PackageQuery
             ->fetchColumn(
                 'SELECT COUNT(id) FROM "organization_package"
                 WHERE organization_id = :organization_id
-                AND (name LIKE :namesearch OR description LIKE :descsearch)',
+                AND (name ILIKE :namesearch OR description ILIKE :descsearch)',
                 [
                     ':organization_id' => $organizationId,
                     ':namesearch' => '%'.$filter->getSearchTerm().'%',
