@@ -26,7 +26,7 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token",
+     * @Route("/api/organization/{organization}/token",
      *     name="api_tokens",
      *     methods={"GET"}),
      *     requirements={"organization"="%organization_pattern%"})
@@ -45,7 +45,7 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token",
+     * @Route("/api/organization/{organization}/token",
      *     name="api_token_generate",
      *     methods={"POST"}),
      *     requirements={"organization"="%organization_pattern%"})
@@ -72,7 +72,7 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token/{token}",
+     * @Route("/api/organization/{organization}/token/{token}",
      *     name="api_token_remove",
      *     methods={"DELETE"}),
      *     requirements={"organization"="%organization_pattern%"})
@@ -85,7 +85,7 @@ final class TokenController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/token/{token}",
+     * @Route("/api/organization/{organization}/token/{token}",
      *     name="api_token_regenerate",
      *     methods={"PUT"})
      *     requirements={"organization"="%organization_pattern%"})
