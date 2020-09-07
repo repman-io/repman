@@ -7,7 +7,7 @@ namespace Buddy\Repman\Query\User\Model;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Munus\Control\Option;
 
-final class Organization
+final class Organization implements \JsonSerializable
 {
     private string $id;
     private string $name;
@@ -100,5 +100,17 @@ final class Organization
     public function hasAnonymousAccess(): bool
     {
         return $this->hasAnonymousAccess;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'name' => $this->name(),
+            'alias' => $this->alias(),
+            'hasAnonymousAccess' => $this->hasAnonymousAccess(),
+        ];
     }
 }

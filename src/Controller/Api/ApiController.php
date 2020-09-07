@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
+use Buddy\Repman\Security\Model\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -96,6 +97,14 @@ abstract class ApiController extends AbstractController
     protected function errors(array $errors): JsonResponse
     {
         return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
+    }
+
+    protected function getUser(): User
+    {
+        /** @var User $user */
+        $user = parent::getUser();
+
+        return $user;
     }
 
     private function generatePaginationUrl(string $baseUrl, int $page): string
