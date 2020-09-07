@@ -5,7 +5,13 @@
 {% block content %}
  <div class="row">
     <div class="col-md-6 col-lg-4">
-        {{ form(form) }}
+        {{ form_start(form) }}
+            {{ form_errors(form) }}
+            <label for="name" class="form-label mt-2 required">
+                Name {% include 'component/docsLink.html.twig' with {'article': 'api'} %}
+            </label>
+            {{ form_widget(form.name) }}
+        {{ form_end(form) }}
     </div>
 </div>
 {% endblock %}

@@ -47,9 +47,9 @@ final class PackageController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/package",
+     * @Route("/api/organization/{organization}/package",
      *     name="api_packages",
-     *     methods={"GET"}),
+     *     methods={"GET"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function packages(Organization $organization, Request $request): JsonResponse
@@ -66,7 +66,7 @@ final class PackageController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/package/{package}",
+     * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_get",
      *     methods={"GET"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
@@ -77,7 +77,7 @@ final class PackageController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/package/{package}",
+     * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_remove",
      *     methods={"DELETE"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
@@ -90,7 +90,7 @@ final class PackageController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/package/{package}",
+     * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_update",
      *     methods={"PUT"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
@@ -103,9 +103,9 @@ final class PackageController extends ApiController
     }
 
     /**
-     * @Route("/api/{organization}/package",
+     * @Route("/api/organization/{organization}/package",
      *     name="api_package_add",
-     *     methods={"POST"}),
+     *     methods={"POST"},
      *     requirements={"organization"="%organization_pattern%"})
      */
     public function addPackage(Organization $organization, Request $request): JsonResponse

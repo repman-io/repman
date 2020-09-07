@@ -110,8 +110,8 @@ final class PackageControllerTest extends FunctionalTestCase
                 ],
                 "total": 1,
                 "links": {
-                    "first": "http://localhost/api/buddy/package?page=1",
-                    "last": "http://localhost/api/buddy/package?page=1",
+                    "first": "http://localhost/api/organization/buddy/package?page=1",
+                    "last": "http://localhost/api/organization/buddy/package?page=1",
                     "next": null,
                     "prev": null
                 }

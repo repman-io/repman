@@ -138,7 +138,7 @@ final class UserController extends AbstractController
     public function apiTokens(Request $request): Response
     {
         return $this->render('user/apiTokens.html.twig', [
-            'tokens' => $this->userQuery->findAllApiTokens($this->getUser()->id(), 20, (int) $request->get('offset', 0)),
+            'tokens' => $this->userQuery->getAllApiTokens($this->getUser()->id(), 20, (int) $request->get('offset', 0)),
             'count' => $this->userQuery->apiTokenCount($this->getUser()->id()),
         ]);
     }

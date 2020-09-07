@@ -16,6 +16,11 @@ interface OrganizationQuery
     /**
      * @return Option<Organization>
      */
+    public function getById(string $id): Option;
+
+    /**
+     * @return Option<Organization>
+     */
     public function getByAlias(string $alias): Option;
 
     /**

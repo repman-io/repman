@@ -11,10 +11,14 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-final class ApiListener implements EventSubscriberInterface
+final class ApiExceptionListener implements EventSubscriberInterface
 {
     public function onKernelException(ExceptionEvent $event): void
     {
+        if ($event->getRequest()->get('_route') === null) {
+            return;
+        }
+
         if (strpos($event->getRequest()->get('_route'), 'api_') !== 0) {
             return;
         }
