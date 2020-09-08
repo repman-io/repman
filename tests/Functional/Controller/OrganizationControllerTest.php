@@ -113,6 +113,84 @@ final class OrganizationControllerTest extends FunctionalTestCase
         );
     }
 
+    public function testPackageSearch(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/testing', '1', '1.1.1', new \DateTimeImmutable());
+
+        $packageId2 = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new \DateTimeImmutable());
+
+        // Check both packages are returned first
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString(
+            '2 entries',
+            (string) $this->client->getResponse()->getContent()
+        );
+
+        // Search for 'testing' (which is in name)
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'search' => 'testing']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $response = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('1 entries', $response);
+        self::assertStringContainsString($packageId, $response);
+        self::assertStringNotContainsString($packageId2, $response);
+
+        // Search for '2' (which is in description)
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'search' => '2']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $response = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('1 entries', $response);
+        self::assertStringContainsString($packageId2, $response);
+        self::assertStringNotContainsString($packageId, $response);
+    }
+
+    public function testPagination(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+
+        for ($i = 0; $i < 111; ++$i) {
+            $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        }
+
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Showing 1 to 1 of 111 entries', $content);
+        self::assertStringContainsString('offset=111&amp;limit=1', $content);
+
+        // Invalid limit (too low)
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => -1]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Showing 1 to 20 of 111 entries', $content);
+        self::assertStringContainsString('offset=100&amp;limit=20', $content);
+
+        // Invalid limit (too high)
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 101]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Showing 1 to 100 of 111 entries', $content);
+        self::assertStringContainsString('offset=100&amp;limit=100', $content);
+
+        // Negative offset
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'offset' => -1]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Showing 1 to 20 of 111 entries', $content);
+        self::assertStringContainsString('offset=0&amp;limit=20', $content);
+    }
+
     public function testRemovePackage(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);

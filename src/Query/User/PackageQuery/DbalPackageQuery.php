@@ -39,7 +39,7 @@ final class DbalPackageQuery implements PackageQuery
 
         if ($filter->hasSearchTerm()) {
             $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term) ';
-            $params[':term'] = $filter->getSearchTerm();
+            $params[':term'] = '%'.$filter->getSearchTerm().'%';
         }
 
         return array_map(
@@ -98,7 +98,7 @@ final class DbalPackageQuery implements PackageQuery
 
         if ($filter->hasSearchTerm()) {
             $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term)';
-            $params[':term'] = $filter->getSearchTerm();
+            $params[':term'] = '%'.$filter->getSearchTerm().'%';
         }
 
         return (int) $this

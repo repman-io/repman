@@ -14,12 +14,16 @@ final class Filter
 
     public function __construct(int $offset = 0, int $limit = 20, ?string $searchTerm = null)
     {
-        if ($offset > 0) {
+        if ($offset >= 0) {
             $this->offset = $offset;
         }
 
         if ($limit >= 0) {
             $this->limit = $limit;
+        }
+
+        if ($this->limit > 100) {
+            $this->limit = 100;
         }
 
         $this->searchTerm = $searchTerm;
@@ -30,23 +34,9 @@ final class Filter
         return $this->offset;
     }
 
-    public function setOffset(int $offset): Filter
-    {
-        $this->offset = $offset;
-
-        return $this;
-    }
-
     public function getLimit(): int
     {
         return $this->limit;
-    }
-
-    public function setLimit(int $limit): Filter
-    {
-        $this->limit = $limit;
-
-        return $this;
     }
 
     public function getSearchTerm(): ?string
@@ -54,16 +44,23 @@ final class Filter
         return $this->searchTerm;
     }
 
-    public function setSearchTerm(?string $searchTerm): Filter
-    {
-        $this->searchTerm = $searchTerm;
-
-        return $this;
-    }
-
     public function hasSearchTerm(): bool
     {
         return $this->searchTerm !== null;
+    }
+
+    public function getQueryStringParams(): array
+    {
+        $params = [
+            'offset' => $this->getOffset(),
+            'limit' => $this->getLimit(),
+        ];
+
+        if ($this->hasSearchTerm()) {
+            $params['search'] = $this->getSearchTerm();
+        }
+
+        return $params;
     }
 
     public static function fromRequest(Request $request): Filter

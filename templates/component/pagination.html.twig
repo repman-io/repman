@@ -1,5 +1,5 @@
 {% set offset = offset | default(20) %}
-{% set currentOffset = app.request.query.get('offset', 0) %}
+{% set currentOffset = currentOffset | default(app.request.query.get('offset', 0)) %}
 
 {% if count > 0 and currentOffset <= count %}
     <div class="align-items-center d-flex">
