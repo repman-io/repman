@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User;
 
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -17,14 +18,14 @@ interface PackageQuery
     /**
      * @return Package[]
      */
-    public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array;
+    public function findAll(string $organizationId, Filter $filter): array;
+
+    public function count(string $organizationId, Filter $filter): int;
 
     /**
      * @return PackageName[]
      */
     public function getAllNames(string $organizationId): array;
-
-    public function count(string $organizationId): int;
 
     /**
      * @return Option<Package>

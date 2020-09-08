@@ -15,6 +15,22 @@
     <table class="table">
         <thead>
             <tr>
+                <td colspan="7">
+                    <form action="{{ path('organization_packages', {organization: organization.alias}) }}" method="get" class="form-inline">
+                        <label for="package-search" class="mr-2">Search:</label>
+                        <input type="search" id="package-search" name="search" value="{{ filter.searchTerm }}" class="form-control" />
+
+                        <label class="ml-auto text-right">
+                            Show
+                            <input type="number" name="limit" value="{{ filter.limit }}" class="form-control w-25 mx-2" min="1" />
+                            entries
+                        </label>
+
+                        <button class="btn btn-outline-primary btn-sm">Filter</button>
+                    </form>
+                </td>
+            </tr>
+            <tr>
                 <th>Name</th>
                 <th>Latest version</th>
                 <th>Released</th>
@@ -147,12 +163,12 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="7" class="text-center">no packages added</td>
+                    <td colspan="7" class="text-center">No packages found</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-    {% include 'component/pagination.html.twig' with {'path_name': 'organization_packages', 'path_params': {'organization': organization.alias}} %}
+    {% include 'component/pagination.html.twig' with {'currentOffset': filter.offset, 'path_name': 'organization_packages', 'path_params': filter.getQueryStringParams()|merge({'organization': organization.alias}), offset: filter.limit} %}
 </div>
 {% endblock %}
 

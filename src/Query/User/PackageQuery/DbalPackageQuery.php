@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\PackageQuery;
 
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -27,12 +28,26 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return Package[]
      */
-    public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array
+    public function findAll(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $data): Package {
-            return $this->hydratePackage($data);
-        }, $this->connection->fetchAll(
-            'SELECT
+        $filterSQL = '';
+        $params = [
+            ':organization_id' => $organizationId,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
+        ];
+
+        if ($filter->hasSearchTerm()) {
+            $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term) ';
+            $params[':term'] = '%'.$filter->getSearchTerm().'%';
+        }
+
+        return array_map(
+            function (array $data): Package {
+                return $this->hydratePackage($data);
+            },
+            $this->connection->fetchAll(
+                'SELECT
                 id,
                 organization_id,
                 type,
@@ -49,13 +64,13 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_result
             FROM organization_package
             WHERE organization_id = :organization_id
+            '.$filterSQL.'
             GROUP BY id
             ORDER BY name ASC
-            LIMIT :limit OFFSET :offset', [
-                ':organization_id' => $organizationId,
-                ':limit' => $limit,
-                ':offset' => $offset,
-            ]));
+            LIMIT :limit OFFSET :offset',
+                $params
+            )
+        );
     }
 
     /**
@@ -74,16 +89,24 @@ final class DbalPackageQuery implements PackageQuery
         ]));
     }
 
-    public function count(string $organizationId): int
+    public function count(string $organizationId, Filter $filter): int
     {
+        $filterSQL = '';
+        $params = [
+            ':organization_id' => $organizationId,
+        ];
+
+        if ($filter->hasSearchTerm()) {
+            $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term)';
+            $params[':term'] = '%'.$filter->getSearchTerm().'%';
+        }
+
         return (int) $this
             ->connection
             ->fetchColumn(
                 'SELECT COUNT(id) FROM "organization_package"
-                WHERE organization_id = :organization_id',
-                [
-                    ':organization_id' => $organizationId,
-                ]
+                WHERE organization_id = :organization_id'.$filterSQL,
+                $params
             );
     }
 
