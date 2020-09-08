@@ -49,15 +49,18 @@ final class Filter
         return $this->searchTerm !== null;
     }
 
+    /**
+     * @return array<string,string>
+     */
     public function getQueryStringParams(): array
     {
         $params = [
-            'offset' => $this->getOffset(),
-            'limit' => $this->getLimit(),
+            'offset' => (string)$this->getOffset(),
+            'limit' => (string)$this->getLimit(),
         ];
 
         if ($this->hasSearchTerm()) {
-            $params['search'] = $this->getSearchTerm();
+            $params['search'] = (string)$this->getSearchTerm();
         }
 
         return $params;
