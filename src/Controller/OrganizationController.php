@@ -72,14 +72,9 @@ final class OrganizationController extends AbstractController
         $filter = Filter::fromRequest($request);
 
         $count = $this->packageQuery->count($organization->id(), $filter);
-        $user = parent::getUser();
 
-        // If the filtered version returned 0 results, we need to count again, but without any filters
-        if ($count === 0 &&
-            $this->packageQuery->count($organization->id(), (new Filter())) === 0 &&
-            $user instanceof User &&
-            $organization->isOwner($user->id())
-        ) {
+        // If the filtered count has no results, we need to check if the organization has no packages
+        if ($count === 0 && $this->hasNoPackages($organization)) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias()]);
         }
 
@@ -370,5 +365,14 @@ final class OrganizationController extends AbstractController
                 $this->exceptionHandler->handle($exception);
             }
         }
+    }
+
+    private function hasNoPackages(Organization $organization): bool
+    {
+        $user = parent::getUser();
+
+        return $user instanceof User &&
+            $organization->isOwner($user->id()) &&
+            $this->packageQuery->count($organization->id(), (new Filter())) === 0;
     }
 }

@@ -30,10 +30,24 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function findAll(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $data): Package {
-            return $this->hydratePackage($data);
-        }, $this->connection->fetchAll(
-            'SELECT
+        $filterSQL = '';
+        $params = [
+            ':organization_id' => $organizationId,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
+        ];
+
+        if ($filter->hasSearchTerm()) {
+            $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term) ';
+            $params[':term'] = $filter->getSearchTerm();
+        }
+
+        return array_map(
+            function (array $data): Package {
+                return $this->hydratePackage($data);
+            },
+            $this->connection->fetchAll(
+                'SELECT
                 id,
                 organization_id,
                 type,
@@ -50,16 +64,13 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_result
             FROM organization_package
             WHERE organization_id = :organization_id
-            AND (name ILIKE :namesearch OR description ILIKE :descsearch)
+            '.$filterSQL.'
             GROUP BY id
             ORDER BY name ASC
-            LIMIT :limit OFFSET :offset', [
-                ':organization_id' => $organizationId,
-                ':limit' => $filter->getLimit(),
-                ':offset' => $filter->getOffset(),
-                ':namesearch' => '%'.$filter->getSearchTerm().'%',
-                ':descsearch' => '%'.$filter->getSearchTerm().'%',
-        ]));
+            LIMIT :limit OFFSET :offset',
+                $params
+            )
+        );
     }
 
     /**
@@ -80,17 +91,22 @@ final class DbalPackageQuery implements PackageQuery
 
     public function count(string $organizationId, Filter $filter): int
     {
+        $filterSQL = '';
+        $params = [
+            ':organization_id' => $organizationId,
+        ];
+
+        if ($filter->hasSearchTerm()) {
+            $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term)';
+            $params[':term'] = $filter->getSearchTerm();
+        }
+
         return (int) $this
             ->connection
             ->fetchColumn(
                 'SELECT COUNT(id) FROM "organization_package"
-                WHERE organization_id = :organization_id
-                AND (name ILIKE :namesearch OR description ILIKE :descsearch)',
-                [
-                    ':organization_id' => $organizationId,
-                    ':namesearch' => '%'.$filter->getSearchTerm().'%',
-                    ':descsearch' => '%'.$filter->getSearchTerm().'%',
-                ]
+                WHERE organization_id = :organization_id'.$filterSQL,
+                $params
             );
     }
 
