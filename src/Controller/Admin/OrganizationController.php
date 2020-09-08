@@ -6,6 +6,7 @@ namespace Buddy\Repman\Controller\Admin;
 
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Organization;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,9 +27,12 @@ final class OrganizationController extends AbstractController
      */
     public function list(Request $request): Response
     {
+        $filter = Filter::fromRequest($request);
+
         return $this->render('admin/organization/list.html.twig', [
-            'organizations' => $this->organizationQuery->findAll(20, (int) $request->get('offset', 0)),
+            'organizations' => $this->organizationQuery->findAll($filter),
             'count' => $this->organizationQuery->count(),
+            'filter' => $filter,
         ]);
     }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\PackageQuery;
 
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
-use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -180,7 +179,7 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return Version[]
      */
-    public function getVersions(string $packageId, int $limit = 20, int $offset = 0): array
+    public function getVersions(string $packageId, \Buddy\Repman\Query\Filter $filter): array
     {
         return array_map(function (array $data): Version {
             return new Version(
@@ -201,8 +200,8 @@ final class DbalPackageQuery implements PackageQuery
             ORDER BY date DESC
             LIMIT :limit OFFSET :offset', [
             ':package_id' => $packageId,
-            ':limit' => $limit,
-            ':offset' => $offset,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
         ]));
     }
 
@@ -252,7 +251,7 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return ScanResult[]
      */
-    public function getScanResults(string $packageId, int $limit = 20, int $offset = 0): array
+    public function getScanResults(string $packageId, \Buddy\Repman\Query\Filter $filter): array
     {
         return array_map(function (array $data): ScanResult {
             return new ScanResult(
@@ -272,8 +271,8 @@ final class DbalPackageQuery implements PackageQuery
             ORDER BY date DESC
             LIMIT :limit OFFSET :offset', [
                 ':package_id' => $packageId,
-                ':limit' => $limit,
-                ':offset' => $offset,
+                ':limit' => $filter->getLimit(),
+                ':offset' => $filter->getOffset(),
             ]));
     }
 

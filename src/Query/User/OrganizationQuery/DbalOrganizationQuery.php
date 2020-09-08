@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\OrganizationQuery;
 
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Invitation;
@@ -62,7 +63,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     /**
      * @return Token[]
      */
-    public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array
+    public function findAllTokens(string $organizationId, Filter $filter): array
     {
         return array_map(function (array $data): Token {
             return new Token(
@@ -78,8 +79,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ORDER BY UPPER(name) ASC
             LIMIT :limit OFFSET :offset', [
             ':id' => $organizationId,
-            ':limit' => $limit,
-            ':offset' => $offset,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
         ]));
     }
 
@@ -109,7 +110,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
         );
     }
 
-    public function findAllInvitations(string $organizationId, int $limit = 20, int $offset = 0): array
+    public function findAllInvitations(string $organizationId, Filter $filter): array
     {
         return array_map(function (array $row): Invitation {
             return new Invitation(
@@ -124,8 +125,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ORDER BY email ASC
             LIMIT :limit OFFSET :offset', [
             ':id' => $organizationId,
-            ':limit' => $limit,
-            ':offset' => $offset,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
         ]));
     }
 
@@ -142,7 +143,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     /**
      * @return Member[]
      */
-    public function findAllMembers(string $organizationId, int $limit = 20, int $offset = 0): array
+    public function findAllMembers(string $organizationId, Filter $filter): array
     {
         return array_map(function (array $row): Member {
             return new Member(
@@ -158,8 +159,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ORDER BY u.email ASC
             LIMIT :limit OFFSET :offset', [
             ':id' => $organizationId,
-            ':limit' => $limit,
-            ':offset' => $offset,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
         ]));
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\Admin;
 
 use Buddy\Repman\Query\Admin\Model\User;
+use Buddy\Repman\Query\Filter;
 use Munus\Control\Option;
 
 interface UserQuery
@@ -12,7 +13,7 @@ interface UserQuery
     /**
      * @return User[]
      */
-    public function findAll(int $limit = 20, int $offset = 0): array;
+    public function findAll(Filter $filter): array;
 
     /**
      * @return Option<User>

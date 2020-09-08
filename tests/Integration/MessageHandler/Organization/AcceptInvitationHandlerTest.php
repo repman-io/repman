@@ -6,6 +6,7 @@ namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
 use Buddy\Repman\Entity\Organization\Member as DomainMember;
 use Buddy\Repman\Message\Organization\Member\AcceptInvitation;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
@@ -24,7 +25,7 @@ final class AcceptInvitationHandlerTest extends IntegrationTestCase
         /** @var DbalOrganizationQuery $query */
         $query = $this->container()->get(DbalOrganizationQuery::class);
         self::assertEquals(0, $query->invitationsCount($organizationId));
-        self::assertEquals([], $query->findAllInvitations($organizationId));
+        self::assertEquals([], $query->findAllInvitations($organizationId, new Filter()));
 
         /** @var Organization $organization */
         $organization = $query->getByAlias('repman')->get();
@@ -35,6 +36,6 @@ final class AcceptInvitationHandlerTest extends IntegrationTestCase
         self::assertEquals([
             new Member($ownerId, $ownerEmail, DomainMember::ROLE_OWNER),
             new Member($invitedId, $invitedEmail, DomainMember::ROLE_MEMBER),
-        ], $query->findAllMembers($organizationId));
+        ], $query->findAllMembers($organizationId, new Filter()));
     }
 }

@@ -6,6 +6,7 @@ namespace Buddy\Repman\Query\Admin\OrganizationQuery;
 
 use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Doctrine\DBAL\Connection;
 
@@ -21,7 +22,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     /**
      * @return Organization[]
      */
-    public function findAll(int $limit = 20, int $offset = 0): array
+    public function findAll(Filter $filter): array
     {
         return array_map(function (array $data): Organization {
             return $this->hydrateOrganization($data);
@@ -33,8 +34,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ORDER BY o.alias
             LIMIT :limit OFFSET :offset',
             [
-                ':limit' => $limit,
-                ':offset' => $offset,
+                ':limit' => $filter->getLimit(),
+                ':offset' => $filter->getOffset(),
             ])
         );
     }
