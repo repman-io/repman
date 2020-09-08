@@ -55,12 +55,12 @@ final class Filter
     public function getQueryStringParams(): array
     {
         $params = [
-            'offset' => (string)$this->getOffset(),
-            'limit' => (string)$this->getLimit(),
+            'offset' => (string) $this->getOffset(),
+            'limit' => (string) $this->getLimit(),
         ];
 
         if ($this->hasSearchTerm()) {
-            $params['search'] = (string)$this->getSearchTerm();
+            $params['search'] = (string) $this->getSearchTerm();
         }
 
         return $params;
