@@ -1,9 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * @author giggsey
- */
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
@@ -32,7 +29,7 @@ class Filter extends \Buddy\Repman\Query\Filter
 
     public function getQueryStringParams(): array
     {
-        $params = \Buddy\Repman\Query\Filter::getQueryStringParams();
+        $params = parent::getQueryStringParams();
 
         if ($this->hasSearchTerm()) {
             $params['search'] = (string) $this->getSearchTerm();

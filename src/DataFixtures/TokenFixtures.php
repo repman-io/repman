@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Query\Filter;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -44,7 +45,7 @@ final class TokenFixtures extends Fixture
         $progress->start();
 
         $this->em->getConfiguration()->setSQLLogger(null);
-        foreach ($this->organizations->findAll(9999) as $organization) {
+        foreach ($this->organizations->findAll(new Filter(0, 100)) as $organization) {
             $this->generateTokens($organization);
             $progress->advance();
         }
