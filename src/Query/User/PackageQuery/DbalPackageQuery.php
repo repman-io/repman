@@ -102,7 +102,7 @@ final class DbalPackageQuery implements PackageQuery
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
             ':organization_id' => $organizationId,
-            ':search' => '%' . $searchString . '%',
+            ':search' => '%'.$searchString.'%',
             ':limit' => $limit,
             ':offset' => $offset,
         ]));
