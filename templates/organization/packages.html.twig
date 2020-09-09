@@ -168,7 +168,7 @@
             {% endfor %}
         </tbody>
     </table>
-    {% include 'component/pagination.html.twig' with {'currentOffset': filter.offset, 'path_name': 'organization_packages', 'path_params': filter.getQueryStringParams()|merge({'organization': organization.alias}), offset: filter.limit} %}
+    {% include 'component/pagination.html.twig' with {'path_name': 'organization_packages', 'path_params': {'organization': organization.alias}} %}
 </div>
 {% endblock %}
 

@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\User\CreateUser;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
@@ -22,7 +23,7 @@ final class GenerateTokenHandlerTest extends IntegrationTestCase
         // when
         $this->dispatchMessage(new GenerateToken($orgId, 'prod'));
         // then
-        $tokens = $this->container()->get(DbalOrganizationQuery::class)->findAllTokens($orgId);
+        $tokens = $this->container()->get(DbalOrganizationQuery::class)->findAllTokens($orgId, new Filter());
         self::assertCount(1, $tokens);
         self::assertEquals('random-string', $tokens[0]->value());
         self::assertEquals('prod', $tokens[0]->name());

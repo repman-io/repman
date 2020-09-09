@@ -11,6 +11,7 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\Version;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
+use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
 use Munus\Control\Option;
 
 interface PackageQuery
@@ -18,9 +19,9 @@ interface PackageQuery
     /**
      * @return Package[]
      */
-    public function findAll(string $organizationId, Filter $filter): array;
+    public function findAll(string $organizationId, PackageFilter $filter): array;
 
-    public function count(string $organizationId, Filter $filter): int;
+    public function count(string $organizationId, PackageFilter $filter): int;
 
     /**
      * @return PackageName[]
@@ -37,7 +38,7 @@ interface PackageQuery
     /**
      * @return Version[]
      */
-    public function getVersions(string $packageId, int $limit = 20, int $offset = 0): array;
+    public function getVersions(string $packageId, Filter $filter): array;
 
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs;
 
@@ -54,7 +55,7 @@ interface PackageQuery
     /**
      * @return ScanResult[]
      */
-    public function getScanResults(string $packageId, int $limit = 20, int $offset = 0): array;
+    public function getScanResults(string $packageId, Filter $filter): array;
 
     public function getScanResultsCount(string $packageId): int;
 

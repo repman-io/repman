@@ -30,6 +30,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\ExceptionHandler;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -69,7 +70,7 @@ final class OrganizationController extends AbstractController
      */
     public function packages(Organization $organization, Request $request): Response
     {
-        $filter = Filter::fromRequest($request);
+        $filter = PackageFilter::fromRequest($request);
 
         $count = $this->packageQuery->count($organization->id(), $filter);
 
@@ -121,11 +122,14 @@ final class OrganizationController extends AbstractController
      */
     public function packageDetails(Organization $organization, Package $package, Request $request): Response
     {
+        $filter = Filter::fromRequest($request);
+
         return $this->render('organization/package/details.html.twig', [
             'organization' => $organization,
             'package' => $package,
+            'filter' => $filter,
             'count' => $this->packageQuery->versionCount($package->id()),
-            'versions' => $this->packageQuery->getVersions($package->id(), 20, (int) $request->get('offset', 0)),
+            'versions' => $this->packageQuery->getVersions($package->id(), $filter),
         ]);
     }
 
@@ -217,10 +221,13 @@ final class OrganizationController extends AbstractController
      */
     public function tokens(Organization $organization, Request $request): Response
     {
+        $filter = Filter::fromRequest($request);
+
         return $this->render('organization/tokens.html.twig', [
-            'tokens' => $this->organizationQuery->findAllTokens($organization->id(), 20, (int) $request->get('offset', 0)),
+            'tokens' => $this->organizationQuery->findAllTokens($organization->id(), $filter),
             'count' => $this->organizationQuery->tokenCount($organization->id()),
             'organization' => $organization,
+            'filter' => $filter,
         ]);
     }
 
@@ -338,10 +345,13 @@ final class OrganizationController extends AbstractController
      */
     public function packageScanResults(Organization $organization, Package $package, Request $request): Response
     {
+        $filter = Filter::fromRequest($request);
+
         return $this->render('organization/package/scanResults.html.twig', [
             'organization' => $organization,
             'package' => $package,
-            'results' => $this->packageQuery->getScanResults($package->id(), 20, (int) $request->get('offset', 0)),
+            'filter' => $filter,
+            'results' => $this->packageQuery->getScanResults($package->id(), $filter),
             'count' => $this->packageQuery->getScanResultsCount($package->id()),
         ]);
     }
@@ -373,6 +383,6 @@ final class OrganizationController extends AbstractController
 
         return $user instanceof User &&
             $organization->isOwner($user->id()) &&
-            $this->packageQuery->count($organization->id(), (new Filter())) === 0;
+            $this->packageQuery->count($organization->id(), new PackageFilter()) === 0;
     }
 }

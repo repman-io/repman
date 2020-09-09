@@ -6,6 +6,7 @@ namespace Buddy\Repman\DataFixtures;
 
 use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
+use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -39,7 +40,7 @@ final class PrivatePackageDownloadFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $this->em->getConfiguration()->setSQLLogger(null);
-        foreach ($this->organizations->findAll(9999) as $organization) {
+        foreach ($this->organizations->findAll(new Filter(0, 100)) as $organization) {
             foreach ($this->packages->getAllNames($organization->id()) as $package) {
                 $this->loadDownloads($package);
             }

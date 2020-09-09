@@ -6,13 +6,12 @@ namespace Buddy\Repman\Query;
 
 use Symfony\Component\HttpFoundation\Request;
 
-final class Filter
+class Filter
 {
     private int $offset = 0;
     private int $limit = 20;
-    private ?string $searchTerm;
 
-    public function __construct(int $offset = 0, int $limit = 20, ?string $searchTerm = null)
+    public function __construct(int $offset = 0, int $limit = 20)
     {
         if ($offset >= 0) {
             $this->offset = $offset;
@@ -25,8 +24,6 @@ final class Filter
         if ($this->limit > 100) {
             $this->limit = 100;
         }
-
-        $this->searchTerm = $searchTerm;
     }
 
     public function getOffset(): int
@@ -39,39 +36,22 @@ final class Filter
         return $this->limit;
     }
 
-    public function getSearchTerm(): ?string
-    {
-        return $this->searchTerm;
-    }
-
-    public function hasSearchTerm(): bool
-    {
-        return $this->searchTerm !== null;
-    }
-
     /**
      * @return array<string,string>
      */
     public function getQueryStringParams(): array
     {
-        $params = [
+        return [
             'offset' => (string) $this->getOffset(),
             'limit' => (string) $this->getLimit(),
         ];
-
-        if ($this->hasSearchTerm()) {
-            $params['search'] = (string) $this->getSearchTerm();
-        }
-
-        return $params;
     }
 
-    public static function fromRequest(Request $request): Filter
+    public static function fromRequest(Request $request): self
     {
         return new self(
             (int) $request->get('offset', 0),
-            (int) $request->get('limit', 20),
-            $request->get('search', null)
+            (int) $request->get('limit', 20)
         );
     }
 }

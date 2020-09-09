@@ -1,14 +1,14 @@
-{% set offset = offset | default(20) %}
-{% set currentOffset = currentOffset | default(app.request.query.get('offset', 0)) %}
+{% set limit = filter.limit %}
+{% set currentOffset = filter.offset %}
 
 {% if count > 0 and currentOffset <= count %}
     <div class="align-items-center d-flex">
-        <p class="m-0">Showing {{ currentOffset + 1 }} to {{ min(currentOffset + offset, count) }} of {{ count }} entries</p>
-        {% if count > offset %}
+        <p class="m-0">Showing {{ currentOffset + 1 }} to {{ min(currentOffset + limit, count) }} of {{ count }} entries</p>
+        {% if count > limit %}
             <ul class="pagination ml-auto">
-                {% for i in 0..(count/offset) %}
-                    <li class="page-item {% if currentOffset == i*offset %}active{% endif %}">
-                        <a class="page-link" href="{{ path(path_name, (path_params | default({})) | merge({offset: i*offset})) }}">{{ i+1 }}</a>
+                {% for i in 0..(count/limit) %}
+                    <li class="page-item {% if currentOffset == i*limit %}active{% endif %}">
+                        <a class="page-link" href="{{ path(path_name, (path_params | default({})) | merge(filter.getQueryStringParams()) | merge({offset: i*limit})) }}">{{ i+1 }}</a>
                     </li>
                 {% endfor %}
             </ul>

@@ -10,6 +10,7 @@ use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\Message\User\EnableUser;
 use Buddy\Repman\Query\Admin\Model\User;
 use Buddy\Repman\Query\Admin\UserQuery;
+use Buddy\Repman\Query\Filter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,9 +30,12 @@ final class UserController extends AbstractController
      */
     public function list(Request $request): Response
     {
+        $filter = Filter::fromRequest($request);
+
         return $this->render('admin/user/list.html.twig', [
-            'users' => $this->userQuery->findAll(20, (int) $request->get('offset', 0)),
+            'users' => $this->userQuery->findAll($filter),
             'count' => $this->userQuery->count(),
+            'filter' => $filter,
         ]);
     }
 
