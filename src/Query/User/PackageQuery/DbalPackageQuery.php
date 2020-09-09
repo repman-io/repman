@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\PackageQuery;
 
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
+use Buddy\Repman\Query\Filter as BaseFilter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -143,7 +144,7 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return Version[]
      */
-    public function getVersions(string $packageId, \Buddy\Repman\Query\Filter $filter): array
+    public function getVersions(string $packageId, BaseFilter $filter): array
     {
         return array_map(function (array $data): Version {
             return new Version(
@@ -215,7 +216,7 @@ final class DbalPackageQuery implements PackageQuery
     /**
      * @return ScanResult[]
      */
-    public function getScanResults(string $packageId, \Buddy\Repman\Query\Filter $filter): array
+    public function getScanResults(string $packageId, BaseFilter $filter): array
     {
         return array_map(function (array $data): ScanResult {
             return new ScanResult(
