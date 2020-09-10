@@ -27,6 +27,7 @@ use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
@@ -234,11 +235,11 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/token/{token}/regenerate", name="organization_token_regenerate", methods={"POST"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function regenerateToken(Organization $organization, string $token): Response
+    public function regenerateToken(Organization $organization, Token $token): Response
     {
         $this->dispatchMessage(new RegenerateToken(
             $organization->id(),
-            $token
+            $token->value()
         ));
 
         $this->addFlash('success', 'Token has been successfully regenerated');
@@ -249,11 +250,11 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/token/{token}", name="organization_token_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
-    public function removeToken(Organization $organization, string $token): Response
+    public function removeToken(Organization $organization, Token $token): Response
     {
         $this->dispatchMessage(new RemoveToken(
             $organization->id(),
-            $token
+            $token->value()
         ));
 
         $this->addFlash('success', 'Token has been successfully removed');

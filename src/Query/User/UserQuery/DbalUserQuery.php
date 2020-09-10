@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\UserQuery;
 
 use Buddy\Repman\Entity\User\OAuthToken\ExpiredOAuthTokenException;
+use Buddy\Repman\Query\Filter;
+use Buddy\Repman\Query\User\Model\ApiToken;
 use Buddy\Repman\Query\User\Model\OAuthToken;
 use Buddy\Repman\Query\User\UserQuery;
 use Doctrine\DBAL\Connection;
@@ -60,5 +62,47 @@ final class DbalUserQuery implements UserQuery
         }
 
         return Option::some($data['access_token']);
+    }
+
+    /**
+     * @return ApiToken[]
+     */
+    public function getAllApiTokens(string $userId, Filter $filter): array
+    {
+        return array_map(function (array $data): ApiToken {
+            return $this->hydrateToken($data);
+        }, $this->connection->fetchAll('
+            SELECT name, value, created_at, last_used_at
+            FROM user_api_token
+            WHERE user_id = :id
+            ORDER BY UPPER(name) ASC
+            LIMIT :limit OFFSET :offset', [
+            ':id' => $userId,
+            ':limit' => $filter->getLimit(),
+            ':offset' => $filter->getOffset(),
+        ]));
+    }
+
+    public function apiTokenCount(string $userId): int
+    {
+        return (int) $this
+            ->connection
+            ->fetchColumn(
+                'SELECT COUNT(value) FROM user_api_token WHERE user_id = :id',
+                [':id' => $userId]
+            );
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function hydrateToken(array $data): ApiToken
+    {
+        return new ApiToken(
+            $data['name'],
+            $data['value'],
+            new \DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
+        );
     }
 }

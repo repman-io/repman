@@ -1,0 +1,22 @@
+nelmio_api_doc:
+    models: { use_jms: false }
+
+    documentation:
+        info:
+            title: Repman
+            description: Private PHP Package Repository Manager
+            version: 1.0.0
+        servers:
+          - url: '%env(resolve:APP_URL_SCHEME)%://%env(resolve:APP_HOST)%'
+            description: API
+        components:
+            securitySchemes:
+                ApiToken:
+                    type: apiKey
+                    in: header
+                    name: X-API-TOKEN
+        security:
+            - ApiToken: []
+    areas:
+        path_patterns:
+            - ^/api(?!/doc)

@@ -1,0 +1,76 @@
+{% extends "base.html.twig" %}
+
+{% block header_btn %}
+    <a href="{{ path('user_api_token_new') }}" class="btn btn-success">
+        {% include 'svg/lock.svg' %} Generate a new API token
+    </a>
+{% endblock %}
+{% block header %} API tokens:{% endblock %}
+
+{% block content %}
+
+<div class="markdown">
+    <div class="row">
+        <div class="col-12">
+            <p>
+                To learn how to use Repman's API please refer to {% include 'component/docsLink.html.twig' with {'text':'documentation','article': 'api'} %}
+            </p>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Created</th>
+                <th>Last used</th>
+                <th>Value</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for token in tokens %}
+                <tr>
+                    <td>{{ token.name }}</td>
+                    <td>{{ token.createdAt|date('Y-m-d H:i:s')}}</td>
+                    <td>{{ token.lastUsedAt ? token.lastUsedAt|time_diff : 'never' }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm show-token">
+                            Show token
+                        </button>
+                        <div class="input-group d-none" data-type="token">
+                            <input id="token{{ loop.index }}" type="text" class="form-control" readonly value="{{ token.value }}">
+                            <span class="input-group-append">
+                                <button data-clipboard-target="#token{{ loop.index }}" class="copy-to-clipboard btn btn-primary p-2" type="button" title="Copy to clipboard">
+                                    {% include 'svg/clipboard.svg' %}
+                                </button>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <button
+                            class="btn btn-warning btn-sm"
+                            type="button"
+                            data-target="confirmation"
+                            data-action="{{ path('user_api_token_regenerate', {token: token.value}) }}"
+                            data-method="POST"
+                        >
+                            Regenerate
+                        </button>
+                        <button
+                            class="btn btn-danger btn-sm"
+                            type="submit"
+                            data-target="confirmation"
+                            data-action="{{ path('user_api_token_remove', {token: token.value}) }}"
+                            data-method="DELETE"
+                        >
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'component/pagination.html.twig' with {'path_name': 'user_api_tokens'} %}
+</div>
+{% endblock %}
