@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
-use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
+use Buddy\Repman\Form\Type\Api\GenerateTokenType;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveToken;

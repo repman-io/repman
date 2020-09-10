@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
-use Buddy\Repman\Form\Type\Organization\CreateType;
+use Buddy\Repman\Form\Type\Api\CreateOrganizationType;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Query\Api\Model\Errors;
 use Buddy\Repman\Query\Api\Model\Organization;
@@ -72,7 +72,7 @@ final class OrganizationController extends ApiController
      *     methods={"POST"})
      *
      * @OA\RequestBody(
-     *     @Model(type=CreateType::class)
+     *     @Model(type=CreateOrganizationType::class)
      * )
      *
      * @OA\Response(
@@ -95,7 +95,7 @@ final class OrganizationController extends ApiController
      */
     public function createOrganization(Request $request): JsonResponse
     {
-        $form = $this->createApiForm(CreateType::class);
+        $form = $this->createApiForm(CreateOrganizationType::class);
         $form->submit($this->parseJson($request));
 
         if (!$form->isValid()) {

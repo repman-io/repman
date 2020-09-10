@@ -6,7 +6,6 @@ namespace Buddy\Repman\Form\Type\Api;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -53,7 +52,6 @@ class AddPackageType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                 ],
-            ])
-            ->add('Add', SubmitType::class);
+            ]);
     }
 }
