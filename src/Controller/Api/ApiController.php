@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
+use Buddy\Repman\Query\Api\Model\Error;
+use Buddy\Repman\Query\Api\Model\Errors;
+use Buddy\Repman\Query\Api\Model\Links;
 use Buddy\Repman\Security\Model\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -43,23 +46,23 @@ abstract class ApiController extends AbstractController
         return $data;
     }
 
-    protected function renderFormErrors(FormInterface $form): JsonResponse
+    protected function getErrors(FormInterface $form): Errors
     {
         $errors = [];
         foreach ($form as $child) {
             /** @var FormError $error */
             foreach ($child->getErrors(true) as $error) {
-                $errors[$child->getName()][] = $error->getMessage();
+                $errors[] = new Error($child->getName(), $error->getMessage());
             }
         }
 
-        return $this->errors($errors);
+        return new Errors($errors);
     }
 
     /**
      * @param callable $listFunction
      *
-     * @return array<string,mixed>
+     * @return array<mixed>
      */
     protected function paginate($listFunction, int $total, int $perPage, int $page, string $baseUrl): array
     {
@@ -72,14 +75,9 @@ abstract class ApiController extends AbstractController
         $offset = ($perPage * $page) - $perPage;
 
         return [
-            'data' => $listFunction($perPage, $offset < 0 ? 0 : $offset),
-            'total' => $total,
-            'links' => [
-                'first' => $this->generatePaginationUrl($baseUrl, 1),
-                'prev' => $page <= 1 ? null : $this->generatePaginationUrl($baseUrl, $page - 1),
-                'next' => $page === $pages ? null : $this->generatePaginationUrl($baseUrl, $page + 1),
-                'last' => $this->generatePaginationUrl($baseUrl, $pages),
-            ],
+            $listFunction($perPage, $offset < 0 ? 0 : $offset),
+            $total,
+            new Links($baseUrl, $page, $pages),
         ];
     }
 
@@ -92,11 +90,11 @@ abstract class ApiController extends AbstractController
     }
 
     /**
-     * @param array<string,mixed> $errors
+     * @param mixed $data
      */
-    protected function errors(array $errors): JsonResponse
+    protected function badRequest($data = []): JsonResponse
     {
-        return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
+        return $this->json($data, Response::HTTP_BAD_REQUEST);
     }
 
     protected function getUser(): User
@@ -105,10 +103,5 @@ abstract class ApiController extends AbstractController
         $user = parent::getUser();
 
         return $user;
-    }
-
-    private function generatePaginationUrl(string $baseUrl, int $page): string
-    {
-        return "$baseUrl?page=$page";
     }
 }

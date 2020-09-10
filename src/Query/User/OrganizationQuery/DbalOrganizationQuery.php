@@ -25,24 +25,6 @@ final class DbalOrganizationQuery implements OrganizationQuery
     /**
      * @return Option<Organization>
      */
-    public function getById(string $id): Option
-    {
-        $data = $this->connection->fetchAssoc(
-            'SELECT id, name, alias, has_anonymous_access
-            FROM "organization" WHERE id = :id', [
-            ':id' => $id,
-        ]);
-
-        if ($data === false) {
-            return Option::none();
-        }
-
-        return Option::some($this->hydrateOrganization($data));
-    }
-
-    /**
-     * @return Option<Organization>
-     */
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssoc(
@@ -226,32 +208,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ':value' => $value,
         ]);
 
-        if ($data === false) {
-            return Option::none();
-        }
-
-        return Option::some($this->hydrateToken($data));
-    }
-
-    /**
-     * @return Option<Token>
-     */
-    public function findTokenByName(string $organizationId, string $name): Option
-    {
-        $data = $this->connection->fetchAssoc(
-            'SELECT name, value, created_at, last_used_at
-            FROM organization_token
-            WHERE organization_id = :organization_id AND name = :name
-            ORDER BY created_at DESC', [
-            ':organization_id' => $organizationId,
-            ':name' => $name,
-        ]);
-
-        if ($data === false) {
-            return Option::none();
-        }
-
-        return Option::some($this->hydrateToken($data));
+        return $data === false ? Option::none() : Option::some($this->hydrateToken($data));
     }
 
     /**

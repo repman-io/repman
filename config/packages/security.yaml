@@ -25,7 +25,7 @@ security:
                     - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
                 entry_point: Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
         api:
-            pattern: ^/api
+            pattern: ^/api(?!/doc)
             stateless: true
             provider: api_user_provider
             guard:
@@ -63,4 +63,4 @@ security:
          - { path: ^/downloads, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
          - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }
          - { path: ^/api/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
-         - { path: ^/api/.+, roles: ROLE_USER }
+         - { path: ^/api(?!/doc), roles: ROLE_USER }

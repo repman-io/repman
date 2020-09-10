@@ -15,11 +15,7 @@ final class ApiExceptionListener implements EventSubscriberInterface
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-        if ($event->getRequest()->get('_route') === null) {
-            return;
-        }
-
-        if (strpos($event->getRequest()->get('_route'), 'api_') !== 0) {
+        if ($event->getRequest()->get('_route') === null || strpos($event->getRequest()->get('_route'), 'api_') !== 0) {
             return;
         }
 

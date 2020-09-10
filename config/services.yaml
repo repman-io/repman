@@ -83,6 +83,10 @@ services:
         arguments:
             $allowedTypes: '%env(csv:APP_ALLOWED_PACKAGE_TYPES)%'
 
+    Buddy\Repman\Form\Type\Api\AddPackageType:
+        arguments:
+            $allowedTypes: '%env(csv:APP_ALLOWED_PACKAGE_TYPES)%'
+
     Buddy\Repman\Service\Twig\OAuthProviderExtension:
         arguments:
             -
