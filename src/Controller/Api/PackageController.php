@@ -6,30 +6,32 @@ namespace Buddy\Repman\Controller\Api;
 
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
-use Buddy\Repman\Form\Type\Organization\AddPackageType;
+use Buddy\Repman\Form\Type\Api\AddPackageType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
+use Buddy\Repman\Query\Api\Model\Errors;
+use Buddy\Repman\Query\Api\Model\Package;
+use Buddy\Repman\Query\Api\Model\Packages;
+use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\Organization;
-use Buddy\Repman\Query\User\Model\Package;
-use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\UserQuery;
-use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\BitbucketApi;
 use Buddy\Repman\Service\GitLabApi;
 use Munus\Control\Option;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class PackageController extends ApiController
 {
@@ -47,29 +49,77 @@ final class PackageController extends ApiController
     }
 
     /**
+     * List organization's packages.
+     *
      * @Route("/api/organization/{organization}/package",
      *     name="api_packages",
      *     methods={"GET"},
-     *     requirements={"organization"="%organization_pattern%"})
+     *     requirements={"organization"="%organization_pattern%"}
+     * )
+     *
+     * @Oa\Parameter(
+     *     name="page",
+     *     in="query"
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns list of organization's packages",
+     *     @OA\JsonContent(
+     *        ref=@Model(type=Packages::class)
+     *     )
+     * )
+     *
+     * @OA\Response(
+     *     response=403,
+     *     description="Forbidden"
+     * )
+     *
+     * @OA\Tag(name="Package")
      */
     public function packages(Organization $organization, Request $request): JsonResponse
     {
-        return $this->json($this->paginate(
-            fn ($perPage, $offset) => $this->packageQuery->findAll($organization->id(), $perPage, $offset),
-            $this->packageQuery->count($organization->id()),
-            20,
-            (int) $request->get('page', 1),
-            $this->generateUrl('api_packages', [
-                'organization' => $organization->alias(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL)
-        ));
+        return $this->json(
+            new Packages(...$this->paginate(
+                fn ($perPage, $offset) => $this->packageQuery->findAll($organization->id(), $perPage, $offset),
+                $this->packageQuery->count($organization->id()),
+                20,
+                (int) $request->get('page', 1),
+                $this->generateUrl('api_packages', [
+                    'organization' => $organization->alias(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL)
+            ))
+        );
     }
 
     /**
+     * Find package.
+     *
      * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_get",
      *     methods={"GET"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a single package",
+     *     @OA\JsonContent(
+     *        ref=@Model(type=Package::class)
+     *     )
+     * )
+     *
+     * @OA\Response(
+     *     response=404,
+     *     description="Package not found"
+     * )
+     *
+     * @OA\Response(
+     *     response=403,
+     *     description="Forbidden"
+     * )
+     *
+     * @OA\Tag(name="Package")
      */
     public function getPackage(Organization $organization, Package $package): JsonResponse
     {
@@ -77,36 +127,106 @@ final class PackageController extends ApiController
     }
 
     /**
+     * Remove package.
+     *
      * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_remove",
      *     methods={"DELETE"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Package removed"
+     * )
+     *
+     * @OA\Response(
+     *     response=404,
+     *     description="Package not found"
+     * )
+     *
+     * @OA\Response(
+     *     response=403,
+     *     description="Forbidden"
+     * )
+     *
+     * @OA\Tag(name="Package")
      */
     public function removePackage(Organization $organization, Package $package): JsonResponse
     {
-        $this->dispatchMessage(new RemovePackage($package->id(), $organization->id()));
+        $this->dispatchMessage(new RemovePackage($package->getId(), $organization->id()));
 
-        return $this->json(null);
+        return new JsonResponse();
     }
 
     /**
+     * Update and synchronize package.
+     *
      * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_update",
      *     methods={"PUT"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Package updated"
+     * )
+     *
+     * @OA\Response(
+     *     response=404,
+     *     description="Package not found"
+     * )
+     *
+     * @OA\Response(
+     *     response=403,
+     *     description="Forbidden"
+     * )
+     *
+     * @OA\Tag(name="Package")
      */
     public function updatePackage(Organization $organization, Package $package): JsonResponse
     {
-        $this->dispatchMessage(new SynchronizePackage($package->id()));
+        $this->dispatchMessage(new SynchronizePackage($package->getId()));
 
-        return $this->json(null);
+        return new JsonResponse();
     }
 
     /**
+     * Add new package.
+     *
      * @Route("/api/organization/{organization}/package",
      *     name="api_package_add",
      *     methods={"POST"},
-     *     requirements={"organization"="%organization_pattern%"})
+     *     requirements={"organization"="%organization_pattern%"}
+     * )
+     *
+     * @OA\RequestBody(
+     *     @Model(type=AddPackageType::class)
+     * )
+     *
+     * @OA\Response(
+     *     response=201,
+     *     description="Returns added package",
+     *     @OA\JsonContent(
+     *        ref=@Model(type=Package::class)
+     *     )
+     * )
+     *
+     * @OA\Response(
+     *     response=400,
+     *     description="Bad request",
+     *     @OA\JsonContent(
+     *        ref=@Model(type=Errors::class)
+     *     )
+     * )
+     *
+     * @OA\Response(
+     *     response=403,
+     *     description="Forbidden"
+     * )
+     *
+     * @OA\Tag(name="Package")
      */
     public function addPackage(Organization $organization, Request $request): JsonResponse
     {
@@ -125,12 +245,13 @@ final class PackageController extends ApiController
         }
 
         if (!$form->isValid()) {
-            return $this->renderFormErrors($form);
+            return $this->badRequest($this->getErrors($form));
         }
 
-        return $this->created([
-            'id' => $id,
-        ]);
+        return $this->created($this->packageQuery->getById(
+            $organization->id(),
+            (string) $id
+        )->get());
     }
 
     /**
@@ -172,9 +293,7 @@ final class PackageController extends ApiController
      */
     private function packageNewFromUrl(FormInterface $form, Organization $organization, array $json): ?string
     {
-        $form->add('url', TextType::class, ['constraints' => [new NotBlank()]]);
         $form->submit($json);
-
         if (!$form->isValid()) {
             return null;
         }
@@ -183,7 +302,7 @@ final class PackageController extends ApiController
         $this->dispatchMessage(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
-            $form->get('url')->getData(),
+            $form->get('repository')->getData(),
             in_array($type, ['git', 'mercurial', 'subversion'], true) ? 'vcs' : $type
         ));
         $this->dispatchMessage(new SynchronizePackage($id));
@@ -197,15 +316,13 @@ final class PackageController extends ApiController
     private function packageNewFromGitHub(FormInterface $form, Organization $organization, array $json): ?string
     {
         $this->getToken(OAuthToken::TYPE_GITHUB);
-        $fieldName = 'repository';
-        $form->add($fieldName, TextType::class, ['constraints' => [new NotBlank()]]);
 
         $form->submit($json);
         if (!$form->isValid()) {
             return null;
         }
 
-        $repo = $form->get($fieldName)->getData();
+        $repo = $form->get('repository')->getData();
         $this->dispatchMessage(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
@@ -225,15 +342,13 @@ final class PackageController extends ApiController
     private function packageNewFromGitLab(FormInterface $form, Organization $organization, array $json): ?string
     {
         $token = $this->getToken(OAuthToken::TYPE_GITLAB);
-        $fieldName = 'repository';
-        $form->add($fieldName, TextType::class, ['constraints' => [new NotBlank()]]);
 
         $form->submit($json);
         if (!$form->isValid()) {
             return null;
         }
 
-        $repo = $form->get($fieldName)->getData();
+        $repo = $form->get('repository')->getData();
         $projects = $this->gitlabApi->projects($token->get());
         $byNames = array_flip($projects->names());
         $projectId = $byNames[$repo] ?? null;
@@ -261,15 +376,13 @@ final class PackageController extends ApiController
     private function packageNewFromBitbucket(FormInterface $form, Organization $organization, array $json): ?string
     {
         $token = $this->getToken(OAuthToken::TYPE_BITBUCKET);
-        $fieldName = 'repository';
-        $form->add($fieldName, TextType::class, ['constraints' => [new NotBlank()]]);
 
         $form->submit($json);
         if (!$form->isValid()) {
             return null;
         }
 
-        $repo = $form->get($fieldName)->getData();
+        $repo = $form->get('repository')->getData();
         $repos = $this->bitbucketApi->repositories($token->get());
         $byNames = array_flip($repos->names());
         $repoUuid = $byNames[$repo] ?? null;
@@ -302,13 +415,5 @@ final class PackageController extends ApiController
         }
 
         return $token;
-    }
-
-    protected function getUser(): User
-    {
-        /** @var User $user */
-        $user = parent::getUser();
-
-        return $user;
     }
 }

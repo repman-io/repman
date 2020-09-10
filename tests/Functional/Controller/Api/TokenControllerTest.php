@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\Api;
 
-use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
+use Buddy\Repman\Query\Api\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -141,11 +141,12 @@ final class TokenControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "name": [
-                        "This value should not be blank."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "name",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
@@ -200,7 +201,7 @@ final class TokenControllerTest extends FunctionalTestCase
                 ->get(DbalOrganizationQuery::class)
                 ->findTokenByName($this->organizationId, 'test-regenerate-name')
                 ->get()
-                ->value(),
+                ->getValue(),
             'test-regenerate-value'
         );
         self::assertEquals($json['name'], 'test-regenerate-name');

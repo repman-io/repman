@@ -40,11 +40,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "credentials": [
-                        "Authentication required."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "credentials",
+                        "message": "Authentication required."
+                    }
+                ]
             }
             '
         );
@@ -60,17 +61,18 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "credentials": [
-                        "Invalid credentials."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "credentials",
+                        "message": "Invalid credentials."
+                    }
+                ]
             }
             '
         );
     }
 
-    public function testAccessDenied(): void
+    public function testOrganizationAccessDenied(): void
     {
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_packages', ['organization' => self::$fakeId]));
@@ -95,7 +97,6 @@ final class PackageControllerTest extends FunctionalTestCase
                 "data": [
                     {
                         "id": "'.$packageId.'",
-                        "organizationId": "'.$this->organizationId.'",
                         "type": "vcs",
                         "url": "https://github.com/buddy-works/repman",
                         "name": null,
@@ -105,7 +106,10 @@ final class PackageControllerTest extends FunctionalTestCase
                         "lastSyncAt": null,
                         "lastSyncError": null,
                         "webhookCreatedAt": null,
-                        "scanResult": null
+                        "isSynchronizedSuccessfully": false,
+                        "scanResultStatus": "pending",
+                        "scanResultDate": null,
+                        "lastScanResultContent": []
                     }
                 ],
                 "total": 1,
@@ -168,9 +172,20 @@ final class PackageControllerTest extends FunctionalTestCase
     public function testFindPackage(): void
     {
         $packageId = Uuid::uuid4()->toString();
+        $release = new \DateTimeImmutable('2020-01-01 12:12:12');
         $this->fixtures->createPackage($packageId, '', $this->organizationId);
+        $this->fixtures
+            ->syncPackageWithData(
+                $packageId,
+                'buddy-works/repman',
+                'Repository manager',
+                '2.1.1',
+                $release
+        );
+        $this->fixtures->addScanResult($packageId, 'ok');
 
         $this->loginApiUser($this->apiToken);
+        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
         $this->client->request('GET', $this->urlTo('api_package_get', [
             'organization' => self::$organization,
             'package' => $packageId,
@@ -183,17 +198,21 @@ final class PackageControllerTest extends FunctionalTestCase
             '
             {
                 "id": "'.$packageId.'",
-                "organizationId": "'.$this->organizationId.'",
                 "type": "vcs",
                 "url": "https://github.com/buddy-works/repman",
-                "name": null,
-                "latestReleasedVersion": null,
-                "latestReleaseDate": null,
-                "description": null,
-                "lastSyncAt": null,
+                "name": "buddy-works/repman",
+                "latestReleasedVersion": "2.1.1",
+                "latestReleaseDate": "'.$release->format(\DateTime::ATOM).'",
+                "description": "Repository manager",
+                "lastSyncAt": "'.$now.'",
                 "lastSyncError": null,
                 "webhookCreatedAt": null,
-                "scanResult": null
+                "isSynchronizedSuccessfully": true,
+                "scanResultStatus": "ok",
+                "scanResultDate": "'.$now.'",
+                "lastScanResultContent": {
+                    "composer.lock": []
+                }
             }
             '
         );
@@ -279,10 +298,11 @@ final class PackageControllerTest extends FunctionalTestCase
             'organization' => self::$organization,
         ]), [], [], [], (string) json_encode([
             'type' => 'git',
-            'url' => 'https://github.com/buddy/test-composer-package',
+            'repository' => 'https://github.com/buddy/test-composer-package',
         ]));
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+
         self::assertFalse(
             $this->container()
                 ->get(DbalPackageQuery::class)
@@ -294,14 +314,35 @@ final class PackageControllerTest extends FunctionalTestCase
     public function testAddPackageByPath(): void
     {
         $this->loginApiUser($this->apiToken);
+        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
         $this->client->request('POST', $this->urlTo('api_package_add', [
             'organization' => self::$organization,
         ]), [], [], [], (string) json_encode([
             'type' => 'path',
-            'url' => '/path/to/package',
+            'repository' => '/path/to/package',
         ]));
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(),
+            '
+            {
+                "id": "'.$this->jsonResponse()['id'].'",
+                "type": "path",
+                "url": "/path/to/package",
+                "name": "default/default",
+                "latestReleasedVersion": "1.0.0",
+                "latestReleaseDate": "'.$now.'",
+                "description": "n/a",
+                "lastSyncAt": "'.$now.'",
+                "lastSyncError": null,
+                "webhookCreatedAt": null,
+                "isSynchronizedSuccessfully": true,
+                "scanResultStatus": "pending",
+                "scanResultDate": null,
+                "lastScanResultContent": []
+            }
+            '
+        );
         self::assertFalse(
             $this->container()
                 ->get(DbalPackageQuery::class)
@@ -347,11 +388,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "repository": [
-                        "This value should not be blank."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "repository",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
@@ -372,11 +414,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "type": [
-                        "Missing github integration."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "type",
+                        "message": "Missing github integration."
+                    }
+                ]
             }
             '
         );
@@ -420,11 +463,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "repository": [
-                        "Repository \'buddy-works/missing\' not found."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "repository",
+                        "message": "Repository \'buddy-works/missing\' not found."
+                    }
+                ]
             }
             '
         );
@@ -446,11 +490,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "repository": [
-                        "This value should not be blank."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "repository",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
@@ -471,11 +516,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "type": [
-                        "Missing gitlab integration."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "type",
+                        "message": "Missing gitlab integration."
+                    }
+                ]
             }
             '
         );
@@ -519,11 +565,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "repository": [
-                        "Repository \'buddy-works/missing\' not found."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "repository",
+                        "message": "Repository \'buddy-works/missing\' not found."
+                    }
+                ]
             }
             '
         );
@@ -545,11 +592,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "repository": [
-                        "This value should not be blank."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "repository",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
@@ -570,11 +618,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "type": [
-                        "Missing bitbucket integration."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "type",
+                        "message": "Missing bitbucket integration."
+                    }
+                ]
             }
             '
         );
@@ -586,18 +635,19 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->client->request('POST', $this->urlTo('api_package_add', [
             'organization' => self::$organization,
         ]), [], [], [], (string) json_encode([
-            'url' => 'www.url.com',
+            'repository' => 'www.url.com',
         ]));
 
         self::assertJsonStringEqualsJsonString(
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "type": [
-                        "This value should not be null."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "type",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
@@ -612,18 +662,19 @@ final class PackageControllerTest extends FunctionalTestCase
             'organization' => self::$organization,
         ]), [], [], [], (string) json_encode([
             'type' => 'invalid',
-            'url' => 'www.url.com',
+            'repository' => 'www.url.com',
         ]));
 
         self::assertJsonStringEqualsJsonString(
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "type": [
-                        "This value is not valid."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "type",
+                        "message": "This value is not valid."
+                    }
+                ]
             }
             '
         );
@@ -644,11 +695,12 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->lastResponseBody(),
             '
             {
-                "errors": {
-                    "url": [
-                        "This value should not be blank."
-                    ]
-                }
+                "errors": [
+                    {
+                        "field": "repository",
+                        "message": "This value should not be blank."
+                    }
+                ]
             }
             '
         );
