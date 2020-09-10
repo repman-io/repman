@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-class Errors
+final class Errors implements \JsonSerializable
 {
     /**
      * @var Error[]
@@ -25,5 +25,15 @@ class Errors
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'errors' => $this->getErrors(),
+        ];
     }
 }

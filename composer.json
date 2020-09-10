@@ -19,7 +19,6 @@
         "clue/mq-react": "^1.2",
         "composer/composer": "^1.10.1",
         "composer/semver": "^1.5",
-        "doctrine/annotations": "^1.0",
         "doctrine/doctrine-bundle": "~2.0.10",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
@@ -32,7 +31,6 @@
         "nelmio/api-doc-bundle": "v4.0.0-BETA2",
         "nelmio/cors-bundle": "^2.1",
         "omines/oauth2-gitlab": "^3.2",
-        "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid-doctrine": "^1.5",
         "react/http": "^1.0",
         "sensio/framework-extra-bundle": "^5.5",
@@ -52,10 +50,7 @@
         "symfony/messenger": "*",
         "symfony/monolog-bundle": "^3.5",
         "symfony/process": "*",
-        "symfony/property-access": "5.1.*",
-        "symfony/property-info": "5.1.*",
         "symfony/security-bundle": "*",
-        "symfony/serializer": "5.1.*",
         "symfony/twig-bundle": "*",
         "symfony/validator": "*",
         "symfony/yaml": "*",
@@ -128,6 +123,9 @@
         }
     ],
     "scripts": {
+        "post-install-cmd": [
+            "bin/console assets:install --symlink"
+        ],
         "check-cs": [
             "php-cs-fixer fix --dry-run --diff"
         ],

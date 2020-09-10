@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Token
+final class Token implements \JsonSerializable
 {
     private string $name;
     private string $value;
@@ -37,5 +37,18 @@ final class Token
     public function getLastUsedAt(): ?\DateTimeImmutable
     {
         return $this->lastUsedAt;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'name' => $this->getName(),
+            'value' => $this->getValue(),
+            'createdAt' => $this->getCreatedAt()->format(\DateTime::ATOM),
+            'lastUsedAt' => $this->getLastUsedAt() === null ? null : $this->getLastUsedAt()->format(\DateTime::ATOM),
+        ];
     }
 }

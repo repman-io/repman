@@ -851,9 +851,6 @@
     "symfony/security-http": {
         "version": "v5.0.2"
     },
-    "symfony/serializer": {
-        "version": "v5.1.5"
-    },
     "symfony/serializer-pack": {
         "version": "v1.0.3"
     },

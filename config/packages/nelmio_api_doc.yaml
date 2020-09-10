@@ -3,8 +3,8 @@ nelmio_api_doc:
 
     documentation:
         info:
-            title: Private PHP Package Repository Manager
-            description: ...
+            title: Repman
+            description: Private PHP Package Repository Manager
             version: 1.0.0
         servers:
           - url: '%env(resolve:APP_URL_SCHEME)%://%env(resolve:APP_HOST)%'
@@ -19,4 +19,4 @@ nelmio_api_doc:
             - ApiToken: []
     areas:
         path_patterns:
-            - ^/api(?!/doc.json$)
+            - ^/api(?!/doc)

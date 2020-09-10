@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Organization
+final class Organization implements \JsonSerializable
 {
     private string $id;
     private string $name;
@@ -37,5 +37,18 @@ final class Organization
     public function getHasAnonymousAccess(): bool
     {
         return $this->hasAnonymousAccess;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'alias' => $this->getAlias(),
+            'hasAnonymousAccess' => $this->getHasAnonymousAccess(),
+        ];
     }
 }

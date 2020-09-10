@@ -6,7 +6,7 @@ namespace Buddy\Repman\Query\Api\Model;
 
 use Buddy\Repman\Query\User\Model\ScanResult;
 
-final class Package
+final class Package implements \JsonSerializable
 {
     private string $id;
     private string $type;
@@ -117,5 +117,28 @@ final class Package
     public function getLastScanResultContent(): array
     {
         return $this->scanResult !== null ? $this->scanResult->content() : [];
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'type' => $this->getType(),
+            'url' => $this->getUrl(),
+            'name' => $this->getName(),
+            'latestReleasedVersion' => $this->getLatestReleasedVersion(),
+            'latestReleaseDate' => $this->getLatestReleaseDate() === null ? null : $this->getLatestReleaseDate()->format(\DateTime::ATOM),
+            'description' => $this->getDescription(),
+            'lastSyncAt' => $this->getLastSyncAt() === null ? null : $this->getLastSyncAt()->format(\DateTime::ATOM),
+            'lastSyncError' => $this->getLastSyncError(),
+            'webhookCreatedAt' => $this->getWebhookCreatedAt() === null ? null : $this->getWebhookCreatedAt()->format(\DateTime::ATOM),
+            'isSynchronizedSuccessfully' => $this->getIsSynchronizedSuccessfully(),
+            'scanResultDate' => $this->getScanResultDate() === null ? null : $this->getScanResultDate()->format(\DateTime::ATOM),
+            'scanResultStatus' => $this->getScanResultStatus(),
+            'lastScanResultContent' => $this->getLastScanResultContent(),
+        ];
     }
 }
