@@ -10,8 +10,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
@@ -20,18 +19,16 @@ final class ApiExceptionListener implements EventSubscriberInterface
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-        if ($event->getRequest()->get('_route') === null || strpos($event->getRequest()->get('_route'), 'api_') !== 0) {
+        if (strpos($event->getRequest()->getPathInfo(), '/api') !== 0) {
             return;
         }
 
         if ($event->getThrowable() instanceof AccessDeniedException) {
             $event->setResponse(new JsonResponse(null, Response::HTTP_FORBIDDEN));
-        } elseif ($event->getThrowable() instanceof NotFoundHttpException) {
-            $event->setResponse(new JsonResponse(null, Response::HTTP_NOT_FOUND));
-        } elseif ($event->getThrowable() instanceof BadRequestHttpException) {
-            $event->setResponse(new JsonResponse(null, Response::HTTP_BAD_REQUEST));
         } elseif ($event->getThrowable() instanceof AuthenticationCredentialsNotFoundException) {
             return;
+        } elseif ($event->getThrowable() instanceof HttpException) {
+            $event->setResponse(new JsonResponse(null, $event->getThrowable()->getStatusCode()));
         } else {
             $event->setResponse(new JsonResponse(
                 new Errors([
