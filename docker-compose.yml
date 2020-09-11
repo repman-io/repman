@@ -22,7 +22,6 @@ services:
     image: buddy/repman:0.6.0
     sysctls:
       net.core.somaxconn: 2048
-      net.core.netdev_max_backlog: 4096
     command: >
       bash -c 'bin/console cache:clear &&
       bin/console cache:warmup &&
