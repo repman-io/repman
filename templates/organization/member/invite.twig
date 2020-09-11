@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block header %}Invite a new member{% endblock %}
+{% block header %}Invite a new member {% include 'component/docsLink.html.twig' with {'article': 'organization#members-and-permissions'} %}{% endblock %}
 
 {% block content %}
  <div class="row">

@@ -25,6 +25,7 @@ use Munus\Control\Option;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -101,6 +102,12 @@ final class PackageController extends ApiController
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
      * )
      *
+     * @Oa\Parameter(
+     *     name="package",
+     *     in="path",
+     *     description="UUID"
+     * )
+     *
      * @OA\Response(
      *     response=200,
      *     description="Returns a single package",
@@ -129,10 +136,18 @@ final class PackageController extends ApiController
     /**
      * Remove package.
      *
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_remove",
      *     methods={"DELETE"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
+     * )
+     *
+     * @Oa\Parameter(
+     *     name="package",
+     *     in="path",
+     *     description="UUID"
      * )
      *
      * @OA\Response(
@@ -168,6 +183,12 @@ final class PackageController extends ApiController
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
      * )
      *
+     * @Oa\Parameter(
+     *     name="package",
+     *     in="path",
+     *     description="UUID"
+     * )
+     *
      * @OA\Response(
      *     response=200,
      *     description="Package updated"
@@ -194,6 +215,8 @@ final class PackageController extends ApiController
 
     /**
      * Add new package.
+     *
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      *
      * @Route("/api/organization/{organization}/package",
      *     name="api_package_add",
