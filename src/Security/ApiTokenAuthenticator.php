@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use Buddy\Repman\Query\Api\Model\Error;
+use Buddy\Repman\Query\Api\Model\Errors;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -66,13 +68,9 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
 
     private function unAuthorized(string $message): JsonResponse
     {
-        return new JsonResponse([
-            'errors' => [
-                [
-                    'field' => 'credentials',
-                    'message' => $message,
-                ],
-            ],
-        ], Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse(
+            new Errors([new Error('credentials', $message)]),
+            Response::HTTP_UNAUTHORIZED
+        );
     }
 }
