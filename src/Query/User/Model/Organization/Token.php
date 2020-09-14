@@ -9,14 +9,14 @@ final class Token
     private string $name;
     private string $value;
     private \DateTimeImmutable $createdAt;
-    private ?\DateTimeImmutable $lasUsedAt;
+    private ?\DateTimeImmutable $lastUsedAt;
 
-    public function __construct(string $name, string $value, \DateTimeImmutable $createdAt, ?\DateTimeImmutable $lasUsedAt)
+    public function __construct(string $name, string $value, \DateTimeImmutable $createdAt, ?\DateTimeImmutable $lastUsedAt)
     {
         $this->name = $name;
         $this->value = $value;
         $this->createdAt = $createdAt;
-        $this->lasUsedAt = $lasUsedAt;
+        $this->lastUsedAt = $lastUsedAt;
     }
 
     public function name(): string
@@ -34,8 +34,8 @@ final class Token
         return $this->createdAt;
     }
 
-    public function lasUsedAt(): ?\DateTimeImmutable
+    public function lastUsedAt(): ?\DateTimeImmutable
     {
-        return $this->lasUsedAt;
+        return $this->lastUsedAt;
     }
 }

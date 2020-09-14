@@ -21,6 +21,7 @@ use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
+use Buddy\Repman\Message\User\GenerateApiToken;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\PackageRepository;
@@ -84,14 +85,22 @@ final class FixturesManager
         return $id;
     }
 
-    public function createToken(string $orgId, string $value): void
+    public function createToken(string $orgId, string $value, string $name = 'token'): void
     {
         $this->container->get(TokenGenerator::class)->setNextToken($value);
         $this->dispatchMessage(
             new GenerateToken(
                 $orgId,
-                'token'
+                $name
             )
+        );
+    }
+
+    public function createApiToken(string $userId, string $value = 'api-token', string $name = 'token'): void
+    {
+        $this->container->get(TokenGenerator::class)->setNextToken($value);
+        $this->dispatchMessage(
+            new GenerateApiToken($userId, $name)
         );
     }
 
@@ -109,12 +118,13 @@ final class FixturesManager
         return $userId;
     }
 
-    public function createPackage(string $id, string $organization = 'buddy'): void
+    public function createPackage(string $id, string $organization = 'buddy', string $organizationId = null): void
     {
+        $organization = $organizationId !== null ? $organizationId : $this->createOrganization($organization, $this->createUser());
         $this->dispatchMessage(
             new AddPackage(
                 $id,
-                $this->createOrganization($organization, $this->createUser()),
+                $organization,
                 'https://github.com/buddy-works/repman',
                 'vcs'
             )
