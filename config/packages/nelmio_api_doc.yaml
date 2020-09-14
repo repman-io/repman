@@ -7,7 +7,7 @@ nelmio_api_doc:
             description: Private PHP Package Repository Manager
             version: 1.0.0
         servers:
-          - url: '%env(resolve:APP_URL_SCHEME)%://%env(resolve:APP_HOST)%'
+          - url: '%url_scheme%://%env(default:domain:APP_PUBLIC_HOST)%'
             description: API
         components:
             securitySchemes:

@@ -48,4 +48,5 @@ WORKDIR /app
 
 COPY . .
 
+ENV APP_ENV=prod
 RUN composer install --optimize-autoloader --no-dev
