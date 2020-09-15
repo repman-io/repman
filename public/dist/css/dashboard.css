@@ -32,3 +32,10 @@
   color: #fff;
   background-color: #cd201f;
 }
+
+.g-recaptcha {
+  margin-top: 2rem;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
