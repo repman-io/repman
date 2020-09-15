@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -29,6 +30,7 @@ final class RegisterType extends AbstractType
         $builder
             ->add('email', EmailType::class, [
                 'constraints' => [
+                    new Email(['mode' => 'html5']),
                     new UniqueEmail(),
                 ],
             ])
