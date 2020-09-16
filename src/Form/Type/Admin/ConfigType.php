@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\Email;
 
 class ConfigType extends AbstractType
 {
@@ -69,6 +70,9 @@ class ConfigType extends AbstractType
             ->add('technical_email', EmailType::class, [
                 'required' => false,
                 'help' => 'Fill in your email address to receive software updates',
+                'constraints' => [
+                    new Email(['mode' => 'html5']),
+                ],
             ])
             ->add('save', SubmitType::class, ['label' => 'Save'])
         ;

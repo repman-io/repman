@@ -22,6 +22,7 @@
         "doctrine/doctrine-bundle": "~2.0.10",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
+        "excelwebzone/recaptcha-bundle": "^1.5",
         "knplabs/github-api": "^2.12",
         "knpuniversity/oauth2-client-bundle": "^2.0",
         "league/flysystem-bundle": "^1.5",

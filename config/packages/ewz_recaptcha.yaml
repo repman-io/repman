@@ -1,0 +1,4 @@
+ewz_recaptcha:
+    enabled: '%env(bool:EWZ_RECAPTCHA_ENABLED)%'
+    public_key:  '%env(EWZ_RECAPTCHA_SITE_KEY)%'
+    private_key: '%env(EWZ_RECAPTCHA_SECRET)%'
