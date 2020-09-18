@@ -34,7 +34,7 @@ final class Proxy
      */
     public function metadata(string $package): Option
     {
-        return $this->fetchMetadata(sprintf('%s/p2/%s.json', $this->url, $package));
+        return $this->fetchMetadataLazy(sprintf('%s/p2/%s.json', $this->url, $package));
     }
 
     /**
@@ -66,9 +66,32 @@ final class Proxy
     /**
      * @return Option<Metadata>
      */
-    public function legacyMetadata(string $package): Option
+    public function legacyMetadata(string $package, ?string $hash = null): Option
     {
-        return $this->fetchMetadata(sprintf('%s/p/%s.json', $this->url, $package));
+        return $hash === null ?
+            $this->fetchMetadataLazy(sprintf('%s/p/%s.json', $this->url, $package)) :
+            $this->fetchMetadata(sprintf('%s/p/%s$%s.json', $this->url, $package, $hash));
+    }
+
+    /**
+     * @return Option<Metadata>
+     */
+    public function providers(string $version, string $hash): Option
+    {
+        return $this->fetchMetadata(sprintf('%s/provider/provider-%s$%s.json', $this->url, $version, $hash));
+    }
+
+    public function latestProviderHash(): ?string
+    {
+        foreach ($this->filesystem->listContents($this->name.'/provider') as $file) {
+            if ($file['type'] === 'file' && $file['extension'] === 'json') {
+                preg_match('/\$(?<hash>.+)$/', $file['filename'], $matches);
+
+                return $matches['hash'];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -120,10 +143,18 @@ final class Proxy
 
             $this->syncPackagesMetadata(array_filter(
                 $this->filesystem->listContents($dir['path'], true),
-                fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json')
+                fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && strpos($file['filename'], '$') === false)
             );
         }
         $this->downloader->run();
+    }
+
+    public function updateLatestProviders(): void
+    {
+        $this->updateLatestProvider(array_filter(
+            $this->filesystem->listContents($this->name.'/p', true),
+            fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && strpos($file['filename'], '$') !== false)
+        );
     }
 
     public function url(): string
@@ -138,15 +169,70 @@ final class Proxy
     {
         foreach ($files as $file) {
             $url = sprintf('%s://%s', parse_url($this->url, PHP_URL_SCHEME), $file['path']);
-            // todo: what if proxy do not return `Last-Modified` header?
-            $this->downloader->getLastModified($url, function (int $timestamp) use ($url, $file): void {
-                if ($timestamp > ($file['timestamp'] ?? time())) {
-                    $this->downloader->getAsyncContents($url, [], function ($stream) use ($file): void {
-                        $this->filesystem->putStream($file['path'], $stream);
-                    });
-                }
+            $this->downloader->getAsyncContents($url, [], function ($stream) use ($file): void {
+                $path = $file['path'];
+                $contents = (string) stream_get_contents($stream);
+
+                $this->filesystem->put($path, $contents);
+
+                $this->filesystem->put(
+                    (string) preg_replace(
+                        '/(.+?)(\$\w+|)(\.json)$/',
+                        '${1}\$'.hash('sha256', $contents).'.json',
+                        $path,
+                        1
+                    ),
+                    $contents
+                );
             });
         }
+    }
+
+    /**
+     * @param mixed[] $files
+     */
+    private function updateLatestProvider(array $files): void
+    {
+        $latest = [];
+        foreach ($files as $file) {
+            preg_match('/(?<name>.+)\$/', $file['filename'], $matches);
+            $key = $file['dirname'].'/'.$matches['name'];
+            if (!isset($latest[$key])) {
+                $latest[$key] = $file;
+                continue;
+            }
+
+            if ($file['timestamp'] >= $latest[$key]['timestamp']) {
+                $latest[$key] = $file;
+            }
+        }
+
+        $providers = [];
+        foreach ($latest as $file) {
+            $path = $file['path'];
+            preg_match('/'.$this->name.'\/p\/(?<name>.+)\$/', $path, $matches);
+            $providers[$matches['name']] = [
+                'sha256' => hash('sha256', (string) $this->filesystem->read($path)),
+            ];
+        }
+
+        $contents = json_encode([
+            'providers' => $providers,
+        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        $basePath = sprintf('%s/provider', $this->name);
+
+        foreach ($this->filesystem->listContents($basePath) as $file) {
+            if ($file['type'] !== 'file' || $file['extension'] !== 'json') {
+                continue;
+            }
+
+            $this->filesystem->delete($file['path']);
+        }
+
+        $this->filesystem->put(
+            sprintf('%s/provider-latest$%s.json', $basePath, hash('sha256', $contents)),
+            $contents
+        );
     }
 
     /**
@@ -165,6 +251,27 @@ final class Proxy
      * @return Option<Metadata>
      */
     private function fetchMetadata(string $url): Option
+    {
+        $path = $this->metadataPath($url);
+        if (!$this->filesystem->has($path)) {
+            return Option::none();
+        }
+
+        $stream = $this->filesystem->readStream($path);
+        if ($stream === false) {
+            return Option::none();
+        }
+
+        return Option::some(new Metadata(
+            (int) $this->filesystem->getTimestamp($path),
+            $stream
+        ));
+    }
+
+    /**
+     * @return Option<Metadata>
+     */
+    private function fetchMetadataLazy(string $url): Option
     {
         $path = $this->metadataPath($url);
         if (!$this->filesystem->has($path)) {

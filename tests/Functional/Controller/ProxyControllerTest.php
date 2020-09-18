@@ -28,12 +28,17 @@ final class ProxyControllerTest extends FunctionalTestCase
                     "preferred": true
                 }
             ],
-            "providers-lazy-url": "/p/%package%"
+            "providers-lazy-url": "/p/%package%",
+            "provider-includes": {
+                "p/provider-latest$%hash%.json": {
+                    "sha256": "bf7274d469c9a2c4b4d0babeeb112b40a3afd19a9887adb342671818360ae326"
+                }
+            }
         }
         ', $this->client->getResponse()->getContent());
     }
 
-    public function testProviderAction(): void
+    public function testProviderLazyAction(): void
     {
         $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
@@ -50,7 +55,7 @@ final class ProxyControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isCacheable());
     }
 
-    public function testProviderActionEmptyPackagesWhenNotExist(): void
+    public function testProviderLazyActionEmptyPackagesWhenNotExist(): void
     {
         $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/example-app', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
@@ -85,6 +90,58 @@ final class ProxyControllerTest extends FunctionalTestCase
         $this->client->request('GET', '/p2/buddy-works/example-app.json', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
         ]);
+        self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
+    public function testProviderAction(): void
+    {
+        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman$985a77691ad57c77f96e5b97ae30828c75e4030b65e6211a0a20c54f594c5ea9.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]));
+
+        self::assertMatchesPattern('
+        {
+            "packages":
+            {
+                "buddy-works/repman": "@array@"
+            }
+        }
+        ', $response);
+        self::assertTrue($this->client->getResponse()->isCacheable());
+    }
+
+    public function testProviderNotFoundWhenNotExist(): void
+    {
+        $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman$ee203d24e9722116c133153095cd65f7d94d8261bed4bd77da698dda07e8c98d.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
+    public function testProvidersAction(): void
+    {
+        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/provider-latest$bf7274d469c9a2c4b4d0babeeb112b40a3afd19a9887adb342671818360ae326.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]));
+
+        self::assertMatchesPattern('
+        {
+            "providers": {
+                "buddy-works/repman": {
+                    "sha256": "d5d2c9708c1240da3913ee9fba51759b14b8443826a93b84fa0fa95d70cd3703"
+                }
+            }
+        }
+        ', $response);
+        self::assertTrue($this->client->getResponse()->isCacheable());
+    }
+
+    public function testProvidersNotFoundWhenNotExist(): void
+    {
+        $this->contentFromStream(fn () => $this->client->request('GET', 'provider-latest$e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]));
 
         self::assertTrue($this->client->getResponse()->isNotFound());
     }
