@@ -50,6 +50,8 @@ final class ProxySyncMetadataCommand extends Command
             $this->register->all()->forEach(function (Proxy $proxy) use ($lock): void {
                 $proxy->syncMetadata();
                 $lock->refresh();
+                $proxy->updateLatestProviders();
+                $lock->refresh();
             });
         } finally {
             $lock->release();

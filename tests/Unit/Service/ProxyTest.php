@@ -85,7 +85,7 @@ final class ProxyTest extends TestCase
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/old')->get();
-        self::assertEquals($oldTimestamp, $metadata->timestamp());
+        self::assertTrue($metadata->timestamp() > $oldTimestamp);
     }
 
     public function testIgnoreSyncIfCannotDownload(): void
