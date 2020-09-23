@@ -30,10 +30,18 @@ final class ProxyController extends AbstractController
     }
 
     /**
-     * @Route("/packages.json", host="repo.{domain}", name="packages", methods={"GET"}, defaults={"domain"="%domain%"}, requirements={"domain"="%domain%"})
+     * @Route(
+     *     "/packages.json",
+     *     host="repo.{domain}",
+     *     name="packages",
+     *     methods={"GET"},
+     *     defaults={"domain"="%domain%"},
+     *     requirements={"domain"="%domain%"}
+     * )
      */
     public function packages(Request $request): JsonResponse
     {
+        $providerHash = $this->register->getByHost('packagist.org')->latestProviderHash();
         $response = (new JsonResponse([
             'notify-batch' => $this->generateUrl('package_downloads', [], RouterInterface::ABSOLUTE_URL),
             'providers-url' => '/p/%package%$%hash%.json',
@@ -46,6 +54,7 @@ final class ProxyController extends AbstractController
                 ],
             ],
             'providers-lazy-url' => '/p/%package%',
+            'provider-includes' => $providerHash !== null ? ['p/provider-latest$%hash%.json' => ['sha256' => $providerHash]] : [],
         ]))
             ->setPublic()
             ->setTtl(86400)
@@ -57,14 +66,46 @@ final class ProxyController extends AbstractController
     }
 
     /**
-     * @Route("/p/{package}",
+     * @Route("/p/{package}${hash}.json",
      *     name="package_legacy_metadata",
      *     host="repo.{domain}",
      *     defaults={"domain"="%domain%"},
      *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
      *     methods={"GET"})
      */
-    public function legacyMetadata(string $package, Request $request): Response
+    public function legacyMetadata(string $package, string $hash, Request $request): Response
+    {
+        /** @var Metadata $metadata */
+        $metadata = $this->register->all()
+            ->map(fn (Proxy $proxy) => $proxy->legacyMetadata($package, $hash))
+            ->find(fn (Option $option) => !$option->isEmpty())
+            ->map(fn (Option $option) => $option->get())
+            ->getOrElseThrow(new NotFoundHttpException('Provider not found'));
+
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+            'Accept-Ranges' => 'bytes',
+            'Content-Type' => 'application/json',
+            /* @phpstan-ignore-next-line */
+            'Content-Length' => fstat($metadata->stream())['size'],
+        ]))
+            ->setPublic()
+            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+        ;
+
+        $response->isNotModified($request);
+
+        return $response;
+    }
+
+    /**
+     * @Route("/p/{package}",
+     *     name="package_legacy_metadata_lazy",
+     *     host="repo.{domain}",
+     *     defaults={"domain"="%domain%"},
+     *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
+     *     methods={"GET"})
+     */
+    public function legacyMetadataLazy(string $package, Request $request): Response
     {
         /** @var Metadata $metadata */
         $metadata = $this->register->all()
@@ -72,6 +113,39 @@ final class ProxyController extends AbstractController
             ->find(fn (Option $option) => !$option->isEmpty())
             ->map(fn (Option $option) => $option->get())
             ->getOrElse(Metadata::fromString('{"packages": {}}'));
+
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+            'Accept-Ranges' => 'bytes',
+            'Content-Type' => 'application/json',
+            /* @phpstan-ignore-next-line */
+            'Content-Length' => fstat($metadata->stream())['size'],
+        ]))
+            ->setPublic()
+            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+        ;
+
+        $response->isNotModified($request);
+
+        return $response;
+    }
+
+    /**
+     * @Route(
+     *     "/p/provider-{version}${hash}.json",
+     *     host="repo.{domain}",
+     *     name="providers",
+     *     methods={"GET"},
+     *     defaults={"domain"="%domain%"}, requirements={"domain"="%domain%"}
+     * )
+     */
+    public function providers(string $version, string $hash, Request $request): Response
+    {
+        /** @var Metadata $metadata */
+        $metadata = $this->register->all()
+            ->map(fn (Proxy $proxy) => $proxy->providers($version, $hash))
+            ->find(fn (Option $option) => !$option->isEmpty())
+            ->map(fn (Option $option) => $option->get())
+            ->getOrElseThrow(new NotFoundHttpException('Provider not found'));
 
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
@@ -103,7 +177,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Proxy $proxy) => $proxy->metadata($package))
             ->find(fn (Option $option) => !$option->isEmpty())
             ->map(fn (Option $option) => $option->get())
-            ->getOrElseThrow(new NotFoundHttpException());
+            ->getOrElseThrow(new NotFoundHttpException('Metadata not found'));
 
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
