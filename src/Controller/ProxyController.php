@@ -35,7 +35,8 @@ final class ProxyController extends AbstractController
      *     host="repo.{domain}",
      *     name="packages",
      *     methods={"GET"},
-     *     defaults={"domain"="%domain%"}, requirements={"domain"="%domain%"}
+     *     defaults={"domain"="%domain%"},
+     *     requirements={"domain"="%domain%"}
      * )
      */
     public function packages(Request $request): JsonResponse

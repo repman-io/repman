@@ -173,8 +173,7 @@ final class Proxy
                 $path = $file['path'];
                 $contents = (string) stream_get_contents($stream);
 
-                $this->filesystem->put($path, $contents);
-
+                $this->filesystem->putStream($path, $stream);
                 $this->filesystem->put(
                     (string) preg_replace(
                         '/(.+?)(\$\w+|)(\.json)$/',
