@@ -41,7 +41,7 @@ final class ProxyController extends AbstractController
      */
     public function packages(Request $request): JsonResponse
     {
-        $providerHash = $this->register->getByHost('packagist.org')->latestProviderHash();
+        $metadata = $this->register->getByHost('packagist.org')->latestProvider();
         $response = (new JsonResponse([
             'notify-batch' => $this->generateUrl('package_downloads', [], RouterInterface::ABSOLUTE_URL),
             'providers-url' => '/p/%package%$%hash%.json',
@@ -54,11 +54,17 @@ final class ProxyController extends AbstractController
                 ],
             ],
             'providers-lazy-url' => '/p/%package%',
-            'provider-includes' => $providerHash !== null ? ['p/provider-latest$%hash%.json' => ['sha256' => $providerHash]] : [],
+            'provider-includes' => $metadata->isPresent() ? ['p/provider-latest$%hash%.json' => ['sha256' => $metadata->get()->hash()]] : [],
         ]))
             ->setPublic()
-            ->setTtl(360)
         ;
+
+        $now = new \DateTime();
+        $response->setLastModified(
+            $metadata->isPresent() ?
+            $now->setTimestamp($metadata->get()->timestamp()) :
+            $now
+        );
 
         $response->isNotModified($request);
 

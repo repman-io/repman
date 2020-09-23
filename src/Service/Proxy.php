@@ -81,17 +81,25 @@ final class Proxy
         return $this->fetchMetadata(sprintf('%s/provider/provider-%s$%s.json', $this->url, $version, $hash));
     }
 
-    public function latestProviderHash(): ?string
+    /**
+     * @return Option<Metadata>
+     */
+    public function latestProvider(): Option
     {
         foreach ($this->filesystem->listContents($this->name.'/provider') as $file) {
             if ($file['type'] === 'file' && $file['extension'] === 'json') {
                 preg_match('/\$(?<hash>.+)$/', $file['filename'], $matches);
 
-                return $matches['hash'];
+                if (($hash = $matches['hash']) !== null) {
+                    return $this->fetchMetadata(
+                        sprintf('%s/provider/provider-latest$%s.json', $this->url, $hash),
+                        $hash
+                    );
+                }
             }
         }
 
-        return null;
+        return Option::none();
     }
 
     /**
@@ -249,7 +257,7 @@ final class Proxy
     /**
      * @return Option<Metadata>
      */
-    private function fetchMetadata(string $url): Option
+    private function fetchMetadata(string $url, ?string $hash = null): Option
     {
         $path = $this->metadataPath($url);
         if (!$this->filesystem->has($path)) {
@@ -263,7 +271,8 @@ final class Proxy
 
         return Option::some(new Metadata(
             (int) $this->filesystem->getTimestamp($path),
-            $stream
+            $stream,
+            $hash
         ));
     }
 
