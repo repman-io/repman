@@ -57,7 +57,7 @@ final class ProxyController extends AbstractController
             'provider-includes' => $providerHash !== null ? ['p/provider-latest$%hash%.json' => ['sha256' => $providerHash]] : [],
         ]))
             ->setPublic()
-            ->setTtl(86400)
+            ->setTtl(360)
         ;
 
         $response->isNotModified($request);
