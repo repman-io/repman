@@ -55,7 +55,18 @@ final class ProxyController extends AbstractController
             ],
             'providers-lazy-url' => '/p/%package%',
             'provider-includes' => $metadata->isPresent() ? ['p/provider-latest$%hash%.json' => ['sha256' => $metadata->get()->hash()]] : [],
-        ]));
+        ]))
+            ->setPublic()
+        ;
+
+        $now = new \DateTime();
+        $response->setLastModified(
+            $metadata->isPresent() ?
+            $now->setTimestamp($metadata->get()->timestamp()) :
+            $now
+        );
+
+        $response->isNotModified($request);
 
         return $response;
     }
