@@ -15,13 +15,16 @@ final class Metadata
      */
     private $stream;
 
+    private ?string $hash = null;
+
     /**
      * @param resource $stream
      */
-    public function __construct(int $timestamp, $stream)
+    public function __construct(int $timestamp, $stream, ?string $hash = null)
     {
         $this->timestamp = $timestamp;
         $this->stream = $stream;
+        $this->hash = $hash;
     }
 
     public static function fromString(string $string): self
@@ -40,5 +43,10 @@ final class Metadata
     public function stream()
     {
         return $this->stream;
+    }
+
+    public function hash(): ?string
+    {
+        return $this->hash;
     }
 }
