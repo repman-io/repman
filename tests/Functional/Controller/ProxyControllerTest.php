@@ -38,6 +38,38 @@ final class ProxyControllerTest extends FunctionalTestCase
         ', $this->client->getResponse()->getContent());
     }
 
+    public function testPackagesActionMissingProvider(): void
+    {
+        $providerBasePath = __DIR__.'/../../Resources/packagist.org/provider';
+        $oldProviderName = $providerBasePath.'/provider-latest$bf7274d469c9a2c4b4d0babeeb112b40a3afd19a9887adb342671818360ae326.json';
+        $newProviderName = $providerBasePath.'/file.json';
+
+        rename($oldProviderName, $newProviderName);
+
+        $this->client->request('GET', '/packages.json', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ]);
+
+        rename($newProviderName, $oldProviderName);
+
+        self::assertMatchesPattern('
+        {
+            "notify-batch": "http://repo.repman.wip/downloads",
+            "providers-url": "/p/%package%$%hash%.json",
+            "metadata-url": "/p2/%package%.json",
+            "search": "https://packagist.org/search.json?q=%query%&type=%type%",
+            "mirrors": [
+                {
+                    "dist-url": "@string@.isUrl()",
+                    "preferred": true
+                }
+            ],
+            "providers-lazy-url": "/p/%package%",
+            "provider-includes": []
+        }
+        ', $this->client->getResponse()->getContent());
+    }
+
     public function testProviderLazyAction(): void
     {
         $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman', [], [], [

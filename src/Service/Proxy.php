@@ -86,20 +86,27 @@ final class Proxy
      */
     public function latestProvider(): Option
     {
+        $providers = [];
         foreach ($this->filesystem->listContents($this->name.'/provider') as $file) {
-            if ($file['type'] === 'file' && $file['extension'] === 'json') {
-                preg_match('/\$(?<hash>.+)$/', $file['filename'], $matches);
-
-                if (($hash = $matches['hash']) !== null) {
-                    return $this->fetchMetadata(
-                        sprintf('%s/provider/provider-latest$%s.json', $this->url, $hash),
-                        $hash
-                    );
-                }
+            if ($file['type'] === 'file' && $file['extension'] === 'json' && strpos($file['filename'], '$') !== false) {
+                $providers[$file['timestamp']] = $file;
             }
         }
 
-        return Option::none();
+        if ($providers === []) {
+            return Option::none();
+        }
+
+        ksort($providers);
+        $provider = array_pop($providers);
+
+        preg_match('/\$(?<hash>.+)$/', $provider['filename'], $matches);
+        $hash = $matches['hash'];
+
+        return $this->fetchMetadata(
+            sprintf('%s/provider/provider-latest$%s.json', $this->url, $hash),
+            $hash
+        );
     }
 
     /**
@@ -228,11 +235,19 @@ final class Proxy
         ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
         $basePath = sprintf('%s/provider', $this->name);
 
+        $oldProviders = [];
         foreach ($this->filesystem->listContents($basePath) as $file) {
             if ($file['type'] !== 'file' || $file['extension'] !== 'json') {
                 continue;
             }
 
+            $oldProviders[$file['timestamp']] = $file;
+        }
+
+        krsort($oldProviders);
+        array_shift($oldProviders);
+
+        foreach ($oldProviders as $file) {
             $this->filesystem->delete($file['path']);
         }
 
