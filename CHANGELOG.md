@@ -12,6 +12,22 @@ On next release:
 
 ## [Unreleased]
 
+## [1.0.0] - 2020-10-29
+### Added
+- implement `provider-includes` for better proxy performance ([#281](https://github.com/repman-io/repman/pull/281), [#283](https://github.com/repman-io/repman/pull/283), [#290](https://github.com/repman-io/repman/pull/290))
+- add version for assets ([#278](https://github.com/repman-io/repman/pull/278))
+- add `reCaptcha` and better email validation ([#276](https://github.com/repman-io/repman/pull/276), [#277](https://github.com/repman-io/repman/pull/277))
+- REST API implementation ([#269](https://github.com/repman-io/repman/pull/269), [#275](https://github.com/repman-io/repman/pull/275))
+- add ability to search packages ([#259](https://github.com/repman-io/repman/pull/259), [#263](https://github.com/repman-io/repman/pull/263), thanks @giggsey)
+- add `CODE_OF_CONDUCT.md` ([#258](https://github.com/repman-io/repman/pull/258))
+
+### Changed
+- remove `mailhog` from `docker-compose.yml` ([#293](https://github.com/repman-io/repman/pull/293))
+- Tweak sysctl for better performance ([#265](https://github.com/repman-io/repman/pull/265), [#271](https://github.com/repman-io/repman/pull/271))
+
+### Fixed
+- Fix nginx and php-fpm to correct handle symlinks ([#262](https://github.com/repman-io/repman/pull/262))
+
 ## [0.6.0] - 2020-09-03
 ### Added
 - implement command for clearing old private distributions files ([#244](https://github.com/repman-io/repman/pull/244))
