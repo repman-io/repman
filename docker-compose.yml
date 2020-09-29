@@ -74,14 +74,6 @@ services:
       - docker-nginx-ssl-certs:/etc/ssl/certs
       - docker-nginx-ssl-private:/etc/ssl/private
 
-  mailhog:
-    << : *restart_policy
-    image: mailhog/mailhog
-    logging:
-      driver: none
-    ports:
-      - 8025:8025
-
 volumes:
   postgres-data:
   app-var:
