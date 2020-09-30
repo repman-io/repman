@@ -73,30 +73,58 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 throw new \RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
             }
 
-            $encounteredVersions = [];
+            $versions = [];
             foreach ($packages as $p) {
                 if ($p->getDistUrl() !== null) {
-                    $releaseDate = \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime());
-                    $dist = new Dist($package->organizationAlias(), $p->getPrettyName(), $p->getVersion(), $p->getDistReference() ?? $p->getDistSha1Checksum(), $p->getDistType());
-
-                    $this->distStorage->download(
-                        $p->getDistUrl(),
-                        $dist,
-                        $this->getAuthHeaders($package)
-                    );
-
-                    $package->addOrUpdateVersion(
-                        new Version(
-                            Uuid::uuid4(),
-                            $p->getPrettyVersion(),
-                            $p->getDistReference() ?? $p->getDistSha1Checksum(),
-                            $this->distStorage->size($dist),
-                            $releaseDate,
-                            $p->getStability()
-                        )
-                    );
-                    $encounteredVersions[] = $p->getPrettyVersion();
+                    $versions[] = [
+                        'organizationAlias' => $package->organizationAlias(),
+                        'packageName' => $p->getPrettyName(),
+                        'prettyVersion' => $p->getPrettyVersion(),
+                        'version' => $p->getVersion(),
+                        'ref' => $p->getDistReference() ?? $p->getDistSha1Checksum(),
+                        'distType' => $p->getDistType(),
+                        'distUrl' => $p->getDistUrl(),
+                        'authHeaders' => $this->getAuthHeaders($package),
+                        'releaseDate' => \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime()),
+                        'stability' => $p->getStability(),
+                    ];
                 }
+            }
+
+            usort($versions, fn ($item1, $item2) => $item2['releaseDate'] <=> $item1['releaseDate']);
+
+            $encounteredVersions = [];
+            foreach ($versions as $version) {
+                if ($package->versionsLimit() > 0 && count($encounteredVersions) >= $package->versionsLimit()) {
+                    break;
+                }
+
+                $dist = new Dist(
+                    $version['organizationAlias'],
+                    $version['packageName'],
+                    $version['version'],
+                    $version['ref'],
+                    $version['distType']
+                );
+
+                $this->distStorage->download(
+                    $version['distUrl'],
+                    $dist,
+                    $this->getAuthHeaders($package)
+                );
+
+                $package->addOrUpdateVersion(
+                    new Version(
+                        Uuid::uuid4(),
+                        $version['prettyVersion'],
+                        $version['ref'],
+                        $this->distStorage->size($dist),
+                        $version['releaseDate'],
+                        $version['stability']
+                    )
+                );
+
+                $encounteredVersions[] = $version['prettyVersion'];
             }
 
             $package->syncSuccess(

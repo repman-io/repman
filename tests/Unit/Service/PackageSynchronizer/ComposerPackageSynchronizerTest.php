@@ -174,6 +174,30 @@ final class ComposerPackageSynchronizerTest extends TestCase
         @unlink($tmpPath);
     }
 
+    public function testSynchronizePackageWithLimitedNumberOfVersions(): void
+    {
+        $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
+        @unlink($path);
+
+        $limit = 2;
+
+        $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy', $limit);
+        $this->synchronizer->synchronize($package);
+
+        self::assertFileExists($path);
+
+        $json = unserialize((string) file_get_contents($path));
+        self::assertCount(4, $json['packages']['buddy-works/alpha']);
+        @unlink($path);
+
+        self::assertCount($limit, $package->versions());
+        $versionStrings = array_map(function (Version $version): string {
+            return $version->version();
+        }, $package->versions()->toArray());
+        sort($versionStrings, SORT_NATURAL);
+        self::assertEquals(['1.1.1', '1.2.0'], $versionStrings);
+    }
+
     /**
      * @return mixed
      */
