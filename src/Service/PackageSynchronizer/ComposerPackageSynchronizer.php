@@ -95,7 +95,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             $encounteredVersions = [];
             foreach ($versions as $version) {
-                if ($package->versionsLimit() > 0 && count($encounteredVersions) >= $package->versionsLimit()) {
+                if ($package->keepLastReleases() > 0 && count($encounteredVersions) >= $package->keepLastReleases()) {
                     break;
                 }
 

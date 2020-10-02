@@ -29,7 +29,7 @@ final class AddPackageHandler implements MessageHandlerInterface
                     $message->type(),
                     $message->url(),
                     $message->metadata(),
-                    $message->versionsLimit()
+                    $message->keepLastReleases()
                 )
             )
         ;

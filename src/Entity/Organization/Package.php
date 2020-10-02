@@ -112,18 +112,18 @@ class Package
     /**
      * @ORM\Column(type="integer")
      */
-    private int $versionsLimit = 0;
+    private int $keepLastReleases = 0;
 
     /**
      * @param mixed[] $metadata
      */
-    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $versionsLimit = 0)
+    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $keepLastReleases = 0)
     {
         $this->id = $id;
         $this->type = $type;
         $this->repositoryUrl = $url;
         $this->metadata = $metadata;
-        $this->versionsLimit = $versionsLimit;
+        $this->keepLastReleases = $keepLastReleases;
         $this->versions = new ArrayCollection();
     }
 
@@ -301,8 +301,8 @@ class Package
         return $this->versions->filter(fn (Version $version) => $version->version() === $versionString)->first();
     }
 
-    public function versionsLimit(): int
+    public function keepLastReleases(): int
     {
-        return $this->versionsLimit;
+        return $this->keepLastReleases;
     }
 }

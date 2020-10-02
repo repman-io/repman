@@ -54,7 +54,7 @@ class AddPackageType extends AbstractType
                     new NotBlank(),
                 ],
             ])
-            ->add('versionsLimit', IntegerType::class, [
+            ->add('keepLastReleases', IntegerType::class, [
                 'data' => 0,
                 'required' => false,
             ]);

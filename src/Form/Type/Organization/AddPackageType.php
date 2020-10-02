@@ -63,10 +63,10 @@ class AddPackageType extends AbstractType
                     new NotNull(),
                 ],
             ])
-            ->add('versionsLimit', IntegerType::class, [
-                'label' => 'Limit number of versions',
+            ->add('keepLastReleases', IntegerType::class, [
+                'label' => 'Keep last releases',
                 'data' => 0,
-                'help' => 'Put "0" to download all versions',
+                'help' => 'Number of last releases that will be downloaded. Put "0" to download all.',
                 'required' => false,
             ])
             ->add('Add', SubmitType::class);

@@ -17,9 +17,9 @@ final class PackageMother
         return new Package(Uuid::uuid4(), $type, $url);
     }
 
-    public static function withOrganization(string $type, string $url, string $organizationAlias, int $versionsLimit = 0): Package
+    public static function withOrganization(string $type, string $url, string $organizationAlias, int $keepLastReleases = 0): Package
     {
-        $package = new Package(Uuid::uuid4(), $type, $url, [], $versionsLimit);
+        $package = new Package(Uuid::uuid4(), $type, $url, [], $keepLastReleases);
         $package->setOrganization(new Organization(
             Uuid::uuid4(),
             new User(Uuid::uuid4(), 'test@buddy.works', 'confirm-token', []),

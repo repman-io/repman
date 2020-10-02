@@ -20,12 +20,12 @@ final class Version20200930164734 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE organization_package ADD versions_limit INT DEFAULT 0 NOT NULL');
+        $this->addSql('ALTER TABLE organization_package ADD keep_last_releases INT DEFAULT 0 NOT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE organization_package DROP versions_limit');
+        $this->addSql('ALTER TABLE organization_package DROP keep_last_releases');
     }
 }

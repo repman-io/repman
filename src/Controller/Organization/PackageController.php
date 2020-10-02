@@ -157,7 +157,7 @@ final class PackageController extends AbstractController
                 $form->get('url')->getData(),
                 in_array($type, ['git', 'mercurial', 'subversion'], true) ? 'vcs' : $type,
                 [],
-                $form->get('versionsLimit')->getData()
+                $form->get('keepLastReleases')->getData()
             ));
             $this->dispatchMessage(new SynchronizePackage($id));
 
@@ -187,7 +187,7 @@ final class PackageController extends AbstractController
                     "https://github.com/{$repo}",
                     'github-oauth',
                     [Metadata::GITHUB_REPO_NAME => $repo],
-                    $form->get('versionsLimit')->getData()
+                    $form->get('keepLastReleases')->getData()
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
                 $this->dispatchMessage(new AddGitHubHook($id));
@@ -218,7 +218,7 @@ final class PackageController extends AbstractController
                     $projects->get($projectId)->url(),
                     'gitlab-oauth',
                     [Metadata::GITLAB_PROJECT_ID => $projectId],
-                    $form->get('versionsLimit')->getData()
+                    $form->get('keepLastReleases')->getData()
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
                 $this->dispatchMessage(new AddGitLabHook($id));
@@ -249,7 +249,7 @@ final class PackageController extends AbstractController
                     $repos->get($repoUuid)->url(),
                     'bitbucket-oauth',
                     [Metadata::BITBUCKET_REPO_NAME => $repos->get($repoUuid)->name()],
-                    $form->get('versionsLimit')->getData()
+                    $form->get('keepLastReleases')->getData()
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
                 $this->dispatchMessage(new AddBitbucketHook($id));
