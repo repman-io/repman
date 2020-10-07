@@ -107,6 +107,7 @@ final class PackageControllerTest extends FunctionalTestCase
                         "lastSyncError": null,
                         "webhookCreatedAt": null,
                         "isSynchronizedSuccessfully": false,
+                        "keepLastReleases": 0,
                         "scanResultStatus": "pending",
                         "scanResultDate": null,
                         "lastScanResultContent": []
@@ -208,6 +209,7 @@ final class PackageControllerTest extends FunctionalTestCase
                 "lastSyncError": null,
                 "webhookCreatedAt": null,
                 "isSynchronizedSuccessfully": true,
+                "keepLastReleases": 0,
                 "scanResultStatus": "ok",
                 "scanResultDate": "'.$now.'",
                 "lastScanResultContent": {
@@ -337,6 +339,7 @@ final class PackageControllerTest extends FunctionalTestCase
                 "lastSyncError": null,
                 "webhookCreatedAt": null,
                 "isSynchronizedSuccessfully": true,
+                "keepLastReleases": 0,
                 "scanResultStatus": "pending",
                 "scanResultDate": null,
                 "lastScanResultContent": []

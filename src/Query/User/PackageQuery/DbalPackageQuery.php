@@ -116,7 +116,7 @@ final class DbalPackageQuery implements PackageQuery
     public function getById(string $id): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at
+            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at, keep_last_releases
             FROM "organization_package"
             WHERE id = :id', [
             ':id' => $id,
@@ -308,7 +308,8 @@ final class DbalPackageQuery implements PackageQuery
             $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
-            $scanResult
+            $scanResult,
+            $data['keep_last_releases'] ?? 0
         );
     }
 
