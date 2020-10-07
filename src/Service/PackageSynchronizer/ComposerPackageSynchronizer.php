@@ -58,7 +58,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             foreach ($packages as $p) {
                 $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->packageNormalizer->normalize($p);
-                if (Comparator::greaterThan($p->getVersion(), $latest->getVersion()) && $p->getStability() === 'stable') {
+                if (Comparator::greaterThan($p->getVersion(), $latest->getVersion()) && $p->getStability() === Version::STABILITY_STABLE) {
                     $latest = $p;
                 }
             }
@@ -95,10 +95,6 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
             $encounteredVersions = [];
             foreach ($versions as $version) {
-                if ($package->keepLastReleases() > 0 && count($encounteredVersions) >= $package->keepLastReleases()) {
-                    break;
-                }
-
                 $dist = new Dist(
                     $version['organizationAlias'],
                     $version['packageName'],
@@ -106,6 +102,20 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     $version['ref'],
                     $version['distType']
                 );
+
+                if ($package->keepLastReleases() > 0 && count($encounteredVersions) >= $package->keepLastReleases()) {
+                    $this->distStorage->remove($dist);
+                    $package->removeVersion(new Version(
+                        Uuid::uuid4(),
+                        $version['prettyVersion'],
+                        $version['ref'],
+                        0,
+                        $version['releaseDate'],
+                        $version['stability']
+                    ));
+
+                    continue;
+                }
 
                 $this->distStorage->download(
                     $version['distUrl'],
@@ -130,7 +140,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $package->syncSuccess(
                 $name,
                 $latest instanceof CompletePackage ? ($latest->getDescription() ?? 'n/a') : 'n/a',
-                $latest->getStability() === 'stable' ? $latest->getPrettyVersion() : 'no stable release',
+                $latest->getStability() === Version::STABILITY_STABLE ? $latest->getPrettyVersion() : 'no stable release',
                 $encounteredVersions,
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );

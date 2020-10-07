@@ -29,7 +29,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
+            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader(), new Filesystem()), $this->baseDir, new Filesystem()),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage(),

@@ -67,7 +67,7 @@ final class PackageManagerTest extends TestCase
     public function testRemoveProvider(): void
     {
         $manager = new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader()),
+            new FileStorage($this->baseDir, new FakeDownloader(), $this->filesystem),
             $this->baseDir,
             $this->filesystem
         );
@@ -93,7 +93,7 @@ final class PackageManagerTest extends TestCase
     public function testRemoveDist(): void
     {
         $manager = new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader()),
+            new FileStorage($this->baseDir, new FakeDownloader(), $this->filesystem),
             $this->baseDir,
             $this->filesystem
         );
@@ -116,7 +116,7 @@ final class PackageManagerTest extends TestCase
     public function testRemoveOrganizationDir(): void
     {
         $manager = new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader()),
+            new FileStorage($this->baseDir, new FakeDownloader(), $this->filesystem),
             $this->baseDir,
             $this->filesystem
         );

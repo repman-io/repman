@@ -293,6 +293,11 @@ class Package
         $this->versions->add($version);
     }
 
+    public function removeVersion(Version $version): void
+    {
+        $this->versions->removeElement($version);
+    }
+
     /**
      * @return Version|false
      */

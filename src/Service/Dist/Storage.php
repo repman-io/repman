@@ -15,6 +15,8 @@ interface Storage
      */
     public function download(string $url, Dist $dist, array $headers = []): void;
 
+    public function remove(Dist $dist): void;
+
     public function filename(Dist $dist): string;
 
     public function size(Dist $dist): int;
