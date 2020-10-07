@@ -25,7 +25,7 @@
             <div class="row">
                 <div class="col-6">
                     <h4>Latest version</h4>
-                    <p>{{ package.latestReleasedVersion }} (released: <span title="{{ package.latestReleaseDate | date('Y-m-d H:i:s') }}">{{ package.latestReleaseDate | time_diff }}</span>)</p>
+                    <p>{{ package.latestReleasedVersion }} (released: <span title="{{ package.latestReleaseDate | date_time }}">{{ package.latestReleaseDate | time_diff }}</span>)</p>
                 </div>
                 <div class="col-6">
                     <h4>Composer require command</h4>
@@ -75,7 +75,7 @@
                     <tr>
                         <td>{{ version.version }}</td>
                         <td>
-                            <span title="{{ version.date | date('Y-m-d H:i:s') }}">{{ version.date | time_diff }}</span>
+                            <span title="{{ version.date | date_time }}">{{ version.date | time_diff }}</span>
                         </td>
                         <td>{{ version.reference }}</td>
                         <td>{{ version.size | format_bytes }}</td>

@@ -8,10 +8,12 @@ use Buddy\Repman\Form\Type\Organization\CreateType;
 use Buddy\Repman\Form\Type\Organization\GenerateApiTokenType;
 use Buddy\Repman\Form\Type\User\ChangeEmailPreferencesType;
 use Buddy\Repman\Form\Type\User\ChangePasswordType;
+use Buddy\Repman\Form\Type\User\ChangeTimezoneType;
 use Buddy\Repman\Message\Organization\CreateOrganization;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\User\ChangeEmailPreferences;
 use Buddy\Repman\Message\User\ChangePassword;
+use Buddy\Repman\Message\User\ChangeTimezone;
 use Buddy\Repman\Message\User\GenerateApiToken;
 use Buddy\Repman\Message\User\RegenerateApiToken;
 use Buddy\Repman\Message\User\RemoveApiToken;
@@ -54,6 +56,22 @@ final class UserController extends AbstractController
             'action' => $this->generateUrl('user_email_preferences'),
         ]);
 
+        $timezoneForm = $this->createForm(ChangeTimeZoneType::class, [
+            'timezone' => $this->getUser()->timezone(),
+        ]);
+        $timezoneForm->handleRequest($request);
+
+        if ($timezoneForm->isSubmitted() && $timezoneForm->isValid()) {
+            $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+            $this->dispatchMessage(new ChangeTimezone(
+                $this->getUser()->id(),
+                $timezoneForm->get('timezone')->getData())
+            );
+            $this->addFlash('success', 'Your timezone has been changed.');
+
+            return $this->redirectToRoute('user_profile');
+        }
+
         if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -69,6 +87,7 @@ final class UserController extends AbstractController
         return $this->render('user/profile.html.twig', [
             'passwordForm' => $passwordForm->createView(),
             'emailPreferencesForm' => $emailPreferencesForm->createView(),
+            'timezoneForm' => $timezoneForm->createView(),
             'oauthTokens' => $oauthTokens,
         ]);
     }

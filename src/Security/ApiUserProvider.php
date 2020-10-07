@@ -55,7 +55,8 @@ final class ApiUserProvider implements UserProviderInterface
                 u.email_confirmed_at,
                 u.email_confirm_token,
                 u.roles,
-                u.email_scan_result
+                u.email_scan_result,
+                u.timezone
             FROM user_api_token a
             JOIN "user" u ON u.id = a.user_id
             WHERE a.value = :api_token
@@ -83,6 +84,7 @@ final class ApiUserProvider implements UserProviderInterface
             json_decode($data['roles'], true),
             array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
             $data['email_scan_result'],
+            $data['timezone'],
         );
     }
 

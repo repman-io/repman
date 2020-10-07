@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Twig;
 
+use Buddy\Repman\Security\Model\User;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -34,6 +36,21 @@ class DateExtension extends AbstractExtension
         's' => 'second',
     ];
 
+    private string $timezone;
+
+    public function __construct(TokenStorageInterface $tokenStorage)
+    {
+        $this->timezone = \date_default_timezone_get();
+
+        if (($token = $tokenStorage->getToken()) === null) {
+            return;
+        }
+
+        if (($user = $token->getUser()) instanceof User) {
+            $this->timezone = $user->timezone();
+        }
+    }
+
     /**
      * @return TwigFilter[]
      */
@@ -41,6 +58,7 @@ class DateExtension extends AbstractExtension
     {
         return [
             new TwigFilter('time_diff', [$this, 'diff'], ['needs_environment' => true]),
+            new TwigFilter('date_time', [$this, 'dateTime'], ['needs_environment' => true]),
         ];
     }
 
@@ -55,8 +73,8 @@ class DateExtension extends AbstractExtension
     public function diff(Environment $env, $date, $now = null): string
     {
         // Convert both dates to DateTime instances.
-        $date = twig_date_converter($env, $date);
-        $now = twig_date_converter($env, $now);
+        $date = twig_date_converter($env, $date, $this->timezone);
+        $now = twig_date_converter($env, $now, $this->timezone);
 
         // Get the difference between the two DateTime objects.
         $diff = $date->diff($now);
@@ -71,6 +89,14 @@ class DateExtension extends AbstractExtension
         }
 
         return '';
+    }
+
+    /**
+     * @param string|\DateTimeInterface $date
+     */
+    public function dateTime(Environment $env, $date): string
+    {
+        return twig_date_converter($env, $date, $this->timezone)->format('Y-m-d H:i:s');
     }
 
     private function getPluralizedInterval(int $count, int $invert, string $unit): string

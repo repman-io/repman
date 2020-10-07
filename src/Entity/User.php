@@ -100,14 +100,20 @@ class User
     private Collection $apiTokens;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private string $timezone;
+
+    /**
      * @param array<string> $roles
      */
-    public function __construct(UuidInterface $id, string $email, string $emailConfirmToken, array $roles)
+    public function __construct(UuidInterface $id, string $email, string $emailConfirmToken, array $roles, ?string $timezone = null)
     {
         $this->id = $id;
         $this->email = \mb_strtolower($email);
         $this->emailConfirmToken = $emailConfirmToken;
         $this->roles = array_values(array_unique($roles));
+        $this->timezone = $timezone ?? date_default_timezone_get();
         $this->createdAt = new \DateTimeImmutable();
         $this->memberships = new ArrayCollection();
         $this->oauthTokens = new ArrayCollection();
@@ -279,5 +285,10 @@ class User
                 $this->apiTokens->removeElement($token);
             }
         }
+    }
+
+    public function changeTimezone(string $timezone): void
+    {
+        $this->timezone = $timezone;
     }
 }

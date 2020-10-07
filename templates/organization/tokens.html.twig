@@ -24,7 +24,7 @@
             {% for token in tokens %}
                 <tr>
                     <td>{{ token.name }}</td>
-                    <td>{{ token.createdAt|date('Y-m-d H:i:s')}}</td>
+                    <td>{{ token.createdAt|date_time}}</td>
                     <td>{{ token.lastUsedAt ? token.lastUsedAt|time_diff : 'never' }}</td>
                     <td>
                         <button class="btn btn-primary btn-sm show-token">
