@@ -20,7 +20,7 @@
                 <td>{{ downloads[package].downloads ?? 0 }}</td>
                 <td>
                     {% if downloads[package] is defined %}
-                        <span title="{{ downloads[package].lastDownload | date_time }}">{{ downloads[package].lastDownload | date_time | time_diff }}</span>
+                        <span title="{{ downloads[package].lastDownload | date_time }} ({{ gmt_offset() }})">{{ downloads[package].lastDownload | date_time | time_diff }}</span>
                     {% endif %}
                 </td>
                 <td>

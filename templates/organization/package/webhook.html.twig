@@ -18,7 +18,7 @@
         <strong>Webhook status</strong>:
         {% if package.allowToAutoAddWebhook %}
             {% if package.webhookCreatedAt is not null %}
-                {% include 'svg/check.svg' %} created at {{ package.webhookCreatedAt | date_time }}
+                {% include 'svg/check.svg' %} created at {{ package.webhookCreatedAt | date_time }} ({{ gmt_offset() }})
             {% else %}
                 not added
             {% endif %}

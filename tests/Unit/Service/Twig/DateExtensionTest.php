@@ -59,6 +59,17 @@ final class DateExtensionTest extends TestCase
         self::assertEquals($expected, $this->extension->dateTimeUtc($this->env, $dateTime));
     }
 
+    public function testGmtOffset(): void
+    {
+        date_default_timezone_set('Europe/Warsaw');
+        $this->extension = new DateExtension(new TokenStorage());
+        self::assertEquals('GMT+02:00', $this->extension->gmtOffset());
+
+        date_default_timezone_set('UTC');
+        $this->extension = new DateExtension(new TokenStorage());
+        self::assertEquals('GMT+00:00', $this->extension->gmtOffset());
+    }
+
     /**
      * @return mixed[]
      */
