@@ -110,14 +110,20 @@ class Package
     private Collection $versions;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private int $keepLastReleases = 0;
+
+    /**
      * @param mixed[] $metadata
      */
-    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [])
+    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $keepLastReleases = 0)
     {
         $this->id = $id;
         $this->type = $type;
         $this->repositoryUrl = $url;
         $this->metadata = $metadata;
+        $this->keepLastReleases = $keepLastReleases;
         $this->versions = new ArrayCollection();
     }
 
@@ -287,11 +293,21 @@ class Package
         $this->versions->add($version);
     }
 
+    public function removeVersion(Version $version): void
+    {
+        $this->versions->removeElement($version);
+    }
+
     /**
      * @return Version|false
      */
     public function getVersion(string $versionString)
     {
         return $this->versions->filter(fn (Version $version) => $version->version() === $versionString)->first();
+    }
+
+    public function keepLastReleases(): int
+    {
+        return $this->keepLastReleases;
     }
 }

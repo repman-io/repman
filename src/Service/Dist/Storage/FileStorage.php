@@ -8,17 +8,20 @@ use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class FileStorage implements Storage
 {
     private string $distsDir;
     private Downloader $downloader;
+    private Filesystem $filesystem;
 
-    public function __construct(string $distsDir, Downloader $downloader)
+    public function __construct(string $distsDir, Downloader $downloader, Filesystem $filesystem)
     {
         $this->distsDir = $distsDir;
         $this->downloader = $downloader;
+        $this->filesystem = $filesystem;
     }
 
     public function has(Dist $dist): bool
@@ -46,6 +49,11 @@ final class FileStorage implements Storage
                 new \RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))
             ))
         );
+    }
+
+    public function remove(Dist $dist): void
+    {
+        $this->filesystem->remove($this->filename($dist));
     }
 
     public function filename(Dist $dist): string

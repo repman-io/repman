@@ -20,7 +20,7 @@ final class FileStorageTest extends TestCase
     protected function setUp(): void
     {
         $this->basePath = sys_get_temp_dir().'/'.'repman';
-        $this->storage = new FileStorage($this->basePath, new FakeDownloader());
+        $this->storage = new FileStorage($this->basePath, new FakeDownloader(), new Filesystem());
     }
 
     protected function tearDown(): void
@@ -53,7 +53,7 @@ final class FileStorageTest extends TestCase
         $downloader = $this->createMock(Downloader::class);
         $downloader->expects(self::never())->method('getContents');
 
-        $storage = new FileStorage($this->basePath, $downloader);
+        $storage = new FileStorage($this->basePath, $downloader, new Filesystem());
         $storage->download('https://some.domain/packagist.org/dist/buddy-works/repman/0.1.2.0_f0c896a759d4e2e1eff57978318e841911796305.zip', new Dist(
             'packagist.org',
             'buddy-works/repman',

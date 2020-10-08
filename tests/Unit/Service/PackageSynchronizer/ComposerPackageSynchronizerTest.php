@@ -29,7 +29,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader()), $this->baseDir, new Filesystem()),
+            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader(), new Filesystem()), $this->baseDir, new Filesystem()),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage(),
@@ -172,6 +172,30 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertEquals('no stable release', $this->getProperty($package, 'latestReleasedVersion'));
         @unlink($this->baseDir.'/buddy/p/some/package.json');
         @unlink($tmpPath);
+    }
+
+    public function testSynchronizePackageWithLimitedNumberOfVersions(): void
+    {
+        $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
+        @unlink($path);
+
+        $limit = 2;
+
+        $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy', $limit);
+        $this->synchronizer->synchronize($package);
+
+        self::assertFileExists($path);
+
+        $json = unserialize((string) file_get_contents($path));
+        self::assertCount(4, $json['packages']['buddy-works/alpha']);
+        @unlink($path);
+
+        self::assertCount($limit, $package->versions());
+        $versionStrings = array_map(function (Version $version): string {
+            return $version->version();
+        }, $package->versions()->toArray());
+        sort($versionStrings, SORT_NATURAL);
+        self::assertEquals(['1.1.1', '1.2.0'], $versionStrings);
     }
 
     /**

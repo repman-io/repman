@@ -10,6 +10,8 @@ final class AddPackage
     private string $url;
     private string $type;
     private string $organizationId;
+    private int $keepLastReleases;
+
     /**
      * @var mixed[]
      */
@@ -18,13 +20,14 @@ final class AddPackage
     /**
      * @param mixed[] $metadata
      */
-    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs', array $metadata = [])
+    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs', array $metadata = [], ?int $keepLastReleases = null)
     {
         $this->id = $id;
         $this->organizationId = $organizationId;
         $this->url = $url;
         $this->type = $type;
         $this->metadata = $metadata;
+        $this->keepLastReleases = $keepLastReleases ?? 0;
     }
 
     public function id(): string
@@ -53,5 +56,10 @@ final class AddPackage
     public function metadata(): array
     {
         return $this->metadata;
+    }
+
+    public function keepLastReleases(): int
+    {
+        return $this->keepLastReleases;
     }
 }

@@ -18,6 +18,7 @@ final class Package
     private ?string $lastSyncError;
     private ?\DateTimeImmutable $webhookCreatedAt;
     private ?ScanResult $scanResult;
+    private int $keepLastReleases;
 
     public function __construct(
         string $id,
@@ -31,7 +32,8 @@ final class Package
         ?\DateTimeImmutable $lastSyncAt = null,
         ?string $lastSyncError = null,
         ?\DateTimeImmutable $webhookCreatedAt = null,
-        ?ScanResult $scanResult = null
+        ?ScanResult $scanResult = null,
+        int $keepLastReleases = 0
     ) {
         $this->id = $id;
         $this->organizationId = $organizationId;
@@ -45,6 +47,7 @@ final class Package
         $this->lastSyncError = $lastSyncError;
         $this->webhookCreatedAt = $webhookCreatedAt;
         $this->scanResult = $scanResult ?? null;
+        $this->keepLastReleases = $keepLastReleases;
     }
 
     public function id(): string
@@ -143,5 +146,10 @@ final class Package
     public function lastScanResultContent(): array
     {
         return $this->scanResult !== null ? $this->scanResult->content() : [];
+    }
+
+    public function keepLastReleases(): int
+    {
+        return $this->keepLastReleases;
     }
 }

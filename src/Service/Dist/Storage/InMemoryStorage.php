@@ -30,6 +30,11 @@ final class InMemoryStorage implements Storage
         $this->dists[$dist->ref()] = $url;
     }
 
+    public function remove(Dist $dist): void
+    {
+        unset($this->dists[$dist->ref()]);
+    }
+
     public function filename(Dist $dist): string
     {
         return sprintf(

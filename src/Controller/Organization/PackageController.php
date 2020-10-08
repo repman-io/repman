@@ -155,7 +155,9 @@ final class PackageController extends AbstractController
                 $id = Uuid::uuid4()->toString(),
                 $organization->id(),
                 $form->get('url')->getData(),
-                in_array($type, ['git', 'mercurial', 'subversion'], true) ? 'vcs' : $type
+                in_array($type, ['git', 'mercurial', 'subversion'], true) ? 'vcs' : $type,
+                [],
+                $form->get('keepLastReleases')->getData()
             ));
             $this->dispatchMessage(new SynchronizePackage($id));
 
@@ -184,7 +186,8 @@ final class PackageController extends AbstractController
                     $organization->id(),
                     "https://github.com/{$repo}",
                     'github-oauth',
-                    [Metadata::GITHUB_REPO_NAME => $repo]
+                    [Metadata::GITHUB_REPO_NAME => $repo],
+                    $form->get('keepLastReleases')->getData()
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
                 $this->dispatchMessage(new AddGitHubHook($id));
@@ -214,7 +217,8 @@ final class PackageController extends AbstractController
                     $organization->id(),
                     $projects->get($projectId)->url(),
                     'gitlab-oauth',
-                    [Metadata::GITLAB_PROJECT_ID => $projectId]
+                    [Metadata::GITLAB_PROJECT_ID => $projectId],
+                    $form->get('keepLastReleases')->getData()
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
                 $this->dispatchMessage(new AddGitLabHook($id));
@@ -244,7 +248,8 @@ final class PackageController extends AbstractController
                     $organization->id(),
                     $repos->get($repoUuid)->url(),
                     'bitbucket-oauth',
-                    [Metadata::BITBUCKET_REPO_NAME => $repos->get($repoUuid)->name()]
+                    [Metadata::BITBUCKET_REPO_NAME => $repos->get($repoUuid)->name()],
+                    $form->get('keepLastReleases')->getData()
                 ));
                 $this->dispatchMessage(new SynchronizePackage($id));
                 $this->dispatchMessage(new AddBitbucketHook($id));

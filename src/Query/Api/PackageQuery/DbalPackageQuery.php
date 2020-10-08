@@ -40,7 +40,8 @@ final class DbalPackageQuery implements PackageQuery
                 webhook_created_at,
                 last_scan_date,
                 last_scan_status,
-                last_scan_result
+                last_scan_result,
+                keep_last_releases
             FROM organization_package
             WHERE organization_id = :organization_id
             GROUP BY id
@@ -84,7 +85,8 @@ final class DbalPackageQuery implements PackageQuery
                 webhook_created_at,
                 last_scan_date,
                 last_scan_status,
-                last_scan_result
+                last_scan_result,
+                keep_last_releases
             FROM "organization_package"
             WHERE organization_id = :organization_id AND id = :id', [
             ':organization_id' => $organizationId,
@@ -121,7 +123,8 @@ final class DbalPackageQuery implements PackageQuery
             $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
-            $scanResult
+            $scanResult,
+            $data['keep_last_releases']
         );
     }
 }

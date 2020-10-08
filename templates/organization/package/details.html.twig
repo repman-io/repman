@@ -45,7 +45,7 @@
 
         <hr />
 
-        <h3>Available versions</h3>
+        <h3>Available versions {% if package.keepLastReleases > 0 %}(limited to: {{ package.keepLastReleases }}){% endif %}</h3>
 
         {% if count == 0 %}
             <p>

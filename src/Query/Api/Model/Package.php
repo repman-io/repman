@@ -19,6 +19,7 @@ final class Package implements \JsonSerializable
     private ?string $lastSyncError;
     private ?\DateTimeImmutable $webhookCreatedAt;
     private ?ScanResult $scanResult;
+    private int $keepLastReleases;
 
     public function __construct(
         string $id,
@@ -31,7 +32,8 @@ final class Package implements \JsonSerializable
         ?\DateTimeImmutable $lastSyncAt = null,
         ?string $lastSyncError = null,
         ?\DateTimeImmutable $webhookCreatedAt = null,
-        ?ScanResult $scanResult = null
+        ?ScanResult $scanResult = null,
+        int $keepLastReleases = 0
     ) {
         $this->id = $id;
         $this->type = $type;
@@ -44,6 +46,7 @@ final class Package implements \JsonSerializable
         $this->lastSyncError = $lastSyncError;
         $this->webhookCreatedAt = $webhookCreatedAt;
         $this->scanResult = $scanResult ?? null;
+        $this->keepLastReleases = $keepLastReleases;
     }
 
     public function getId(): string
@@ -119,6 +122,11 @@ final class Package implements \JsonSerializable
         return $this->scanResult !== null ? $this->scanResult->content() : [];
     }
 
+    public function keepLastReleases(): int
+    {
+        return $this->keepLastReleases;
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -139,6 +147,7 @@ final class Package implements \JsonSerializable
             'scanResultDate' => $this->getScanResultDate() === null ? null : $this->getScanResultDate()->format(\DateTime::ATOM),
             'scanResultStatus' => $this->getScanResultStatus(),
             'lastScanResultContent' => $this->getLastScanResultContent(),
+            'keepLastReleases' => $this->keepLastReleases(),
         ];
     }
 }
