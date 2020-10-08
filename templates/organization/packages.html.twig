@@ -55,7 +55,7 @@
                             <small class="font-italic" style="font-size: 0.7em"><a href="{{ package.url }}" target="_blank" rel="nofollow noopener noreferrer">
                                 {{ package.url }}
                             </a></small><br />
-                            <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date_time }}">synced: {{ package.lastSyncAt | time_diff }}</small>
+                            <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date_time }}">synced: {{ package.lastSyncAt | date_time | time_diff }}</small>
                         {% elseif package.lastSyncError is null %}
                             Synchronizing from <a href="{{ package.url }}" target="_blank" rel="nofollow noopener noreferrer">
                                 {{ package.url }}
@@ -68,13 +68,13 @@
                     <td>{{ package.latestReleasedVersion }}</td>
                     <td>
                         {% if package.latestReleaseDate %}
-                            <span title="{{ package.latestReleaseDate | date_time }}">{{ package.latestReleaseDate | time_diff }}</span>
+                            <span title="{{ package.latestReleaseDate | date_time_utc }}">{{ package.latestReleaseDate | date_time_utc | time_diff }}</span>
                         {% endif %}
                     </td>
                     <td>
                         {% if package.lastSyncError %}
                             <div class="badge bg-danger">Synchronization error</div>
-                            <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date_time }}">{{ package.lastSyncAt | time_diff }}</small>
+                            <small class="font-italic" style="font-size: 0.7em" title="{{ package.lastSyncAt | date_time }}">{{ package.lastSyncAt | date_time | time_diff }}</small>
                             <div class="highlight p-3 font-monospace" style="font-size: 0.6em;">
                                 {{ package.lastSyncError | nl2br }}
                             </div>

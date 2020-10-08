@@ -14,11 +14,20 @@ final class DateExtensionTest extends TestCase
 {
     private DateExtension $extension;
     private Environment $env;
+    private string $oldTz;
 
     protected function setUp(): void
     {
         $this->extension = new DateExtension(new TokenStorage());
         $this->env = new Environment(new ArrayLoader());
+
+        $this->oldTz = \date_default_timezone_get();
+        date_default_timezone_set('Europe/Warsaw');
+    }
+
+    protected function tearDown(): void
+    {
+        date_default_timezone_set($this->oldTz);
     }
 
     public function testGetFilters(): void
@@ -43,6 +52,14 @@ final class DateExtensionTest extends TestCase
     }
 
     /**
+     * @dataProvider dateTimeUtcProvider
+     */
+    public function testDateTimeUtc(string $expected, \DateTimeImmutable $dateTime): void
+    {
+        self::assertEquals($expected, $this->extension->dateTimeUtc($this->env, $dateTime));
+    }
+
+    /**
      * @return mixed[]
      */
     public function timeDiffProvider(): array
@@ -50,9 +67,12 @@ final class DateExtensionTest extends TestCase
         $dateTime = new \DateTimeImmutable();
 
         return [
-            ['5 seconds ago', $dateTime->modify('-5 second'), $dateTime],
-            ['1 second ago', $dateTime->modify('-1 second'), $dateTime],
             ['1 day ago', $dateTime->modify('-1 day'), $dateTime],
+            ['in 6 hours', $dateTime->modify('+6 hours'), $dateTime],
+            ['10 minutes ago', $dateTime->modify('-10 minutes'), $dateTime],
+            ['5 seconds ago', $dateTime->modify('-5 seconds'), $dateTime],
+            ['2 seconds ago', $dateTime->modify('-2 seconds'), $dateTime],
+            ['just now', $dateTime, $dateTime],
         ];
     }
 
@@ -67,6 +87,25 @@ final class DateExtensionTest extends TestCase
             ['2020-01-02 12:34:51', $dateTime->modify('-5 second')],
             ['2020-01-02 12:34:55', $dateTime->modify('-1 second')],
             ['2020-01-01 12:34:56', $dateTime->modify('-1 day')],
+        ];
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function dateTimeUtcProvider(): array
+    {
+        $dateTime = new \DateTimeImmutable(
+            '2020-10-10 12:34:56',
+            new \DateTimeZone('UTC')
+        );
+
+        // GMT+02:00 (with DST)
+        return [
+            ['2020-10-10 14:34:51', $dateTime->modify('-5 second')],
+            ['2020-10-10 14:34:55', $dateTime->modify('-1 second')],
+            ['2020-10-09 14:34:56', $dateTime->modify('-1 day')],
+            ['2020-10-09 14:34:56', $dateTime->modify('-1 day')],
         ];
     }
 }
