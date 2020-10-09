@@ -25,12 +25,12 @@
                 <tr>
                     <td>{{ token.name }}</td>
                     <td>
-                        <span data-toggle="tooltip" data-content="{{ token.createdAt|date_time }} {{ gmt_offset() }}">
+                        <span data-toggle="tooltip" title="{{ token.createdAt|date_time }} {{ gmt_offset() }}">
                             {{ token.createdAt|date_time|time_diff }}
                         </span>
                     </td>
                     <td>
-                        <span data-toggle="tooltip" data-content="{% if token.lastUsedAt %}{{ token.lastUsedAt|date_time }} {{ gmt_offset() }}{% endif %}">
+                        <span data-toggle="tooltip" title="{% if token.lastUsedAt %}{{ token.lastUsedAt|date_time }} {{ gmt_offset() }}{% endif %}">
                             {{ token.lastUsedAt ? token.lastUsedAt|date_time|time_diff : 'never' }}
                         </span>
                     </td>

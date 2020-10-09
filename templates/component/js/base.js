@@ -23,7 +23,9 @@
         $(this).remove();
     });
 
-    $('[data-toggle="tooltip"]').popover({
+    $('[data-toggle="popover"]').popover({
         trigger: 'hover'
     });
+
+    $('[data-toggle="tooltip"]').tooltip();
 })();
