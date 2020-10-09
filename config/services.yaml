@@ -109,6 +109,9 @@ services:
         decorates: Doctrine\Migrations\Version\DbalMigrationFactory
         arguments: ['@Buddy\Repman\Migrations\Factory\MigrationFactoryDecorator.inner', '@service_container']
 
+    Buddy\Repman\Service\Twig\DateExtension:
+        arguments: ['@security.token_storage']
+
     ### Vendor
     Github\Client:
         arguments:

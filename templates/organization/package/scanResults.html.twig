@@ -24,7 +24,11 @@
         {% endif %}
         {% for result in results %}
             <tr>
-                <td>{{ result.date|date('Y-m-d H:i:s') }}</td>
+                <td>
+                    <span data-toggle="tooltip" title="{{ result.date|date_time }} ({{ gmt_offset() }})">
+                        {{ result.date|date_time|time_diff }}
+                    </span>
+                </td>
                 <td>
                     {% if result.isOk %}
                         <span class="badge badge-success">{{ result.status }}</span>

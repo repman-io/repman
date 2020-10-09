@@ -18,6 +18,7 @@ final class User implements UserInterface, EquatableInterface
     private bool $emailConfirmed;
     private string $emailConfirmToken;
     private bool $emailScanResult;
+    private string $timezone;
 
     /**
      * @var string[]
@@ -33,7 +34,7 @@ final class User implements UserInterface, EquatableInterface
      * @param string[]       $roles
      * @param Organization[] $organizations
      */
-    public function __construct(string $id, string $email, string $password, string $status, bool $emailConfirmed, string $emailConfirmToken, $roles, $organizations, bool $emailScanResult)
+    public function __construct(string $id, string $email, string $password, string $status, bool $emailConfirmed, string $emailConfirmToken, $roles, $organizations, bool $emailScanResult, string $timezone)
     {
         $this->id = $id;
         $this->email = $email;
@@ -44,6 +45,7 @@ final class User implements UserInterface, EquatableInterface
         $this->roles = $roles;
         $this->organizations = $organizations;
         $this->emailScanResult = $emailScanResult;
+        $this->timezone = $timezone;
     }
 
     public function id(): string
@@ -152,5 +154,10 @@ final class User implements UserInterface, EquatableInterface
     public function emailScanResult(): bool
     {
         return $this->emailScanResult;
+    }
+
+    public function timezone(): string
+    {
+        return $this->timezone;
     }
 }

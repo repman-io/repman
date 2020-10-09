@@ -54,6 +54,25 @@ final class UserControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Your password has been changed', $this->lastResponseBody());
     }
 
+    public function testChangeTimezone(): void
+    {
+        $this->client->request('GET', $this->urlTo('user_profile'));
+
+        self::assertStringContainsString('UTC', $this->lastResponseBody());
+
+        $this->client->submitForm('changeTimezone', [
+            'timezone' => 'Europe/Warsaw',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_profile')));
+
+        $this->client->followRedirect();
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Your timezone has been changed', $this->lastResponseBody());
+        self::assertStringContainsString('Europe/Warsaw', $this->lastResponseBody());
+    }
+
     public function testRemoveAccount(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);

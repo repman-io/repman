@@ -19,7 +19,7 @@ final class ProxyControllerTest extends FunctionalTestCase
     {
         $this->fixtures->addProxyPackageDownload(
             [new Package('buddy-works/repman', '1.0.0.0')],
-            new \DateTimeImmutable($time = 'April 27, 2020 19:34')
+            new \DateTimeImmutable($time = '2020-04-27 19:34:00')
         );
         $this->client->request('GET', $this->urlTo('admin_dist_list', ['proxy' => 'packagist.org']));
 
@@ -31,7 +31,7 @@ final class ProxyControllerTest extends FunctionalTestCase
     {
         $this->fixtures->addProxyPackageDownload(
             [new Package('buddy-works/repman', '1.0.0.0')],
-            new \DateTimeImmutable('April 27, 2020 19:34')
+            new \DateTimeImmutable('2020-04-27 19:34:00')
         );
         $this->client->request('GET', $this->urlTo('admin_proxy_stats'));
 

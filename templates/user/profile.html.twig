@@ -42,7 +42,12 @@
 {% for token in oauthTokens %}
     <div class="row">
         <div class="col-6">
-            <p>Linked to <strong>{{ token.type|capitalize }}</strong> since <strong>{{ token.createdAt|date('Y-m-d H:i:s')}}</strong>.</p>
+            <p>
+                Linked to <strong>{{ token.type|capitalize }}</strong>
+                <span data-toggle="tooltip" title="{{ token.createdAt|date_time}} {{ gmt_offset() }}">
+                    {{ token.createdAt|date_time|time_diff}}.
+                </span>
+            </p>
         </div>
         <div class="col-3 text-right">
             <button
@@ -64,6 +69,15 @@
     <div class="col-md-6 col-lg-4">
         {{ form(passwordForm) }}
         <a href="{{ path('app_send_reset_password_link') }}" class="float-right" style="margin-top: -2em;">I forgot my password</a>
+    </div>
+</div>
+
+<hr/>
+
+<h3>Change timezone</h3>
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        {{ form(timezoneForm) }}
     </div>
 </div>
 

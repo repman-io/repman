@@ -61,10 +61,21 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
      */
     private function getUserDataByEmail(string $email)
     {
-        return $this->connection->fetchAssoc('
-            SELECT id, email, password, status, email_confirmed_at, email_confirm_token, roles, email_scan_result
-            FROM "user" WHERE email = :email
-        ', ['email' => \mb_strtolower($email)]);
+        return $this->connection->fetchAssoc(
+            'SELECT
+                id,
+                email,
+                password,
+                status,
+                email_confirmed_at,
+                email_confirm_token,
+                roles,
+                email_scan_result,
+                timezone
+            FROM "user"
+            WHERE email = :email',
+            ['email' => \mb_strtolower($email)]
+        );
     }
 
     /**
@@ -88,6 +99,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
             json_decode($data['roles'], true),
             array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
             $data['email_scan_result'],
+            $data['timezone'],
         );
     }
 }

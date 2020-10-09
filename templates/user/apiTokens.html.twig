@@ -32,8 +32,16 @@
             {% for token in tokens %}
                 <tr>
                     <td>{{ token.name }}</td>
-                    <td>{{ token.createdAt|date('Y-m-d H:i:s')}}</td>
-                    <td>{{ token.lastUsedAt ? token.lastUsedAt|time_diff : 'never' }}</td>
+                    <td>
+                        <span data-toggle="tooltip" title="{{ token.createdAt|date_time }} {{ gmt_offset() }}">
+                            {{ token.createdAt|date_time|time_diff }}
+                        </span>
+                    </td>
+                    <td>
+                        <span data-toggle="tooltip" title="{% if token.lastUsedAt %}{{ token.lastUsedAt|date_time }} {{ gmt_offset() }}{% endif %}">
+                            {{ token.lastUsedAt ? token.lastUsedAt|date_time|time_diff : 'never' }}
+                        </span>
+                    </td>
                     <td>
                         <button class="btn btn-primary btn-sm show-token">
                             Show token

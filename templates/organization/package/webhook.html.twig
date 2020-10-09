@@ -18,7 +18,10 @@
         <strong>Webhook status</strong>:
         {% if package.allowToAutoAddWebhook %}
             {% if package.webhookCreatedAt is not null %}
-                {% include 'svg/check.svg' %} created at {{ package.webhookCreatedAt | date('Y-m-d H:i:s') }}
+                {% include 'svg/check.svg' %} created
+                <span data-toggle="tooltip" title="{{ package.webhookCreatedAt|date_time }} {{ gmt_offset() }}">
+                    {{ package.webhookCreatedAt|date_time|time_diff }}
+                </span>
             {% else %}
                 not added
             {% endif %}
@@ -70,7 +73,11 @@
             <tbody>
             {% for request in recentRequests %}
                 <tr>
-                    <td>{{ request.date }}</td>
+                    <td>
+                        <span data-toggle="tooltip" title="{{ request.date|date_time }} {{ gmt_offset() }}">
+                            {{ request.date|date_time|time_diff }}
+                        </span>
+                    </td>
                     <td>{{ request.ip | default('n/a') }}</td>
                     <td>{{ request.userAgent | default('n/a') }}</td>
                 </tr>
