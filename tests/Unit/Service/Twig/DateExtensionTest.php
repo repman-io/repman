@@ -116,7 +116,7 @@ final class DateExtensionTest extends TestCase
             ['2020-10-10 14:34:51', $dateTime->modify('-5 second')],
             ['2020-10-10 14:34:55', $dateTime->modify('-1 second')],
             ['2020-10-09 14:34:56', $dateTime->modify('-1 day')],
-            ['2020-10-09 14:34:56', $dateTime->modify('-1 day')],
+            ['2020-09-10 14:34:56', $dateTime->modify('-1 month')],
         ];
     }
 }

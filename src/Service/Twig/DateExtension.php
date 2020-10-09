@@ -36,7 +36,7 @@ class DateExtension extends AbstractExtension
         'h' => 'hour',
         'i' => 'minute',
         's' => 'second',
-        'f' => 'second',
+        'f' => 'μs',
     ];
 
     private string $timezone;
