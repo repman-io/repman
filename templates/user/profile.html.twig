@@ -44,7 +44,7 @@
         <div class="col-6">
             <p>
                 Linked to <strong>{{ token.type|capitalize }}</strong>
-                <span title="{{ token.createdAt|date_time}} {{ gmt_offset() }}">
+                <span data-toggle="tooltip" data-content="{{ token.createdAt|date_time}} {{ gmt_offset() }}">
                     {{ token.createdAt|date_time|time_diff}}.
                 </span>
             </p>

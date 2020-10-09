@@ -19,7 +19,7 @@
         {% if package.allowToAutoAddWebhook %}
             {% if package.webhookCreatedAt is not null %}
                 {% include 'svg/check.svg' %} created
-                <span title="{{ package.webhookCreatedAt|date_time }} {{ gmt_offset() }}">
+                <span data-toggle="tooltip" data-content="{{ package.webhookCreatedAt|date_time }} {{ gmt_offset() }}">
                     {{ package.webhookCreatedAt|date_time|time_diff }}
                 </span>
             {% else %}
@@ -74,7 +74,7 @@
             {% for request in recentRequests %}
                 <tr>
                     <td>
-                        <span title="{{ request.date|date_time }} {{ gmt_offset() }}">
+                        <span data-toggle="tooltip" data-content="{{ request.date|date_time }} {{ gmt_offset() }}">
                             {{ request.date|date_time|time_diff }}
                         </span>
                     </td>

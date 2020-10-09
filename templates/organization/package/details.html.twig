@@ -27,7 +27,7 @@
                     <h4>Latest version</h4>
                     <p>
                         {{ package.latestReleasedVersion }} (released:
-                        <span title="{{ package.latestReleaseDate|date_time_utc }} ({{ gmt_offset() }})">
+                        <span data-toggle="tooltip" data-content="{{ package.latestReleaseDate|date_time_utc }} ({{ gmt_offset() }})">
                             {{ package.latestReleaseDate|date_time_utc|time_diff }}
                         </span>)
                     </p>
@@ -80,7 +80,7 @@
                     <tr>
                         <td>{{ version.version }}</td>
                         <td>
-                            <span title="{{ version.date|date_time_utc }} ({{ gmt_offset() }})">
+                            <span data-toggle="tooltip" data-content="{{ version.date|date_time_utc }} ({{ gmt_offset() }})">
                                 {{ version.date|date_time_utc|time_diff }}
                             </span>
                         </td>

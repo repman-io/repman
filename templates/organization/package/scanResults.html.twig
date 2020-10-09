@@ -25,7 +25,7 @@
         {% for result in results %}
             <tr>
                 <td>
-                    <span title="{{ result.date|date_time }} ({{ gmt_offset() }})">
+                    <span data-toggle="tooltip" data-content="{{ result.date|date_time }} ({{ gmt_offset() }})">
                         {{ result.date|date_time|time_diff }}
                     </span>
                 </td>
