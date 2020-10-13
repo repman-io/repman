@@ -22,7 +22,6 @@ use Buddy\Repman\Message\Organization\RegenerateToken;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\RemoveToken;
-use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs\Day;
@@ -86,18 +85,6 @@ final class OrganizationController extends AbstractController
             'count' => $count,
             'organization' => $organization,
         ]);
-    }
-
-    /**
-     * @Route("/organization/{organization}/package/{package}", name="organization_package_update", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
-    public function updatePackage(Organization $organization, Package $package): Response
-    {
-        $this->dispatchMessage(new SynchronizePackage($package->id()));
-
-        $this->addFlash('success', 'Package will be updated in the background');
-
-        return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
 
     /**

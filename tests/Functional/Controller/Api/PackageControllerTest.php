@@ -271,15 +271,16 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->client->request('PUT', $this->urlTo('api_package_update', [
             'organization' => self::$organization,
             'package' => $packageId,
+        ]), [], [], [], (string) json_encode([
+            'url' => 'new-url',
+            'keepLastReleases' => 6,
         ]));
 
+        $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
+
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($packageId)
-                ->isEmpty()
-        );
+        self::assertEquals($package->url(), 'new-url');
+        self::assertEquals($package->keepLastReleases(), 6);
     }
 
     public function testUpdatePackageNonExisting(): void

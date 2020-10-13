@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}Edit {{ package.name }}{% endblock %}
+{% block header_btn %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
+        {% include 'svg/package.svg' %} Package list
+    </a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        {{ form(form) }}
+    </div>
+</div>
+{% endblock %}

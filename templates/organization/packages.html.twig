@@ -124,6 +124,7 @@
                                     <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
                                         {% include 'svg/link.svg' %} Webhook
                                     </a>
+                                    <div class="dropdown-divider"></div>
                                 {% endif %}
                                 {% if package.isSynchronizedSuccessfully %}
                                     <a
@@ -145,6 +146,12 @@
                                         href="#"
                                         >
                                             {% include 'svg/refresh.svg' %} Update
+                                    </a>
+                                    <a
+                                        class="dropdown-item"
+                                        href="{{ path('organization_package_edit', {organization: organization.alias, package: package.id }) }}"
+                                        >
+                                            {% include 'svg/edit.svg' %} Edit
                                     </a>
                                     {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
                                         <a

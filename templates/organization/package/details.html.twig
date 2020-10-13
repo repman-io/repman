@@ -38,7 +38,7 @@
                         <div class="input-group col-11">
                             <input id="composer-require" class="form-control" readonly value="composer require {{ package.name }}"/>
                             <span class="input-group-append">
-                        <button data-clipboard-target="#composer-require" class="copy-to-clipboard btn btn-primary p-2" type="button" data-toggle="tooltip" data-placement="top" data-content="Copy composer require command">
+                        <button data-clipboard-target="#composer-require" class="copy-to-clipboard btn btn-primary p-2" type="button" data-toggle="tooltip" data-placement="top" title="Copy to clipboard">
                             {% include 'svg/clipboard.svg' %}
                         </button>
                     </span>
@@ -91,7 +91,7 @@
                                 <input id="version-{{ version.reference }}" class="form-control" readonly value="composer require {{ package.name }}:{{ version.version }}"/>
                                 <span class="input-group-append">
                             <button data-clipboard-target="#version-{{ version.reference }}" class="copy-to-clipboard btn btn-primary p-2" type="button" data-toggle="tooltip" data-placement="top"
-                                    data-content="Copy composer require command for version to clipboard">
+                                    title="Copy to clipboard">
                                 {% include 'svg/clipboard.svg' %}
                             </button>
                         </span>

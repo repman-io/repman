@@ -7,12 +7,15 @@ namespace Buddy\Repman\Controller\Organization;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Form\Type\Organization\AddPackageType;
+use Buddy\Repman\Form\Type\Organization\EditPackageType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
+use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\BitbucketApi;
@@ -106,6 +109,52 @@ final class PackageController extends AbstractController
 
         return $this->render('organization/addPackage.html.twig', [
             'organization' => $organization,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}", name="organization_package_update", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function updatePackage(Organization $organization, Package $package): Response
+    {
+        $this->dispatchMessage(new SynchronizePackage($package->id()));
+
+        $this->addFlash('success', 'Package will be updated in the background');
+
+        return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+    }
+
+    /**
+     * @Route("/organization/{organization}/package/{package}/edit", name="organization_package_edit", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     */
+    public function editPackage(Organization $organization, Package $package, Request $request): Response
+    {
+        $form = $this->createForm(EditPackageType::class, [
+            'url' => $package->url(),
+            'keepLastReleases' => $package->keepLastReleases(),
+        ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $this->dispatchMessage(new Update(
+                $package->id(),
+                $data['url'],
+                $data['keepLastReleases'],
+            ));
+
+            $this->dispatchMessage(new SynchronizePackage($package->id()));
+
+            $this->addFlash('success', 'Package will be updated in the background');
+
+            return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
+        }
+
+        return $this->render('organization/package/edit.html.twig', [
+            'organization' => $organization,
+            'package' => $package,
             'form' => $form->createView(),
         ]);
     }

@@ -7,10 +7,12 @@ namespace Buddy\Repman\Controller\Api;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Form\Type\Api\AddPackageType;
+use Buddy\Repman\Form\Type\Api\EditPackageType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
+use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\Api\Model\Errors;
@@ -189,6 +191,10 @@ final class PackageController extends ApiController
      *     description="UUID"
      * )
      *
+     * @OA\RequestBody(
+     *     @Model(type=EditPackageType::class)
+     * )
+     *
      * @OA\Response(
      *     response=200,
      *     description="Package updated"
@@ -206,8 +212,16 @@ final class PackageController extends ApiController
      *
      * @OA\Tag(name="Package")
      */
-    public function updatePackage(Organization $organization, Package $package): JsonResponse
+    public function updatePackage(Organization $organization, Package $package, Request $request): JsonResponse
     {
+        $form = $this->createApiForm(EditPackageType::class);
+        $form->submit($this->parseJson($request));
+
+        $this->dispatchMessage(new Update(
+            $package->getId(),
+            $form->get('url')->getData(),
+            $form->get('keepLastReleases')->getData(),
+        ));
         $this->dispatchMessage(new SynchronizePackage($package->getId()));
 
         return new JsonResponse();
