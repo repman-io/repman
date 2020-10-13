@@ -5,6 +5,7 @@
 <a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
     {% include 'svg/package.svg' %} Package list
 </a>
+{% include 'component/packageActions.html.twig' %}
 {% endblock %}
 
 {% block content %}

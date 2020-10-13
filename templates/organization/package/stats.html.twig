@@ -2,6 +2,11 @@
 
 {% block header %}{{ package.name }} installs (last {{ days }} days){% endblock %}
 
+{% block header_btn %}
+    {{ parent() }}
+    {% include 'component/packageActions.html.twig' %}
+{% endblock %}
+
 {% block content %}
     <h3>Daily installs</h3>
     <div id="chart-installs" ></div>

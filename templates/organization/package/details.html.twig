@@ -5,6 +5,7 @@
     <a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
         {% include 'svg/package.svg' %} Package list
     </a>
+    {% include 'component/packageActions.html.twig' %}
 {% endblock %}
 
 {% block content %}
@@ -27,9 +28,9 @@
                     <h4>Latest version</h4>
                     <p>
                         {{ package.latestReleasedVersion }} (released:
-                        <span data-toggle="tooltip" title="{{ package.latestReleaseDate|date_time_utc }} ({{ gmt_offset() }})">
-                            {{ package.latestReleaseDate|date_time_utc|time_diff }}
-                        </span>)
+                        <span data-toggle="tooltip"
+                              title="{{ package.latestReleaseDate|date_time_utc }} ({{ gmt_offset() }})">
+                            {{ package.latestReleaseDate|date_time_utc|time_diff }}</span>)
                     </p>
                 </div>
                 <div class="col-6">
