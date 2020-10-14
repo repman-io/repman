@@ -71,7 +71,7 @@ final class OrganizationController extends AbstractController
      */
     public function packages(Organization $organization, Request $request): Response
     {
-        $filter = PackageFilter::fromRequest($request);
+        $filter = PackageFilter::fromRequest($request, 'name');
 
         $count = $this->packageQuery->count($organization->id(), $filter);
 

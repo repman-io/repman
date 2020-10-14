@@ -31,9 +31,9 @@
                 </td>
             </tr>
             <tr>
-                <th>Name</th>
-                <th>Latest version</th>
-                <th>Released</th>
+                <th>Name {% include 'component/sort.html.twig' with {column: 'name'} %}</th>
+                <th>Latest version {% include 'component/sort.html.twig' with {column: 'version'} %}</th>
+                <th>Released {% include 'component/sort.html.twig' with {column: 'date'} %}</th>
                 <th>Description</th>
                 {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
                     <th>Webhook</th>

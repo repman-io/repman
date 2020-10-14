@@ -191,6 +191,67 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('offset=0&amp;limit=20', $content);
     }
 
+    public function testSorting(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+
+        for ($i = 1; $i < 6; ++$i) {
+            $submissionTime = (new \DateTimeImmutable())->add(new \DateInterval("P{$i}D"));
+
+            $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+            $this->fixtures->syncPackageWithData($packageId, 'buddy-works/package-' . $i, 'Test', "1.{$i}", $submissionTime);
+        }
+
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('buddy-works/package-1', $content);
+        self::assertStringContainsString('sort=name:desc', $content);
+        self::assertStringContainsString('sort=version:asc', $content);
+        self::assertStringContainsString('sort=date:asc', $content);
+
+        // Sort by name desc
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1, 'sort' => 'name:desc']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('buddy-works/package-5', $content);
+        self::assertStringContainsString('sort=name:asc', $content);
+        self::assertStringContainsString('sort=version:asc', $content);
+        self::assertStringContainsString('sort=date:asc', $content);
+
+        // Sort by version desc
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1, 'sort' => 'version:desc']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('buddy-works/package-5', $content);
+        self::assertStringContainsString('sort=name:asc', $content);
+        self::assertStringContainsString('sort=version:desc', $content);
+        self::assertStringContainsString('sort=date:asc', $content);
+
+        // Sort by released date asc
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1, 'sort' => 'date:asc']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('buddy-works/package-1', $content);
+        self::assertStringContainsString('sort=name:asc', $content);
+        self::assertStringContainsString('sort=version:asc', $content);
+        self::assertStringContainsString('sort=date:desc', $content);
+
+        // Sort by invalid column
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1, 'sort' => 'invalid-column:asc']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $content = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('buddy-works/package-1', $content);
+        self::assertStringContainsString('sort=name:asc', $content);
+        self::assertStringContainsString('sort=version:asc', $content);
+        self::assertStringContainsString('sort=date:asc', $content);
+    }
+
     public function testRemovePackage(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
