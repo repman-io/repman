@@ -24,9 +24,9 @@
 
     <h3>Summary</h3>
     <p>
-        <span class="mr-5">Today installs: {{ (installs.days | last).installs }}</span>
-        <span class="mr-5">Last {{ days ?? 30 }} days installs: {{ installs.daysTotal }}</span>
-        <span class="mr-5"><strong>Total installs: {{ installs.total }}</strong></span>
+        <span class="mr-5">Today installs: <span class="number-format">{{ (installs.days | last).installs }}</span></span>
+        <span class="mr-5">Last {{ days ?? 30 }} days installs: <span class="number-format">{{ installs.daysTotal }}</span></span>
+        <span class="mr-5"><strong>Total installs: <span class="number-format">{{ installs.total }}</span></strong></span>
     </p>
 
     <hr />

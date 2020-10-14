@@ -28,4 +28,8 @@
     });
 
     $('[data-toggle="tooltip"]').tooltip();
+
+    $('.number-format').each(function() {
+        $(this).text(parseInt($(this).text()).toLocaleString());
+    });
 })();
