@@ -1,6 +1,15 @@
 {% extends 'organization/stats.html.twig' %}
 
-{% block header %}{{ package.name }} installs (last {{ days }} days){% endblock %}
+{% block header %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}"
+       class="btn btn-secondary px-1 mr-1" title="Package List">
+        <span class="text-muted mr-1">&laquo;</span>
+        {% include 'svg/package.svg' %}
+    </a>
+
+    <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}">{{ package.name }}</a>
+    installs (last {{ days }} days)
+{% endblock %}
 
 {% block header_btn %}
     {{ parent() }}
