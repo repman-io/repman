@@ -126,6 +126,7 @@ final class PackageController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/{package}/edit", name="organization_package_edit", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
     public function editPackage(Organization $organization, Package $package, Request $request): Response

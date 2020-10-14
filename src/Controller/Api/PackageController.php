@@ -177,11 +177,47 @@ final class PackageController extends ApiController
     }
 
     /**
+     * Synchronize package.
+     *
+     * @Route("/api/organization/{organization}/package/{package}",
+     *     name="api_synchronize_update",
+     *     methods={"PUT"},
+     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
+     * )
+     *
+     * @Oa\Parameter(
+     *     name="package",
+     *     in="path",
+     *     description="UUID"
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Package updated"
+     * )
+     *
+     * @OA\Response(
+     *     response=404,
+     *     description="Package not found"
+     * )
+     *
+     * @OA\Tag(name="Package")
+     */
+    public function synchronizePackage(Organization $organization, Package $package): JsonResponse
+    {
+        $this->dispatchMessage(new SynchronizePackage($package->getId()));
+
+        return new JsonResponse();
+    }
+
+    /**
      * Update and synchronize package.
+     *
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      *
      * @Route("/api/organization/{organization}/package/{package}",
      *     name="api_package_update",
-     *     methods={"PUT"},
+     *     methods={"PATCH"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
      * )
      *
@@ -210,6 +246,11 @@ final class PackageController extends ApiController
      *     description="Forbidden"
      * )
      *
+     * @OA\Response(
+     *     response=400,
+     *     description="Bad request"
+     * )
+     *
      * @OA\Tag(name="Package")
      */
     public function updatePackage(Organization $organization, Package $package, Request $request): JsonResponse
@@ -230,6 +271,7 @@ final class PackageController extends ApiController
             $form->get('url')->getData(),
             $form->get('keepLastReleases')->getData(),
         ));
+
         $this->dispatchMessage(new SynchronizePackage($package->getId()));
 
         return new JsonResponse();

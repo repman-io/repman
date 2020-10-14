@@ -262,13 +262,38 @@ final class PackageControllerTest extends FunctionalTestCase
         self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
-    public function testUpdatePackage(): void
+    public function testSynchronizePackage(): void
     {
         $packageId = Uuid::uuid4()->toString();
         $this->fixtures->createPackage($packageId, '', $this->organizationId);
 
         $this->loginApiUser($this->apiToken);
         $this->client->request('PUT', $this->urlTo('api_package_update', [
+            'organization' => self::$organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testSynchronizePackageNonExisting(): void
+    {
+        $this->loginApiUser($this->apiToken);
+        $this->client->request('PUT', $this->urlTo('api_package_update', [
+            'organization' => self::$organization,
+            'package' => self::$fakeId,
+        ]));
+
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testUpdatePackage(): void
+    {
+        $packageId = Uuid::uuid4()->toString();
+        $this->fixtures->createPackage($packageId, '', $this->organizationId);
+
+        $this->loginApiUser($this->apiToken);
+        $this->client->request('PATCH', $this->urlTo('api_package_update', [
             'organization' => self::$organization,
             'package' => $packageId,
         ]), [], [], [], (string) json_encode([
@@ -289,7 +314,7 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->createPackage($packageId, '', $this->organizationId);
 
         $this->loginApiUser($this->apiToken);
-        $this->client->request('PUT', $this->urlTo('api_package_update', [
+        $this->client->request('PATCH', $this->urlTo('api_package_update', [
             'organization' => self::$organization,
             'package' => $packageId,
         ]), [], [], [], (string) json_encode([
@@ -318,7 +343,7 @@ final class PackageControllerTest extends FunctionalTestCase
     public function testUpdatePackageNonExisting(): void
     {
         $this->loginApiUser($this->apiToken);
-        $this->client->request('PUT', $this->urlTo('api_package_update', [
+        $this->client->request('PATCH', $this->urlTo('api_package_update', [
             'organization' => self::$organization,
             'package' => self::$fakeId,
         ]));

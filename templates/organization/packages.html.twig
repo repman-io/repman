@@ -147,13 +147,13 @@
                                         >
                                             {% include 'svg/refresh.svg' %} Update
                                     </a>
-                                    <a
-                                        class="dropdown-item"
-                                        href="{{ path('organization_package_edit', {organization: organization.alias, package: package.id }) }}"
-                                        >
-                                            {% include 'svg/edit.svg' %} Edit
-                                    </a>
                                     {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+                                        <a
+                                            class="dropdown-item"
+                                            href="{{ path('organization_package_edit', {organization: organization.alias, package: package.id }) }}"
+                                            >
+                                                {% include 'svg/edit.svg' %} Edit
+                                        </a>
                                         <a
                                             class="dropdown-item"
                                             data-target="confirmation"
