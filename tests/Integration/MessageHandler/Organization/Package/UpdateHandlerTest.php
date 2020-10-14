@@ -13,7 +13,7 @@ final class UpdateHandlerTest extends IntegrationTestCase
     {
         $exception = null;
         try {
-            $this->dispatchMessage(new Update('e0ea4d32-4144-4a67-9310-6dae483a6377'));
+            $this->dispatchMessage(new Update('e0ea4d32-4144-4a67-9310-6dae483a6377', 'test', 0));
         } catch (\Exception $exception) {
         }
 

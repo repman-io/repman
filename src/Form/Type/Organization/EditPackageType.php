@@ -34,7 +34,6 @@ class EditPackageType extends AbstractType
             ->add('keepLastReleases', IntegerType::class, [
                 'label' => 'Keep last releases',
                 'help' => 'Number of last releases that will be downloaded. Put "0" to download all.',
-                'required' => false,
                 'constraints' => [
                     new PositiveOrZero(),
                 ],

@@ -26,12 +26,6 @@ final class UpdateHandler implements MessageHandlerInterface
             return;
         }
 
-        if ($message->url() !== null) {
-            $package->setRepositoryUrl($message->url());
-        }
-
-        if ($message->keepLastReleases() !== null) {
-            $package->setKeepLastReleases($message->keepLastReleases());
-        }
+        $package->update($message->url(), $message->keepLastReleases());
     }
 }

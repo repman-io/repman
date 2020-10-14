@@ -122,7 +122,7 @@ final class Package implements \JsonSerializable
         return $this->scanResult !== null ? $this->scanResult->content() : [];
     }
 
-    public function keepLastReleases(): int
+    public function getKeepLastReleases(): int
     {
         return $this->keepLastReleases;
     }
@@ -147,7 +147,7 @@ final class Package implements \JsonSerializable
             'scanResultDate' => $this->getScanResultDate() === null ? null : $this->getScanResultDate()->format(\DateTime::ATOM),
             'scanResultStatus' => $this->getScanResultStatus(),
             'lastScanResultContent' => $this->getLastScanResultContent(),
-            'keepLastReleases' => $this->keepLastReleases(),
+            'keepLastReleases' => $this->getKeepLastReleases(),
         ];
     }
 }

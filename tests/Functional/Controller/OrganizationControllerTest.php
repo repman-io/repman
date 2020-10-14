@@ -321,28 +321,6 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('will be synchronized in background', $this->lastResponseBody());
     }
 
-    public function testUpdatePackage(): void
-    {
-        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
-        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-
-        $this->client->request('POST', $this->urlTo('organization_package_update', [
-            'organization' => 'buddy',
-            'package' => $packageId,
-        ]));
-
-        self::assertTrue($this->client->getResponse()->isRedirect(
-            $this->urlTo('organization_packages', ['organization' => 'buddy'])
-        ));
-
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
-
-        $this->client->followRedirect();
-        self::assertStringContainsString('Package will be updated in the background', $this->lastResponseBody());
-        self::assertStringContainsString('buddy-works/repman', $this->lastResponseBody());
-        self::assertStringContainsString('2.1.1', $this->lastResponseBody());
-    }
-
     public function testUpdateNonExistingPackage(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);

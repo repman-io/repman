@@ -25,16 +25,16 @@ class EditPackageType extends AbstractType
     {
         $builder
             ->add('url', TextType::class, [
-                'label' => 'Repository URL',
                 'required' => false,
+                'label' => 'Repository URL',
                 'constraints' => [
                     new NotBlank(),
                 ],
             ])
             ->add('keepLastReleases', IntegerType::class, [
+                'required' => false,
                 'label' => 'Keep last releases',
                 'help' => 'Number of last releases that will be downloaded. Put "0" to download all.',
-                'required' => false,
                 'constraints' => [
                     new PositiveOrZero(),
                 ],

@@ -215,7 +215,15 @@ final class PackageController extends ApiController
     public function updatePackage(Organization $organization, Package $package, Request $request): JsonResponse
     {
         $form = $this->createApiForm(EditPackageType::class);
-        $form->submit($this->parseJson($request));
+
+        $form->submit(array_merge([
+            'url' => $package->getUrl(),
+            'keepLastReleases' => $package->getKeepLastReleases(),
+        ], $this->parseJson($request)));
+
+        if (!$form->isValid()) {
+            return $this->badRequest($this->getErrors($form));
+        }
 
         $this->dispatchMessage(new Update(
             $package->getId(),

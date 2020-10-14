@@ -7,10 +7,10 @@ namespace Buddy\Repman\Message\Organization\Package;
 final class Update
 {
     private string $packageId;
-    private ?string $url;
-    private ?int $keepLastReleases;
+    private string $url;
+    private int $keepLastReleases;
 
-    public function __construct(string $packageId, ?string $url = null, ?int $keepLastReleases = null)
+    public function __construct(string $packageId, string $url, int $keepLastReleases)
     {
         $this->packageId = $packageId;
         $this->url = $url;
@@ -22,12 +22,12 @@ final class Update
         return $this->packageId;
     }
 
-    public function url(): ?string
+    public function url(): string
     {
         return $this->url;
     }
 
-    public function keepLastReleases(): ?int
+    public function keepLastReleases(): int
     {
         return $this->keepLastReleases;
     }

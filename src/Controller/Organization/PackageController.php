@@ -120,7 +120,7 @@ final class PackageController extends AbstractController
     {
         $this->dispatchMessage(new SynchronizePackage($package->id()));
 
-        $this->addFlash('success', 'Package will be updated in the background');
+        $this->addFlash('success', 'Package will be synchronized in the background');
 
         return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
@@ -147,7 +147,7 @@ final class PackageController extends AbstractController
 
             $this->dispatchMessage(new SynchronizePackage($package->id()));
 
-            $this->addFlash('success', 'Package will be updated in the background');
+            $this->addFlash('success', 'Package will be synchronized in the background');
 
             return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
         }

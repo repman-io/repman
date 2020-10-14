@@ -311,13 +311,9 @@ class Package
         return $this->keepLastReleases;
     }
 
-    public function setKeepLastReleases(int $keepLastReleases): void
+    public function update(string $url, int $keepLastReleases): void
     {
         $this->keepLastReleases = $keepLastReleases;
-    }
-
-    public function setRepositoryUrl(string $url): void
-    {
         $this->repositoryUrl = $url;
     }
 }
