@@ -199,7 +199,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             $submissionTime = (new \DateTimeImmutable())->add(new \DateInterval("P{$i}D"));
 
             $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-            $this->fixtures->syncPackageWithData($packageId, 'buddy-works/package-' . $i, 'Test', "1.{$i}", $submissionTime);
+            $this->fixtures->syncPackageWithData($packageId, 'buddy-works/package-'.$i, 'Test', "1.{$i}", $submissionTime);
         }
 
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => 1]));

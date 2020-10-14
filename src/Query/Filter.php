@@ -68,12 +68,12 @@ class Filter
     public function getQueryStringParams(): array
     {
         $return = [
-            'offset' => (string)$this->getOffset(),
-            'limit' => (string)$this->getLimit(),
+            'offset' => (string) $this->getOffset(),
+            'limit' => (string) $this->getLimit(),
         ];
 
         if ($this->hasSort()) {
-            $return['sort'] = $this->sortColumn . ':' . $this->sortOrder;
+            $return['sort'] = $this->sortColumn.':'.$this->sortOrder;
         }
 
         return $return;
@@ -82,8 +82,8 @@ class Filter
     public static function fromRequest(Request $request, ?string $defaultSortColumn = null): self
     {
         return new self(
-            (int)$request->get('offset', 0),
-            (int)$request->get('limit', 20),
+            (int) $request->get('offset', 0),
+            (int) $request->get('limit', 20),
             $request->get('sort', $defaultSortColumn),
         );
     }

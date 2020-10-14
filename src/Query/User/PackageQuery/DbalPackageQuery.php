@@ -50,7 +50,7 @@ final class DbalPackageQuery implements PackageQuery
             'date' => 'latest_release_date',
         ];
 
-        if ($filter->hasSort() && array_key_exists($filter->getSortColumn(), $sortColumnMappings)) {
+        if ($filter->hasSort() && isset($sortColumnMappings[$filter->getSortColumn()])) {
             $sortSQL = $sortColumnMappings[$filter->getSortColumn()].' '.$filter->getSortOrder();
         }
 
