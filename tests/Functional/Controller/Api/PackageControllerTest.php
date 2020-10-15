@@ -262,7 +262,7 @@ final class PackageControllerTest extends FunctionalTestCase
         self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
-    public function testUpdatePackage(): void
+    public function testSynchronizePackage(): void
     {
         $packageId = Uuid::uuid4()->toString();
         $this->fixtures->createPackage($packageId, '', $this->organizationId);
@@ -274,18 +274,76 @@ final class PackageControllerTest extends FunctionalTestCase
         ]));
 
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($packageId)
-                ->isEmpty()
+    }
+
+    public function testSynchronizePackageNonExisting(): void
+    {
+        $this->loginApiUser($this->apiToken);
+        $this->client->request('PUT', $this->urlTo('api_package_update', [
+            'organization' => self::$organization,
+            'package' => self::$fakeId,
+        ]));
+
+        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testUpdatePackage(): void
+    {
+        $packageId = Uuid::uuid4()->toString();
+        $this->fixtures->createPackage($packageId, '', $this->organizationId);
+
+        $this->loginApiUser($this->apiToken);
+        $this->client->request('PATCH', $this->urlTo('api_package_update', [
+            'organization' => self::$organization,
+            'package' => $packageId,
+        ]), [], [], [], (string) json_encode([
+            'url' => 'new-url',
+            'keepLastReleases' => 6,
+        ]));
+
+        $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
+
+        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertEquals($package->url(), 'new-url');
+        self::assertEquals($package->keepLastReleases(), 6);
+    }
+
+    public function testUpdatePackageBadRequest(): void
+    {
+        $packageId = Uuid::uuid4()->toString();
+        $this->fixtures->createPackage($packageId, '', $this->organizationId);
+
+        $this->loginApiUser($this->apiToken);
+        $this->client->request('PATCH', $this->urlTo('api_package_update', [
+            'organization' => self::$organization,
+            'package' => $packageId,
+        ]), [], [], [], (string) json_encode([
+            'keepLastReleases' => 10.5,
+        ]));
+
+        $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
+
+        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString(
+            $this->lastResponseBody(),
+            '
+            {
+                "errors": [
+                    {
+                        "field": "keepLastReleases",
+                        "message": "This value is not valid."
+                    }
+                ]
+            }
+            '
         );
+        self::assertEquals($package->keepLastReleases(), 0);
     }
 
     public function testUpdatePackageNonExisting(): void
     {
         $this->loginApiUser($this->apiToken);
-        $this->client->request('PUT', $this->urlTo('api_package_update', [
+        $this->client->request('PATCH', $this->urlTo('api_package_update', [
             'organization' => self::$organization,
             'package' => self::$fakeId,
         ]));
@@ -304,7 +362,6 @@ final class PackageControllerTest extends FunctionalTestCase
         ]));
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-
         self::assertFalse(
             $this->container()
                 ->get(DbalPackageQuery::class)

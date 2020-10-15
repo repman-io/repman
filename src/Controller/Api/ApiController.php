@@ -37,9 +37,9 @@ abstract class ApiController extends AbstractController
             return [];
         }
 
-        $data = json_decode($request->getContent(), true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $th) {
             throw new BadRequestHttpException();
         }
 
@@ -60,11 +60,9 @@ abstract class ApiController extends AbstractController
     }
 
     /**
-     * @param callable $listFunction
-     *
      * @return array<mixed>
      */
-    protected function paginate($listFunction, int $total, int $perPage, int $page, string $baseUrl): array
+    protected function paginate(callable $listFunction, int $total, int $perPage, int $page, string $baseUrl): array
     {
         $pages = (int) ceil($total / $perPage);
         if ($pages === 0) {

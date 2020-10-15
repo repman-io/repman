@@ -310,4 +310,10 @@ class Package
     {
         return $this->keepLastReleases;
     }
+
+    public function update(string $url, int $keepLastReleases): void
+    {
+        $this->keepLastReleases = $keepLastReleases;
+        $this->repositoryUrl = $url;
+    }
 }

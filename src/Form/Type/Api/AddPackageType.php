@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 class AddPackageType extends AbstractType
 {
@@ -57,6 +58,9 @@ class AddPackageType extends AbstractType
             ->add('keepLastReleases', IntegerType::class, [
                 'data' => 0,
                 'required' => false,
+                'constraints' => [
+                    new PositiveOrZero(),
+                ],
             ]);
     }
 }

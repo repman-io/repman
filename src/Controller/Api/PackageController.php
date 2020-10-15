@@ -7,10 +7,12 @@ namespace Buddy\Repman\Controller\Api;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Form\Type\Api\AddPackageType;
+use Buddy\Repman\Form\Type\Api\EditPackageType;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
+use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\Api\Model\Errors;
@@ -175,10 +177,10 @@ final class PackageController extends ApiController
     }
 
     /**
-     * Update and synchronize package.
+     * Synchronize package.
      *
      * @Route("/api/organization/{organization}/package/{package}",
-     *     name="api_package_update",
+     *     name="api_synchronize_update",
      *     methods={"PUT"},
      *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
      * )
@@ -199,15 +201,77 @@ final class PackageController extends ApiController
      *     description="Package not found"
      * )
      *
+     * @OA\Tag(name="Package")
+     */
+    public function synchronizePackage(Organization $organization, Package $package): JsonResponse
+    {
+        $this->dispatchMessage(new SynchronizePackage($package->getId()));
+
+        return new JsonResponse();
+    }
+
+    /**
+     * Update and synchronize package.
+     *
+     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
+     * @Route("/api/organization/{organization}/package/{package}",
+     *     name="api_package_update",
+     *     methods={"PATCH"},
+     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
+     * )
+     *
+     * @Oa\Parameter(
+     *     name="package",
+     *     in="path",
+     *     description="UUID"
+     * )
+     *
+     * @OA\RequestBody(
+     *     @Model(type=EditPackageType::class)
+     * )
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Package updated"
+     * )
+     *
+     * @OA\Response(
+     *     response=404,
+     *     description="Package not found"
+     * )
+     *
      * @OA\Response(
      *     response=403,
      *     description="Forbidden"
      * )
      *
+     * @OA\Response(
+     *     response=400,
+     *     description="Bad request"
+     * )
+     *
      * @OA\Tag(name="Package")
      */
-    public function updatePackage(Organization $organization, Package $package): JsonResponse
+    public function updatePackage(Organization $organization, Package $package, Request $request): JsonResponse
     {
+        $form = $this->createApiForm(EditPackageType::class);
+
+        $form->submit(array_merge([
+            'url' => $package->getUrl(),
+            'keepLastReleases' => $package->getKeepLastReleases(),
+        ], $this->parseJson($request)));
+
+        if (!$form->isValid()) {
+            return $this->badRequest($this->getErrors($form));
+        }
+
+        $this->dispatchMessage(new Update(
+            $package->getId(),
+            $form->get('url')->getData(),
+            $form->get('keepLastReleases')->getData(),
+        ));
+
         $this->dispatchMessage(new SynchronizePackage($package->getId()));
 
         return new JsonResponse();

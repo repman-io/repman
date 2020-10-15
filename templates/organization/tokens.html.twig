@@ -41,7 +41,7 @@
                         <div class="input-group d-none" data-type="token">
                             <input id="token{{ loop.index }}" type="text" class="form-control" readonly value="{{ token.value }}">
                             <span class="input-group-append">
-                                <button data-clipboard-target="#token{{ loop.index }}" class="copy-to-clipboard btn btn-primary p-2" type="button" title="Copy to clipboard">
+                                <button data-clipboard-target="#token{{ loop.index }}" class="copy-to-clipboard btn btn-primary p-2" type="button" data-toggle="tooltip" title="Copy to clipboard">
                                     {% include 'svg/clipboard.svg' %}
                                 </button>
                             </span>

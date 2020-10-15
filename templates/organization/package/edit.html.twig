@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block header %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}"
+       class="btn btn-secondary px-1 mr-1" title="Package List">
+        <span class="text-muted mr-1">&laquo;</span>
+        {% include 'svg/package.svg' %}
+    </a>
+
+    {{ package.name }} edit
+{% endblock %}
+{% block header_btn %}
+    {% include 'component/packageActions.html.twig' %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        {{ form(form) }}
+    </div>
+</div>
+{% endblock %}

@@ -213,4 +213,52 @@ final class PackageControllerTest extends FunctionalTestCase
 
         self::assertEquals(404, $this->client->getResponse()->getStatusCode());
     }
+
+    public function testUpdatePackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+
+        $this->client->request('POST', $this->urlTo('organization_package_update', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect(
+            $this->urlTo('organization_packages', ['organization' => 'buddy'])
+        ));
+
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package will be synchronized in the background', $this->lastResponseBody());
+        self::assertStringContainsString('buddy-works/repman', $this->lastResponseBody());
+        self::assertStringContainsString('2.1.1', $this->lastResponseBody());
+    }
+
+    public function testEditPackage(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
+
+        $this->client->request('GET', $this->urlTo('organization_package_edit', ['organization' => 'buddy', 'package' => $packageId]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+
+        $this->client->submitForm('Update', [
+            'url' => 'http://github.com/test/test',
+            'keepLastReleases' => '6',
+        ]);
+
+        self::assertTrue(
+            $this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
+        );
+
+        $this->client->followRedirect();
+        self::assertStringContainsString('Package will be synchronized in the background', $this->lastResponseBody());
+        self::assertStringContainsString('http://github.com/test/test', $this->lastResponseBody());
+
+        self::assertTrue($this->client->getResponse()->isOk());
+    }
 }
