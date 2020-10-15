@@ -1,10 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block header %}Package: {{ package.name }} security scan results{% endblock %}
+{% block header %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}"
+       class="btn btn-secondary px-1 mr-1" title="Package List">
+        <span class="text-muted mr-1">&laquo;</span>
+        {% include 'svg/package.svg' %}
+    </a>
+
+    <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}">{{ package.name }}</a>
+    security scan results
+{% endblock %}
+
 {% block header_btn %}
-<a href="{{ path('organization_packages', {"organization":organization.alias}) }}" class="btn btn-primary">
-    {% include 'svg/package.svg' %} Package list
-</a>
+    {% include 'component/packageActions.html.twig' %}
 {% endblock %}
 
 {% block content %}

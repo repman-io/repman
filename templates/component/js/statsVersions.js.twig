@@ -28,6 +28,13 @@
         xaxis: {
             type: 'datetime',
         },
+        yaxis: {
+            labels: {
+                formatter: function (value) {
+                    return value.toLocaleString();
+                },
+            },
+        },
         colors: ["#206bc4"],
         noData: {
             text: 'Loading...'
