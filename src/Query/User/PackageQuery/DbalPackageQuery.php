@@ -42,6 +42,18 @@ final class DbalPackageQuery implements PackageQuery
             $params[':term'] = '%'.$filter->getSearchTerm().'%';
         }
 
+        $sortSQL = 'name ASC';
+
+        $sortColumnMappings = [
+            'name' => 'name',
+            'version' => 'latest_released_version',
+            'date' => 'latest_release_date',
+        ];
+
+        if ($filter->hasSort() && isset($sortColumnMappings[$filter->getSortColumn()])) {
+            $sortSQL = $sortColumnMappings[$filter->getSortColumn()].' '.$filter->getSortOrder();
+        }
+
         return array_map(
             function (array $data): Package {
                 return $this->hydratePackage($data);
@@ -66,7 +78,7 @@ final class DbalPackageQuery implements PackageQuery
             WHERE organization_id = :organization_id
             '.$filterSQL.'
             GROUP BY id
-            ORDER BY name ASC
+            ORDER BY '.$sortSQL.'
             LIMIT :limit OFFSET :offset',
                 $params
             )

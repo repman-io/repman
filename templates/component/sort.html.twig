@@ -1,0 +1,22 @@
+{% if filter.getSortColumn() == column %}
+    {% if filter.getSortOrder() == 'asc' %}
+        {% set newSortOrder = 'desc' %}
+        {% set sortTitle = 'Descending' %}
+    {% else %}
+        {% set newSortOrder = 'asc' %}
+        {% set sortTitle = 'Ascending' %}
+    {% endif %}
+    <a href="{{ path(app.request.get('_route'), app.request.get('_route_params') | merge(app.request.query.all) | merge({sort: column ~ ':' ~ newSortOrder, offset: 0})) }}"
+       title="Sort {{ sortTitle }}">
+        {% if filter.getSortOrder() == 'asc' %}
+            {% include 'svg/sort-asc.svg' %}
+        {% else %}
+            {% include 'svg/sort-desc.svg' %}
+        {% endif %}
+    </a>
+{% else %}
+    <a href="{{ path(app.request.get('_route'), app.request.get('_route_params') | merge(app.request.query.all) | merge({sort: column ~ ':asc', offset: 0})) }}"
+       title="Sort ascending" class="text-muted">
+        {% include 'svg/sort-asc.svg' %}
+    </a>
+{% endif %}
