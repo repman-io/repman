@@ -267,6 +267,9 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
     },
+    "league/commonmark": {
+        "version": "1.5.5"
+    },
     "league/flysystem": {
         "version": "1.0.69"
     },

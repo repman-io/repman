@@ -143,7 +143,8 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_date,
                 last_scan_status,
                 last_scan_result,
-                keep_last_releases
+                keep_last_releases,
+                readme
             FROM "organization_package"
             WHERE id = :id', [
             ':id' => $id,
@@ -336,7 +337,8 @@ final class DbalPackageQuery implements PackageQuery
             $data['last_sync_error'],
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
             $scanResult,
-            $data['keep_last_releases'] ?? 0
+            $data['keep_last_releases'] ?? 0,
+            $data['readme'] ?? null,
         );
     }
 
