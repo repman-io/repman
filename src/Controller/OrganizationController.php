@@ -131,6 +131,7 @@ final class OrganizationController extends AbstractController
             'filter' => $filter,
             'count' => $this->packageQuery->versionCount($package->id()),
             'versions' => $this->packageQuery->getVersions($package->id(), $filter),
+            'installs' => $this->packageQuery->getInstalls($package->id(), 0),
         ]);
     }
 

@@ -33,10 +33,10 @@ final class ProxyControllerTest extends FunctionalTestCase
             [new Package('buddy-works/repman', '1.0.0.0')],
             new \DateTimeImmutable('2020-04-27 19:34:00')
         );
-        $this->client->request('GET', $this->urlTo('admin_proxy_stats'));
+        $crawler = $this->client->request('GET', $this->urlTo('admin_proxy_stats'));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Total installs: 1', $this->lastResponseBody());
+        self::assertStringContainsString('Total installs: 1', $crawler->text(null, true));
     }
 
     public function testRemoveDistPackage(): void

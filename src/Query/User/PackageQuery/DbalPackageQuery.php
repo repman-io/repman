@@ -128,7 +128,22 @@ final class DbalPackageQuery implements PackageQuery
     public function getById(string $id): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at, keep_last_releases
+            'SELECT
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result,
+                keep_last_releases
             FROM "organization_package"
             WHERE id = :id', [
             ':id' => $id,

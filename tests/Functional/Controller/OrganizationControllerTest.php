@@ -489,13 +489,13 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $this->fixtures->addPackageDownload(3, $packageId, $version = '1.2.3');
 
-        $this->client->request('GET', $this->urlTo('organization_package_stats', [
+        $crawler = $this->client->request('GET', $this->urlTo('organization_package_stats', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Total installs: 3', $this->lastResponseBody());
+        self::assertStringContainsString('Total installs: 3', $crawler->text(null, true));
 
         $this->client->request('GET', $this->urlTo('organization_package_version_stats', [
             'organization' => 'buddy',
@@ -530,12 +530,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $this->fixtures->addPackageDownload(3, $packageId);
 
-        $this->client->request('GET', $this->urlTo('organizations_stats', [
+        $crawler = $this->client->request('GET', $this->urlTo('organizations_stats', [
             'organization' => 'buddy',
         ]));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Total installs: 3', $this->lastResponseBody());
+        self::assertStringContainsString('Total installs: 3', $crawler->text(null, true));
     }
 
     public function testGenerateNewToken(): void
@@ -771,13 +771,13 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'sub-dir/composer.lock' => [],
         ]);
 
-        $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
+        $crawler = $this->client->request('GET', $this->urlTo('organization_package_scan_results', [
             'organization' => $organization,
             'package' => $packageId,
         ]));
 
         self::assertStringContainsString($version, $this->lastResponseBody());
-        self::assertStringContainsString('Package: buddy-works/repman security scan results', $this->lastResponseBody());
+        self::assertStringContainsString('buddy-works/repman security scan results', $crawler->text(null, true));
         self::assertStringContainsString('warning', $this->lastResponseBody());
         self::assertStringContainsString('vendor/some-dependency', $this->lastResponseBody());
         self::assertStringContainsString('6.6.6', $this->lastResponseBody());
