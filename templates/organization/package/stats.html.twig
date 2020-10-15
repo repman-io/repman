@@ -1,6 +1,20 @@
 {% extends 'organization/stats.html.twig' %}
 
-{% block header %}{{ package.name }} installs (last {{ days }} days){% endblock %}
+{% block header %}
+    <a href="{{ path('organization_packages', {"organization":organization.alias}) }}"
+       class="btn btn-secondary px-1 mr-1" title="Package List">
+        <span class="text-muted mr-1">&laquo;</span>
+        {% include 'svg/package.svg' %}
+    </a>
+
+    <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}">{{ package.name }}</a>
+    installs (last {{ days }} days)
+{% endblock %}
+
+{% block header_btn %}
+    {{ parent() }}
+    {% include 'component/packageActions.html.twig' %}
+{% endblock %}
 
 {% block content %}
     <h3>Daily installs</h3>
@@ -10,9 +24,9 @@
 
     <h3>Summary</h3>
     <p>
-        <span class="mr-5">Today installs: {{ (installs.days | last).installs }}</span>
-        <span class="mr-5">Last {{ days ?? 30 }} days installs: {{ installs.daysTotal }}</span>
-        <span class="mr-5"><strong>Total installs: {{ installs.total }}</strong></span>
+        <span class="mr-5">Today installs: <span class="number-format">{{ (installs.days | last).installs }}</span></span>
+        <span class="mr-5">Last {{ days ?? 30 }} days installs: <span class="number-format">{{ installs.daysTotal }}</span></span>
+        <span class="mr-5"><strong>Total installs: <span class="number-format">{{ installs.total }}</span></strong></span>
     </p>
 
     <hr />

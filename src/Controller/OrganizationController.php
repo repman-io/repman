@@ -70,7 +70,7 @@ final class OrganizationController extends AbstractController
      */
     public function packages(Organization $organization, Request $request): Response
     {
-        $filter = PackageFilter::fromRequest($request);
+        $filter = PackageFilter::fromRequest($request, 'name');
 
         $count = $this->packageQuery->count($organization->id(), $filter);
 
@@ -118,6 +118,7 @@ final class OrganizationController extends AbstractController
             'filter' => $filter,
             'count' => $this->packageQuery->versionCount($package->id()),
             'versions' => $this->packageQuery->getVersions($package->id(), $filter),
+            'installs' => $this->packageQuery->getInstalls($package->id(), 0),
         ]);
     }
 

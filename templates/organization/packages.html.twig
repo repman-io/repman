@@ -31,9 +31,9 @@
                 </td>
             </tr>
             <tr>
-                <th>Name</th>
-                <th>Latest version</th>
-                <th>Released</th>
+                <th>Name {% include 'component/sort.html.twig' with {column: 'name'} %}</th>
+                <th>Latest version {% include 'component/sort.html.twig' with {column: 'version'} %}</th>
+                <th>Released {% include 'component/sort.html.twig' with {column: 'date'} %}</th>
                 <th>Description</th>
                 {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
                     <th>Webhook</th>
@@ -111,62 +111,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="dropdown ml-1">
-                                <button class="btn btn-secondary dropdown-toggle align-text-top" data-toggle="dropdown">Actions</button>
-                                <div class="dropdown-menu">
-                                {% if package.name %}
-                                    <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
-                                        {% include 'svg/package.svg' %} Details
-                                    </a>
-                                    <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
-                                        {% include 'svg/bar-chart.svg' %} Statistics
-                                    </a>
-                                    <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
-                                        {% include 'svg/link.svg' %} Webhook
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                {% endif %}
-                                {% if package.isSynchronizedSuccessfully %}
-                                    <a
-                                        class="dropdown-item"
-                                        data-target="confirmation"
-                                        data-action="{{ path('organization_package_scan', {organization: organization.alias, package: package.id }) }}"
-                                        data-method="POST"
-                                        href="#"
-                                        >
-                                            {% include 'svg/shield.svg' %} Scan
-                                    </a>
-                                {% endif %}
-                                {% if package.name or package.lastSyncError %}
-                                    <a
-                                        class="dropdown-item"
-                                        data-target="confirmation"
-                                        data-action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}"
-                                        data-method="POST"
-                                        href="#"
-                                        >
-                                            {% include 'svg/refresh.svg' %} Update
-                                    </a>
-                                    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
-                                        <a
-                                            class="dropdown-item"
-                                            href="{{ path('organization_package_edit', {organization: organization.alias, package: package.id }) }}"
-                                            >
-                                                {% include 'svg/edit.svg' %} Edit
-                                        </a>
-                                        <a
-                                            class="dropdown-item"
-                                            data-target="confirmation"
-                                            data-action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}"
-                                            data-method="DELETE"
-                                            href="#"
-                                            >
-                                                {% include 'svg/trash.svg' %} Remove
-                                        </a>
-                                    {% endif %}
-                                {% endif %}
-                                </div>
-                            </span>
+                            {% include 'component/packageActions.html.twig' %}
                         </td>
                     {% endif %}
                 </tr>

@@ -1,0 +1,63 @@
+{% set currentPath = app.request.get('_route') %}
+<span class="dropdown ml-1">
+    <button class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">Actions</button>
+    <div class="dropdown-menu">
+    {% if package.name %}
+        {% if currentPath != 'organization_package_details' %}
+            <a href="{{ path('organization_package_details', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
+                {% include 'svg/package.svg' %} Details
+            </a>
+        {% endif %}
+        {% if currentPath != 'organization_package_stats' %}
+            <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
+                {% include 'svg/bar-chart.svg' %} Statistics
+            </a>
+        {% endif %}
+        {% if currentPath != 'organization_package_webhook' %}
+            <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
+                {% include 'svg/link.svg' %} Webhook
+            </a>
+        {% endif %}
+    {% endif %}
+        {% if package.isSynchronizedSuccessfully %}
+            <a
+                    class="dropdown-item"
+                    data-target="confirmation"
+                    data-action="{{ path('organization_package_scan', {organization: organization.alias, package: package.id }) }}"
+                    data-method="POST"
+                    href="#"
+            >
+                {% include 'svg/shield.svg' %} Scan
+        </a>
+        {% endif %}
+        {% if package.name or package.lastSyncError %}
+            <a
+                    class="dropdown-item"
+                    data-target="confirmation"
+                    data-action="{{ path('organization_package_update', {organization: organization.alias, package: package.id }) }}"
+                    data-method="POST"
+                    href="#"
+            >
+                {% include 'svg/refresh.svg' %} Update
+            </a>
+            {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+                <div class="dropdown-divider"></div>
+                <a
+                    class="dropdown-item"
+                    href="{{ path('organization_package_edit', {organization: organization.alias, package: package.id }) }}"
+                    >
+                        {% include 'svg/edit.svg' %} Edit
+                </a>
+                <a
+                        class="dropdown-item"
+                        data-target="confirmation"
+                        data-action="{{ path('organization_package_remove', {organization: organization.alias, package: package.id }) }}"
+                        data-method="DELETE"
+                        href="#"
+                >
+                        {% include 'svg/trash.svg' %} Remove
+                </a>
+            {% endif %}
+        {% endif %}
+    </div>
+</span>

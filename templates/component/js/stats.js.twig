@@ -35,6 +35,13 @@
                 xaxis: {
                     type: 'datetime',
                 },
+                yaxis: {
+                    labels: {
+                        formatter: function (value) {
+                            return value.toLocaleString();
+                        },
+                    },
+                },
                 labels: [{{ installs.days | map(day => "'#{day.date}'") | join(',') | raw }}],
                 colors: ["#206bc4"],
                 legend: {

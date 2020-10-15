@@ -42,6 +42,18 @@ final class DbalPackageQuery implements PackageQuery
             $params[':term'] = '%'.$filter->getSearchTerm().'%';
         }
 
+        $sortSQL = 'name ASC';
+
+        $sortColumnMappings = [
+            'name' => 'name',
+            'version' => 'latest_released_version',
+            'date' => 'latest_release_date',
+        ];
+
+        if ($filter->hasSort() && isset($sortColumnMappings[$filter->getSortColumn()])) {
+            $sortSQL = $sortColumnMappings[$filter->getSortColumn()].' '.$filter->getSortOrder();
+        }
+
         return array_map(
             function (array $data): Package {
                 return $this->hydratePackage($data);
@@ -66,7 +78,7 @@ final class DbalPackageQuery implements PackageQuery
             WHERE organization_id = :organization_id
             '.$filterSQL.'
             GROUP BY id
-            ORDER BY name ASC
+            ORDER BY '.$sortSQL.'
             LIMIT :limit OFFSET :offset',
                 $params
             )
@@ -116,7 +128,22 @@ final class DbalPackageQuery implements PackageQuery
     public function getById(string $id): Option
     {
         $data = $this->connection->fetchAssoc(
-            'SELECT id, organization_id, type, repository_url, name, latest_released_version, latest_release_date, description, last_sync_at, last_sync_error, webhook_created_at, keep_last_releases
+            'SELECT
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result,
+                keep_last_releases
             FROM "organization_package"
             WHERE id = :id', [
             ':id' => $id,
