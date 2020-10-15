@@ -35,6 +35,7 @@ class EditPackageType extends AbstractType
                 'label' => 'Keep last releases',
                 'help' => 'Number of last releases that will be downloaded. Put "0" to download all.',
                 'constraints' => [
+                    new NotBlank(),
                     new PositiveOrZero(),
                 ],
             ])
