@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
-use League\CommonMark\GithubFlavoredMarkdownConverter;
+use League\CommonMark\CommonMarkConverter;
+use League\CommonMark\Environment;
+use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
+use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\MarkdownConverterInterface;
 
 final class Markdown
@@ -13,11 +16,26 @@ final class Markdown
 
     public function __construct()
     {
-        $this->converter = new GithubFlavoredMarkdownConverter(
+        $environment = Environment::createGFMEnvironment();
+        $environment->addExtension(new ExternalLinkExtension());
+        $environment->addExtension(new HeadingPermalinkExtension());
+
+        $this->converter = new CommonMarkConverter(
             [
-                'html_input' => 'escape',
                 'allow_unsafe_links' => false,
-            ]
+                'external_link' => [
+                    'open_in_new_window' => true,
+                    'nofollow' => '',
+                    'noopener' => 'external',
+                    'noreferrer' => 'external',
+                ],
+                'heading_permalink' => [
+                    'symbol' => '',
+                    'html_class' => '',
+                    'title' => '',
+                ],
+            ],
+            $environment
         );
     }
 

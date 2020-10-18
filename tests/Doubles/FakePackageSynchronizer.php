@@ -15,6 +15,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
     private string $latestReleasedVersion = '1.0.0';
     private \DateTimeImmutable $latestReleaseDate;
     private ?string $error = null;
+    private ?string $readme = null;
 
     /**
      * @var Version[]
@@ -29,7 +30,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
     /**
      * @param Version[] $versions
      */
-    public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = []): void
+    public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], ?string $readme = null): void
     {
         $this->name = $name;
         $this->description = $description;
@@ -37,6 +38,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
         $this->latestReleaseDate = $latestReleaseDate;
         $this->error = null;
         $this->versions = $versions;
+        $this->readme = $readme;
     }
 
     public function setError(string $error): void
@@ -51,6 +53,8 @@ final class FakePackageSynchronizer implements PackageSynchronizer
 
             return;
         }
+
+        $package->setReadme($this->readme);
 
         foreach ($this->versions as $version) {
             $package->addOrUpdateVersion($version);

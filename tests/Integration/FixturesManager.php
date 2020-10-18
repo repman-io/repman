@@ -142,7 +142,7 @@ final class FixturesManager
                 $orgId,
                 $url,
                 $type,
-                $metadata
+                $metadata,
             )
         );
 
@@ -197,9 +197,9 @@ final class FixturesManager
     /**
      * @param Version[] $versions
      */
-    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = []): void
+    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], ?string $readme = null): void
     {
-        $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions);
+        $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions, $readme);
         $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
     }

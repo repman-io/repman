@@ -218,10 +218,10 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
     private function loadREADME(Dist $dist): ?string
     {
-        $filename = $this->distStorage->filename($dist);
+        $zipFilename = $this->distStorage->filename($dist);
 
         $zip = new \ZipArchive();
-        $result = $zip->open($filename);
+        $result = $zip->open($zipFilename);
         if ($result !== true) {
             return null;
         }
@@ -229,7 +229,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         try {
             for ($i = 0; $i < $zip->numFiles; ++$i) {
                 $filename = (string) $zip->getNameIndex($i);
-                if (preg_match('/^[^\/]+\/README.md$/', $filename) === 1) {
+                if (preg_match('/^([^\/]+\/)?README.md$/', $filename) === 1) {
                     return $this->markdown->convertToHTML((string) $zip->getFromIndex($i));
                 }
             }
