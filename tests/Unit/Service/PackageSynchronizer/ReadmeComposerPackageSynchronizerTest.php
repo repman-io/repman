@@ -37,6 +37,11 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         @unlink($this->path);
     }
 
+    protected function tearDown(): void
+    {
+        @unlink($this->path);
+    }
+
     public function testNoReadme(): void
     {
         $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'readme-artifacts/no-readme', 'buddy');
