@@ -65,9 +65,24 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         self::assertFileExists($this->path);
 
         $json = unserialize((string) file_get_contents($this->path));
-        self::assertCount(2, $json['packages']['buddy-works/alpha']);
+        self::assertCount(3, $json['packages']['buddy-works/alpha']);
 
-        self::assertCount(2, $package->versions());
+        self::assertCount(3, $package->versions());
+        self::assertEquals('1.3.0', $package->latestReleasedVersion());
+        self::assertEquals("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
+    }
+
+    public function testCaseInsensitiveReadme(): void
+    {
+        $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'readme-artifacts/wrong-case-readme', 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        self::assertFileExists($this->path);
+
+        $json = unserialize((string) file_get_contents($this->path));
+        self::assertCount(1, $json['packages']['buddy-works/alpha']);
+
+        self::assertCount(1, $package->versions());
         self::assertEquals('1.3.0', $package->latestReleasedVersion());
         self::assertEquals("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
@@ -90,6 +105,21 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
         self::assertCount(1, $package->versions());
         self::assertEquals('1.3.0', $package->latestReleasedVersion());
+        self::assertEquals("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
+    }
+
+    public function testUnstableVersion(): void
+    {
+        $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'readme-artifacts/no-stable-release', 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        self::assertFileExists($this->path);
+
+        $json = unserialize((string) file_get_contents($this->path));
+        self::assertCount(1, $json['packages']['buddy-works/alpha']);
+
+        self::assertCount(1, $package->versions());
+        self::assertEquals('no stable release', $package->latestReleasedVersion());
         self::assertEquals("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 }

@@ -18,6 +18,7 @@ use Composer\Factory;
 use Composer\IO\BufferIO;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
+use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
@@ -52,6 +53,15 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package, $io)));
             $json = ['packages' => []];
             $packages = $repository->getPackages();
+
+            // @todo Could we use \Composer\Semver\Semver::sort() instead?
+            usort($packages, static function (PackageInterface $a, PackageInterface $b): int {
+                if ($a->getVersion() === $b->getVersion()) {
+                    return $a->getReleaseDate() <=> $b->getReleaseDate();
+                }
+
+                return Comparator::greaterThan($a->getVersion(), $b->getVersion()) ? 1 : -1;
+            });
 
             if ($packages === []) {
                 throw new \RuntimeException('Package not found');
@@ -229,7 +239,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         try {
             for ($i = 0; $i < $zip->numFiles; ++$i) {
                 $filename = (string) $zip->getNameIndex($i);
-                if (preg_match('/^([^\/]+\/)?README.md$/', $filename) === 1) {
+                if (preg_match('/^([^\/]+\/)?README.md$/i', $filename) === 1) {
                     return $this->markdown->convertToHTML((string) $zip->getFromIndex($i));
                 }
             }
