@@ -63,7 +63,7 @@ final class ReadmeExtractor
             for ($i = 0; $i < $zip->numFiles; ++$i) {
                 $filename = (string) $zip->getNameIndex($i);
                 if (preg_match('/^([^\/]+\/)?README.md$/i', $filename) === 1) {
-                    return $this->markdownConverter->convertToHTML((string) $zip->getFromIndex($i));
+                    return $this->markdownConverter->convertToHtml((string) $zip->getFromIndex($i));
                 }
             }
         } finally {
@@ -71,10 +71,5 @@ final class ReadmeExtractor
         }
 
         return null;
-    }
-
-    public function convertToHTML(string $markdown): string
-    {
-        return $this->markdownConverter->convertToHtml($markdown);
     }
 }
