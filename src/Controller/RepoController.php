@@ -36,10 +36,12 @@ final class RepoController extends AbstractController
      */
     public function packages(Request $request, Organization $organization): JsonResponse
     {
-        [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $this->packageQuery->getAllNames($organization->id()));
+        $packageNames = $this->packageQuery->getAllNames($organization->id());
+        [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $packageNames);
 
         $response = (new JsonResponse([
             'packages' => $packages,
+            'available-packages' => array_map(static fn (PackageName $packageName) => $packageName->name(), $packageNames),
             'metadata-url' => '/p2/%package%.json',
             'notify-batch' => $this->generateUrl('repo_package_downloads', [
                 'organization' => $organization->alias(),
