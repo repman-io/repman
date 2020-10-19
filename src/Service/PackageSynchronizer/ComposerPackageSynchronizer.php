@@ -9,10 +9,10 @@ use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
-use Buddy\Repman\Service\Markdown;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer;
+use Buddy\Repman\Service\ReadmeExtractor;
 use Composer\Config;
 use Composer\Factory;
 use Composer\IO\BufferIO;
@@ -31,7 +31,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageNormalizer $packageNormalizer;
     private PackageRepository $packageRepository;
     private Storage $distStorage;
-    private Markdown $markdown;
+    private ReadmeExtractor $readmeExtractor;
     private string $gitlabUrl;
 
     public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
@@ -41,7 +41,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
         $this->gitlabUrl = $gitlabUrl;
-        $this->markdown = new Markdown();
+        $this->readmeExtractor = new ReadmeExtractor($this->distStorage);
     }
 
     public function synchronize(Package $package): void
@@ -137,8 +137,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 );
 
                 if ($latest->getVersion() === $version['version']) {
-                    $readme = $this->loadREADME($dist);
-                    $package->setReadme($readme);
+                    $this->readmeExtractor->extractReadme($package, $dist);
                 }
 
                 $package->addOrUpdateVersion(
@@ -224,29 +223,5 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         }
 
         return $config;
-    }
-
-    private function loadREADME(Dist $dist): ?string
-    {
-        $zipFilename = $this->distStorage->filename($dist);
-
-        $zip = new \ZipArchive();
-        $result = $zip->open($zipFilename);
-        if ($result !== true) {
-            return null;
-        }
-
-        try {
-            for ($i = 0; $i < $zip->numFiles; ++$i) {
-                $filename = (string) $zip->getNameIndex($i);
-                if (preg_match('/^([^\/]+\/)?README.md$/i', $filename) === 1) {
-                    return $this->markdown->convertToHTML((string) $zip->getFromIndex($i));
-                }
-            }
-        } finally {
-            $zip->close();
-        }
-
-        return null;
     }
 }
