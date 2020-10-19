@@ -102,7 +102,7 @@ final class SensioLabsPackageScanner implements PackageScanner
         $normalizedVersion = $latestReleasedVersion === 'no stable release' ?
             '9999999-dev' : $this->versionParser->normalize((string) $latestReleasedVersion);
 
-        $providerData = $this->packageManager->findProviders(
+        [,$providerData] = $this->packageManager->findProviders(
             $package->organizationAlias(),
             [new PackageName($package->id()->toString(), (string) $package->name())]
         );

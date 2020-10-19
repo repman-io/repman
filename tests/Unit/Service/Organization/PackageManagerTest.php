@@ -30,7 +30,7 @@ final class PackageManagerTest extends TestCase
 
     public function testFindProvidersForPackage(): void
     {
-        $providers = $this->manager->findProviders('buddy', [
+        [,$providers] = $this->manager->findProviders('buddy', [
             new PackageName('id', 'buddy-works/repman'),
             new PackageName('id', 'not-exist/missing'),
         ]);

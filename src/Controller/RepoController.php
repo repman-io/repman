@@ -34,10 +34,12 @@ final class RepoController extends AbstractController
      * @Route("/packages.json", host="{organization}.repo.{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%"}, requirements={"domain"="%domain%"})
      * @Cache(public=false)
      */
-    public function packages(Organization $organization): JsonResponse
+    public function packages(Request $request, Organization $organization): JsonResponse
     {
-        return new JsonResponse([
-            'packages' => $this->packageManager->findProviders($organization->alias(), $this->packageQuery->getAllNames($organization->id())),
+        [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $this->packageQuery->getAllNames($organization->id()));
+
+        $response = (new JsonResponse([
+            'packages' => $packages,
             'metadata-url' => '/p2/%package%.json',
             'notify-batch' => $this->generateUrl('repo_package_downloads', [
                 'organization' => $organization->alias(),
@@ -53,7 +55,13 @@ final class RepoController extends AbstractController
                     'preferred' => true,
                 ],
             ],
-        ]);
+        ]))
+        ->setPrivate()
+        ->setLastModified($lastModified);
+
+        $response->isNotModified($request);
+
+        return $response;
     }
 
     /**
@@ -120,9 +128,9 @@ final class RepoController extends AbstractController
      *      requirements={"domain"="%domain%","package"="%package_name_pattern%"})
      * @Cache(public=false)
      */
-    public function providerV2(Organization $organization, string $package): JsonResponse
+    public function providerV2(Request $request, Organization $organization, string $package): JsonResponse
     {
-        $providerData = $this->packageManager->findProviders(
+        [$lastModified, $providerData] = $this->packageManager->findProviders(
             $organization->alias(),
             [new PackageName('', $package)]
         );
@@ -131,7 +139,13 @@ final class RepoController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        return new JsonResponse($providerData === [] ? new \stdClass() : $providerData);
+        $response = (new JsonResponse($providerData))
+            ->setLastModified($lastModified)
+            ->setPrivate();
+
+        $response->isNotModified($request);
+
+        return $response;
     }
 
     /**

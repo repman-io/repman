@@ -30,22 +30,33 @@ class PackageManager
     /**
      * @param PackageName[] $packages
      *
-     * @return mixed[]
+     * @return array{\DateTimeImmutable|null, mixed[]}
      */
     public function findProviders(string $organizationAlias, array $packages): array
     {
         $data = [];
+        $lastModified = null;
+
         foreach ($packages as $package) {
             $filepath = $this->filepath($organizationAlias, $package->name());
             if (!is_readable($filepath)) {
                 continue;
             }
 
-            $json = unserialize((string) file_get_contents($filepath));
-            $data = array_merge($data, $json['packages'] ?? []);
+            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) filemtime($filepath));
+
+            if ($fileModifyDate > $lastModified) {
+                $lastModified = $fileModifyDate;
+            }
+
+            $json = unserialize((string) file_get_contents($filepath), ['allowed_classes' => false]);
+            $data[] = $json['packages'] ?? [];
         }
 
-        return $data;
+        return [
+            $lastModified,
+            array_merge(...$data),
+        ];
     }
 
     /**

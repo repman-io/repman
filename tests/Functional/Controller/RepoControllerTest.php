@@ -192,6 +192,25 @@ final class RepoControllerTest extends FunctionalTestCase
         ', $this->client->getResponse()->getContent());
     }
 
+    public function testProviderV2ActionWithCache(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $fileModifiedTime = (new \DateTimeImmutable())
+            ->setTimestamp((int) filemtime(__DIR__.'/../../Resources/p2/buddy-works/repman.json'));
+
+        $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'secret-org-token',
+            'HTTP_IF_MODIFIED_SINCE' => $fileModifiedTime->format('D, d M Y H:i:s \G\M\T'),
+        ]);
+
+        self::assertEquals(304, $this->client->getResponse()->getStatusCode());
+        self::assertEmpty($this->client->getResponse()->getContent());
+    }
+
     public function testProviderV2ForMissingPackage(): void
     {
         $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
