@@ -127,6 +127,10 @@ final class RepoController extends AbstractController
             [new PackageName('', $package)]
         );
 
+        if ($providerData === []) {
+            throw new NotFoundHttpException();
+        }
+
         return new JsonResponse($providerData === [] ? new \stdClass() : $providerData);
     }
 

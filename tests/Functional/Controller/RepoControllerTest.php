@@ -191,4 +191,18 @@ final class RepoControllerTest extends FunctionalTestCase
         }
         ', $this->client->getResponse()->getContent());
     }
+
+    public function testProviderV2ForMissingPackage(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $this->client->request('GET', '/p2/buddy-works/fake.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'secret-org-token',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
+    }
 }
