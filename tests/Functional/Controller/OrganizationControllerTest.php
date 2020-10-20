@@ -444,7 +444,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1048576, new \DateTimeImmutable(), Version::STABILITY_STABLE),
             new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable(), Version::STABILITY_STABLE),
         ];
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions);
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, 'This is a readme');
 
         $this->client->request('GET', $this->urlTo('organization_package_details', [
             'organization' => 'buddy',
@@ -459,6 +459,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             self::assertStringContainsString($version->version(), $this->lastResponseBody());
             self::assertStringContainsString($version->reference(), $this->lastResponseBody());
         }
+        self::assertStringContainsString('This is a readme', $this->lastResponseBody());
     }
 
     public function testPackageStats(): void

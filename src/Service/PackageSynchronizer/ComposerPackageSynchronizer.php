@@ -12,11 +12,13 @@ use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer;
+use Buddy\Repman\Service\ReadmeExtractor;
 use Composer\Config;
 use Composer\Factory;
 use Composer\IO\BufferIO;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
+use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
@@ -29,6 +31,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageNormalizer $packageNormalizer;
     private PackageRepository $packageRepository;
     private Storage $distStorage;
+    private ReadmeExtractor $readmeExtractor;
     private string $gitlabUrl;
 
     public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
@@ -38,6 +41,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
         $this->gitlabUrl = $gitlabUrl;
+        $this->readmeExtractor = new ReadmeExtractor($this->distStorage);
     }
 
     public function synchronize(Package $package): void
@@ -49,6 +53,14 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package, $io)));
             $json = ['packages' => []];
             $packages = $repository->getPackages();
+
+            usort($packages, static function (PackageInterface $a, PackageInterface $b): int {
+                if ($a->getVersion() === $b->getVersion()) {
+                    return $a->getReleaseDate() <=> $b->getReleaseDate();
+                }
+
+                return Comparator::greaterThan($a->getVersion(), $b->getVersion()) ? 1 : -1;
+            });
 
             if ($packages === []) {
                 throw new \RuntimeException('Package not found');
@@ -122,6 +134,10 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     $dist,
                     $this->getAuthHeaders($package)
                 );
+
+                if ($latest->getVersion() === $version['version']) {
+                    $this->readmeExtractor->extractReadme($package, $dist);
+                }
 
                 $package->addOrUpdateVersion(
                     new Version(
