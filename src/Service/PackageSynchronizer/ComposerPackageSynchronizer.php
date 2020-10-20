@@ -54,7 +54,6 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $json = ['packages' => []];
             $packages = $repository->getPackages();
 
-            // @todo Could we use \Composer\Semver\Semver::sort() instead?
             usort($packages, static function (PackageInterface $a, PackageInterface $b): int {
                 if ($a->getVersion() === $b->getVersion()) {
                     return $a->getReleaseDate() <=> $b->getReleaseDate();
