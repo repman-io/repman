@@ -19,7 +19,7 @@
         "clue/mq-react": "^1.2",
         "composer/composer": "^1.10.1",
         "composer/semver": "^1.5",
-        "doctrine/doctrine-bundle": "~2.0.10",
+        "doctrine/doctrine-bundle": "^2.1",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
         "excelwebzone/recaptcha-bundle": "^1.5",
