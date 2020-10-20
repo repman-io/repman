@@ -10,43 +10,50 @@ use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 
 final class FakeTelemetryEndpoint implements Endpoint
 {
-    private bool $sent = false;
-    private bool $emailAdded = false;
-    private bool $emailRemoved = false;
+    private string $sent = '';
+    private string $emailAdded = '';
+    private string $emailRemoved = '';
 
     public function send(Entry $entry): void
     {
-        json_encode($entry);
-
-        $this->sent = true;
+        json_encode($entry, JSON_THROW_ON_ERROR);
+        $this->sent = $entry->instance()->id();
     }
 
     public function addTechnicalEmail(TechnicalEmail $email): void
     {
-        json_encode($email);
-
-        $this->emailAdded = true;
+        json_encode($email, JSON_THROW_ON_ERROR);
+        $this->emailAdded = $email->instanceId();
     }
 
     public function removeTechnicalEmail(TechnicalEmail $email): void
     {
-        json_encode($email);
-
-        $this->emailRemoved = true;
+        json_encode($email, JSON_THROW_ON_ERROR);
+        $this->emailRemoved = $email->instanceId();
     }
 
-    public function sent(): bool
+    public function wasEntrySent(string $instanceId): bool
     {
-        return $this->sent;
+        return $this->sent === $instanceId;
     }
 
-    public function emailRemoved(): bool
+    public function entryWasNotSent(): bool
     {
-        return $this->emailRemoved;
+        return $this->sent === '';
     }
 
-    public function emailAdded(): bool
+    public function wasEmailRemoved(string $instanceId): bool
     {
-        return $this->emailAdded;
+        return $this->emailRemoved === $instanceId;
+    }
+
+    public function emailWasNotRemoved(): bool
+    {
+        return $this->emailRemoved === '';
+    }
+
+    public function wasEmailAdded(string $instanceId): bool
+    {
+        return $this->emailAdded === $instanceId;
     }
 }
