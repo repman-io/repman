@@ -144,6 +144,9 @@
     "doctrine/reflection": {
         "version": "v1.1.0"
     },
+    "doctrine/sql-formatter": {
+        "version": "1.1.1"
+    },
     "egulias/email-validator": {
         "version": "2.1.15"
     },
@@ -266,6 +269,9 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
+    },
+    "league/commonmark": {
+        "version": "1.5.5"
     },
     "league/flysystem": {
         "version": "1.0.69"

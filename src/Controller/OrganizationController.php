@@ -28,6 +28,7 @@ use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\PackageDetails;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
@@ -108,7 +109,7 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/{package}/details", name="organization_package_details", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function packageDetails(Organization $organization, Package $package, Request $request): Response
+    public function packageDetails(Organization $organization, PackageDetails $package, Request $request): Response
     {
         $filter = Filter::fromRequest($request);
 

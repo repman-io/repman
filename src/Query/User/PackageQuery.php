@@ -7,6 +7,7 @@ namespace Buddy\Repman\Query\User;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\PackageDetails;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\Version;
@@ -32,6 +33,11 @@ interface PackageQuery
      * @return Option<Package>
      */
     public function getById(string $id): Option;
+
+    /**
+     * @return Option<PackageDetails>
+     */
+    public function getDetailsById(string $id): Option;
 
     public function versionCount(string $packageId): int;
 

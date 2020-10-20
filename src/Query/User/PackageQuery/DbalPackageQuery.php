@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\Filter as BaseFilter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\PackageDetails;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\Version;
@@ -153,6 +154,40 @@ final class DbalPackageQuery implements PackageQuery
         }
 
         return Option::some($this->hydratePackage($data));
+    }
+
+    /**
+     * @return Option<PackageDetails>
+     */
+    public function getDetailsById(string $id): Option
+    {
+        $data = $this->connection->fetchAssoc(
+            'SELECT
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result,
+                keep_last_releases,
+                readme
+            FROM "organization_package"
+            WHERE id = :id', [
+            ':id' => $id,
+        ]);
+        if ($data === false) {
+            return Option::none();
+        }
+
+        return Option::some($this->hydratePackageDetails($data));
     }
 
     public function versionCount(string $packageId): int
@@ -337,6 +372,33 @@ final class DbalPackageQuery implements PackageQuery
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
             $scanResult,
             $data['keep_last_releases'] ?? 0
+        );
+    }
+
+    /**
+     * @param array<mixed> $data
+     */
+    private function hydratePackageDetails(array $data): PackageDetails
+    {
+        $scanResult = isset($data['last_scan_status']) ?
+            new ScanResult(
+                new \DateTimeImmutable($data['last_scan_date']),
+                $data['last_scan_status'],
+                $data['latest_released_version'],
+                $data['last_scan_result'],
+            ) : null;
+
+        return new PackageDetails(
+            $data['id'],
+            $data['organization_id'],
+            $data['name'],
+            $data['latest_released_version'],
+            $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,
+            $data['description'],
+            $data['last_sync_error'],
+            $scanResult,
+            $data['keep_last_releases'] ?? 0,
+            $data['readme'] ?? null,
         );
     }
 

@@ -87,6 +87,11 @@ class Package
     private array $metadata;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private ?string $readme = null;
+
+    /**
      * @ORM\Column(type="json", nullable=true)
      *
      * @var mixed[]
@@ -245,6 +250,16 @@ class Package
         }
 
         return $this->metadata[$key];
+    }
+
+    public function readme(): ?string
+    {
+        return $this->readme;
+    }
+
+    public function setReadme(?string $readme): void
+    {
+        $this->readme = $readme;
     }
 
     public function latestReleasedVersion(): ?string
