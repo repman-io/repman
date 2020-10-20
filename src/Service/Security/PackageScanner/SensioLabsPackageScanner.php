@@ -123,7 +123,7 @@ final class SensioLabsPackageScanner implements PackageScanner
                 );
 
                 return $filename->getOrElseThrow(
-                    new \RuntimeException('Distribution file not found')
+                    new \RuntimeException("Distribution file for version $packageVersion not found")
                 );
             }
         }
