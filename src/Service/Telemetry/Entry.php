@@ -38,6 +38,11 @@ final class Entry implements \JsonSerializable
         $this->proxy = $proxy;
     }
 
+    public function instance(): Instance
+    {
+        return $this->instance;
+    }
+
     /**
      * @return array<string,mixed>
      */
