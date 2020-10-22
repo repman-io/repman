@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -63,7 +64,11 @@ final class RepoControllerTest extends FunctionalTestCase
     {
         // create and login admin to check token last used date is changed
         $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
-        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+        $organizationId = $this->fixtures->createOrganization('buddy', $adminId);
+        $this->fixtures->createToken($organizationId, 'secret-org-token');
+        $packageId = Uuid::uuid4()->toString();
+        $this->fixtures->createPackage($packageId, 'buddy', $organizationId);
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Test', '1.1.1', new \DateTimeImmutable());
 
         // check token was never used
         $this->client->request('GET', $this->urlTo('organization_tokens', ['organization' => 'buddy']));
@@ -75,9 +80,24 @@ final class RepoControllerTest extends FunctionalTestCase
             'PHP_AUTH_PW' => 'secret-org-token',
         ]);
 
-        self::assertMatchesPattern('
+        self::assertJsonStringEqualsJsonString('
         {
-            "packages": [],
+            "packages": {
+               "buddy-works\/repman": {
+                    "1.2.3": {
+                        "version": "1.2.3",
+                        "version_normalized": "1.2.3.0",
+                        "dist": {
+                            "type": "zip",
+                            "url": "\/path\/to\/reference.zip",
+                            "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+                        }
+                    }
+                }
+            },
+            "available-packages": [
+                "buddy-works/repman"
+            ],
             "metadata-url": "/p2/%package%.json",
             "notify-batch": "http://buddy.repo.repman.wip/downloads",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
@@ -190,5 +210,38 @@ final class RepoControllerTest extends FunctionalTestCase
             }
         }
         ', $this->client->getResponse()->getContent());
+    }
+
+    public function testProviderV2ActionWithCache(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $fileModifiedTime = (new \DateTimeImmutable())
+            ->setTimestamp((int) filemtime(__DIR__.'/../../Resources/p2/buddy-works/repman.json'));
+
+        $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'secret-org-token',
+            'HTTP_IF_MODIFIED_SINCE' => $fileModifiedTime->format('D, d M Y H:i:s \G\M\T'),
+        ]);
+
+        self::assertEquals(304, $this->client->getResponse()->getStatusCode());
+        self::assertEmpty($this->client->getResponse()->getContent());
+    }
+
+    public function testProviderV2ForMissingPackage(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $this->client->request('GET', '/p2/buddy-works/fake.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'secret-org-token',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
     }
 }

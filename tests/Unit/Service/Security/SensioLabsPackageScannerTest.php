@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Security;
 
+use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
@@ -52,6 +53,8 @@ final class SensioLabsPackageScannerTest extends TestCase
         $package = PackageMother::synchronized('buddy-works/repman', '1.0.0', '');
 
         $this->scanner->scan($package);
+
+        $this->assertPackageSecurity('error', $package);
     }
 
     public function testSuccessfulScanNoAdvisories(): void
@@ -63,6 +66,8 @@ final class SensioLabsPackageScannerTest extends TestCase
         $package = PackageMother::synchronized('buddy-works/repman', self::VERSION);
 
         $this->scanner->scan($package);
+
+        $this->assertPackageSecurity('ok', $package);
     }
 
     public function testSuccessfulScanWithAdvisories(): void
@@ -85,6 +90,8 @@ final class SensioLabsPackageScannerTest extends TestCase
         $this->checkerMock = $this->createMock(SecurityChecker::class);
         $this->checkerMock->method('check')->willReturn($result);
         $this->prepareScanner()->scan($package);
+
+        $this->assertPackageSecurity('warning', $package);
     }
 
     public function testLockFileNotFound(): void
@@ -96,6 +103,8 @@ final class SensioLabsPackageScannerTest extends TestCase
         $package = PackageMother::synchronized('buddy-works/repman', self::VERSION);
 
         $this->prepareScanner('repman-no-lock')->scan($package);
+
+        $this->assertPackageSecurity('n/a', $package);
     }
 
     public function testBrokenZip(): void
@@ -107,21 +116,32 @@ final class SensioLabsPackageScannerTest extends TestCase
         $package = PackageMother::synchronized('buddy-works/repman', self::VERSION);
 
         $this->prepareScanner('repman-invalid-archive')->scan($package);
+
+        $this->assertPackageSecurity('error', $package);
     }
 
     private function prepareScanner(string $fixtureType = 'repman'): SensioLabsPackageScanner
     {
         $distFile = realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
         $packageManager = $this->createMock(PackageManager::class);
-        $packageManager->method('findProviders')->willReturn(['buddy-works/repman' => [self::VERSION => [
-            'version' => self::VERSION,
-            'dist' => [
-                'type' => 'zip',
-                'url' => $distFile,
-                'reference' => 'ac7dcaf888af2324cd14200769362129c8dd8550',
-            ],
-            'version_normalized' => '1.2.3.0',
-        ]]]);
+        $packageManager->method('findProviders')->willReturn(
+            [
+                new \DateTimeImmutable(),
+                [
+                    'buddy-works/repman' => [
+                        self::VERSION => [
+                            'version' => self::VERSION,
+                            'dist' => [
+                                'type' => 'zip',
+                                'url' => $distFile,
+                                'reference' => 'ac7dcaf888af2324cd14200769362129c8dd8550',
+                            ],
+                            'version_normalized' => '1.2.3.0',
+                        ],
+                    ],
+                ],
+            ]
+        );
 
         $packageManager->method('distFilename')->willReturn(Option::some($distFile));
 
@@ -136,5 +156,14 @@ final class SensioLabsPackageScannerTest extends TestCase
             $this->repoMock,
             $messageBusMock
         );
+    }
+
+    private function assertPackageSecurity(string $expected, Package $package): void
+    {
+        $reflection = new \ReflectionObject($package);
+        $property = $reflection->getProperty('lastScanStatus');
+        $property->setAccessible(true);
+
+        self::assertEquals($expected, $property->getValue($package));
     }
 }
