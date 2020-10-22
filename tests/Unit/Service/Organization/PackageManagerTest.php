@@ -13,10 +13,13 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class PackageManagerTest extends TestCase
 {
+    use ProphecyTrait;
+
     private PackageManager $manager;
     private string $baseDir;
     private Filesystem $filesystem;

@@ -115,7 +115,11 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     $version['distType']
                 );
 
-                if ($package->keepLastReleases() > 0 && count($encounteredVersions) >= $package->keepLastReleases()) {
+                if (
+                    $latest->getVersion() !== $version['version']
+                    && $package->keepLastReleases() > 0
+                    && count($encounteredVersions) >= $package->keepLastReleases()
+                ) {
                     $this->distStorage->remove($dist);
                     $package->removeVersion(new Version(
                         Uuid::uuid4(),

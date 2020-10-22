@@ -15,6 +15,11 @@ final class TechnicalEmail implements \JsonSerializable
         $this->instanceId = $instanceId;
     }
 
+    public function instanceId(): string
+    {
+        return $this->instanceId;
+    }
+
     /**
      * @return array<string,string>
      */

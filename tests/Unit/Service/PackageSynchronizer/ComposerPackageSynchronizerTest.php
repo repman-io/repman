@@ -92,7 +92,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
         $this->synchronizer->synchronize(PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy'));
 
-        self::assertFileNotExists($path);
+        self::assertFileDoesNotExist($path);
     }
 
     public function testSynchronizePackageWithGitLabToken(): void

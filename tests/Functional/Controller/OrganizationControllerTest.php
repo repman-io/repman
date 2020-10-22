@@ -8,6 +8,8 @@ use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\Security\ScanPackage;
+use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
+use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Service\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -586,29 +588,49 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testChangeAlias(): void
     {
-        $this->fixtures->createOrganization('buddy', $this->userId);
+        $organizationId = $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->followRedirects();
         $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
         $this->client->submitForm('Change', [
             'alias' => 'repman',
         ]);
 
+        $organization = $this
+            ->container()
+            ->get(OrganizationRepository::class)
+            ->getById(Uuid::fromString($organizationId));
+
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('repman', $this->lastResponseBody());
         self::assertStringContainsString('Organization alias has been successfully changed.', $this->lastResponseBody());
+        self::assertEquals('repman', $organization->alias());
     }
 
     public function testChangeAnonymousAccess(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->followRedirects();
+
+        $organization = $this
+            ->container()
+            ->get(DbalOrganizationQuery::class)
+            ->getByAlias('buddy')
+            ->get();
+
+        self::assertFalse($organization->hasAnonymousAccess());
+
         $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
         $this->client->submitForm('changeAnonymousAccess', [
             'hasAnonymousAccess' => true,
         ]);
 
+        $organization = $this
+            ->container()
+            ->get(DbalOrganizationQuery::class)
+            ->getByAlias('buddy')
+            ->get();
+
+        self::assertTrue($organization->hasAnonymousAccess());
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('repman', $this->lastResponseBody());
         self::assertStringContainsString('Anonymous access has been successfully changed.', $this->lastResponseBody());
     }
 

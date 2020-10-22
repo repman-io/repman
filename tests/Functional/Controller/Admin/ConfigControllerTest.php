@@ -145,7 +145,9 @@ final class ConfigControllerTest extends FunctionalTestCase
             'technical_email' => 'john.doe@example.com',
         ]);
 
-        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->emailAdded());
+        $instanceId = (string) file_get_contents($this->container()->getParameter('instance_id_file'));
+
+        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->wasEmailAdded($instanceId));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
         $this->client->followRedirect();
@@ -157,14 +159,20 @@ final class ConfigControllerTest extends FunctionalTestCase
 
     public function testRemoveTechnicalEmail(): void
     {
-        file_put_contents($this->container()->getParameter('instance_id_file'), Uuid::uuid4()->toString());
+        $this->client->request('GET', $this->urlTo('admin_config'));
+        $this->client->submitForm('save', [
+            'technical_email' => 'john.doe@example.com',
+        ]);
+
+        $instanceId = Uuid::uuid4()->toString();
+        file_put_contents($this->container()->getParameter('instance_id_file'), $instanceId);
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
             'technical_email' => null,
         ]);
 
-        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->emailRemoved());
+        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->wasEmailRemoved($instanceId));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_config')));
         $this->client->followRedirect();
@@ -181,14 +189,13 @@ final class ConfigControllerTest extends FunctionalTestCase
             'technical_email' => 'john.doe@example.com',
         ]);
 
-        $instanceIdFile = $this->container()->getParameter('instance_id_file');
-        @unlink($instanceIdFile);
+        @unlink($this->container()->getParameter('instance_id_file'));
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
             'technical_email' => null,
         ]);
 
-        self::assertFalse($this->container()->get(TelemetryEndpoint::class)->emailRemoved());
+        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->emailWasNotRemoved());
     }
 }

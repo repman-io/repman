@@ -127,10 +127,10 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
         self::assertEquals(0, $commandTester->execute([]));
 
         self::assertFileExists($this->distFilePath($this->version, $this->ref));
-        self::assertFileNotExists($this->distFilePath('dev-master', $dev1Ref));
+        self::assertFileDoesNotExist($this->distFilePath('dev-master', $dev1Ref));
         self::assertFileExists($this->distFilePath('dev-master', $dev2Ref));
         self::assertFileExists($this->distFilePath('dev-test', $dev3Ref));
-        self::assertFileNotExists($this->distFilePath('dev-stage', $dev4Ref));
+        self::assertFileDoesNotExist($this->distFilePath('dev-stage', $dev4Ref));
         self::assertFileExists($this->distFilePath('dev-stage', $dev5Ref));
 
         $this->fixtures->prepareRepoFiles();
