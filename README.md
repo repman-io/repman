@@ -160,6 +160,28 @@ To start all containers run:
 docker-compose up
 ```
 
+## Support
+
+In case of any problems, you can use:
+
+ - Our documentation: [repman.io/docs](https://repman.io/docs/) - it is also open sourced [github.com/repman-io/repman-docs-pages](https://github.com/repman-io/repman-docs-pages)
+ - GitHub issue list: [github.com/repman-io/repman/issues](https://github.com/repman-io/repman/issues) - feel free to create a new issue there
+ - E-mail: contact [at] repman.io
+
+## License
+
+The Repman project is licensed under the terms of the [MIT](LICENSE).
+
+However, Repman includes several third-party Open-Source libraries, which are licensed under their own respective Open-Source licenses.
+
+#### Libraries or projects directly included in Repman
+
+ - Tabler:  [MIT](https://github.com/tabler/tabler/blob/master/LICENSE)
+ - Feather: [MIT](https://github.com/feathericons/feather/blob/master/LICENSE)
+ - Lucide: License: [ISC](https://github.com/lucide-icons/lucide/blob/master/LICENSE)
+ - Postmark Transactional Email Templates: [MIT](https://github.com/wildbit/postmark-templates/blob/master/LICENSE)
+ - Libraries dynamically referenced via Composer: run `composer license` to get the latest licensing info about all dependencies.
+
 ---
 
 made with ❤️ by [Buddy](https://buddy.works)
