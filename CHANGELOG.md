@@ -12,7 +12,26 @@ On next release:
 
 ## [Unreleased]
 
-## [1.0.0] - 2020-10-29
+## [1.1.0] - 2020-10-23
+
+### Added
+- Display README.md for packages ([#303](https://github.com/repman-io/repman/pull/303) thanks @giggsey)
+- Allow package list to be sortable ([#300](https://github.com/repman-io/repman/pull/300) thanks @giggsey)
+- Allow user to edit packages ([#299](https://github.com/repman-io/repman/pull/299))
+- Improve Package Details UX ([#298](https://github.com/repman-io/repman/pull/298) thanks @giggsey)
+- Implement user timezone ([#297](https://github.com/repman-io/repman/pull/297))
+- Add option to limit number of package versions being imported ([#294](https://github.com/repman-io/repman/pull/294))
+
+### Changed
+- Repo JSON Performance Improvements ([#310](https://github.com/repman-io/repman/pull/310) thanks @giggsey)
+- Update doctrine-bundle and symfony to remove deprecation notice ([#305](https://github.com/repman-io/repman/pull/305))
+
+### Fixed
+- Fix artifact repo security scan ([#315](https://github.com/repman-io/repman/pull/315) thanks @giggsey)
+- Ensure that latest version is not removed when limit is applied ([#312](https://github.com/repman-io/repman/pull/312))
+- Do not allow null values for number of last releases when updating ([#302](https://github.com/repman-io/repman/pull/302))
+
+## [1.0.0] - 2020-09-29
 ### Added
 - implement `provider-includes` for better proxy performance ([#281](https://github.com/repman-io/repman/pull/281), [#283](https://github.com/repman-io/repman/pull/283), [#290](https://github.com/repman-io/repman/pull/290))
 - add version for assets ([#278](https://github.com/repman-io/repman/pull/278))

@@ -15,7 +15,7 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    public const REPMAN_VERSION = '1.0.0';
+    public const REPMAN_VERSION = '1.1.0';
     private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     public function getProjectDir(): string
