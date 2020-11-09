@@ -8,14 +8,29 @@ use Buddy\Repman\Command\ClearOldPrivateDistsCommand;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Composer\Semver\VersionParser;
+use DateTime;
+use DateTimeImmutable;
+use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
+
+use function sprintf;
 
 final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
 {
     private string $ref = 'ac7dcaf888af2324cd14200769362129c8dd8550';
     private string $packageName = 'buddy-works/repman';
     private string $version = '1.2.3';
+
+    private FilesystemInterface $filesystem;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // @phpstan-ignore-next-line
+        $this->filesystem = $this->container()->get('repo.storage');
+    }
 
     public function testWillNotRemoveStableVersion(): void
     {
@@ -27,7 +42,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->packageName,
             'description',
             $this->version,
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
             ]
@@ -37,11 +52,11 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->container()->get(ClearOldPrivateDistsCommand::class)
         );
 
-        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
 
         self::assertEquals(0, $commandTester->execute([]));
 
-        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
 
         $this->fixtures->prepareRepoFiles();
     }
@@ -57,7 +72,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->packageName,
             'description',
             $this->version,
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
                 $this->createVersion('dev-master', $devRef, 'dev'),
@@ -70,13 +85,13 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->container()->get(ClearOldPrivateDistsCommand::class)
         );
 
-        self::assertFileExists($this->distFilePath($this->version, $this->ref));
-        self::assertFileExists($this->distFilePath('dev-master', $devRef));
+        $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
+        $this->assertFileExistence($this->distFilePath('dev-master', $devRef));
 
         self::assertEquals(0, $commandTester->execute([]));
 
-        self::assertFileExists($this->distFilePath($this->version, $this->ref));
-        self::assertFileExists($this->distFilePath('dev-master', $devRef));
+        $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
+        $this->assertFileExistence($this->distFilePath('dev-master', $devRef));
 
         $this->fixtures->prepareRepoFiles();
     }
@@ -96,7 +111,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->packageName,
             'description',
             $this->version,
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
                 $this->createVersion('dev-master', $dev1Ref, 'dev', 1),
@@ -117,37 +132,36 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->container()->get(ClearOldPrivateDistsCommand::class)
         );
 
-        self::assertFileExists($this->distFilePath($this->version, $this->ref));
-        self::assertFileExists($this->distFilePath('dev-master', $dev1Ref));
-        self::assertFileExists($this->distFilePath('dev-master', $dev2Ref));
-        self::assertFileExists($this->distFilePath('dev-test', $dev3Ref));
-        self::assertFileExists($this->distFilePath('dev-stage', $dev4Ref));
-        self::assertFileExists($this->distFilePath('dev-stage', $dev5Ref));
+        $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
+        $this->assertFileExistence($this->distFilePath('dev-master', $dev1Ref));
+        $this->assertFileExistence($this->distFilePath('dev-master', $dev2Ref));
+        $this->assertFileExistence($this->distFilePath('dev-test', $dev3Ref));
+        $this->assertFileExistence($this->distFilePath('dev-stage', $dev4Ref));
+        $this->assertFileExistence($this->distFilePath('dev-stage', $dev5Ref));
 
         self::assertEquals(0, $commandTester->execute([]));
 
-        self::assertFileExists($this->distFilePath($this->version, $this->ref));
+        $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
         self::assertFileDoesNotExist($this->distFilePath('dev-master', $dev1Ref));
-        self::assertFileExists($this->distFilePath('dev-master', $dev2Ref));
-        self::assertFileExists($this->distFilePath('dev-test', $dev3Ref));
+        $this->assertFileExistence($this->distFilePath('dev-master', $dev2Ref));
+        $this->assertFileExistence($this->distFilePath('dev-test', $dev3Ref));
         self::assertFileDoesNotExist($this->distFilePath('dev-stage', $dev4Ref));
-        self::assertFileExists($this->distFilePath('dev-stage', $dev5Ref));
+        $this->assertFileExistence($this->distFilePath('dev-stage', $dev5Ref));
 
         $this->fixtures->prepareRepoFiles();
     }
 
     private function distFilePath(string $version, string $ref): string
     {
-        return $this->container()->getParameter('dists_dir')
-            .'/buddy/dist/'
-            .$this->packageName.'/'
-            .(new VersionParser())->normalize($version)
-            .'_'.$ref.'.zip';
+        return 'buddy/dist/'
+            . $this->packageName . '/'
+            . (new VersionParser())->normalize($version)
+            . '_' . $ref . '.zip';
     }
 
     private function prepareTestDist(string $path): void
     {
-        file_put_contents($path, 'test dist');
+        $this->filesystem->write($path, 'test dist');
     }
 
     private function createVersion(string $version, string $ref, string $stability, int $dateOffset = 0): Version
@@ -157,8 +171,17 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $version,
             $ref,
             1234,
-            \DateTimeImmutable::createFromMutable((new \DateTime())->modify("+$dateOffset seconds")),
+            DateTimeImmutable::createFromMutable((new DateTime())->modify("+$dateOffset seconds")),
             $stability
+        );
+    }
+
+    private function assertFileExistence(string $filepath): void
+    {
+        $message = sprintf('Failed asserting that file "%s" exists.', $filepath);
+        $this->assertTrue(
+            $this->filesystem->has($filepath),
+            $message
         );
     }
 }

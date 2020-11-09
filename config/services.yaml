@@ -71,7 +71,6 @@ services:
 
     Buddy\Repman\Service\Organization\PackageManager:
         arguments:
-            $baseDir: '%repo_dir%'
             $distStorage: '@repman.organization.dist_storage'
 
     Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer:

@@ -29,10 +29,10 @@ use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Doctrine\ORM\EntityManagerInterface;
+use League\Flysystem\Filesystem;
 use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class FixturesManager
@@ -43,7 +43,7 @@ final class FixturesManager
     public function __construct(TestContainer $container)
     {
         $this->container = $container;
-        $this->filesystem = new Filesystem();
+        $this->filesystem = $this->container->get('repo.storage');
     }
 
     /**
@@ -227,7 +227,8 @@ final class FixturesManager
 
     public function prepareRepoFiles(): void
     {
-        $this->filesystem->mirror(
+        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+        $filesystem->mirror(
             __DIR__.'/../Resources/fixtures/buddy/dist/buddy-works/repman',
             __DIR__.'/../Resources/buddy/dist/buddy-works/repman',
             null,

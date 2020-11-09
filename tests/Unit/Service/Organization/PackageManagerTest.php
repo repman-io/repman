@@ -11,10 +11,16 @@ use Buddy\Repman\Service\Dist\Storage\FileStorage;
 use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemInterface;
+use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
-use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+
+use function sys_get_temp_dir;
 
 final class PackageManagerTest extends TestCase
 {
@@ -22,12 +28,13 @@ final class PackageManagerTest extends TestCase
 
     private PackageManager $manager;
     private string $baseDir;
-    private Filesystem $filesystem;
+    private FilesystemInterface $filesystem;
 
     protected function setUp(): void
     {
-        $this->filesystem = new Filesystem();
-        $this->manager = new PackageManager(new InMemoryStorage(), __DIR__.'/../../../Resources/fixtures', $this->filesystem);
+        $basePath = dirname(__DIR__, 3);
+        $this->filesystem = new Filesystem(new Local( $basePath .'/Resources/fixtures/'));
+        $this->manager = new PackageManager(new InMemoryStorage(), $this->filesystem);
         $this->baseDir = sys_get_temp_dir().'/repman';
     }
 
@@ -59,7 +66,7 @@ final class PackageManagerTest extends TestCase
             __DIR__.'/../../../Resources/buddy/dist/buddy-works/repman/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip'
         );
 
-        $manager = new PackageManager($storage->reveal(), __DIR__.'/../../../Resources', $this->filesystem);
+        $manager = new PackageManager($storage->reveal(), $this->filesystem);
 
         self::assertStringContainsString(
             '1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip',
@@ -69,11 +76,7 @@ final class PackageManagerTest extends TestCase
 
     public function testRemoveProvider(): void
     {
-        $manager = new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader(), $this->filesystem),
-            $this->baseDir,
-            $this->filesystem
-        );
+        $manager = $this->getManagerWithLocalStorage();
 
         $org = 'buddy';
         $package1 = 'vendor/package1';
@@ -95,11 +98,7 @@ final class PackageManagerTest extends TestCase
 
     public function testRemoveDist(): void
     {
-        $manager = new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader(), $this->filesystem),
-            $this->baseDir,
-            $this->filesystem
-        );
+        $manager = $this->getManagerWithLocalStorage();
 
         $org = 'buddy';
         $package1 = 'vendor/package1';
@@ -118,11 +117,7 @@ final class PackageManagerTest extends TestCase
 
     public function testRemoveOrganizationDir(): void
     {
-        $manager = new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader(), $this->filesystem),
-            $this->baseDir,
-            $this->filesystem
-        );
+        $manager = $this->getManagerWithLocalStorage();
 
         $org = 'buddy';
         $package = 'hello/world';
@@ -135,5 +130,16 @@ final class PackageManagerTest extends TestCase
             ->removeOrganizationDir($org);
 
         self::assertFalse(is_dir($this->baseDir.'/buddy'));
+    }
+
+    /**
+     * @return PackageManager
+     */
+    private function getManagerWithLocalStorage(): PackageManager
+    {
+        return new PackageManager(
+            new FileStorage($this->baseDir, new FakeDownloader(), new SymfonyFilesystem()),
+            new Filesystem(new Local($this->baseDir))
+        );
     }
 }
