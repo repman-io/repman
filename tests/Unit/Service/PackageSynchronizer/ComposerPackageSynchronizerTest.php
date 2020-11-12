@@ -13,6 +13,7 @@ use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use League\Flysystem\Adapter\Local;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -29,7 +30,10 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader(), new Filesystem()), $this->baseDir, new Filesystem()),
+            new PackageManager(
+                new FileStorage($this->baseDir, new FakeDownloader(), new Filesystem()),
+                new \League\Flysystem\Filesystem(new Local($this->baseDir))
+            ),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             new InMemoryStorage(),
