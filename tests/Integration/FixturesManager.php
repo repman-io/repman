@@ -29,7 +29,6 @@ use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Doctrine\ORM\EntityManagerInterface;
-use League\Flysystem\Filesystem;
 use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
@@ -38,12 +37,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 final class FixturesManager
 {
     private TestContainer $container;
-    private Filesystem $filesystem;
 
     public function __construct(TestContainer $container)
     {
         $this->container = $container;
-        $this->filesystem = $this->container->get('repo.storage');
     }
 
     /**

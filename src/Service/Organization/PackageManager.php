@@ -105,6 +105,9 @@ class PackageManager
         );
 
         foreach ($filesToDelete as $fileName) {
+            if (false === $fileName) {
+                continue;
+            }
             $this->removeFile($fileName);
         }
 
@@ -150,10 +153,7 @@ class PackageManager
         return $organizationAlias.'/p/'.$packageName.'.json';
     }
 
-    /**
-     * @param $fileName
-     */
-    private function removeFile($fileName): void
+    private function removeFile(string $fileName): void
     {
         try {
             $this->repoStorage->delete($fileName);

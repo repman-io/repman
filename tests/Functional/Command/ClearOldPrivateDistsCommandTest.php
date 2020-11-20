@@ -178,7 +178,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
     private function assertFileExistence(string $filepath): void
     {
         $message = sprintf('Failed asserting that file "%s" exists.', $filepath);
-        $this->assertTrue(
+        self::assertTrue(
             $this->filesystem->has($filepath),
             $message
         );

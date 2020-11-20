@@ -93,6 +93,9 @@ final class ReadmeExtractor
             $tmpLocalFilename,
             'wb'
         );
+        if (false === $tmpLocalFileHandle) {
+            throw new \RuntimeException('Could not open temporary file for writing zip file for dist.');
+        }
 
         $distReadStream = $this->distStorage->readDistStream($dist)->getOrNull();
         if (null === $distReadStream) {

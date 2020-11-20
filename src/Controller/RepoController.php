@@ -10,6 +10,7 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
 use DateTimeImmutable;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use function fopen;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use function stream_copy_to_stream;
@@ -84,8 +85,11 @@ final class RepoController extends AbstractController
             ->distFilename($organization->alias(), $package, $version, $ref, $type)
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
-        return new StreamedResponse(function () use ($filename) {
+        return new StreamedResponse(function () use ($filename): void {
             $outputStream = fopen('php://output', 'wb');
+            if (false === $outputStream) {
+                throw new HttpException(500, 'Could not open output stream to send binary file.');
+            }
             $fileStream = $this->packageManager->getDistFileReference($filename);
             stream_copy_to_stream(
                 $fileStream
