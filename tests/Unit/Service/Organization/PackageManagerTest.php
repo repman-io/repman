@@ -7,8 +7,6 @@ namespace Buddy\Repman\Tests\Unit\Service\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
-use Buddy\Repman\Service\Dist\Storage\FileStorage;
-use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use League\Flysystem\Adapter\Local;
@@ -18,8 +16,6 @@ use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
-use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
-
 use function sys_get_temp_dir;
 
 final class PackageManagerTest extends TestCase
@@ -33,8 +29,13 @@ final class PackageManagerTest extends TestCase
     protected function setUp(): void
     {
         $basePath = dirname(__DIR__, 3);
-        $this->filesystem = new Filesystem(new Local( $basePath .'/Resources/fixtures/'));
-        $this->manager = new PackageManager(new InMemoryStorage(), $this->filesystem);
+        $this->filesystem = new Filesystem(new Local($basePath.'/Resources/fixtures/'));
+        $this->manager = new PackageManager(
+            new Storage\StorageImpl(
+                new FakeDownloader(), new Filesystem(new MemoryAdapter())
+            ),
+            $this->filesystem
+        );
         $this->baseDir = sys_get_temp_dir().'/repman';
     }
 
@@ -132,14 +133,13 @@ final class PackageManagerTest extends TestCase
         self::assertFalse(is_dir($this->baseDir.'/buddy'));
     }
 
-    /**
-     * @return PackageManager
-     */
     private function getManagerWithLocalStorage(): PackageManager
     {
+        $repoStorage = new Filesystem(new Local($this->baseDir));
+
         return new PackageManager(
-            new FileStorage($this->baseDir, new FakeDownloader(), new SymfonyFilesystem()),
-            new Filesystem(new Local($this->baseDir))
+            new Storage\StorageImpl(new FakeDownloader(), $repoStorage),
+            $repoStorage
         );
     }
 }

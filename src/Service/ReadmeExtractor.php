@@ -11,6 +11,7 @@ use League\CommonMark\Environment;
 use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\MarkdownConverterInterface;
+use Munus\Control\Option;
 
 final class ReadmeExtractor
 {
@@ -51,10 +52,13 @@ final class ReadmeExtractor
 
     private function loadREADME(Dist $dist): ?string
     {
-        $zipFilename = $this->distStorage->filename($dist);
+        $tmpLocalFilename = $this->createTemporaryZipFile($dist);
+        if (null === $tmpLocalFilename->getOrNull()) {
+            return null;
+        }
 
         $zip = new \ZipArchive();
-        $result = $zip->open($zipFilename);
+        $result = $zip->open($tmpLocalFilename->get());
         if ($result !== true) {
             return null;
         }
@@ -68,8 +72,35 @@ final class ReadmeExtractor
             }
         } finally {
             $zip->close();
+            @unlink($tmpLocalFilename->get());
         }
 
         return null;
+    }
+
+    private function getTempFileName(): string
+    {
+        return sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid('readme-loader-', true);
+    }
+
+    /**
+     * @return Option<string>
+     */
+    private function createTemporaryZipFile(Dist $dist): Option
+    {
+        $tmpLocalFilename = $this->getTempFileName();
+        $tmpLocalFileHandle = fopen(
+            $tmpLocalFilename,
+            'wb'
+        );
+
+        $distReadStream = $this->distStorage->readDistStream($dist)->getOrNull();
+        if (null === $distReadStream) {
+            return Option::none();
+        }
+        stream_copy_to_stream($distReadStream, $tmpLocalFileHandle);
+        fclose($tmpLocalFileHandle);
+
+        return Option::of($tmpLocalFilename);
     }
 }

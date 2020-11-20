@@ -131,6 +131,20 @@ class PackageManager
         return Option::of($this->distStorage->filename($dist));
     }
 
+    /**
+     * @return Option<resource> Handle for a file
+     */
+    public function getDistFileReference(
+        string $fileName
+    ): Option {
+        $fileResource = $this->repoStorage->readStream($fileName);
+        if (false === $fileResource) {
+            return Option::none();
+        }
+
+        return Option::some($fileResource);
+    }
+
     private function filepath(string $organizationAlias, string $packageName): string
     {
         return $organizationAlias.'/p/'.$packageName.'.json';

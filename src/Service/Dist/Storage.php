@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Dist;
 
 use Buddy\Repman\Service\Dist;
+use Munus\Control\Option;
 
 interface Storage
 {
@@ -20,4 +21,6 @@ interface Storage
     public function filename(Dist $dist): string;
 
     public function size(Dist $dist): int;
+
+    public function readDistStream(Dist $dist): Option;
 }

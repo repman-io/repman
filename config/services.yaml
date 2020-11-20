@@ -60,10 +60,7 @@ services:
     Buddy\Repman\Service\Proxy\ProxyRegister:
         public: true
 
-    repman.organization.dist_storage:
-        class: Buddy\Repman\Service\Dist\Storage\FileStorage
-        arguments:
-            $distsDir: '%repo_dir%'
+    repman.organization.dist_storage: '@Buddy\Repman\Service\Dist\Storage\StorageImpl'
 
     Buddy\Repman\Service\Mailer\SymfonyMailer:
         arguments:

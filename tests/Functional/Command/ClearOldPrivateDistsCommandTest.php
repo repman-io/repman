@@ -12,9 +12,8 @@ use DateTime;
 use DateTimeImmutable;
 use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Tester\CommandTester;
-
 use function sprintf;
+use Symfony\Component\Console\Tester\CommandTester;
 
 final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
 {
@@ -154,9 +153,9 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
     private function distFilePath(string $version, string $ref): string
     {
         return 'buddy/dist/'
-            . $this->packageName . '/'
-            . (new VersionParser())->normalize($version)
-            . '_' . $ref . '.zip';
+            .$this->packageName.'/'
+            .(new VersionParser())->normalize($version)
+            .'_'.$ref.'.zip';
     }
 
     private function prepareTestDist(string $path): void

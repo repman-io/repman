@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
 use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Dist\Storage\FileStorage;
+use Buddy\Repman\Service\Dist\Storage\StorageImpl;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
-use League\Flysystem\Memory\MemoryAdapter;
+use function file_get_contents;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
+use function sys_get_temp_dir;
+use function unlink;
+use function unserialize;
 
 final class ReadmeComposerPackageSynchronizerTest extends TestCase
 {
@@ -23,21 +27,22 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
     protected function setUp(): void
     {
-        $baseDir = sys_get_temp_dir() . '/repman';
-        $fileStorage = new FileStorage($baseDir, new FakeDownloader(''), new Filesystem());
+        $baseDir = sys_get_temp_dir().'/repman';
+        $repoStorage = new Filesystem(new Local($baseDir));
+        $fileStorage = new StorageImpl(new FakeDownloader(''), $repoStorage);
         $this->synchronizer = new ComposerPackageSynchronizer(
             new PackageManager(
                 $fileStorage,
-                new \League\Flysystem\Filesystem(new MemoryAdapter())
+                $repoStorage
             ),
             new PackageNormalizer(),
-            $this->createMock(PackageRepository::class),
+                $this->createMock(PackageRepository::class),
             $fileStorage,
             'gitlab.com'
         );
-        $this->resourcesDir = __DIR__ . '/../../../Resources/';
+        $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';
 
-        $this->path = $baseDir . '/buddy/p/buddy-works/alpha.json';
+        $this->path = $baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($this->path);
     }
 
@@ -50,14 +55,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     {
         $package = PackageMother::withOrganization(
             'artifact',
-            $this->resourcesDir . 'readme-artifacts/no-readme',
+            $this->resourcesDir.'readme-artifacts/no-readme',
             'buddy'
         );
         $this->synchronizer->synchronize($package);
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string)file_get_contents($this->path));
+        $json = unserialize((string) file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
@@ -69,14 +74,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     {
         $package = PackageMother::withOrganization(
             'artifact',
-            $this->resourcesDir . 'readme-artifacts/readme',
+            $this->resourcesDir.'readme-artifacts/readme',
             'buddy'
         );
         $this->synchronizer->synchronize($package);
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string)file_get_contents($this->path));
+        $json = unserialize((string) file_get_contents($this->path));
         self::assertCount(3, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(3, $package->versions());
@@ -91,14 +96,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     {
         $package = PackageMother::withOrganization(
             'artifact',
-            $this->resourcesDir . 'readme-artifacts/wrong-case-readme',
+            $this->resourcesDir.'readme-artifacts/wrong-case-readme',
             'buddy'
         );
         $this->synchronizer->synchronize($package);
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string)file_get_contents($this->path));
+        $json = unserialize((string) file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
@@ -119,14 +124,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     {
         $package = PackageMother::withOrganization(
             'artifact',
-            $this->resourcesDir . 'readme-artifacts/readme-in-second-dir',
+            $this->resourcesDir.'readme-artifacts/readme-in-second-dir',
             'buddy'
         );
         $this->synchronizer->synchronize($package);
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string)file_get_contents($this->path));
+        $json = unserialize((string) file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
@@ -141,14 +146,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     {
         $package = PackageMother::withOrganization(
             'artifact',
-            $this->resourcesDir . 'readme-artifacts/no-stable-release',
+            $this->resourcesDir.'readme-artifacts/no-stable-release',
             'buddy'
         );
         $this->synchronizer->synchronize($package);
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string)file_get_contents($this->path));
+        $json = unserialize((string) file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());

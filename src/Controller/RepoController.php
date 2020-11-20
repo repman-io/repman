@@ -9,11 +9,14 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
+use DateTimeImmutable;
+use function fopen;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
+use function stream_copy_to_stream;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -75,12 +78,21 @@ final class RepoController extends AbstractController
      *     methods={"GET"})
      * @Cache(public=false)
      */
-    public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): BinaryFileResponse
+    public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): StreamedResponse
     {
-        return new BinaryFileResponse($this->packageManager
+        $filename = $this->packageManager
             ->distFilename($organization->alias(), $package, $version, $ref, $type)
-            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
-        );
+            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
+
+        return new StreamedResponse(function () use ($filename) {
+            $outputStream = fopen('php://output', 'wb');
+            $fileStream = $this->packageManager->getDistFileReference($filename);
+            stream_copy_to_stream(
+                $fileStream
+                    ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.')),
+                $outputStream
+            );
+        });
     }
 
     /**
@@ -111,7 +123,7 @@ final class RepoController extends AbstractController
                 $this->dispatchMessage(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
-                    new \DateTimeImmutable(),
+                    new DateTimeImmutable(),
                     $request->getClientIp(),
                     $request->headers->get('User-Agent')
                 ));

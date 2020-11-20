@@ -6,8 +6,8 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class RepoControllerTest extends FunctionalTestCase
 {
@@ -123,19 +123,25 @@ final class RepoControllerTest extends FunctionalTestCase
             'secret-org-token'
         );
 
-        $this->client->request('GET', '/dists/buddy-works/repman/1.2.3.0/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
-            'HTTP_HOST' => 'buddy.repo.repman.wip',
-            'PHP_AUTH_USER' => 'token',
-            'PHP_AUTH_PW' => 'secret-org-token',
-        ]);
+        $this->contentFromStream(function () {
+            $this->client->request('GET', '/dists/buddy-works/repman/1.2.3.0/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
+                'HTTP_HOST' => 'buddy.repo.repman.wip',
+                'PHP_AUTH_USER' => 'token',
+                'PHP_AUTH_PW' => 'secret-org-token',
+            ]);
+        });
 
-        self::assertInstanceOf(BinaryFileResponse::class, $this->client->getResponse());
+        $response = $this->client->getResponse();
+        $this->assertTrue($response->isOk(), 'Response code was not 200, it was instead '.$response->getStatusCode());
+        self::assertInstanceOf(StreamedResponse::class, $response);
 
-        $this->client->request('GET', '/dists/vendor/package/9.9.9.9/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
-            'HTTP_HOST' => 'buddy.repo.repman.wip',
-            'PHP_AUTH_USER' => 'token',
-            'PHP_AUTH_PW' => 'secret-org-token',
-        ]);
+        $this->contentFromStream(function () {
+            $this->client->request('GET', '/dists/vendor/package/9.9.9.9/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
+                'HTTP_HOST' => 'buddy.repo.repman.wip',
+                'PHP_AUTH_USER' => 'token',
+                'PHP_AUTH_PW' => 'secret-org-token',
+            ]);
+        });
 
         self::assertTrue($this->client->getResponse()->isNotFound());
     }
@@ -147,27 +153,31 @@ final class RepoControllerTest extends FunctionalTestCase
 
         $this->client->request('POST', '/downloads', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
-        ], (string) json_encode([
-            'downloads' => [
-                [
-                    'name' => 'buddy-works/repman',
-                    'version' => '1.2.0.0',
-                ],
-                [
-                    'name' => 'not-exist',
-                    'version' => 'should-not-throw-error',
-                ],
-                [
-                    'name' => 'missing version',
+        ], (string) \json_encode(
+            [
+                'downloads' => [
+                    [
+                        'name' => 'buddy-works/repman',
+                        'version' => '1.2.0.0',
+                    ],
+                    [
+                        'name' => 'not-exist',
+                        'version' => 'should-not-throw-error',
+                    ],
+                    [
+                        'name' => 'missing version',
+                    ],
                 ],
             ],
-        ]));
+            \JSON_THROW_ON_ERROR
+        )
+        );
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
 
         $this->client->request('POST', '/downloads', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
-        ], (string) json_encode([]));
+        ], (string) \json_encode([]));
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
@@ -218,7 +228,7 @@ final class RepoControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
 
         $fileModifiedTime = (new \DateTimeImmutable())
-            ->setTimestamp((int) filemtime(__DIR__.'/../../Resources/p2/buddy-works/repman.json'));
+            ->setTimestamp((int) \filemtime(__DIR__.'/../../Resources/p2/buddy-works/repman.json'));
 
         $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
