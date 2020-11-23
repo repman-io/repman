@@ -605,6 +605,19 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertEquals('repman', $organization->alias());
     }
 
+    public function testChangeAliasWithInvalidChars(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->followRedirects();
+        $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
+        $this->client->submitForm('Change', [
+            'alias' => 'https://repman',
+        ]);
+
+        self::assertStringContainsString('Alias can contain only alphanumeric characters and _ or - sign', $this->lastResponseBody());
+        self::assertStringNotContainsString('Organization alias has been successfully changed.', $this->lastResponseBody());
+    }
+
     public function testChangeAnonymousAccess(): void
     {
         $this->fixtures->createOrganization('buddy', $this->userId);
