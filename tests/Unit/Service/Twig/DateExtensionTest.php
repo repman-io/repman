@@ -35,6 +35,11 @@ final class DateExtensionTest extends TestCase
         self::assertEquals('time_diff', $this->extension->getFilters()[0]->getName());
     }
 
+    public function testGetFunctions(): void
+    {
+        self::assertEquals('gmt_offset', $this->extension->getFunctions()[0]->getName());
+    }
+
     /**
      * @dataProvider timeDiffProvider
      */
@@ -61,13 +66,15 @@ final class DateExtensionTest extends TestCase
 
     public function testGmtOffset(): void
     {
+        $dateTime = new \DateTimeImmutable('2020-07-10 12:34:56');
+
         date_default_timezone_set('Europe/Warsaw');
         $this->extension = new DateExtension(new TokenStorage());
-        self::assertEquals('GMT+02:00', $this->extension->gmtOffset());
+        self::assertEquals('GMT+02:00', $this->extension->gmtOffset($this->env, $dateTime));
 
         date_default_timezone_set('UTC');
         $this->extension = new DateExtension(new TokenStorage());
-        self::assertEquals('GMT+00:00', $this->extension->gmtOffset());
+        self::assertEquals('GMT+00:00', $this->extension->gmtOffset($this->env, $dateTime));
     }
 
     /**

@@ -72,7 +72,7 @@ class DateExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('gmt_offset', [$this, 'gmtOffset']),
+            new TwigFunction('gmt_offset', [$this, 'gmtOffset'], ['needs_environment' => true]),
         ];
     }
 
@@ -136,9 +136,18 @@ class DateExtension extends AbstractExtension
         return $this->dateTime($env, $date, 'UTC');
     }
 
-    public function gmtOffset(): string
+    /**
+     * @param string|\DateTimeInterface $now A string or DateTime object. If none given, the current time will be used.
+     */
+    public function gmtOffset(Environment $env, $now = null): string
     {
-        return Timezones::getGmtOffset($this->timezone);
+        $now = $now === null
+            ? new \DateTimeImmutable(
+                twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
+            )
+            : twig_date_converter($env, $now);
+
+        return Timezones::getGmtOffset($this->timezone, $now->getTimestamp());
     }
 
     private function getPluralizedInterval(int $count, int $invert, string $unit): string
