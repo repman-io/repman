@@ -1,12 +1,17 @@
 # Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
 services:
-    Aws\S3\S3Client:
+    Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory:
         arguments:
-            -   version: '2006-03-01'
-                region: '%env(STORAGE_S3_REGION)%'
-                credentials:
-                    key: '%env(STORAGE_S3_KEY)%'
-                    secret: '%env(STORAGE_S3_SECRET)%'
+            - '%env(STORAGE_AWS_REGION)%'
+            - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
+            - '%env(STORAGE_AWS_KEY)%'
+            - '%env(STORAGE_AWS_SECRET)%'
+
+    Aws\S3\S3Client:
+        lazy: true
+        factory:
+            - '@Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory'
+            - create
 
 flysystem:
     storages:
@@ -19,6 +24,20 @@ flysystem:
             adapter: 'local'
             options:
                 directory: '%repo_dir%'
+
+        storage.s3.proxy:
+            adapter: 'aws'
+            options:
+                client: 'Aws\S3\S3Client'
+                bucket: '%env(STORAGE_AWS_BUCKET)%'
+                prefix: '%dists_dir%'
+
+        storage.s3.repo:
+            adapter: 'aws'
+            options:
+                client: 'Aws\S3\S3Client'
+                bucket: '%env(STORAGE_AWS_BUCKET)%'
+                prefix: '%repo_dir%'
 
         repo.storage:
             adapter: 'lazy'
