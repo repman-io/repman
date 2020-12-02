@@ -50,7 +50,7 @@ services:
   cron:
     << : *restart_policy
     image: buddy/repman:1.1.0
-    command: ['crond', '-f', '-L', '/dev/stdout']
+    command: ['crond', '-f', '-L', '/app/var/log/cron.log']
     env_file: .env.docker
     volumes:
       - app-var:/app/var
