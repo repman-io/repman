@@ -12,6 +12,14 @@ On next release:
 
 ## [Unreleased]
 
+## [1.1.1] - 2020-12-02
+
+## Changed
+- Direct docker cron logs to file ([#330](https://github.com/repman-io/repman/pull/330))
+
+## Fixed
+- Fix alias form constraint (regex) ([#326](https://github.com/repman-io/repman/pull/326))
+
 ## [1.1.0] - 2020-10-23
 
 ### Added
