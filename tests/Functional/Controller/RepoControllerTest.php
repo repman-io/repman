@@ -135,7 +135,7 @@ final class RepoControllerTest extends FunctionalTestCase
         self::assertTrue($response->isOk(), 'Response code was not 200, it was instead '.$response->getStatusCode());
         self::assertInstanceOf(StreamedResponse::class, $response);
 
-        $this->contentFromStream(function ():void {
+        $this->contentFromStream(function (): void {
             $this->client->request('GET', '/dists/vendor/package/9.9.9.9/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
                 'HTTP_HOST' => 'buddy.repo.repman.wip',
                 'PHP_AUTH_USER' => 'token',
@@ -177,7 +177,7 @@ final class RepoControllerTest extends FunctionalTestCase
 
         $this->client->request('POST', '/downloads', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
-        ], (string)\json_encode([]));
+        ], (string) \json_encode([]));
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }

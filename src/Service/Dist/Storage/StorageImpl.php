@@ -78,7 +78,7 @@ final class StorageImpl implements Storage
     {
         $filename = $this->filename($dist);
         if ($this->repoFilesystem->has($filename)) {
-            /** @phpstan-ignore-next-line - will always return int because file exists */
+            /* @phpstan-ignore-next-line - will always return int because file exists */
             return $this->repoFilesystem->getSize($filename);
         }
 

@@ -176,7 +176,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
         $package = PackageMother::withOrganization('path', dirname($tmpPath), 'buddy');
 
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         $this->downloader->addContent(dirname($tmpPath), file_get_contents($tmpPath));
         $this->synchronizer->synchronize($package);
 
