@@ -9,10 +9,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
-use DateTimeImmutable;
-use function fopen;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
-use function stream_copy_to_stream;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,12 +83,12 @@ final class RepoController extends AbstractController
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
         return new StreamedResponse(function () use ($filename): void {
-            $outputStream = fopen('php://output', 'wb');
+            $outputStream = \fopen('php://output', 'wb');
             if (false === $outputStream) {
                 throw new HttpException(500, 'Could not open output stream to send binary file.');
             }
             $fileStream = $this->packageManager->getDistFileReference($filename);
-            stream_copy_to_stream(
+            \stream_copy_to_stream(
                 $fileStream
                     ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.')),
                 $outputStream
@@ -127,7 +124,7 @@ final class RepoController extends AbstractController
                 $this->dispatchMessage(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
-                    new DateTimeImmutable(),
+                    new \DateTimeImmutable(),
                     $request->getClientIp(),
                     $request->headers->get('User-Agent')
                 ));

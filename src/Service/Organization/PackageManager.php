@@ -4,20 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Organization;
 
-use function array_filter;
-use function array_merge;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
-use DateTimeImmutable;
-use function dirname;
-use function glob;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
-use function serialize;
-use function unserialize;
 
 class PackageManager
 {
@@ -48,13 +41,13 @@ class PackageManager
                 continue;
             }
 
-            $fileModifyDate = (new DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
+            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
 
             if ($fileModifyDate > $lastModified) {
                 $lastModified = $fileModifyDate;
             }
 
-            $json = unserialize(
+            $json = \unserialize(
                 (string) $this->repoFilesystem->read($filepath), ['allowed_classes' => false]
             );
             $data[] = $json['packages'] ?? [];
@@ -62,7 +55,7 @@ class PackageManager
 
         return [
             $lastModified,
-            array_merge(...$data),
+            \array_merge(...$data),
         ];
     }
 
@@ -73,10 +66,10 @@ class PackageManager
     {
         $filepath = $this->filepath($organizationAlias, $packageName);
 
-        $dir = dirname($filepath);
+        $dir = \dirname($filepath);
         $this->repoFilesystem->createDir($dir);
 
-        $this->repoFilesystem->write($filepath, serialize($json));
+        $this->repoFilesystem->write($filepath, \serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
@@ -99,8 +92,8 @@ class PackageManager
     {
         $baseFilename = $organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_';
 
-        $filesToDelete = array_filter(
-            (array) glob($baseFilename.'*.'.$format),
+        $filesToDelete = \array_filter(
+            (array) \glob($baseFilename.'*.'.$format),
             fn ($file) => $file !== $baseFilename.$excludeRef.'.'.$format
         );
 

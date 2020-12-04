@@ -16,7 +16,6 @@ use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
-use function sys_get_temp_dir;
 
 final class PackageManagerTest extends TestCase
 {
@@ -36,7 +35,7 @@ final class PackageManagerTest extends TestCase
             ),
             $this->filesystem
         );
-        $this->baseDir = sys_get_temp_dir().'/repman';
+        $this->baseDir = \sys_get_temp_dir().'/repman';
     }
 
     public function testFindProvidersForPackage(): void

@@ -11,13 +11,9 @@ use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
-use function file_get_contents;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
-use function sys_get_temp_dir;
-use function unlink;
-use function unserialize;
 
 final class ReadmeComposerPackageSynchronizerTest extends TestCase
 {
@@ -27,7 +23,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
     protected function setUp(): void
     {
-        $baseDir = sys_get_temp_dir().'/repman';
+        $baseDir = \sys_get_temp_dir().'/repman';
         $repoFilesystem = new Filesystem(new Local($baseDir));
         $fileStorage = new StorageImpl(new FakeDownloader(''), $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
@@ -43,12 +39,12 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';
 
         $this->path = $baseDir.'/buddy/p/buddy-works/alpha.json';
-        @unlink($this->path);
+        @\unlink($this->path);
     }
 
     protected function tearDown(): void
     {
-        @unlink($this->path);
+        @\unlink($this->path);
     }
 
     public function testNoReadme(): void
@@ -62,7 +58,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string) file_get_contents($this->path));
+        $json = \unserialize((string) \file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
@@ -81,7 +77,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string) file_get_contents($this->path));
+        $json = \unserialize((string) \file_get_contents($this->path));
         self::assertCount(3, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(3, $package->versions());
@@ -103,7 +99,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string) file_get_contents($this->path));
+        $json = \unserialize((string) \file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
@@ -131,7 +127,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string) file_get_contents($this->path));
+        $json = \unserialize((string) \file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
@@ -153,7 +149,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
 
         self::assertFileExists($this->path);
 
-        $json = unserialize((string) file_get_contents($this->path));
+        $json = \unserialize((string) \file_get_contents($this->path));
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());

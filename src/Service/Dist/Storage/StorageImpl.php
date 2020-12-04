@@ -9,8 +9,6 @@ use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
 use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
-use RuntimeException;
-use function sprintf;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class StorageImpl implements Storage
@@ -46,10 +44,10 @@ final class StorageImpl implements Storage
                 $url,
                 $headers,
                 function () use ($url): void {
-                    throw new NotFoundHttpException(sprintf('File not found at %s', $url));
+                    throw new NotFoundHttpException(\sprintf('File not found at %s', $url));
                 }
             )->getOrElseThrow(
-                new RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))
+                new \RuntimeException(\sprintf('Failed to download %s from %s', $dist->package(), $url))
             )
         );
     }
@@ -64,7 +62,7 @@ final class StorageImpl implements Storage
 
     public function filename(Dist $dist): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/dist/%s/%s_%s.%s',
             $dist->repo(),
             $dist->package(),
