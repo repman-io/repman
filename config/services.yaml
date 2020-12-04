@@ -151,4 +151,17 @@ services:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
 
+    Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory:
+        arguments:
+            - '%env(STORAGE_AWS_REGION)%'
+            - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
+            - '%env(STORAGE_AWS_KEY)%'
+            - '%env(STORAGE_AWS_SECRET)%'
+
+    Aws\S3\S3Client:
+        lazy: true
+        factory:
+            - '@Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory'
+            - create
+
     Buddy\Buddy:

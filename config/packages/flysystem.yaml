@@ -1,18 +1,4 @@
 # Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
-services:
-    Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory:
-        arguments:
-            - '%env(STORAGE_AWS_REGION)%'
-            - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
-            - '%env(STORAGE_AWS_KEY)%'
-            - '%env(STORAGE_AWS_SECRET)%'
-
-    Aws\S3\S3Client:
-        lazy: true
-        factory:
-            - '@Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory'
-            - create
-
 flysystem:
     storages:
         storage.local.proxy:
