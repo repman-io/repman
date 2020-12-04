@@ -28,6 +28,7 @@ services:
             $resetPasswordTokenTtl: 86400 # 24h
             Symfony\Component\HttpFoundation\Session\Session $session: '@session'
             $proxyFilesystem: '@proxy.storage'
+            $repoFilesystem: '@proxy.storage'
             $instanceIdFile: '%instance_id_file%'
 
     # makes classes in src/ available to be used as services
@@ -42,16 +43,18 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    Buddy\Repman\Service\Cache:
-        class: Buddy\Repman\Service\Cache\FileCache
+    Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory:
         arguments:
-            - '%dists_dir%'
-            - '@Buddy\Repman\Service\Symfony\SentryExceptionHandler'
+            - '%env(STORAGE_AWS_REGION)%'
+            - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
+            - '%env(STORAGE_AWS_KEY)%'
+            - '%env(STORAGE_AWS_SECRET)%'
 
-    Buddy\Repman\Service\Dist\Storage:
-        class: Buddy\Repman\Service\Dist\Storage\FileStorage
+    Aws\S3\S3Client:
+        lazy: true
+        factory:
+            - '@Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory'
+            - create
 
     proxy.storage.public:
         public: true
@@ -150,18 +153,5 @@ services:
     Buddy\Repman\Service\GitLabApi\RestGitLabApi:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
-
-    Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory:
-        arguments:
-            - '%env(STORAGE_AWS_REGION)%'
-            - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
-            - '%env(STORAGE_AWS_KEY)%'
-            - '%env(STORAGE_AWS_SECRET)%'
-
-    Aws\S3\S3Client:
-        lazy: true
-        factory:
-            - '@Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory'
-            - create
 
     Buddy\Buddy:

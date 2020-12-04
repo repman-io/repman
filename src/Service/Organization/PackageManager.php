@@ -22,13 +22,13 @@ use function unserialize;
 class PackageManager
 {
     private Storage $distStorage;
-    private FilesystemInterface $repoStorage;
+    private FilesystemInterface $repoFilesystem;
     private VersionParser $versionParser;
 
-    public function __construct(Storage $distStorage, FilesystemInterface $repoStorage)
+    public function __construct(Storage $distStorage, FilesystemInterface $repoFilesystem)
     {
         $this->distStorage = $distStorage;
-        $this->repoStorage = $repoStorage;
+        $this->repoFilesystem = $repoFilesystem;
         $this->versionParser = new VersionParser();
     }
 
@@ -44,18 +44,18 @@ class PackageManager
 
         foreach ($packages as $package) {
             $filepath = $this->filepath($organizationAlias, $package->name());
-            if (!$this->repoStorage->has($filepath)) {
+            if (!$this->repoFilesystem->has($filepath)) {
                 continue;
             }
 
-            $fileModifyDate = (new DateTimeImmutable())->setTimestamp((int) $this->repoStorage->getTimestamp($filepath));
+            $fileModifyDate = (new DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
 
             if ($fileModifyDate > $lastModified) {
                 $lastModified = $fileModifyDate;
             }
 
             $json = unserialize(
-                (string) $this->repoStorage->read($filepath), ['allowed_classes' => false]
+                (string) $this->repoFilesystem->read($filepath), ['allowed_classes' => false]
             );
             $data[] = $json['packages'] ?? [];
         }
@@ -74,9 +74,9 @@ class PackageManager
         $filepath = $this->filepath($organizationAlias, $packageName);
 
         $dir = dirname($filepath);
-        $this->repoStorage->createDir($dir);
+        $this->repoFilesystem->createDir($dir);
 
-        $this->repoStorage->write($filepath, serialize($json));
+        $this->repoFilesystem->write($filepath, serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
@@ -90,7 +90,7 @@ class PackageManager
     public function removeDist(string $organizationAlias, string $packageName): self
     {
         $distDir = $organizationAlias.'/dist/'.$packageName;
-        $this->repoStorage->deleteDir($distDir);
+        $this->repoFilesystem->deleteDir($distDir);
 
         return $this;
     }
@@ -116,7 +116,7 @@ class PackageManager
 
     public function removeOrganizationDir(string $organizationAlias): self
     {
-        $this->repoStorage->deleteDir($organizationAlias);
+        $this->repoFilesystem->deleteDir($organizationAlias);
 
         return $this;
     }
@@ -140,7 +140,7 @@ class PackageManager
     public function getDistFileReference(
         string $fileName
     ): Option {
-        $fileResource = $this->repoStorage->readStream($fileName);
+        $fileResource = $this->repoFilesystem->readStream($fileName);
         if (false === $fileResource) {
             return Option::none();
         }
@@ -156,7 +156,7 @@ class PackageManager
     private function removeFile(string $fileName): void
     {
         try {
-            $this->repoStorage->delete($fileName);
+            $this->repoFilesystem->delete($fileName);
         } catch (FileNotFoundException $ignored) {
         }
     }

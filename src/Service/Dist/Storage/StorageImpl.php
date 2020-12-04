@@ -16,17 +16,17 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 final class StorageImpl implements Storage
 {
     private Downloader $downloader;
-    private FilesystemInterface $repoStorage;
+    private FilesystemInterface $repoFilesystem;
 
-    public function __construct(Downloader $downloader, FilesystemInterface $repoStorage)
+    public function __construct(Downloader $downloader, FilesystemInterface $repoFilesystem)
     {
         $this->downloader = $downloader;
-        $this->repoStorage = $repoStorage;
+        $this->repoFilesystem = $repoFilesystem;
     }
 
     public function has(Dist $dist): bool
     {
-        return $this->repoStorage->has($this->filename($dist));
+        return $this->repoFilesystem->has($this->filename($dist));
     }
 
     /**
@@ -40,7 +40,7 @@ final class StorageImpl implements Storage
 
         $filename = $this->filename($dist);
 
-        $this->repoStorage->writeStream(
+        $this->repoFilesystem->writeStream(
             $filename,
             $this->downloader->getContents(
                 $url,
@@ -57,8 +57,8 @@ final class StorageImpl implements Storage
     public function remove(Dist $dist): void
     {
         $filename = $this->filename($dist);
-        if ($this->repoStorage->has($filename)) {
-            $this->repoStorage->delete($filename);
+        if ($this->repoFilesystem->has($filename)) {
+            $this->repoFilesystem->delete($filename);
         }
     }
 
@@ -77,9 +77,9 @@ final class StorageImpl implements Storage
     public function size(Dist $dist): int
     {
         $filename = $this->filename($dist);
-        if ($this->repoStorage->has($filename)) {
+        if ($this->repoFilesystem->has($filename)) {
             /** @phpstan-ignore-next-line - will always return int because file exists */
-            return $this->repoStorage->getSize($filename);
+            return $this->repoFilesystem->getSize($filename);
         }
 
         return 0;
@@ -90,7 +90,7 @@ final class StorageImpl implements Storage
      */
     public function readDistStream(Dist $dist): Option
     {
-        $resource = $this->repoStorage->readStream($this->filename($dist));
+        $resource = $this->repoFilesystem->readStream($this->filename($dist));
         if (false === $resource) {
             return Option::none();
         }
