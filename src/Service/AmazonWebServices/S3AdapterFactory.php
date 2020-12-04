@@ -22,10 +22,10 @@ final class S3AdapterFactory
         $this->isOpaqueAuth = $isOpaqueAuth;
 
         if ($this->isOpaqueAuth) {
-            if ($key === null) {
+            if ($key === null || $key === '') {
                 throw new \InvalidArgumentException('Must pass AWS key when authentication is opaque');
             }
-            if ($secret === null) {
+            if ($secret === null || $secret === '') {
                 throw new \InvalidArgumentException('Must pass AWS secret when authentication is opaque');
             }
 
