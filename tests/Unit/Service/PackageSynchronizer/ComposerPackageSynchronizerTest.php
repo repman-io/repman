@@ -30,11 +30,11 @@ final class ComposerPackageSynchronizerTest extends TestCase
     protected function setUp(): void
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
-        $repoStorage = new Filesystem(new Local($this->baseDir));
+        $repoFilesystem = new Filesystem(new Local($this->baseDir));
         $this->downloader = new FakeDownloader();
-        $distStorage = new StorageImpl($this->downloader, $repoStorage);
+        $distStorage = new StorageImpl($this->downloader, $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager($distStorage, $repoStorage),
+            new PackageManager($distStorage, $repoFilesystem),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             $distStorage,

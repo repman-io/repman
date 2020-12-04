@@ -28,12 +28,12 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     protected function setUp(): void
     {
         $baseDir = sys_get_temp_dir().'/repman';
-        $repoStorage = new Filesystem(new Local($baseDir));
-        $fileStorage = new StorageImpl(new FakeDownloader(''), $repoStorage);
+        $repoFilesystem = new Filesystem(new Local($baseDir));
+        $fileStorage = new StorageImpl(new FakeDownloader(''), $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
             new PackageManager(
                 $fileStorage,
-                $repoStorage
+                $repoFilesystem
             ),
             new PackageNormalizer(),
                 $this->createMock(PackageRepository::class),

@@ -135,11 +135,11 @@ final class PackageManagerTest extends TestCase
 
     private function getManagerWithLocalStorage(): PackageManager
     {
-        $repoStorage = new Filesystem(new Local($this->baseDir));
+        $repoFilesystem = new Filesystem(new Local($this->baseDir));
 
         return new PackageManager(
-            new Storage\StorageImpl(new FakeDownloader(), $repoStorage),
-            $repoStorage
+            new Storage\StorageImpl(new FakeDownloader(), $repoFilesystem),
+            $repoFilesystem
         );
     }
 }
