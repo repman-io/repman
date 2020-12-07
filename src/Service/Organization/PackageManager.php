@@ -67,9 +67,11 @@ class PackageManager
         $filepath = $this->filepath($organizationAlias, $packageName);
 
         $dir = \dirname($filepath);
-        $this->repoFilesystem->createDir($dir);
+        if (!$this->repoFilesystem->has($dir)) {
+            $this->repoFilesystem->createDir($dir);
+        }
 
-        $this->repoFilesystem->write($filepath, \serialize($json));
+        $this->repoFilesystem->put($filepath, \serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self

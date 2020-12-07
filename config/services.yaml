@@ -28,7 +28,7 @@ services:
             $resetPasswordTokenTtl: 86400 # 24h
             Symfony\Component\HttpFoundation\Session\Session $session: '@session'
             $proxyFilesystem: '@proxy.storage'
-            $repoFilesystem: '@proxy.storage'
+            $repoFilesystem: '@repo.storage'
             $instanceIdFile: '%instance_id_file%'
 
     # makes classes in src/ available to be used as services
