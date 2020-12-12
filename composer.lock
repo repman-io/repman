@@ -6957,16 +6957,16 @@
         },
         {
             "name": "symfony/amqp-messenger",
-            "version": "v5.1.7",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/amqp-messenger.git",
-                "reference": "4cbeeb561be52763a814f4e886fde0ee115b82cd"
+                "reference": "8aa604498a40e48909266a0fddcbd3ea341623db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/amqp-messenger/zipball/4cbeeb561be52763a814f4e886fde0ee115b82cd",
-                "reference": "4cbeeb561be52763a814f4e886fde0ee115b82cd",
+                "url": "https://api.github.com/repos/symfony/amqp-messenger/zipball/8aa604498a40e48909266a0fddcbd3ea341623db",
+                "reference": "8aa604498a40e48909266a0fddcbd3ea341623db",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -6986,11 +6986,6 @@
                 "symfony/serializer": "^4.4|^5.0"
             },
             "type": "symfony-bridge",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.1-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Symfony\\Component\\Messenger\\Bridge\\Amqp\\": ""
@@ -7029,7 +7024,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-14T15:02:15+00:00"
+            "time": "2020-10-27T10:14:44+00:00"
         },
         {
             "name": "symfony/asset",
@@ -9288,16 +9283,16 @@
         },
         {
             "name": "symfony/messenger",
-            "version": "v5.1.7",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/messenger.git",
-                "reference": "363f00e14f9111ccccc2c9dfa00b190cc5aad02f"
+                "reference": "ae14385879e5b14d5dae94d5b30502a617ef6b06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/messenger/zipball/363f00e14f9111ccccc2c9dfa00b190cc5aad02f",
-                "reference": "363f00e14f9111ccccc2c9dfa00b190cc5aad02f",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/ae14385879e5b14d5dae94d5b30502a617ef6b06",
+                "reference": "ae14385879e5b14d5dae94d5b30502a617ef6b06",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -9337,11 +9332,6 @@
                 "enqueue/messenger-adapter": "For using the php-enqueue library as a transport."
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.1-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Symfony\\Component\\Messenger\\": ""
@@ -9380,7 +9370,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-11T11:43:06+00:00"
+            "time": "2020-11-10T06:17:22+00:00"
         },
         {
             "name": "symfony/mime",
@@ -10648,16 +10638,16 @@
         },
         {
             "name": "symfony/redis-messenger",
-            "version": "v5.1.7",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/redis-messenger.git",
-                "reference": "c0b66a724dfa77d41adf54e70c49227071a38411"
+                "reference": "8a827544bd0536a6097006e178bc6e2c5873aad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/redis-messenger/zipball/c0b66a724dfa77d41adf54e70c49227071a38411",
-                "reference": "c0b66a724dfa77d41adf54e70c49227071a38411",
+                "url": "https://api.github.com/repos/symfony/redis-messenger/zipball/8a827544bd0536a6097006e178bc6e2c5873aad1",
+                "reference": "8a827544bd0536a6097006e178bc6e2c5873aad1",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -10675,11 +10665,6 @@
                 "symfony/serializer": "^4.4|^5.0"
             },
             "type": "symfony-bridge",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.1-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Symfony\\Component\\Messenger\\Bridge\\Redis\\": ""
@@ -10718,7 +10703,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-10-02T08:49:02+00:00"
+            "time": "2020-10-24T12:08:07+00:00"
         },
         {
             "name": "symfony/routing",
