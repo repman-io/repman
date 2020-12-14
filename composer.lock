@@ -6889,16 +6889,16 @@
         },
         {
             "name": "symfony/amazon-mailer",
-            "version": "v5.1.7",
+            "version": "v5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/amazon-mailer.git",
-                "reference": "3bd4b30d0f47111b1f3d865a2559f809224b2353"
+                "reference": "1e7ac9aaeefb4c2d55e21e73235201f7673dc0b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/amazon-mailer/zipball/3bd4b30d0f47111b1f3d865a2559f809224b2353",
-                "reference": "3bd4b30d0f47111b1f3d865a2559f809224b2353",
+                "url": "https://api.github.com/repos/symfony/amazon-mailer/zipball/1e7ac9aaeefb4c2d55e21e73235201f7673dc0b5",
+                "reference": "1e7ac9aaeefb4c2d55e21e73235201f7673dc0b5",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -6917,11 +6917,6 @@
                 "symfony/http-client": "^4.4|^5.0"
             },
             "type": "symfony-bridge",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.1-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "Symfony\\Component\\Mailer\\Bridge\\Amazon\\": ""
@@ -6960,7 +6955,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-08-31T10:16:00+00:00"
+            "time": "2020-10-24T12:08:07+00:00"
         },
         {
             "name": "symfony/amqp-messenger",
