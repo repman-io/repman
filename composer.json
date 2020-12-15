@@ -72,7 +72,7 @@
         "symfony/symfony": "*"
     },
     "require-dev": {
-        "coduo/php-matcher": "^4.0",
+        "coduo/php-matcher": "^5.0",
         "dama/doctrine-test-bundle": "^6.3",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "ekino/phpstan-banned-code": "^0.3.1",
