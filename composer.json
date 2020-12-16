@@ -30,7 +30,7 @@
         "league/oauth2-github": "^2.0",
         "m4tthumphrey/php-gitlab-api": "^9.17",
         "munusphp/munus": "^0.2.1",
-        "nelmio/api-doc-bundle": "v4.0.0-BETA2",
+        "nelmio/api-doc-bundle": "v4.1.0",
         "nelmio/cors-bundle": "^2.1",
         "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
