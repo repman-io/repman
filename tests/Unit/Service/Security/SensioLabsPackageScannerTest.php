@@ -155,6 +155,7 @@ final class SensioLabsPackageScannerTest extends TestCase
         $distStorage = $this->createMock(Storage::class);
         $tempFilename = \tempnam(\sys_get_temp_dir(), 'repman-test');
         self::assertNotFalse($tempFilename, 'Error while creating temp file for testing');
+        self::assertNotFalse($distFile, 'Could not determined the path to dist file.');
         \file_put_contents($tempFilename, \file_get_contents($distFile));
         $distStorage->method('getLocalFileForDistUrl')->willReturn(Option::of($tempFilename));
 
