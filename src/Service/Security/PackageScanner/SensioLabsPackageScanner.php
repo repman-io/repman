@@ -9,6 +9,7 @@ use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Repository\ScanResultRepository;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
@@ -23,14 +24,21 @@ final class SensioLabsPackageScanner implements PackageScanner
     private PackageManager $packageManager;
     private ScanResultRepository $results;
     private MessageBusInterface $messageBus;
+    private Storage $distStorage;
 
-    public function __construct(SecurityChecker $checker, PackageManager $packageManager, ScanResultRepository $results, MessageBusInterface $messageBus)
-    {
+    public function __construct(
+        SecurityChecker $checker,
+        PackageManager $packageManager,
+        ScanResultRepository $results,
+        MessageBusInterface $messageBus,
+        Storage $distStorage
+    ) {
         $this->checker = $checker;
         $this->packageManager = $packageManager;
         $this->results = $results;
         $this->messageBus = $messageBus;
         $this->versionParser = new VersionParser();
+        $this->distStorage = $distStorage;
     }
 
     public function scan(Package $package): void
@@ -63,7 +71,7 @@ final class SensioLabsPackageScanner implements PackageScanner
                 ScanResult::STATUS_ERROR,
                 [
                     'exception' => [
-                        get_class($exception) => $exception->getMessage(),
+                        \get_class($exception) => $exception->getMessage(),
                     ],
                 ],
             );
@@ -84,13 +92,15 @@ final class SensioLabsPackageScanner implements PackageScanner
         $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $result));
 
         if ($status === ScanResult::STATUS_WARNING) {
-            $this->messageBus->dispatch(new SendScanResult(
-                $package->scanResultEmails(),
-                $package->organizationAlias(),
-                (string) $package->name(),
-                $package->id()->toString(),
-                $result
-            ));
+            $this->messageBus->dispatch(
+                new SendScanResult(
+                    $package->scanResultEmails(),
+                    $package->organizationAlias(),
+                    (string) $package->name(),
+                    $package->id()->toString(),
+                    $result
+                )
+            );
         }
     }
 
@@ -102,13 +112,15 @@ final class SensioLabsPackageScanner implements PackageScanner
         $normalizedVersion = $latestReleasedVersion === 'no stable release' ?
             '9999999-dev' : $this->versionParser->normalize((string) $latestReleasedVersion);
 
-        [,$providerData] = $this->packageManager->findProviders(
+        [, $providerData] = $this->packageManager->findProviders(
             $package->organizationAlias(),
             [new PackageName($package->id()->toString(), (string) $package->name())]
         );
 
         foreach ($providerData[$packageName] ?? [] as $packageData) {
-            $packageVersion = $packageData['version_normalized'] ?? $this->versionParser->normalize($packageData['version']);
+            $packageVersion = $packageData['version_normalized']
+                ??
+                $this->versionParser->normalize($packageData['version']);
             $packageDist = $packageData['dist'];
             $reference = $packageDist['reference'] ?? $packageDist['shasum'];
 
@@ -136,8 +148,9 @@ final class SensioLabsPackageScanner implements PackageScanner
      */
     private function extractLockFiles(string $distFilename): array
     {
+        $tmpZipFile = $this->distStorage->getLocalFileForDistUrl($distFilename);
         $zip = new \ZipArchive();
-        $result = $zip->open($distFilename);
+        $result = $zip->open($tmpZipFile->get());
         if ($result !== true) {
             throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
         }
@@ -145,15 +158,17 @@ final class SensioLabsPackageScanner implements PackageScanner
         $lockFiles = [];
         for ($i = 0; $i < $zip->numFiles; ++$i) {
             $filename = (string) $zip->getNameIndex($i);
-            if (preg_match('/\/composer.lock$/', $filename) === 1) {
+            if (\preg_match('/\/composer.lock$/', $filename) === 1) {
                 $lockFileContent = $zip->getFromIndex($i);
-                $trimmed = explode('/', $filename);
-                array_shift($trimmed);
-                $lockFiles['/'.implode('/', $trimmed)] = (string) $lockFileContent;
+                $trimmed = \explode('/', $filename);
+                \array_shift($trimmed);
+                $lockFiles['/'.\implode('/', $trimmed)] = (string) $lockFileContent;
             }
         }
 
         $zip->close();
+
+        @\unlink($tmpZipFile->get());
 
         return $lockFiles;
     }

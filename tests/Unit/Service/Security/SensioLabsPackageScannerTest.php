@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Security;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Repository\ScanResultRepository;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
@@ -19,7 +20,8 @@ use Symfony\Component\Messenger\MessageBus;
 
 final class SensioLabsPackageScannerTest extends TestCase
 {
-    const VERSION = '1.2.3';
+    /** @var string */
+    private const VERSION = '1.2.3';
 
     private SensioLabsPackageScanner $scanner;
     private SecurityChecker $checkerMock;
@@ -122,7 +124,7 @@ final class SensioLabsPackageScannerTest extends TestCase
 
     private function prepareScanner(string $fixtureType = 'repman'): SensioLabsPackageScanner
     {
-        $distFile = realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
+        $distFile = \realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
         $packageManager = $this->createMock(PackageManager::class);
         $packageManager->method('findProviders')->willReturn(
             [
@@ -150,11 +152,18 @@ final class SensioLabsPackageScannerTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope(new SendScanResult(['test@example.com'], 'buddy', 'test/test', 'test', [])));
 
+        $distStorage = $this->createMock(Storage::class);
+        $tempFilename = \tempnam(\sys_get_temp_dir(), 'repman-test');
+        self::assertNotFalse($tempFilename, 'Error while creating temp file for testing');
+        \file_put_contents($tempFilename, \file_get_contents($distFile));
+        $distStorage->method('getLocalFileForDistUrl')->willReturn(Option::of($tempFilename));
+
         return new SensioLabsPackageScanner(
             $this->checkerMock,
             $packageManager,
             $this->repoMock,
-            $messageBusMock
+            $messageBusMock,
+            $distStorage
         );
     }
 

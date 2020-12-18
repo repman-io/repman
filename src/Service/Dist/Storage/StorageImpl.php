@@ -7,6 +7,7 @@ namespace Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
+use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -88,8 +89,59 @@ final class StorageImpl implements Storage
      */
     public function readDistStream(Dist $dist): Option
     {
-        $resource = $this->repoFilesystem->readStream($this->filename($dist));
-        if (false === $resource) {
+        $path = $this->filename($dist);
+
+        return $this->readStream($path);
+    }
+
+    /**
+     * @return Option<string>
+     */
+    public function getLocalFileForDist(Dist $dist): Option
+    {
+        return $this->getLocalFileForDistUrl($this->filename($dist));
+    }
+
+    /**
+     * @return Option<string>
+     */
+    public function getLocalFileForDistUrl(string $distFilename): Option
+    {
+        $tmpLocalFilename = $this->getTempFileName();
+        $tmpLocalFileHandle = \fopen(
+            $tmpLocalFilename,
+            'wb'
+        );
+        if (false === $tmpLocalFileHandle) {
+            throw new \RuntimeException('Could not open temporary file for writing zip file for dist.');
+        }
+
+        $distReadStream = $this->readStream($distFilename)->getOrNull();
+        if (null === $distReadStream) {
+            return Option::none();
+        }
+        \stream_copy_to_stream($distReadStream, $tmpLocalFileHandle);
+        \fclose($tmpLocalFileHandle);
+
+        return Option::of($tmpLocalFilename);
+    }
+
+    private function getTempFileName(): string
+    {
+        return \sys_get_temp_dir().\DIRECTORY_SEPARATOR.\uniqid('repman-dist-', true);
+    }
+
+    /**
+     * @return Option<resource>
+     */
+    private function readStream(string $path): Option
+    {
+        try {
+            $resource = $this->repoFilesystem->readStream($path);
+            if (false === $resource) {
+                return Option::none();
+            }
+        } catch (FileNotFoundException $e) {
             return Option::none();
         }
 

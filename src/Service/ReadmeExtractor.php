@@ -11,7 +11,6 @@ use League\CommonMark\Environment;
 use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\MarkdownConverterInterface;
-use Munus\Control\Option;
 
 final class ReadmeExtractor
 {
@@ -52,7 +51,7 @@ final class ReadmeExtractor
 
     private function loadREADME(Dist $dist): ?string
     {
-        $tmpLocalFilename = $this->createTemporaryZipFile($dist);
+        $tmpLocalFilename = $this->distStorage->getLocalFileForDist($dist);
         if (null === $tmpLocalFilename->getOrNull()) {
             return null;
         }
@@ -76,34 +75,5 @@ final class ReadmeExtractor
         }
 
         return null;
-    }
-
-    private function getTempFileName(): string
-    {
-        return sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid('readme-loader-', true);
-    }
-
-    /**
-     * @return Option<string>
-     */
-    private function createTemporaryZipFile(Dist $dist): Option
-    {
-        $tmpLocalFilename = $this->getTempFileName();
-        $tmpLocalFileHandle = fopen(
-            $tmpLocalFilename,
-            'wb'
-        );
-        if (false === $tmpLocalFileHandle) {
-            throw new \RuntimeException('Could not open temporary file for writing zip file for dist.');
-        }
-
-        $distReadStream = $this->distStorage->readDistStream($dist)->getOrNull();
-        if (null === $distReadStream) {
-            return Option::none();
-        }
-        stream_copy_to_stream($distReadStream, $tmpLocalFileHandle);
-        fclose($tmpLocalFileHandle);
-
-        return Option::of($tmpLocalFilename);
     }
 }
