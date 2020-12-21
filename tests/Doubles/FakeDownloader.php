@@ -18,9 +18,8 @@ final class FakeDownloader implements Downloader
      */
     private array $content = [];
 
-    public function __construct(?string $basePath = null)
+    public function __construct(string $basePath = __DIR__.'/../Resources')
     {
-        $basePath = $basePath ?? dirname(__DIR__, 1).DIRECTORY_SEPARATOR.'Resources';
         $this->basePath = $basePath;
     }
 
