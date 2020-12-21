@@ -64,14 +64,7 @@ class PackageManager
      */
     public function saveProvider(array $json, string $organizationAlias, string $packageName): void
     {
-        $filepath = $this->filepath($organizationAlias, $packageName);
-
-        $dir = \dirname($filepath);
-        if (!$this->repoFilesystem->has($dir)) {
-            $this->repoFilesystem->createDir($dir);
-        }
-
-        $this->repoFilesystem->put($filepath, \serialize($json));
+        $this->repoFilesystem->put($this->filepath($organizationAlias, $packageName), \serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
