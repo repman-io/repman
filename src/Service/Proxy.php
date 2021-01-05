@@ -288,6 +288,7 @@ final class Proxy
         }
 
         $fileSize = $this->filesystem->getSize($path);
+
         return Option::some(new Metadata(
             (int) $this->filesystem->getTimestamp($path),
             $stream,
@@ -316,6 +317,7 @@ final class Proxy
         }
 
         $fileSize = $this->filesystem->getSize($path);
+
         return Option::some(new Metadata(
             (int) $this->filesystem->getTimestamp($path),
             $stream,
