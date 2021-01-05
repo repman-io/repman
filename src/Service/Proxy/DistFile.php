@@ -2,7 +2,7 @@
 /**
  * CRM PROJECT
  * THIS FILE IS A PART OF CRM PROJECT
- * CRM PROJECT IS PROPERTY OF Legal One GmbH
+ * CRM PROJECT IS PROPERTY OF Legal One GmbH.
  *
  * @copyright Copyright (c) 2020 Legal One GmbH (http://www.legal.one)
  */
@@ -37,9 +37,6 @@ class DistFile
         return $this->stream;
     }
 
-    /**
-     * @return int
-     */
     public function fileSize(): int
     {
         return $this->fileSize;

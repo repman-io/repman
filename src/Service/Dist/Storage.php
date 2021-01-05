@@ -23,11 +23,6 @@ interface Storage
     public function size(Dist $dist): int;
 
     /**
-     * @return Option<resource>
-     */
-    public function readDistStream(Dist $dist): Option;
-
-    /**
      * @return Option<string>
      */
     public function getLocalFileForDistUrl(string $distFilename): Option;

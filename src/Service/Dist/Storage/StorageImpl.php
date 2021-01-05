@@ -85,16 +85,6 @@ final class StorageImpl implements Storage
     }
 
     /**
-     * @return Option<resource>
-     */
-    public function readDistStream(Dist $dist): Option
-    {
-        $path = $this->filename($dist);
-
-        return $this->readStream($path);
-    }
-
-    /**
      * @return Option<string>
      */
     public function getLocalFileForDist(Dist $dist): Option
