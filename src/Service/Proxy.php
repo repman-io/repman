@@ -287,10 +287,11 @@ final class Proxy
             return Option::none();
         }
 
+        $fileSize = $this->filesystem->getSize($path);
         return Option::some(new Metadata(
             (int) $this->filesystem->getTimestamp($path),
             $stream,
-            $this->filesystem->getSize($path),
+            $fileSize === false ? 0 : $fileSize,
             $hash
         ));
     }
@@ -314,10 +315,11 @@ final class Proxy
             return Option::none();
         }
 
+        $fileSize = $this->filesystem->getSize($path);
         return Option::some(new Metadata(
             (int) $this->filesystem->getTimestamp($path),
             $stream,
-            $this->filesystem->getSize($path)
+            $fileSize === false ? 0 : $fileSize
         ));
     }
 
