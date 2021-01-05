@@ -7,6 +7,7 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Service\Proxy;
+use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Symfony\ResponseCallback;
@@ -206,17 +207,17 @@ final class ProxyController extends AbstractController
      */
     public function distribution(string $package, string $version, string $ref, string $type, Request $request): Response
     {
-        /** @var resource $stream */
-        $stream = $this->register->all()
+        /** @var DistFile $distFile */
+        $distFile = $this->register->all()
             ->map(fn (Proxy $proxy) => $proxy->distribution($package, $version, $ref, $type))
             ->find(fn (Option $option) => !$option->isEmpty())
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($stream), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($distFile->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
-            'Content-Length' => $this->getStreamSize($stream),
+            'Content-Length' => $distFile->fileSize(),
         ]))
             ->setPublic()
             ->setEtag($ref)
@@ -257,29 +258,5 @@ final class ProxyController extends AbstractController
         ));
 
         return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
-    }
-
-    /**
-     * @param resource $stream
-     */
-    private function getStreamSize($stream): int
-    {
-        /** @var array<string, int> $stats */
-        $stats = \fstat($stream);
-        $size = $stats['size'] ?? null;
-        if (null !== $size) {
-            return $size;
-        }
-
-        $meta = \stream_get_meta_data($stream);
-        $filteredMeta = \array_values(
-            \array_filter(
-                $meta['wrapper_data'],
-                fn (string $value) => false !== \strpos($value, 'Content-Length')
-            )
-        );
-        $contentLength = \array_pop($filteredMeta);
-
-        return (int) \trim(\explode(':', $contentLength)[1]);
     }
 }

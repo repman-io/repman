@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
+use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
@@ -38,7 +39,7 @@ final class Proxy
     }
 
     /**
-     * @return Option<resource>
+     * @return Option<DistFile>
      */
     public function distribution(string $package, string $version, string $ref, string $format): Option
     {
@@ -57,8 +58,11 @@ final class Proxy
 
         try {
             $stream = $this->filesystem->readStream($path);
+            $fileSize = $this->filesystem->getSize($path);
 
-            return $stream !== false ? Option::some($stream) : Option::none();
+            return $stream !== false && $fileSize !== false ?
+                Option::some(new DistFile($stream, $fileSize)) :
+                Option::none();
         } catch (FileNotFoundException $exception) {
             return Option::none();
         }
