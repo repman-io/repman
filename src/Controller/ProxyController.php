@@ -91,8 +91,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -123,8 +122,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -156,8 +154,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -188,8 +185,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -220,8 +216,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($stream), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($stream)['size'],
+            'Content-Length' => $this->getStreamSize($stream),
         ]))
             ->setPublic()
             ->setEtag($ref)
@@ -242,8 +237,8 @@ final class ProxyController extends AbstractController
      */
     public function downloads(Request $request): JsonResponse
     {
-        $contents = json_decode($request->getContent(), true);
-        if (!isset($contents['downloads']) || !is_array($contents['downloads']) || $contents['downloads'] === []) {
+        $contents = \json_decode($request->getContent(), true);
+        if (!isset($contents['downloads']) || !\is_array($contents['downloads']) || $contents['downloads'] === []) {
             return new JsonResponse([
                 'status' => 'error',
                 'message' => 'Invalid request format, must be a json object containing a downloads key filled with an array of name/version objects',
@@ -251,9 +246,9 @@ final class ProxyController extends AbstractController
         }
 
         $this->dispatchMessage(new AddDownloads(
-            array_map(function (array $data): Package {
+            \array_map(function (array $data): Package {
                 return new Package($data['name'], $data['version']);
-            }, array_filter($contents['downloads'], function (array $row): bool {
+            }, \array_filter($contents['downloads'], function (array $row): bool {
                 return isset($row['name'], $row['version']);
             })),
             new \DateTimeImmutable(),
@@ -262,5 +257,29 @@ final class ProxyController extends AbstractController
         ));
 
         return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
+    }
+
+    /**
+     * @param resource $stream
+     */
+    private function getStreamSize($stream): int
+    {
+        /** @var array<string, int> $stats */
+        $stats = \fstat($stream);
+        $size = $stats['size'] ?? null;
+        if (null !== $size) {
+            return $size;
+        }
+
+        $meta = \stream_get_meta_data($stream);
+        $filteredMeta = \array_values(
+            \array_filter(
+                $meta['wrapper_data'],
+                fn (string $value) => false !== \strpos($value, 'Content-Length')
+            )
+        );
+        $contentLength = \array_pop($filteredMeta);
+
+        return (int) \trim(\explode(':', $contentLength)[1]);
     }
 }
