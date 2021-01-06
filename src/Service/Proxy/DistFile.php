@@ -1,11 +1,4 @@
 <?php
-/**
- * CRM PROJECT
- * THIS FILE IS A PART OF CRM PROJECT
- * CRM PROJECT IS PROPERTY OF Legal One GmbH.
- *
- * @copyright Copyright (c) 2020 Legal One GmbH (http://www.legal.one)
- */
 
 declare(strict_types=1);
 
