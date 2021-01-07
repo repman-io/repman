@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Dist\Storage;
 
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Downloader;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class StorageImpl implements Storage
+class Storage
 {
     private Downloader $downloader;
     private FilesystemInterface $repoFilesystem;
@@ -29,7 +28,7 @@ final class StorageImpl implements Storage
     }
 
     /**
-     * {@inheritdoc}
+     * @param string[] $headers
      */
     public function download(string $url, Dist $dist, array $headers = []): void
     {

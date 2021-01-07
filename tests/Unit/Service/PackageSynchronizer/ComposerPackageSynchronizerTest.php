@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Dist\Storage\StorageImpl;
+use Buddy\Repman\Service\Dist\Storage\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
@@ -31,7 +31,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $this->baseDir = sys_get_temp_dir().'/repman';
         $repoFilesystem = new Filesystem(new Local($this->baseDir));
         $this->downloader = new FakeDownloader();
-        $distStorage = new StorageImpl($this->downloader, $repoFilesystem);
+        $distStorage = new Storage($this->downloader, $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
             new PackageManager($distStorage, $repoFilesystem),
             new PackageNormalizer(),

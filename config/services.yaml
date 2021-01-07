@@ -63,7 +63,7 @@ services:
     Buddy\Repman\Service\Proxy\ProxyRegister:
         public: true
 
-    repman.organization.dist_storage: '@Buddy\Repman\Service\Dist\Storage\StorageImpl'
+    repman.organization.dist_storage: '@Buddy\Repman\Service\Dist\Storage\Storage'
 
     Buddy\Repman\Service\Mailer\SymfonyMailer:
         arguments:

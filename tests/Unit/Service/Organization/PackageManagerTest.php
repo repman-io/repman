@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Dist\Storage\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use League\Flysystem\Adapter\Local;
@@ -27,10 +27,10 @@ final class PackageManagerTest extends TestCase
 
     protected function setUp(): void
     {
-        $basePath = dirname(__DIR__, 3);
+        $basePath = \dirname(__DIR__, 3);
         $this->filesystem = new Filesystem(new Local($basePath.'/Resources/fixtures/'));
         $this->manager = new PackageManager(
-            new Storage\StorageImpl(
+            new Storage(
                 new FakeDownloader(), new Filesystem(new MemoryAdapter())
             ),
             $this->filesystem
@@ -85,15 +85,15 @@ final class PackageManagerTest extends TestCase
         $manager->saveProvider([], $org, $package1);
         $manager->saveProvider([], $org, $package2);
 
-        self::assertTrue(file_exists($this->baseDir.'/buddy/p/'.$package1.'.json'));
-        self::assertTrue(file_exists($this->baseDir.'/buddy/p/'.$package2.'.json'));
+        self::assertFileExists($this->baseDir.'/buddy/p/'.$package1.'.json');
+        self::assertFileExists($this->baseDir.'/buddy/p/'.$package2.'.json');
 
         $manager->removeProvider($org, $package1);
 
-        self::assertTrue(is_dir($this->baseDir.'/buddy'));
-        self::assertTrue(is_dir(dirname($this->baseDir.'/buddy/p/'.$package1)));
-        self::assertFalse(file_exists($this->baseDir.'/buddy/p/'.$package1.'.json'));
-        self::assertTrue(file_exists($this->baseDir.'/buddy/p/'.$package2.'.json'));
+        self::assertDirectoryExists($this->baseDir.'/buddy');
+        self::assertDirectoryExists(\dirname($this->baseDir.'/buddy/p/'.$package1));
+        self::assertFileDoesNotExist($this->baseDir.'/buddy/p/'.$package1.'.json');
+        self::assertFileExists($this->baseDir.'/buddy/p/'.$package2.'.json');
     }
 
     public function testRemoveDist(): void
@@ -104,15 +104,15 @@ final class PackageManagerTest extends TestCase
         $package1 = 'vendor/package1';
         $package2 = 'vendor/package2';
 
-        @mkdir($this->baseDir.'/buddy/dist/'.$package1, 0777, true);
-        @mkdir($this->baseDir.'/buddy/dist/'.$package2, 0777, true);
+        @\mkdir($this->baseDir.'/buddy/dist/'.$package1, 0777, true);
+        @\mkdir($this->baseDir.'/buddy/dist/'.$package2, 0777, true);
 
         $manager->removeDist($org, $package1);
 
-        self::assertTrue(is_dir($this->baseDir.'/buddy'));
-        self::assertTrue(is_dir($this->baseDir.'/buddy/dist/vendor'));
-        self::assertFalse(is_dir($this->baseDir.'/buddy/dist/'.$package1));
-        self::assertTrue(is_dir($this->baseDir.'/buddy/dist/'.$package2));
+        self::assertDirectoryExists($this->baseDir.'/buddy');
+        self::assertDirectoryExists($this->baseDir.'/buddy/dist/vendor');
+        self::assertDirectoryDoesNotExist($this->baseDir.'/buddy/dist/'.$package1);
+        self::assertDirectoryExists($this->baseDir.'/buddy/dist/'.$package2);
     }
 
     public function testRemoveOrganizationDir(): void
@@ -124,12 +124,12 @@ final class PackageManagerTest extends TestCase
 
         $manager->saveProvider([], $org, $package);
 
-        self::assertTrue(is_dir($this->baseDir.'/buddy/p/hello'));
+        self::assertDirectoryExists($this->baseDir.'/buddy/p/hello');
 
         $manager->removeProvider($org, $package)
             ->removeOrganizationDir($org);
 
-        self::assertFalse(is_dir($this->baseDir.'/buddy'));
+        self::assertDirectoryDoesNotExist($this->baseDir.'/buddy');
     }
 
     private function getManagerWithLocalStorage(): PackageManager
@@ -137,7 +137,7 @@ final class PackageManagerTest extends TestCase
         $repoFilesystem = new Filesystem(new Local($this->baseDir));
 
         return new PackageManager(
-            new Storage\StorageImpl(new FakeDownloader(), $repoFilesystem),
+            new Storage(new FakeDownloader(), $repoFilesystem),
             $repoFilesystem
         );
     }

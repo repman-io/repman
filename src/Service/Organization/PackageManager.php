@@ -6,7 +6,7 @@ namespace Buddy\Repman\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage;
+use Buddy\Repman\Service\Dist\Storage\Storage;
 use Composer\Semver\VersionParser;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
