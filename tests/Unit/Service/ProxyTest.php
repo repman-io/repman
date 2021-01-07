@@ -81,7 +81,7 @@ final class ProxyTest extends TestCase
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/repman')->get();
         self::assertTrue($metadata->timestamp() > $oldTimestamp);
-        self:self::assertEquals('new', stream_get_contents($metadata->stream()));
+        self::assertEquals('new', stream_get_contents($metadata->stream()));
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/old')->get();

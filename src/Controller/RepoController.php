@@ -11,9 +11,10 @@ use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -75,12 +76,24 @@ final class RepoController extends AbstractController
      *     methods={"GET"})
      * @Cache(public=false)
      */
-    public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): BinaryFileResponse
+    public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): StreamedResponse
     {
-        return new BinaryFileResponse($this->packageManager
+        $filename = $this->packageManager
             ->distFilename($organization->alias(), $package, $version, $ref, $type)
-            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'))
-        );
+            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
+
+        return new StreamedResponse(function () use ($filename): void {
+            $outputStream = \fopen('php://output', 'wb');
+            if (false === $outputStream) {
+                throw new HttpException(500, 'Could not open output stream to send binary file.');
+            }
+            $fileStream = $this->packageManager->getDistFileReference($filename);
+            \stream_copy_to_stream(
+                $fileStream
+                    ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.')),
+                $outputStream
+            );
+        });
     }
 
     /**

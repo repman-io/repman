@@ -6,6 +6,30 @@ flysystem:
             options:
                 directory: '%dists_dir%'
 
+        storage.local.repo:
+            adapter: 'local'
+            options:
+                directory: '%repo_dir%'
+
+        storage.s3.proxy:
+            adapter: 'aws'
+            options:
+                client: 'Aws\S3\S3Client'
+                bucket: '%env(STORAGE_AWS_BUCKET)%'
+                prefix: '%dists_dir%'
+
+        storage.s3.repo:
+            adapter: 'aws'
+            options:
+                client: 'Aws\S3\S3Client'
+                bucket: '%env(STORAGE_AWS_BUCKET)%'
+                prefix: '%repo_dir%'
+
+        repo.storage:
+            adapter: 'lazy'
+            options:
+                source: '%env(STORAGE_SOURCE)%.repo'
+
         proxy.storage:
             adapter: 'lazy'
             options:

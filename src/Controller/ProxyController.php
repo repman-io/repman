@@ -7,6 +7,7 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Service\Proxy;
+use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Symfony\ResponseCallback;
@@ -91,8 +92,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -123,8 +123,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -156,8 +155,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -188,8 +186,7 @@ final class ProxyController extends AbstractController
         $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($metadata->stream())['size'],
+            'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
             ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
@@ -210,18 +207,17 @@ final class ProxyController extends AbstractController
      */
     public function distribution(string $package, string $version, string $ref, string $type, Request $request): Response
     {
-        /** @var resource $stream */
-        $stream = $this->register->all()
+        /** @var DistFile $distFile */
+        $distFile = $this->register->all()
             ->map(fn (Proxy $proxy) => $proxy->distribution($package, $version, $ref, $type))
             ->find(fn (Option $option) => !$option->isEmpty())
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($stream), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($distFile->stream()), 200, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
-            /* @phpstan-ignore-next-line */
-            'Content-Length' => fstat($stream)['size'],
+            'Content-Length' => $distFile->fileSize(),
         ]))
             ->setPublic()
             ->setEtag($ref)
@@ -242,8 +238,8 @@ final class ProxyController extends AbstractController
      */
     public function downloads(Request $request): JsonResponse
     {
-        $contents = json_decode($request->getContent(), true);
-        if (!isset($contents['downloads']) || !is_array($contents['downloads']) || $contents['downloads'] === []) {
+        $contents = \json_decode($request->getContent(), true);
+        if (!isset($contents['downloads']) || !\is_array($contents['downloads']) || $contents['downloads'] === []) {
             return new JsonResponse([
                 'status' => 'error',
                 'message' => 'Invalid request format, must be a json object containing a downloads key filled with an array of name/version objects',
@@ -251,9 +247,9 @@ final class ProxyController extends AbstractController
         }
 
         $this->dispatchMessage(new AddDownloads(
-            array_map(function (array $data): Package {
+            \array_map(function (array $data): Package {
                 return new Package($data['name'], $data['version']);
-            }, array_filter($contents['downloads'], function (array $row): bool {
+            }, \array_filter($contents['downloads'], function (array $row): bool {
                 return isset($row['name'], $row['version']);
             })),
             new \DateTimeImmutable(),

@@ -22,4 +22,10 @@
     owner: "{{ system_user }}"
     group: "{{ system_user }}"
     mode: 0755
-  with_items: ["{{ app_releases_dir }}", "{{ app_shared_dir }}/var/security-advisories"]
+  with_items:
+    - "{{ app_releases_dir }}"
+    - "{{ app_shared_dir }}/var/security-advisories"
+    - "{{ app_shared_dir }}/var/log"
+    - "{{ app_shared_dir }}/var/cache"
+    - "{{ app_shared_dir }}/var/proxy"
+    - "{{ app_shared_dir }}/var/repo"

@@ -51,10 +51,13 @@ final class ReadmeExtractor
 
     private function loadREADME(Dist $dist): ?string
     {
-        $zipFilename = $this->distStorage->filename($dist);
+        $tmpLocalFilename = $this->distStorage->getLocalFileForDist($dist);
+        if (null === $tmpLocalFilename->getOrNull()) {
+            return null;
+        }
 
         $zip = new \ZipArchive();
-        $result = $zip->open($zipFilename);
+        $result = $zip->open($tmpLocalFilename->get());
         if ($result !== true) {
             return null;
         }
@@ -68,6 +71,7 @@ final class ReadmeExtractor
             }
         } finally {
             $zip->close();
+            @unlink($tmpLocalFilename->get());
         }
 
         return null;

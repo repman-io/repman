@@ -373,13 +373,13 @@ final class PackageControllerTest extends FunctionalTestCase
     public function testAddPackageByPath(): void
     {
         $this->loginApiUser($this->apiToken);
-        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
         $this->client->request('POST', $this->urlTo('api_package_add', [
             'organization' => self::$organization,
         ]), [], [], [], (string) json_encode([
             'type' => 'path',
             'repository' => '/path/to/package',
         ]));
+        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         self::assertJsonStringEqualsJsonString($this->lastResponseBody(),

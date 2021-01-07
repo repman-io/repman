@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Dist;
 
 use Buddy\Repman\Service\Dist;
+use Munus\Control\Option;
 
 interface Storage
 {
@@ -20,4 +21,14 @@ interface Storage
     public function filename(Dist $dist): string;
 
     public function size(Dist $dist): int;
+
+    /**
+     * @return Option<string>
+     */
+    public function getLocalFileForDistUrl(string $distFilename): Option;
+
+    /**
+     * @return Option<string>
+     */
+    public function getLocalFileForDist(Dist $dist): Option;
 }

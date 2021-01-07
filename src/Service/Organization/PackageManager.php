@@ -5,25 +5,23 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
-use Buddy\Repman\Service\AtomicFile;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
+use League\Flysystem\FileNotFoundException;
+use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
-use Symfony\Component\Filesystem\Filesystem;
 
 class PackageManager
 {
     private Storage $distStorage;
-    private string $baseDir;
-    private Filesystem $filesystem;
+    private FilesystemInterface $repoFilesystem;
     private VersionParser $versionParser;
 
-    public function __construct(Storage $distStorage, string $baseDir, Filesystem $filesystem)
+    public function __construct(Storage $distStorage, FilesystemInterface $repoFilesystem)
     {
         $this->distStorage = $distStorage;
-        $this->baseDir = $baseDir;
-        $this->filesystem = $filesystem;
+        $this->repoFilesystem = $repoFilesystem;
         $this->versionParser = new VersionParser();
     }
 
@@ -39,23 +37,25 @@ class PackageManager
 
         foreach ($packages as $package) {
             $filepath = $this->filepath($organizationAlias, $package->name());
-            if (!is_readable($filepath)) {
+            if (!$this->repoFilesystem->has($filepath)) {
                 continue;
             }
 
-            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) filemtime($filepath));
+            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
 
             if ($fileModifyDate > $lastModified) {
                 $lastModified = $fileModifyDate;
             }
 
-            $json = unserialize((string) file_get_contents($filepath), ['allowed_classes' => false]);
+            $json = \unserialize(
+                (string) $this->repoFilesystem->read($filepath), ['allowed_classes' => false]
+            );
             $data[] = $json['packages'] ?? [];
         }
 
         return [
             $lastModified,
-            array_merge(...$data),
+            \array_merge(...$data),
         ];
     }
 
@@ -64,53 +64,47 @@ class PackageManager
      */
     public function saveProvider(array $json, string $organizationAlias, string $packageName): void
     {
-        $filepath = $this->filepath($organizationAlias, $packageName);
-
-        $dir = dirname($filepath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-
-        AtomicFile::write($filepath, serialize($json));
+        $this->repoFilesystem->put($this->filepath($organizationAlias, $packageName), \serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
     {
         $file = $this->filepath($organizationAlias, $packageName);
-        if (is_file($file)) {
-            $this->filesystem->remove($file);
-        }
+        $this->removeFile($file);
 
         return $this;
     }
 
     public function removeDist(string $organizationAlias, string $packageName): self
     {
-        $distDir = $this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName;
-        if (is_dir($distDir)) {
-            $this->filesystem->remove($distDir);
-        }
+        $distDir = $organizationAlias.'/dist/'.$packageName;
+        $this->repoFilesystem->deleteDir($distDir);
 
         return $this;
     }
 
     public function removeVersionDists(string $organizationAlias, string $packageName, string $version, string $format, string $excludeRef): self
     {
-        $baseFilename = $this->baseDir.'/'.$organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_';
+        $baseFilename = $organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_';
 
-        $this->filesystem->remove(
-            array_filter((array) glob($baseFilename.'*.'.$format), fn ($file) => $file !== $baseFilename.$excludeRef.'.'.$format
-            )
+        $filesToDelete = \array_filter(
+            (array) \glob($baseFilename.'*.'.$format),
+            fn ($file) => $file !== $baseFilename.$excludeRef.'.'.$format
         );
+
+        foreach ($filesToDelete as $fileName) {
+            if (false === $fileName) {
+                continue;
+            }
+            $this->removeFile($fileName);
+        }
 
         return $this;
     }
 
     public function removeOrganizationDir(string $organizationAlias): self
     {
-        if (is_dir($base = $this->baseDir.'/'.$organizationAlias)) {
-            $this->filesystem->remove($base);
-        }
+        $this->repoFilesystem->deleteDir($organizationAlias);
 
         return $this;
     }
@@ -128,8 +122,30 @@ class PackageManager
         return Option::of($this->distStorage->filename($dist));
     }
 
+    /**
+     * @return Option<resource> Handle for a file
+     */
+    public function getDistFileReference(
+        string $fileName
+    ): Option {
+        $fileResource = $this->repoFilesystem->readStream($fileName);
+        if (false === $fileResource) {
+            return Option::none();
+        }
+
+        return Option::some($fileResource);
+    }
+
     private function filepath(string $organizationAlias, string $packageName): string
     {
-        return $this->baseDir.'/'.$organizationAlias.'/p/'.$packageName.'.json';
+        return $organizationAlias.'/p/'.$packageName.'.json';
+    }
+
+    private function removeFile(string $fileName): void
+    {
+        try {
+            $this->repoFilesystem->delete($fileName);
+        } catch (FileNotFoundException $ignored) {
+        }
     }
 }

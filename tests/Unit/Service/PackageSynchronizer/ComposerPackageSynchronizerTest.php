@@ -6,16 +6,16 @@ namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Dist\Storage\FileStorage;
-use Buddy\Repman\Service\Dist\Storage\InMemoryStorage;
+use Buddy\Repman\Service\Dist\Storage\StorageImpl;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use League\Flysystem\Adapter\Local;
+use League\Flysystem\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Filesystem\Filesystem;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
@@ -24,18 +24,22 @@ final class ComposerPackageSynchronizerTest extends TestCase
     private $repoMock;
     private string $baseDir;
     private string $resourcesDir;
+    private FakeDownloader $downloader;
 
     protected function setUp(): void
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
+        $repoFilesystem = new Filesystem(new Local($this->baseDir));
+        $this->downloader = new FakeDownloader();
+        $distStorage = new StorageImpl($this->downloader, $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
-            new PackageManager(new FileStorage($this->baseDir, new FakeDownloader(), new Filesystem()), $this->baseDir, new Filesystem()),
+            new PackageManager($distStorage, $repoFilesystem),
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
-            new InMemoryStorage(),
+            $distStorage,
             'gitlab.com'
         );
-        $this->resourcesDir = __DIR__.'/../../../Resources/';
+        $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';
     }
 
     public function testSynchronizePackageFromLocalPath(): void
@@ -43,7 +47,10 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $package = PackageMother::withOrganization('path', __DIR__.'/../../../../', 'buddy');
+        $basePath = dirname(__DIR__, 4);
+        $this->downloader->addContent($basePath, 'foobar');
+
+        $package = PackageMother::withOrganization('path', $basePath, 'buddy');
         $this->synchronizer->synchronize($package);
 
         self::assertFileExists($path);
@@ -67,6 +74,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
         @unlink($path);
 
+        $this->downloader->addContent($this->resourcesDir.'artifacts', 'foobar');
         $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts', 'buddy');
         $this->synchronizer->synchronize($package);
 
@@ -167,6 +175,8 @@ final class ComposerPackageSynchronizerTest extends TestCase
 
         $package = PackageMother::withOrganization('path', dirname($tmpPath), 'buddy');
 
+        /* @phpstan-ignore-next-line */
+        $this->downloader->addContent(dirname($tmpPath), file_get_contents($tmpPath));
         $this->synchronizer->synchronize($package);
 
         self::assertEquals('no stable release', $this->getProperty($package, 'latestReleasedVersion'));

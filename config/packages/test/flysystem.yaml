@@ -1,0 +1,22 @@
+
+flysystem:
+    storages:
+        storage.memory.proxy:
+            adapter: 'local'
+            options:
+                directory: '%dists_dir%'
+
+        storage.local.repo:
+            adapter: 'local'
+            options:
+                directory: '%repo_dir%'
+
+        repo.storage:
+            adapter: 'lazy'
+            options:
+                source: 'storage.local.repo'
+
+        proxy.storage:
+            adapter: 'lazy'
+            options:
+                source: 'storage.local.proxy'

@@ -1,4 +1,7 @@
 {
+    "aws/aws-sdk-php": {
+        "version": "3.158.21"
+    },
     "bitbucket/client": {
         "version": "v2.1.1"
     },
@@ -279,6 +282,9 @@
     "league/flysystem": {
         "version": "1.0.69"
     },
+    "league/flysystem-aws-s3-v3": {
+        "version": "1.0.29"
+    },
     "league/flysystem-bundle": {
         "version": "1.0",
         "recipe": {
@@ -309,6 +315,9 @@
     },
     "monolog/monolog": {
         "version": "2.0.2"
+    },
+    "mtdowling/jmespath.php": {
+        "version": "2.6.0"
     },
     "munusphp/munus": {
         "version": "0.1.0"

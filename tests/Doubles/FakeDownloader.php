@@ -40,6 +40,10 @@ final class FakeDownloader implements Downloader
             return Option::some(Stream::fromString((string) file_get_contents($path)));
         }
 
+        if (file_exists($url)) {
+            return Option::some(Stream::fromString((string) file_get_contents($url)));
+        }
+
         if (strstr($path, 'not-found') !== false && $notFoundHandler !== null) {
             $notFoundHandler();
         }
