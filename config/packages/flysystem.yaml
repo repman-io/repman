@@ -6,10 +6,22 @@ flysystem:
             options:
                 directory: '%dists_dir%'
 
+        storage.local.cached.proxy:
+            adapter: 'cache'
+            options:
+                store: 'cache.app'
+                source: 'storage.local.proxy'
+
         storage.local.repo:
             adapter: 'local'
             options:
                 directory: '%repo_dir%'
+
+        storage.local.cached.repo:
+            adapter: 'cache'
+            options:
+                store: 'cache.app'
+                source: 'storage.local.repo'
 
         storage.s3.proxy:
             adapter: 'aws'
@@ -18,6 +30,12 @@ flysystem:
                 bucket: '%env(STORAGE_AWS_BUCKET)%'
                 prefix: '%dists_dir%'
 
+        storage.s3.cached.proxy:
+            adapter: 'cache'
+            options:
+                store: 'cache.app'
+                source: 'storage.s3.proxy'
+
         storage.s3.repo:
             adapter: 'aws'
             options:
@@ -25,12 +43,18 @@ flysystem:
                 bucket: '%env(STORAGE_AWS_BUCKET)%'
                 prefix: '%repo_dir%'
 
+        storage.s3.cached.repo:
+            adapter: 'cache'
+            options:
+                store: 'cache.app'
+                source: 'storage.s3.repo'
+
         repo.storage:
             adapter: 'lazy'
             options:
-                source: '%env(STORAGE_SOURCE)%.repo'
+                source: '%env(STORAGE_SOURCE)%.cached.repo'
 
         proxy.storage:
             adapter: 'lazy'
             options:
-                source: '%env(STORAGE_SOURCE)%.proxy'
+                source: '%env(STORAGE_SOURCE)%.cached.proxy'
