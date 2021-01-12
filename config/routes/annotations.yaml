@@ -8,20 +8,26 @@ app_logout:
 proxy_repo_url:
     path: ''
     schemes: ['%url_scheme%']
-    host: 'repo.{domain}'
+    host: 'repo{domain_separator}{domain}'
     defaults:
         domain: '%domain%'
+        domain_separator: '%domain_separator%'
     requirements:
         domain: "%domain%"
+        domain_separator: '%domain_separator%'
 
 organization_repo_url:
     path: ''
     schemes: ['%url_scheme%']
-    host: '{organization}.repo.{domain}'
+    host: '{organization}{sep1}repo{sep2}{domain}'
     defaults:
         domain: '%domain%'
+        sep1: '%domain_separator%'
+        sep2: '%domain_separator%'
     requirements:
         domain: "%domain%"
+        sep1: '%domain_separator%'
+        sep2: '%domain_separator%'
 
 login_github_check:
     path: /auth/github/check

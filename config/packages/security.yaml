@@ -14,7 +14,7 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         repo:
-            host: '([a-z0-9_-]+)\.repo\.(.+)'
+            host: '([a-z0-9_-]+)\%domain_separator%repo\%domain_separator%(.+)'
             anonymous: true
             logout: false
             stateless: true
@@ -60,7 +60,7 @@ security:
          - { path: ^/organization/.+/package$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+/package/.+/details$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
-         - { path: ^/downloads, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
-         - { path: ^/, host: '([a-z0-9_-]+)\.repo\.(.+)', roles: ROLE_ORGANIZATION }
+         - { path: ^/downloads, host: '([a-z0-9_-]+)\%domain_separator%repo\%domain_separator%(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
+         - { path: ^/, host: '([a-z0-9_-]+)\%domain_separator%repo\%domain_separator%(.+)', roles: ROLE_ORGANIZATION }
          - { path: ^/api/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
          - { path: ^/api(?!/doc), roles: ROLE_USER }
