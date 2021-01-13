@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
-use Buddy\Repman\Service\Dist\Storage\Storage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use League\Flysystem\Adapter\Local;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Service\Dist\Storage;
+namespace Buddy\Repman\Service\Dist;
 
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Downloader;

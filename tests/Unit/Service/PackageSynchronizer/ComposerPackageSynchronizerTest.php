@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
-use Buddy\Repman\Service\Dist\Storage\Storage;
+use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
