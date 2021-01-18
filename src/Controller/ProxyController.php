@@ -33,11 +33,11 @@ final class ProxyController extends AbstractController
     /**
      * @Route(
      *     "/packages.json",
-     *     host="repo.{domain}",
+     *     host="repo{domain_separator}{domain}",
      *     name="packages",
      *     methods={"GET"},
-     *     defaults={"domain"="%domain%"},
-     *     requirements={"domain"="%domain%"}
+     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"domain"="%domain%","domain_separator"="%domain_separator%"}
      * )
      */
     public function packages(Request $request): JsonResponse
@@ -75,9 +75,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/p/{package}${hash}.json",
      *     name="package_legacy_metadata",
-     *     host="repo.{domain}",
-     *     defaults={"domain"="%domain%"},
-     *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
+     *     host="repo{domain_separator}{domain}",
+     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"package"="%package_name_pattern%","domain"="%domain%","domain_separator"="%domain_separator%"},
      *     methods={"GET"})
      */
     public function legacyMetadata(string $package, string $hash, Request $request): Response
@@ -106,9 +106,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/p/{package}",
      *     name="package_legacy_metadata_lazy",
-     *     host="repo.{domain}",
-     *     defaults={"domain"="%domain%"},
-     *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
+     *     host="repo{domain_separator}{domain}",
+     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"package"="%package_name_pattern%","domain"="%domain%","domain_separator"="%domain_separator%"},
      *     methods={"GET"})
      */
     public function legacyMetadataLazy(string $package, Request $request): Response
@@ -137,10 +137,11 @@ final class ProxyController extends AbstractController
     /**
      * @Route(
      *     "/p/provider-{version}${hash}.json",
-     *     host="repo.{domain}",
+     *     host="repo{domain_separator}{domain}",
      *     name="providers",
      *     methods={"GET"},
-     *     defaults={"domain"="%domain%"}, requirements={"domain"="%domain%"}
+     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"domain"="%domain%","domain_separator"="%domain_separator%"}
      * )
      */
     public function providers(string $version, string $hash, Request $request): Response
@@ -169,9 +170,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/p2/{package}.json",
      *     name="package_metadata",
-     *     host="repo.{domain}",
-     *     defaults={"domain"="%domain%"},
-     *     requirements={"package"="%package_name_pattern%","domain"="%domain%"},
+     *     host="repo{domain_separator}{domain}",
+     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"package"="%package_name_pattern%","domain"="%domain%","domain_separator"="%domain_separator%"},
      *     methods={"GET"})
      */
     public function metadata(string $package, Request $request): Response
@@ -200,9 +201,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/dists/{package}/{version}/{ref}.{type}",
      *     name="package_dist",
-     *     host="repo.{domain}",
-     *     defaults={"domain"="%domain%"},
-     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%"},
+     *     host="repo{domain_separator}{domain}",
+     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%","domain_separator"="%domain_separator%"},
      *     methods={"GET"})
      */
     public function distribution(string $package, string $version, string $ref, string $type, Request $request): Response
@@ -231,9 +232,9 @@ final class ProxyController extends AbstractController
     /**
      * @Route("/downloads",
      *     name="package_downloads",
-     *     host="repo.{domain}",
-     *     defaults={"domain":"%domain%"},
-     *     requirements={"domain"="%domain%"},
+     *     host="repo{domain_separator}{domain}",
+     *     defaults={"domain":"%domain%","domain_separator"="%domain_separator%"},
+     *     requirements={"domain"="%domain%","domain_separator"="%domain_separator%"},
      *     methods={"POST"})
      */
     public function downloads(Request $request): JsonResponse

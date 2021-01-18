@@ -47,7 +47,8 @@ composer install
 
 Setup database:
 ```
-bin/console doctrine:migrations:migrate
+bin/console doctrine:migrations:migrate #for postgres
+bin/console doctrine:schema:create #for sqlite init as migrations are only postgres-compatible
 bin/console messenger:setup-transports
 ```
 

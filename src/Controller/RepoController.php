@@ -32,7 +32,7 @@ final class RepoController extends AbstractController
     }
 
     /**
-     * @Route("/packages.json", host="{organization}.repo.{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%"}, requirements={"domain"="%domain%"})
+     * @Route("/packages.json", host="{organization}{sep1}repo{sep2}{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"}, requirements={"domain"="%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"})
      * @Cache(public=false)
      */
     public function packages(Request $request, Organization $organization): JsonResponse
@@ -70,9 +70,9 @@ final class RepoController extends AbstractController
     /**
      * @Route("/dists/{package}/{version}/{ref}.{type}",
      *     name="repo_package_dist",
-     *     host="{organization}.repo.{domain}",
-     *     defaults={"domain":"%domain%"},
-     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%"},
+     *     host="{organization}{sep1}repo{sep2}{domain}",
+     *     defaults={"domain":"%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
+     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
      *     methods={"GET"})
      * @Cache(public=false)
      */
@@ -99,9 +99,9 @@ final class RepoController extends AbstractController
     /**
      * @Route("/downloads",
      *     name="repo_package_downloads",
-     *     host="{organization}.repo.{domain}",
-     *     defaults={"domain":"%domain%"},
-     *     requirements={"domain"="%domain%"},
+     *     host="{organization}{sep1}repo{sep2}{domain}",
+     *     defaults={"domain":"%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
+     *     requirements={"domain"="%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
      *     methods={"POST"})
      */
     public function downloads(Request $request, Organization $organization): JsonResponse
@@ -136,11 +136,11 @@ final class RepoController extends AbstractController
 
     /**
      * @Route("/p2/{package}.json",
-     *      host="{organization}.repo.{domain}",
+     *      host="{organization}{sep1}repo{sep2}{domain}",
      *      name="repo_package_provider_v2",
      *      methods={"GET"},
-     *      defaults={"domain":"%domain%"},
-     *      requirements={"domain"="%domain%","package"="%package_name_pattern%"})
+     *      defaults={"domain":"%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
+     *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%domain_separator%","sep2"="%domain_separator%"})
      * @Cache(public=false)
      */
     public function providerV2(Request $request, Organization $organization, string $package): JsonResponse
