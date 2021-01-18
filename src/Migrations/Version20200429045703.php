@@ -29,7 +29,7 @@ final class Version20200429045703 extends AbstractMigration
         $this->addSql('ALTER TABLE organization ADD CONSTRAINT FK_C1EE637C7E3C61F9 FOREIGN KEY (owner_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE user_oauth_token ADD CONSTRAINT FK_712F82BFA76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
 
-        $organizations = $this->connection->fetchAll('SELECT id, owner_id FROM organization');
+        $organizations = $this->connection->fetchAllAssociative('SELECT id, owner_id FROM organization');
         foreach ($organizations as $organization) {
             $this->addSql('INSERT INTO organization_member (id, organization_id, user_id, role) VALUES (:id, :org_id, :user_id, :role)', [
                 'id' => Uuid::uuid4()->toString(),
@@ -62,7 +62,7 @@ final class Version20200429045703 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN organization.owner_id IS \'(DC2Type:uuid)\'');
         $this->addSql('ALTER TABLE organization ADD CONSTRAINT FK_C1EE637C7E3C61F9 FOREIGN KEY (owner_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
 
-        $owners = $this->connection->fetchAll('SELECT organization_id, user_id FROM organization_member WHERE role = :role', ['role' => Member::ROLE_OWNER]);
+        $owners = $this->connection->fetchAllAssociative('SELECT organization_id, user_id FROM organization_member WHERE role = :role', ['role' => Member::ROLE_OWNER]);
         foreach ($owners as $owner) {
             $this->addSql('UPDATE organization SET owner_id = :owner_id WHERE id = :id', [
                 'owner_id' => $owner['user_id'],

@@ -31,7 +31,7 @@ final class DbalUserQuery implements UserQuery
                 $data['type'],
                 new \DateTimeImmutable($data['created_at'])
             );
-        }, $this->connection->fetchAll('
+        }, $this->connection->fetchAllAssociative('
             SELECT type, created_at
             FROM user_oauth_token
             WHERE user_id = :user_id
@@ -45,7 +45,7 @@ final class DbalUserQuery implements UserQuery
      */
     public function findOAuthAccessToken(string $userId, string $type): Option
     {
-        $data = $this->connection->fetchAssoc('SELECT access_token, expires_at FROM user_oauth_token WHERE user_id = :user_id AND type = :type', [
+        $data = $this->connection->fetchAssociative('SELECT access_token, expires_at FROM user_oauth_token WHERE user_id = :user_id AND type = :type', [
             ':user_id' => $userId,
             ':type' => $type,
         ]);
@@ -71,7 +71,7 @@ final class DbalUserQuery implements UserQuery
     {
         return array_map(function (array $data): ApiToken {
             return $this->hydrateToken($data);
-        }, $this->connection->fetchAll('
+        }, $this->connection->fetchAllAssociative('
             SELECT name, value, created_at, last_used_at
             FROM user_api_token
             WHERE user_id = :id
@@ -87,7 +87,7 @@ final class DbalUserQuery implements UserQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(value) FROM user_api_token WHERE user_id = :id',
                 [':id' => $userId]
             );

@@ -72,7 +72,7 @@ final class OrganizationProvider implements UserProviderInterface
      */
     private function getUserDataByToken(string $token)
     {
-        return $this->connection->fetchAssoc('
+        return $this->connection->fetchAssociative('
             SELECT t.value, o.name, o.alias, o.id FROM organization_token t
             JOIN organization o ON o.id = t.organization_id
             WHERE t.value = :token',
@@ -86,7 +86,7 @@ final class OrganizationProvider implements UserProviderInterface
      */
     private function getUserDataByAlias(string $alias)
     {
-        return $this->connection->fetchAssoc("
+        return $this->connection->fetchAssociative("
             SELECT id, name, alias, 'anonymous' AS value
             FROM organization
             WHERE alias = :alias AND has_anonymous_access = true",

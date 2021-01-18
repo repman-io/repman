@@ -175,6 +175,9 @@
     "exsyst/swagger": {
         "version": "v0.4.1"
     },
+    "fakerphp/faker": {
+        "version": "v1.13.0"
+    },
     "friendsofphp/php-cs-fixer": {
         "version": "2.2",
         "recipe": {
@@ -187,8 +190,8 @@
             ".php_cs.dist"
         ]
     },
-    "fzaninotto/faker": {
-        "version": "v1.9.1"
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.3"
     },
     "google/recaptcha": {
         "version": "1.1",
@@ -359,9 +362,6 @@
     "ocramius/package-versions": {
         "version": "1.5.1"
     },
-    "ocramius/proxy-manager": {
-        "version": "2.6.0"
-    },
     "omines/oauth2-gitlab": {
         "version": "3.2.0"
     },
@@ -388,9 +388,6 @@
     },
     "php-http/discovery": {
         "version": "1.7.4"
-    },
-    "php-http/guzzle6-adapter": {
-        "version": "v2.0.1"
     },
     "php-http/httplug": {
         "version": "2.1.0"
@@ -609,18 +606,6 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
-        ]
-    },
-    "sensiolabs/security-checker": {
-        "version": "4.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.0",
-            "ref": "160c9b600564faa1224e8f387d49ef13ceb8b793"
-        },
-        "files": [
-            "config/packages/security_checker.yaml"
         ]
     },
     "sentry/sdk": {
@@ -991,9 +976,6 @@
     },
     "twig/twig": {
         "version": "v3.0.1"
-    },
-    "webimpress/safe-writer": {
-        "version": "2.0.0"
     },
     "webmozart/assert": {
         "version": "1.6.0"

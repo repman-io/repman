@@ -25,7 +25,7 @@ final class Version20200811170234 extends AbstractMigration
 
         $this->addSql('ALTER TABLE organization_package_version ADD stability VARCHAR(255)');
 
-        foreach ($this->connection->fetchAll('SELECT id, version FROM organization_package_version') as $data) {
+        foreach ($this->connection->fetchAllAssociative('SELECT id, version FROM organization_package_version') as $data) {
             $this->addSql(
                 'UPDATE organization_package_version SET stability = :stability WHERE id = :id',
                 [

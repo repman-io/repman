@@ -59,7 +59,7 @@ final class DbalPackageQuery implements PackageQuery
             function (array $data): Package {
                 return $this->hydratePackage($data);
             },
-            $this->connection->fetchAll(
+            $this->connection->fetchAllAssociative(
                 'SELECT
                 id,
                 organization_id,
@@ -93,7 +93,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): PackageName {
             return new PackageName($data['id'], $data['name']);
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT id, name
             FROM "organization_package"
             WHERE organization_id = :organization_id AND name IS NOT NULL',
@@ -116,7 +116,7 @@ final class DbalPackageQuery implements PackageQuery
 
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "organization_package"
                 WHERE organization_id = :organization_id'.$filterSQL,
                 $params
@@ -128,7 +128,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getById(string $id): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT
                 id,
                 organization_id,
@@ -161,7 +161,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getDetailsById(string $id): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT
                 id,
                 organization_id,
@@ -194,7 +194,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "organization_package_version"
                 WHERE package_id = :package_id',
                 [
@@ -215,7 +215,7 @@ final class DbalPackageQuery implements PackageQuery
                 $data['size'],
                 new \DateTimeImmutable($data['date'])
             );
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT
                 id,
                 version,
@@ -250,9 +250,9 @@ final class DbalPackageQuery implements PackageQuery
         return new Installs(
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAll($query, $params)),
+            }, $this->connection->fetchAllAssociative($query, $params)),
             $lastDays,
-            (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', [':package' => $packageId])
+            (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', [':package' => $packageId])
         );
     }
 
@@ -261,7 +261,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getInstallVersions(string $packageId): array
     {
-        return array_column($this->connection->fetchAll('
+        return array_column($this->connection->fetchAllAssociative('
             SELECT DISTINCT version FROM organization_package_download
             WHERE package_id= :package ORDER BY version DESC', [
             ':package' => $packageId,
@@ -272,7 +272,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $row): WebhookRequest {
             return new WebhookRequest($row['date'], $row['ip'], $row['user_agent']);
-        }, $this->connection->fetchAll('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', [':package' => $packageId]));
+        }, $this->connection->fetchAllAssociative('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', [':package' => $packageId]));
     }
 
     /**
@@ -287,7 +287,7 @@ final class DbalPackageQuery implements PackageQuery
                 $data['version'],
                 $data['content'],
             );
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT
                 date,
                 status,
@@ -307,7 +307,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "organization_package_scan_result"
                 WHERE package_id = :package_id',
                 [
@@ -323,7 +323,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): PackageName {
             return new PackageName($data['id'], $data['name'], $data['alias']);
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT p.id, p.name, o.alias
             FROM organization_package p
             JOIN organization o ON o.id = p.organization_id
@@ -339,7 +339,7 @@ final class DbalPackageQuery implements PackageQuery
 
     public function getAllSynchronizedCount(): int
     {
-        return (int) $this->connection->fetchColumn(
+        return (int) $this->connection->fetchOne(
             'SELECT COUNT(id) FROM organization_package
             WHERE name IS NOT NULL AND last_sync_error IS NULL',
         );
@@ -414,7 +414,7 @@ final class DbalPackageQuery implements PackageQuery
                 0,
                 new \DateTimeImmutable()
             );
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT
                 id,
                 version,

@@ -26,7 +26,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return array_map(function (array $data): Organization {
             return $this->hydrateOrganization($data);
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT o.id, o.name, o.alias, COUNT(p.id) packages_count
             FROM "organization" o
             LEFT JOIN "organization_package" p ON p.organization_id = o.id
@@ -44,7 +44,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn('SELECT COUNT(id) FROM "organization"');
+            ->fetchOne('SELECT COUNT(id) FROM "organization"');
     }
 
     public function getInstalls(int $lastDays = 30): Installs
@@ -52,11 +52,11 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return new Installs(
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
+            }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
                 ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             ])),
             $lastDays,
-            (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download')
+            (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download')
         );
     }
 

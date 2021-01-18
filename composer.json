@@ -80,7 +80,7 @@
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "ekino/phpstan-banned-code": "^0.3.1",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "fzaninotto/faker": "^1.9",
+        "fakerphp/faker": "^1.9",
         "johnkary/phpunit-speedtrap": "^3.2",
         "league/flysystem-memory": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
@@ -92,7 +92,6 @@
         "phpstan/phpstan-strict-rules": "^0.12.2",
         "phpstan/phpstan-symfony": "^0.12.3",
         "phpunit/phpunit": "^9",
-        "sensiolabs/security-checker": "^6.0",
         "symfony/browser-kit": "*",
         "symfony/maker-bundle": "^1.14",
         "symfony/stopwatch": "*",
@@ -165,9 +164,6 @@
             "bin/console doctrine:migrations:migrate --no-interaction",
             "bin/console messenger:setup-transports"
         ],
-        "security": [
-            "bin/console security:check"
-        ],
         "tests": [
             "@check-cs",
             "@phpstan",
@@ -175,6 +171,9 @@
             "bin/console lint:twig templates --show-deprecations",
             "rm -rf var/cache/prod",
             "bin/console cache:warmup --env=prod"
-        ]
+        ],
+        "auto-scripts": {
+
+        }
     }
 }

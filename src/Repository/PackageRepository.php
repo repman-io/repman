@@ -36,7 +36,7 @@ class PackageRepository extends ServiceEntityRepository
 
     public function packageExist(string $name, UuidInterface $organizationId): bool
     {
-        return false !== $this->_em->getConnection()->fetchColumn('SELECT id FROM organization_package WHERE name = :name AND organization_id = :organizationId', [
+        return false !== $this->_em->getConnection()->fetchOne('SELECT id FROM organization_package WHERE name = :name AND organization_id = :organizationId', [
             ':name' => $name,
             ':organizationId' => $organizationId->toString(),
         ]);

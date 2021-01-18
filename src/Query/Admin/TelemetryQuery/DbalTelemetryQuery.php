@@ -23,7 +23,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "user"',
             );
     }
@@ -41,7 +41,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 $data['members'],
                 $data['owners'],
             );
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT
                 o.id,
                 COUNT(t.value) tokens,
@@ -66,7 +66,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "organization"'
             );
     }
@@ -88,7 +88,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 $data['downloads'],
                 $data['webhooks'],
             );
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT
                 p.type,
                 p.latest_release_date,
@@ -115,7 +115,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "organization_package"
                 WHERE organization_id = :organization_id',
                 [
@@ -128,7 +128,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(date) FROM "proxy_package_download"
                 WHERE date::date <= :till',
                 [':till' => $till->format('Y-m-d')]
@@ -139,7 +139,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(date) FROM "organization_package_download"
                 WHERE date::date <= :till',
                 [':till' => $till->format('Y-m-d')]

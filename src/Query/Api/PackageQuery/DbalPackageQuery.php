@@ -26,7 +26,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT
                 id,
                 type,
@@ -57,7 +57,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(id) FROM "organization_package"
                 WHERE organization_id = :organization_id',
                 [
@@ -71,7 +71,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getById(string $organizationId, string $id): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT
                 id,
                 type,
