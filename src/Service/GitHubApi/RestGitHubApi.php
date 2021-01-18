@@ -52,7 +52,7 @@ final class RestGitHubApi implements GitHubApi
      */
     public function addHook(string $accessToken, string $repo, string $url): void
     {
-        list($owner, $repo) = explode('/', $repo);
+        [$owner, $repo] = explode('/', $repo);
         $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
 
         foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
@@ -75,7 +75,7 @@ final class RestGitHubApi implements GitHubApi
      */
     public function removeHook(string $accessToken, string $repo, string $url): void
     {
-        list($owner, $repo) = explode('/', $repo);
+        [$owner, $repo] = explode('/', $repo);
         $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
 
         foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {

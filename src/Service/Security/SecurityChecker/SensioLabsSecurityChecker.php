@@ -209,7 +209,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     /**
      * @param string[] $command
      */
-    protected function runProcess(array $command): string
+    private function runProcess(array $command): string
     {
         $process = new Process($command, $this->databaseDir);
         $process->run();

@@ -46,7 +46,7 @@ final class ApiUserProvider implements UserProviderInterface
      */
     private function getUserDataByApiToken(string $apiToken)
     {
-        return $this->connection->fetchAssoc(
+        return $this->connection->fetchAssociative(
             'SELECT
                 u.id,
                 u.email,
@@ -68,7 +68,7 @@ final class ApiUserProvider implements UserProviderInterface
      */
     private function hydrateUser(array $data): User
     {
-        $organizations = $this->connection->fetchAll('
+        $organizations = $this->connection->fetchAllAssociative('
             SELECT o.name, o.alias, om.role, o.has_anonymous_access FROM organization_member om
             JOIN organization o ON o.id = om.organization_id
             WHERE om.user_id = :userId ORDER BY o.name

@@ -28,7 +28,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function getByAlias(string $alias): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT id, name, alias, has_anonymous_access
             FROM "organization" WHERE alias = :alias', [
             ':alias' => $alias,
@@ -43,7 +43,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function getByInvitation(string $token, string $email): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT o.id, o.name, o.alias, o.has_anonymous_access
             FROM "organization" o
             JOIN organization_invitation i ON o.id = i.organization_id
@@ -67,7 +67,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return array_map(function (array $data): Token {
             return $this->hydrateToken($data);
-        }, $this->connection->fetchAll('
+        }, $this->connection->fetchAllAssociative('
             SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :id
@@ -83,7 +83,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(value) FROM organization_token WHERE organization_id = :id',
                 [':id' => $organizationId]
             );
@@ -91,17 +91,21 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function getInstalls(string $organizationId, int $lastDays = 30): Installs
     {
-        $packagesId = array_column($this->connection->fetchAll('SELECT id FROM organization_package WHERE organization_id = :id', [':id' => $organizationId]), 'id');
+        $packagesId = array_column($this->connection->fetchAllAssociative('SELECT id FROM organization_package WHERE organization_id = :id', [':id' => $organizationId]), 'id');
 
         return new Installs(
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAll('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
+            }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
                 ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
                 ':packages' => $packagesId,
             ], [':packages' => Connection::PARAM_STR_ARRAY])),
             $lastDays,
-            (int) $this->connection->fetchColumn('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id IN (:packages)', [':packages' => $packagesId], 0, [':packages' => Connection::PARAM_STR_ARRAY])
+            (int) $this->connection->fetchOne(
+                'SELECT COUNT(package_id) FROM organization_package_download WHERE package_id IN (:packages)',
+                [':packages' => $packagesId],
+                [':packages' => Connection::PARAM_STR_ARRAY]
+            )
         );
     }
 
@@ -113,7 +117,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
                 $row['role'],
                 $row['token']
             );
-        }, $this->connection->fetchAll('
+        }, $this->connection->fetchAllAssociative('
             SELECT email, role, token
             FROM organization_invitation
             WHERE organization_id = :id
@@ -129,7 +133,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(*) FROM organization_invitation WHERE organization_id = :id',
                 [':id' => $organizationId]
             );
@@ -146,7 +150,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
                 $row['email'],
                 $row['role']
             );
-        }, $this->connection->fetchAll('
+        }, $this->connection->fetchAllAssociative('
             SELECT u.id, u.email, m.role
             FROM organization_member AS m
             JOIN "user" u ON u.id = m.user_id
@@ -163,7 +167,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(*) FROM organization_member WHERE organization_id = :id',
                 [':id' => $organizationId]
             );
@@ -173,7 +177,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return false !== $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT 1 FROM organization_member AS m JOIN "user" u ON u.id = m.user_id WHERE organization_id = :id AND u.email = :email',
                 [
                     ':id' => $organizationId,
@@ -186,7 +190,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return false !== $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT 1 FROM organization_invitation WHERE organization_id = :id AND email = :email',
                 [
                     ':id' => $organizationId,
@@ -200,7 +204,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findToken(string $organizationId, string $value): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :organization_id AND value = :value
@@ -217,10 +221,10 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     private function hydrateOrganization(array $data): Organization
     {
-        $token = $this->connection->fetchColumn('SELECT value FROM organization_token WHERE organization_id = :id', [
+        $token = $this->connection->fetchOne('SELECT value FROM organization_token WHERE organization_id = :id', [
             ':id' => $data['id'],
         ]);
-        $members = $this->connection->fetchAll('SELECT m.user_id, m.role, u.email FROM organization_member m JOIN "user" u ON u.id = m.user_id WHERE m.organization_id = :id', [
+        $members = $this->connection->fetchAllAssociative('SELECT m.user_id, m.role, u.email FROM organization_member m JOIN "user" u ON u.id = m.user_id WHERE m.organization_id = :id', [
             ':id' => $data['id'],
         ]);
 

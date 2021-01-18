@@ -24,7 +24,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function getById(string $id): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT id, name, alias, has_anonymous_access
             FROM "organization" WHERE id = :id', [
             ':id' => $id,
@@ -40,7 +40,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return array_map(function (array $data): Organization {
             return $this->hydrateOrganization($data);
-        }, $this->connection->fetchAll(
+        }, $this->connection->fetchAllAssociative(
             'SELECT o.id, o.name, o.alias, om.role, o.has_anonymous_access
             FROM organization_member om
             JOIN organization o ON o.id = om.organization_id
@@ -57,7 +57,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(o.*)
                 FROM organization_member om
                 JOIN organization o ON o.id = om.organization_id
@@ -73,7 +73,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return array_map(function (array $data): Token {
             return $this->hydrateToken($data);
-        }, $this->connection->fetchAll('
+        }, $this->connection->fetchAllAssociative('
             SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :id
@@ -89,7 +89,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return (int) $this
             ->connection
-            ->fetchColumn(
+            ->fetchOne(
                 'SELECT COUNT(value) FROM organization_token WHERE organization_id = :id',
                 [':id' => $organizationId]
             );
@@ -100,7 +100,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findToken(string $organizationId, string $value): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :organization_id AND value = :value
@@ -121,7 +121,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findTokenByName(string $organizationId, string $name): Option
     {
-        $data = $this->connection->fetchAssoc(
+        $data = $this->connection->fetchAssociative(
             'SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :organization_id AND name = :name

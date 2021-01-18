@@ -225,8 +225,7 @@ final class PackageController extends AbstractController
         }
 
         $repos = $this->githubApi->repositories($token->get());
-        $choices = array_combine($repos, $repos);
-        $this->addRepositoriesChoiceType($form, is_array($choices) ? $choices : []);
+        $this->addRepositoriesChoiceType($form, array_combine($repos, $repos));
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

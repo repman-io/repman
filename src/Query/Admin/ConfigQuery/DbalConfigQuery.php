@@ -21,7 +21,7 @@ final class DbalConfigQuery implements ConfigQuery
      */
     public function findAll(): array
     {
-        $data = $this->connection->fetchAll('SELECT key, value FROM config');
+        $data = $this->connection->fetchAllAssociative('SELECT key, value FROM config');
         $values = [];
         foreach ($data as $row) {
             $values[(string) $row['key']] = $row['value'];
