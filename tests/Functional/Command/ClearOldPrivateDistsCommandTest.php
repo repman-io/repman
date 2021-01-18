@@ -24,7 +24,6 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        // @phpstan-ignore-next-line
         $this->filesystem = $this->container()->get('repo.storage');
     }
 

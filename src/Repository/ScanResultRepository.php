@@ -6,7 +6,7 @@ namespace Buddy\Repman\Repository;
 
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method ScanResult|null find($id, $lockMode = null, $lockVersion = null)
