@@ -6,7 +6,7 @@ namespace Buddy\Repman\Repository;
 
 use Buddy\Repman\Entity\Config;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Config|null find($id, $lockMode = null, $lockVersion = null)

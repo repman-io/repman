@@ -7,7 +7,7 @@ namespace Buddy\Repman\Repository;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Security\Model\User as SecurityUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
