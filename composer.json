@@ -2,7 +2,17 @@
     "name": "repman-io/repman",
     "type": "project",
     "description": "PHP Repository Manager - fast packagist proxy",
-    "keywords": ["php", "composer", "repository-management", "packagist-mirror", "pacakges", "private-packagist", "php-pacakges", "pacagist-proxy", "security-scanner"],
+    "keywords": [
+        "php",
+        "composer",
+        "repository-management",
+        "packagist-mirror",
+        "pacakges",
+        "private-packagist",
+        "php-pacakges",
+        "pacagist-proxy",
+        "security-scanner"
+    ],
     "license": "MIT",
     "require": {
         "php": "^7.4.1",
@@ -59,8 +69,8 @@
         "symfony/twig-bundle": "*",
         "symfony/validator": "*",
         "symfony/yaml": "*",
-        "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/extra-bundle": "^2.12 || ^3.0",
+        "twig/twig": "^2.12 || ^3.0"
     },
     "replace": {
         "paragonie/random_compat": "2.*",
@@ -79,8 +89,8 @@
         "dama/doctrine-test-bundle": "^6.3",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "ekino/phpstan-banned-code": "^0.3.1",
-        "friendsofphp/php-cs-fixer": "^2.16",
         "fakerphp/faker": "^1.9",
+        "friendsofphp/php-cs-fixer": "^2.16",
         "johnkary/phpunit-speedtrap": "^3.2",
         "league/flysystem-memory": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
@@ -171,9 +181,6 @@
             "bin/console lint:twig templates --show-deprecations",
             "rm -rf var/cache/prod",
             "bin/console cache:warmup --env=prod"
-        ],
-        "auto-scripts": {
-
-        }
+        ]
     }
 }
