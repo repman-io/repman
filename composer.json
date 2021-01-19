@@ -1,16 +1,16 @@
 {
     "name": "repman-io/repman",
     "type": "project",
-    "description": "PHP Repository Manager - fast packagist proxy",
+    "description": "PHP Repository Manager - private package manager and fast packagist proxy",
     "keywords": [
         "php",
         "composer",
         "repository-management",
         "packagist-mirror",
-        "pacakges",
+        "packages",
         "private-packagist",
         "php-pacakges",
-        "pacagist-proxy",
+        "packagist-proxy",
         "security-scanner"
     ],
     "license": "MIT",
