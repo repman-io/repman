@@ -20,26 +20,20 @@ final class RestGitLabApiTest extends TestCase
      */
     private $clientMock;
 
-    /**
-     * @var MockObject|ResultPager
-     */
-    private $pagerMock;
-
     private RestGitLabApi $api;
 
     protected function setUp(): void
     {
         $this->clientMock = $this->createMock(Client::class);
         $this->clientMock->expects(self::once())->method('authenticate');
-        $this->pagerMock = $this->createMock(ResultPager::class);
 
-        $this->api = new RestGitLabApi($this->clientMock, $this->pagerMock, 'https://gitlab.com');
+        $this->api = new RestGitLabApi($this->clientMock, new ResultPager($this->clientMock), 'https://gitlab.com');
     }
 
     public function testFetchUserProjects(): void
     {
-        $this->clientMock->method('projects')->willReturn($this->createMock(ProjectsApi::class));
-        $this->pagerMock->method('fetchAll')->willReturn([
+        $projects = $this->createMock(ProjectsApi::class);
+        $projects->method('all')->willReturn([
             [
                 'id' => 17275574,
                 'path' => 'left-pad',
@@ -61,6 +55,7 @@ final class RestGitLabApiTest extends TestCase
                 'web_url' => 'https://gitlab.com/repman/right-pad',
             ],
         ]);
+        $this->clientMock->method('projects')->willReturn($projects);
 
         self::assertEquals(new Projects([
             new Project(17275574, 'repman/left-pad', 'https://gitlab.com/repman/left-pad'),
@@ -70,16 +65,14 @@ final class RestGitLabApiTest extends TestCase
 
     public function testAddHookWhenNotExist(): void
     {
-        $this->pagerMock->method('fetchAll')->willReturn([
-            [
-                'id' => 1834838,
-                'url' => 'https://repman.wip/hook',
-                'created_at' => '2020-03-04T10:26:45.746Z',
-                'push_events' => true,
-            ],
-        ]);
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::once())->method('addHook');
+        $projects->method('hooks')->willReturn([[
+            'id' => 1834838,
+            'url' => 'https://repman.wip/hook',
+            'created_at' => '2020-03-04T10:26:45.746Z',
+            'push_events' => true,
+        ]]);
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->addHook('token', 123, 'https://webhook.url');
@@ -87,16 +80,14 @@ final class RestGitLabApiTest extends TestCase
 
     public function testDoNotAddHookWhenExist(): void
     {
-        $this->pagerMock->method('fetchAll')->willReturn([
-            [
-                'id' => 1834838,
-                'url' => 'https://webhook.url',
-                'created_at' => '2020-03-04T10:26:45.746Z',
-                'push_events' => true,
-            ],
-        ]);
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::never())->method('addHook');
+        $projects->method('hooks')->willReturn([[
+            'id' => 1834838,
+            'url' => 'https://webhook.url',
+            'created_at' => '2020-03-04T10:26:45.746Z',
+            'push_events' => true,
+        ]]);
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->addHook('token', 123, 'https://webhook.url');
@@ -104,16 +95,14 @@ final class RestGitLabApiTest extends TestCase
 
     public function testRemoveHookWhenExist(): void
     {
-        $this->pagerMock->method('fetchAll')->willReturn([
-            [
-                'id' => 1834838,
-                'url' => 'https://webhook.url',
-                'created_at' => '2020-03-04T10:26:45.746Z',
-                'push_events' => true,
-            ],
-        ]);
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::once())->method('removeHook')->with(123, 1834838);
+        $projects->method('hooks')->willReturn([[
+            'id' => 1834838,
+            'url' => 'https://webhook.url',
+            'created_at' => '2020-03-04T10:26:45.746Z',
+            'push_events' => true,
+        ]]);
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->removeHook('token', 123, 'https://webhook.url');
@@ -121,16 +110,14 @@ final class RestGitLabApiTest extends TestCase
 
     public function testRemoveHookWhenNotExist(): void
     {
-        $this->pagerMock->method('fetchAll')->willReturn([
-            [
-                'id' => 1834838,
-                'url' => 'https://other.url',
-                'created_at' => '2020-03-04T10:26:45.746Z',
-                'push_events' => true,
-            ],
-        ]);
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::never())->method('removeHook');
+        $projects->method('hooks')->willReturn([[
+            'id' => 1834838,
+            'url' => 'https://other.url',
+            'created_at' => '2020-03-04T10:26:45.746Z',
+            'push_events' => true,
+        ]]);
         $this->clientMock->method('projects')->willReturn($projects);
 
         $this->api->removeHook('token', 123, 'https://webhook.url');
