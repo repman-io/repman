@@ -21,16 +21,19 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 final class MembersController extends AbstractController
 {
+    private SessionInterface $session;
     private OrganizationQuery $organizations;
     private TokenStorageInterface $tokenStorage;
 
-    public function __construct(OrganizationQuery $organizations, TokenStorageInterface $tokenStorage)
+    public function __construct(SessionInterface $session, OrganizationQuery $organizations, TokenStorageInterface $tokenStorage)
     {
+        $this->session = $session;
         $this->organizations = $organizations;
         $this->tokenStorage = $tokenStorage;
     }
@@ -56,8 +59,16 @@ final class MembersController extends AbstractController
      */
     public function acceptInvitation(string $token): Response
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
+        if (null === $user) {
+            $this->session->set('organization-token', $token);
+
+            $this->addFlash('info', 'You need to sign in or sign up to be able to accept this invitation.');
+
+            return $this->redirectToRoute('app_login');
+        }
+
         $organization = $this->organizations->getByInvitation($token, $user->email());
         if ($organization->isEmpty()) {
             $this->addFlash('danger', 'Invitation not found or belongs to different user');
@@ -67,6 +78,7 @@ final class MembersController extends AbstractController
         }
 
         $this->dispatchMessage(new AcceptInvitation($token, $user->id()));
+        $this->session->remove('organization-token');
         $this->addFlash('success', sprintf('The invitation to %s organization has been accepted', $organization->get()->name()));
 
         return $this->redirectToRoute('organization_overview', ['organization' => $organization->get()->alias()]);

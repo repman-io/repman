@@ -18,25 +18,27 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+    private AuthenticationUtils $authenticationUtils;
     private Config $config;
 
-    public function __construct(Config $config)
+    public function __construct(AuthenticationUtils $authenticationUtils, Config $config)
     {
+        $this->authenticationUtils = $authenticationUtils;
         $this->config = $config;
     }
 
     /**
      * @Route("/login", name="app_login")
      */
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(): Response
     {
         if ($this->getUser() !== null) {
             return $this->redirectToRoute('index');
         }
 
         return $this->render('security/login.html.twig', [
-            'last_username' => $authenticationUtils->getLastUsername(),
-            'error' => $authenticationUtils->getLastAuthenticationError(),
+            'last_username' => $this->authenticationUtils->getLastUsername(),
+            'error' => $this->authenticationUtils->getLastAuthenticationError(),
             'localLoginEnabled' => $this->config->localLoginEnabled(),
         ]);
     }

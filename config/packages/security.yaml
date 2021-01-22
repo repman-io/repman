@@ -54,6 +54,7 @@ security:
 
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/user/invitation, roles: [ROLE_USER, IS_AUTHENTICATED_ANONYMOUSLY] }
          - { path: ^/user, roles: ROLE_USER }
          - { path: ^/$, roles: ROLE_USER }
          - { path: ^/organization/.+/overview$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
