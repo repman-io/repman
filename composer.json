@@ -177,6 +177,7 @@
         "tests": [
             "@check-cs",
             "@phpstan",
+            "bin/console doctrine:schema:validate",
             "@coverage-ci",
             "bin/console lint:twig templates --show-deprecations",
             "rm -rf var/cache/prod",

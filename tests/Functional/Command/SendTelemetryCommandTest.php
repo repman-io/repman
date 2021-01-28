@@ -63,6 +63,6 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
 
     private function instanceIdFile(): string
     {
-        return $this->container()->getParameter('instance_id_file');
+        return (string) $this->container()->getParameter('instance_id_file'); // @phpstan-ignore-line
     }
 }

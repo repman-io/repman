@@ -105,7 +105,7 @@ final class ConfigControllerTest extends FunctionalTestCase
     public function testEnableTelemetry(): void
     {
         $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic';
-        $instanceIdFile = $this->container()->getParameter('instance_id_file');
+        $instanceIdFile = $this->instanceIdFile();
         @unlink($instanceIdFile);
         $this->client->request('GET', $this->urlTo('index'));
         self::assertStringContainsString($prompt, $this->lastResponseBody());
@@ -123,7 +123,7 @@ final class ConfigControllerTest extends FunctionalTestCase
     public function testDisableTelemetry(): void
     {
         $prompt = 'Help us improve <strong>Repman</strong> by enabling sending anonymous usage statistic';
-        $instanceIdFile = $this->container()->getParameter('instance_id_file');
+        $instanceIdFile = $this->instanceIdFile();
         @unlink($instanceIdFile);
         $this->client->request('GET', $this->urlTo('index'));
         self::assertStringContainsString($prompt, $this->lastResponseBody());
@@ -145,7 +145,7 @@ final class ConfigControllerTest extends FunctionalTestCase
             'technical_email' => 'john.doe@example.com',
         ]);
 
-        $instanceId = (string) file_get_contents($this->container()->getParameter('instance_id_file'));
+        $instanceId = (string) file_get_contents($this->instanceIdFile());
 
         self::assertTrue($this->container()->get(TelemetryEndpoint::class)->wasEmailAdded($instanceId));
 
@@ -165,7 +165,7 @@ final class ConfigControllerTest extends FunctionalTestCase
         ]);
 
         $instanceId = Uuid::uuid4()->toString();
-        file_put_contents($this->container()->getParameter('instance_id_file'), $instanceId);
+        file_put_contents($this->instanceIdFile(), $instanceId);
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
@@ -189,7 +189,7 @@ final class ConfigControllerTest extends FunctionalTestCase
             'technical_email' => 'john.doe@example.com',
         ]);
 
-        @unlink($this->container()->getParameter('instance_id_file'));
+        @unlink($this->instanceIdFile());
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
@@ -197,5 +197,10 @@ final class ConfigControllerTest extends FunctionalTestCase
         ]);
 
         self::assertTrue($this->container()->get(TelemetryEndpoint::class)->emailWasNotRemoved());
+    }
+
+    private function instanceIdFile(): string
+    {
+        return (string) $this->container()->getParameter('instance_id_file'); // @phpstan-ignore-line
     }
 }
