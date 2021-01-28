@@ -2,8 +2,6 @@ includes:
 	- vendor/phpstan/phpstan/conf/bleedingEdge.neon
 parameters:
     level: max
-    excludes_analyse:
-        - src/Entity/Organization.php
     ignoreErrors:
         -
             message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
