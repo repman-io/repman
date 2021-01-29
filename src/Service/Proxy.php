@@ -135,6 +135,10 @@ final class Proxy
 
         foreach ($this->decodeMetadata($package) as $packageData) {
             $lastDist = $packageData['dist'] ?? $lastDist;
+            if (!isset($lastDist['reference']) || !isset($lastDist['type']) || !isset($lastDist['url'])) {
+                continue;
+            }
+
             $path = $this->distPath($package, $lastDist['reference'], $lastDist['type']);
             if ($version === $packageData['version'] && !$this->filesystem->has($path)) {
                 $this->filesystem->writeStream($path, $this->downloader->getContents($lastDist['url'])

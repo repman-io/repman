@@ -21,7 +21,7 @@ final class AddBitbucketHookHandler extends AbstractHookHandler
 
         try {
             $this->integrations->bitbucketApi()->addHook(
-                $package->oauthToken()->accessToken($this->oauth),
+                $package->oauthToken()->accessToken($this->tokenRefresher),
                 $package->metadata(Metadata::BITBUCKET_REPO_NAME),
                 $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
             );
