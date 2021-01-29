@@ -194,6 +194,16 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         return [sprintf('Authorization: Bearer %s', $this->accessToken($package))];
     }
 
+    private function getGitlabUrl(): string
+    {
+        $port = (string) \parse_url($this->gitlabUrl, \PHP_URL_PORT);
+        if ($port !== '') {
+            $port = ':'.$port;
+        }
+
+        return (string) \parse_url($this->gitlabUrl, \PHP_URL_HOST).$port;
+    }
+
     private function createIO(Package $package): BufferIO
     {
         $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -203,7 +213,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         }
 
         if ($package->type() === 'gitlab-oauth') {
-            $io->setAuthentication((string) parse_url($this->gitlabUrl, PHP_URL_HOST), $this->accessToken($package), 'oauth2');
+            $io->setAuthentication($this->getGitlabUrl(), $this->accessToken($package), 'oauth2');
         }
 
         if ($package->type() === 'bitbucket-oauth') {
@@ -233,7 +243,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         if ($package->type() === 'gitlab-oauth') {
             $config->merge([
                 'config' => [
-                    'gitlab-domains' => [(string) parse_url($this->gitlabUrl, PHP_URL_HOST)],
+                    'gitlab-domains' => [$this->getGitlabUrl()],
                 ],
             ]);
         }
