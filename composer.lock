@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1116c0e15c46da419699c320fd15cca9",
+    "content-hash": "5e47dae51bc8fe2eff3dd43d3b92b379",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -315,16 +315,16 @@
         },
         {
             "name": "buddy-works/oauth2-client",
-            "version": "0.1.2",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buddy-works/oauth2-client.git",
-                "reference": "11a9cf15f815f2198d1828a5b1dd173b4c3139ae"
+                "reference": "6544494863bf899634e77f95031d7fc67447cab3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buddy-works/oauth2-client/zipball/11a9cf15f815f2198d1828a5b1dd173b4c3139ae",
-                "reference": "11a9cf15f815f2198d1828a5b1dd173b4c3139ae",
+                "url": "https://api.github.com/repos/buddy-works/oauth2-client/zipball/6544494863bf899634e77f95031d7fc67447cab3",
+                "reference": "6544494863bf899634e77f95031d7fc67447cab3",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -362,9 +362,9 @@
             "description": "Buddy Provider for the OAuth 2.0 Client",
             "support": {
                 "issues": "https://github.com/buddy-works/oauth2-client/issues",
-                "source": "https://github.com/buddy-works/oauth2-client/tree/master"
+                "source": "https://github.com/buddy-works/oauth2-client/tree/1.0.0"
             },
-            "time": "2020-04-02T08:46:37+00:00"
+            "time": "2021-01-19T12:20:10+00:00"
         },
         {
             "name": "cbschuld/browser.php",
