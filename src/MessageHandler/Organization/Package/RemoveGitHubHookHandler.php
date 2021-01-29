@@ -16,7 +16,7 @@ final class RemoveGitHubHookHandler extends AbstractHookHandler
         $package = $this->packages->getById(Uuid::fromString($message->packageId()));
 
         $this->integrations->gitHubApi()->removeHook(
-            $package->oauthToken()->accessToken($this->oauth),
+            $package->oauthToken()->accessToken($this->tokenRefresher),
             $package->metadata(Metadata::GITHUB_REPO_NAME),
             $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
         );

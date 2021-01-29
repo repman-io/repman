@@ -6,20 +6,19 @@ namespace Buddy\Repman\Service\User;
 
 use Buddy\Repman\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Ramsey\Uuid\Uuid;
 
 class UserOAuthTokenProvider
 {
     private UserRepository $repository;
     private EntityManagerInterface $em;
-    private ClientRegistry $oauth;
+    private UserOAuthTokenRefresher $tokenRefresher;
 
-    public function __construct(UserRepository $repository, EntityManagerInterface $em, ClientRegistry $oauth)
+    public function __construct(UserRepository $repository, EntityManagerInterface $em, UserOAuthTokenRefresher $tokenRefresher)
     {
         $this->repository = $repository;
         $this->em = $em;
-        $this->oauth = $oauth;
+        $this->tokenRefresher = $tokenRefresher;
     }
 
     public function findAccessToken(string $userId, string $type): ?string
@@ -29,7 +28,7 @@ class UserOAuthTokenProvider
             return null;
         }
 
-        $accessToken = $token->accessToken($this->oauth);
+        $accessToken = $token->accessToken($this->tokenRefresher);
         $this->em->flush();
 
         return $accessToken;

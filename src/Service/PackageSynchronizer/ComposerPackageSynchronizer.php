@@ -13,6 +13,7 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Buddy\Repman\Service\ReadmeExtractor;
+use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Composer\Config;
 use Composer\Factory;
 use Composer\IO\BufferIO;
@@ -22,7 +23,6 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -33,7 +33,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageRepository $packageRepository;
     private Storage $distStorage;
     private ReadmeExtractor $readmeExtractor;
-    private ClientRegistry $oauth;
+    private UserOAuthTokenRefresher $tokenRefresher;
     private string $gitlabUrl;
 
     public function __construct(
@@ -41,14 +41,14 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         PackageNormalizer $packageNormalizer,
         PackageRepository $packageRepository,
         Storage $distStorage,
-        ClientRegistry $oauth,
+        UserOAuthTokenRefresher $tokenRefresher,
         string $gitlabUrl
     ) {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
-        $this->oauth = $oauth;
+        $this->tokenRefresher = $tokenRefresher;
         $this->gitlabUrl = $gitlabUrl;
         $this->readmeExtractor = new ReadmeExtractor($this->distStorage);
     }
@@ -215,7 +215,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
     private function accessToken(Package $package): string
     {
-        return $package->oauthToken()->accessToken($this->oauth);
+        return $package->oauthToken()->accessToken($this->tokenRefresher);
     }
 
     private function createConfig(Package $package, IOInterface $io): Config
