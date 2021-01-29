@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\MessageHandler\Organization\Package\AddGitHubHookHandler;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 
 final class AddGitHubHookHandlerTest extends IntegrationTestCase
@@ -23,12 +24,19 @@ final class AddGitHubHookHandlerTest extends IntegrationTestCase
         $handler->__invoke(new AddGitHubHook($packageId));
         $this->container()->get('doctrine.orm.entity_manager')->flush();
 
-        $package = $this
-            ->container()
-            ->get(PackageQuery::class)
-            ->getById($packageId);
+        $package = $this->container()->get(PackageQuery::class)->getById($packageId);
 
         self::assertInstanceOf(\DateTimeImmutable::class, $package->get()->webhookCreatedAt());
+
+        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(
+            new \RuntimeException($error = 'Repository was archived so is read-only.')
+        );
+        $handler->__invoke(new AddGitHubHook($packageId));
+        $this->container()->get('doctrine.orm.entity_manager')->flush();
+
+        $package = $this->container()->get(PackageQuery::class)->getById($packageId);
+
+        self::assertStringContainsString($error, (string) $package->get()->webhookCreatedError());
     }
 
     public function testHandlePackageNotFoundWithoutError(): void

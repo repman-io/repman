@@ -329,6 +329,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
+        self::assertStringContainsString('Webhook removal failed due to', $this->lastResponseBody());
     }
 
     public function testRemoveGitLabPackage(): void
@@ -507,7 +508,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testPackageWebhookPage(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
-        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'buddy/works']);
 
         $this->client->request('POST', '/hook/'.$packageId);
         $this->client->request('GET', $this->urlTo('organization_package_webhook', [
@@ -519,6 +520,14 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString($this->urlTo('package_webhook', ['package' => $packageId]), $this->lastResponseBody());
         // last requests table is visible
         self::assertStringContainsString('User agent', $this->lastResponseBody());
+
+        $this->fixtures->setWebhookError($packageId, 'Repository was archived so is read-only.');
+
+        $this->client->request('GET', $this->urlTo('organization_package_webhook', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+        self::assertStringContainsString('Repository was archived so is read-only.', $this->lastResponseBody());
     }
 
     public function testOrganizationStats(): void

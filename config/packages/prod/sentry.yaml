@@ -4,5 +4,6 @@ sentry:
         release: '%env(string:default:kernel_version:APP_VERSION)%'
         excluded_exceptions:
             - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
+            - 'Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException'
             - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
             - 'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException'

@@ -76,6 +76,11 @@ class Package
     private ?\DateTimeImmutable $webhookCreatedAt = null;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private ?string $webhookCreatedError = null;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private ?string $lastSyncError = null;
@@ -223,6 +228,12 @@ class Package
     public function webhookWasCreated(): void
     {
         $this->webhookCreatedAt = new \DateTimeImmutable();
+        $this->webhookCreatedError = null;
+    }
+
+    public function webhookWasNotCreated(string $error): void
+    {
+        $this->webhookCreatedError = substr($error, 0, 255);
     }
 
     public function webhookWasRemoved(): void

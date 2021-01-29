@@ -19,11 +19,15 @@ final class AddGitLabHookHandler extends AbstractHookHandler
             return;
         }
 
-        $this->integrations->gitLabApi()->addHook(
-            $package->oauthToken()->accessToken($this->oauth),
-            $package->metadata(Metadata::GITLAB_PROJECT_ID),
-            $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
-        );
-        $package->webhookWasCreated();
+        try {
+            $this->integrations->gitLabApi()->addHook(
+                $package->oauthToken()->accessToken($this->oauth),
+                $package->metadata(Metadata::GITLAB_PROJECT_ID),
+                $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
+            );
+            $package->webhookWasCreated();
+        } catch (\Throwable $exception) {
+            $package->webhookWasNotCreated($exception->getMessage());
+        }
     }
 }
