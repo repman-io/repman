@@ -33,7 +33,6 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
 use Buddy\Repman\Security\Model\User;
-use Buddy\Repman\Service\ExceptionHandler;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,13 +45,11 @@ final class OrganizationController extends AbstractController
 {
     private PackageQuery $packageQuery;
     private OrganizationQuery $organizationQuery;
-    private ExceptionHandler $exceptionHandler;
 
-    public function __construct(PackageQuery $packageQuery, OrganizationQuery $organizationQuery, ExceptionHandler $exceptionHandler)
+    public function __construct(PackageQuery $packageQuery, OrganizationQuery $organizationQuery)
     {
         $this->packageQuery = $packageQuery;
         $this->organizationQuery = $organizationQuery;
-        $this->exceptionHandler = $exceptionHandler;
     }
 
     /**
@@ -362,7 +359,11 @@ final class OrganizationController extends AbstractController
                         break;
                 }
             } catch (HandlerFailedException $exception) {
-                $this->exceptionHandler->handle($exception);
+                $reason = current($exception->getNestedExceptions());
+                $this->addFlash('danger', sprintf(
+                    'Webhook removal failed due to "%s". Please remove it manually.',
+                    $reason !== false ? $reason->getMessage() : $exception->getMessage()
+                ));
             }
         }
     }

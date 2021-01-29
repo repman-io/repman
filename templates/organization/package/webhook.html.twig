@@ -39,6 +39,12 @@
                     data-action="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id }) }}"
                     data-method="POST"
             >Synchronize webhook</a>
+            {% if package.webhookCreatedError is not null %}
+                <div class="alert alert-danger small">
+                    The following error occurred while adding a webhook:<br />
+                    {{ package.webhookCreatedError }}
+                </div>
+            {% endif %}
         {% else %}
             unable to automatically add a webhook, please add it manually
         {% endif %}

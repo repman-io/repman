@@ -19,6 +19,7 @@ final class Package
     private ?\DateTimeImmutable $lastSyncAt;
     private ?string $lastSyncError;
     private ?\DateTimeImmutable $webhookCreatedAt;
+    private ?string $webhookCreatedError;
     private int $keepLastReleases;
 
     public function __construct(
@@ -33,6 +34,7 @@ final class Package
         ?\DateTimeImmutable $lastSyncAt = null,
         ?string $lastSyncError = null,
         ?\DateTimeImmutable $webhookCreatedAt = null,
+        ?string $webhookCreatedError = null,
         ?ScanResult $scanResult = null,
         int $keepLastReleases = 0
     ) {
@@ -47,6 +49,7 @@ final class Package
         $this->lastSyncAt = $lastSyncAt;
         $this->lastSyncError = $lastSyncError;
         $this->webhookCreatedAt = $webhookCreatedAt;
+        $this->webhookCreatedError = $webhookCreatedError;
         $this->scanResult = $scanResult ?? null;
         $this->keepLastReleases = $keepLastReleases;
     }
@@ -104,6 +107,11 @@ final class Package
     public function webhookCreatedAt(): ?\DateTimeImmutable
     {
         return $this->webhookCreatedAt;
+    }
+
+    public function webhookCreatedError(): ?string
+    {
+        return $this->webhookCreatedError;
     }
 
     public function allowToAutoAddWebhook(): bool

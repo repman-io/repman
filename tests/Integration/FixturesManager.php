@@ -153,6 +153,13 @@ final class FixturesManager
         $this->container->get('doctrine.orm.entity_manager')->flush($package);
     }
 
+    public function setWebhookError(string $packageId, string $error): void
+    {
+        $package = $this->container->get(PackageRepository::class)->getById(Uuid::fromString($packageId));
+        $package->webhookWasNotCreated($error);
+        $this->container->get('doctrine.orm.entity_manager')->flush($package);
+    }
+
     public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0', ?\DateTimeImmutable $date = null): void
     {
         Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version, $date): void {

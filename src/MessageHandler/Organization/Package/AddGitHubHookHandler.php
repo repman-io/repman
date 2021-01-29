@@ -19,12 +19,16 @@ final class AddGitHubHookHandler extends AbstractHookHandler
             return;
         }
 
-        $this->integrations->gitHubApi()->addHook(
-            $package->oauthToken()->accessToken($this->oauth),
-            $package->metadata(Metadata::GITHUB_REPO_NAME),
-            $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
-        );
+        try {
+            $this->integrations->gitHubApi()->addHook(
+                $package->oauthToken()->accessToken($this->oauth),
+                $package->metadata(Metadata::GITHUB_REPO_NAME),
+                $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
+            );
 
-        $package->webhookWasCreated();
+            $package->webhookWasCreated();
+        } catch (\Throwable $exception) {
+            $package->webhookWasNotCreated($exception->getMessage());
+        }
     }
 }
