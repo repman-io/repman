@@ -16,11 +16,9 @@ use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Package;
-use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
-use Buddy\Repman\Service\BitbucketApi;
-use Buddy\Repman\Service\GitHubApi;
-use Buddy\Repman\Service\GitLabApi;
+use Buddy\Repman\Service\IntegrationRegister;
+use Buddy\Repman\Service\User\UserOAuthTokenProvider;
 use Http\Client\Exception as HttpException;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -37,17 +35,13 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 final class PackageController extends AbstractController
 {
-    private UserQuery $userQuery;
-    private GithubApi $githubApi;
-    private GitlabApi $gitlabApi;
-    private BitbucketApi $bitbucketApi;
+    private UserOAuthTokenProvider $oauthProvider;
+    private IntegrationRegister $integrations;
 
-    public function __construct(UserQuery $userQuery, GitHubApi $githubApi, GitLabApi $gitlabApi, BitbucketApi $bitbucketApi)
+    public function __construct(UserOAuthTokenProvider $oauthProvider, IntegrationRegister $integrations)
     {
-        $this->userQuery = $userQuery;
-        $this->githubApi = $githubApi;
-        $this->gitlabApi = $gitlabApi;
-        $this->bitbucketApi = $bitbucketApi;
+        $this->oauthProvider = $oauthProvider;
+        $this->integrations = $integrations;
     }
 
     /**
@@ -219,12 +213,12 @@ final class PackageController extends AbstractController
 
     private function packageNewFromGitHub(FormInterface $form, Organization $organization, Request $request): ?Response
     {
-        $token = $this->userQuery->findOAuthAccessToken($this->getUser()->id(), OAuthToken::TYPE_GITHUB);
-        if ($token->isEmpty()) {
+        $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), OAuthToken::TYPE_GITHUB);
+        if ($token === null) {
             return $this->redirectToRoute('fetch_github_package_token', ['organization' => $organization->alias()]);
         }
 
-        $repos = $this->githubApi->repositories($token->get());
+        $repos = $this->integrations->gitHubApi()->repositories($token);
         $this->addRepositoriesChoiceType($form, array_combine($repos, $repos));
         $form->handleRequest($request);
 
@@ -250,12 +244,12 @@ final class PackageController extends AbstractController
 
     private function packageNewFromGitLab(FormInterface $form, Organization $organization, Request $request): ?Response
     {
-        $token = $this->userQuery->findOAuthAccessToken($this->getUser()->id(), OAuthToken::TYPE_GITLAB);
-        if ($token->isEmpty()) {
+        $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), OAuthToken::TYPE_GITLAB);
+        if ($token === null) {
             return $this->redirectToRoute('fetch_gitlab_package_token', ['organization' => $organization->alias()]);
         }
 
-        $projects = $this->gitlabApi->projects($token->get());
+        $projects = $this->integrations->gitLabApi()->projects($token);
         $this->addRepositoriesChoiceType($form, array_flip($projects->names()));
         $form->handleRequest($request);
 
@@ -281,12 +275,12 @@ final class PackageController extends AbstractController
 
     private function packageNewFromBitbucket(FormInterface $form, Organization $organization, Request $request): ?Response
     {
-        $token = $this->userQuery->findOAuthAccessToken($this->getUser()->id(), OAuthToken::TYPE_BITBUCKET);
-        if ($token->isEmpty()) {
+        $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), OAuthToken::TYPE_BITBUCKET);
+        if ($token === null) {
             return $this->redirectToRoute('fetch_bitbucket_package_token', ['organization' => $organization->alias()]);
         }
 
-        $repos = $this->bitbucketApi->repositories($token->get());
+        $repos = $this->integrations->bitbucketApi()->repositories($token);
         $this->addRepositoriesChoiceType($form, array_flip($repos->names()));
         $form->handleRequest($request);
 

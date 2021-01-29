@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Service\BuddyApi;
-use Buddy\Repman\Service\BuddyApi\BuddyApiException;
+use Buddy\Repman\Service\Integration\BuddyApi;
+use Buddy\Repman\Service\Integration\BuddyApi\BuddyApiException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;

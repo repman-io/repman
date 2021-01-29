@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Buddy\Repman\Service\GitLabApi;
-use Buddy\Repman\Service\GitLabApi\Projects;
+use Buddy\Repman\Service\Integration\GitLabApi;
+use Buddy\Repman\Service\Integration\GitLabApi\Projects;
 
 final class FakeGitLabApi implements GitLabApi
 {

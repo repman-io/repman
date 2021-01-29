@@ -7,7 +7,6 @@ namespace Buddy\Repman\Query\User;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\ApiToken;
 use Buddy\Repman\Query\User\Model\OAuthToken;
-use Munus\Control\Option;
 
 interface UserQuery
 {
@@ -16,10 +15,7 @@ interface UserQuery
      */
     public function findAllOAuthTokens(string $userId): array;
 
-    /**
-     * @return Option<string>
-     */
-    public function findOAuthAccessToken(string $userId, string $type): Option;
+    public function hasOAuthAccessToken(string $userId, string $type): bool;
 
     /**
      * @return ApiToken[]

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Service\GitHubApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use Github\Exception\ExceptionInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;

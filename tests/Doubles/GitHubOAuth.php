@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Buddy\Repman\Service\GitHubApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use GuzzleHttp\Psr7\Response;
 use Psr\Container\ContainerInterface;
 

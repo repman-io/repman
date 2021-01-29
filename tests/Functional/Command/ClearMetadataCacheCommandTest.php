@@ -48,6 +48,17 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
         $filesystem->remove($basePath);
     }
 
+    public function testNoMetadataFilesFound(): void
+    {
+        $basePath = \sys_get_temp_dir().'/'.'repman';
+
+        $command = new ClearMetadataCacheCommand(new Filesystem(new Local($basePath)));
+        $commandTester = new CommandTester($command);
+        $commandTester->execute([]);
+
+        self::assertEquals("No metadata files found.\n", $commandTester->getDisplay());
+    }
+
     /**
      * @param array<string> $ignoredFiles
      */

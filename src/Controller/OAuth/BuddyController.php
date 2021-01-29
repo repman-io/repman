@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Controller\OAuth;
 
 use Buddy\OAuth2\Client\Provider\Buddy;
-use Buddy\Repman\Service\BuddyApi;
+use Buddy\Repman\Service\Integration\BuddyApi;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

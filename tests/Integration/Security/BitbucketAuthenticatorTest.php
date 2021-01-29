@@ -7,7 +7,7 @@ namespace Buddy\Repman\Tests\Integration\Security;
 use Bitbucket\Exception\ApiLimitExceededException;
 use Buddy\Repman\Security\BitbucketAuthenticator;
 use Buddy\Repman\Security\UserProvider;
-use Buddy\Repman\Service\BitbucketApi;
+use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Tests\Doubles\BitbucketOAuth;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use League\OAuth2\Client\Token\AccessToken;

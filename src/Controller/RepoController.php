@@ -85,7 +85,7 @@ final class RepoController extends AbstractController
         return new StreamedResponse(function () use ($filename): void {
             $outputStream = \fopen('php://output', 'wb');
             if (false === $outputStream) {
-                throw new HttpException(500, 'Could not open output stream to send binary file.');
+                throw new HttpException(500, 'Could not open output stream to send binary file.'); // @codeCoverageIgnore
             }
             $fileStream = $this->packageManager->getDistFileReference($filename);
             \stream_copy_to_stream(

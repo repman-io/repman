@@ -44,7 +44,7 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory:
+    Buddy\Repman\Service\Integration\Aws\S3AdapterFactory:
         arguments:
             - '%env(STORAGE_AWS_REGION)%'
             - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
@@ -54,7 +54,7 @@ services:
     Aws\S3\S3Client:
         lazy: true
         factory:
-            - '@Buddy\Repman\Service\AmazonWebServices\S3AdapterFactory'
+            - '@Buddy\Repman\Service\Integration\Aws\S3AdapterFactory'
             - create
 
     proxy.storage.public:
@@ -151,7 +151,7 @@ services:
         arguments:
             - '@Gitlab\Client'
 
-    Buddy\Repman\Service\GitLabApi\RestGitLabApi:
+    Buddy\Repman\Service\Integration\GitLabApi\RestGitLabApi:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
 

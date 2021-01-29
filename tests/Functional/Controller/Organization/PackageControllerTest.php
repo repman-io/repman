@@ -8,7 +8,7 @@ use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Security\ScanPackage;
-use Buddy\Repman\Service\GitHubApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Github\Exception\ApiLimitExceedException;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
