@@ -11,6 +11,7 @@ use Buddy\Repman\Service\PackageNormalizer;
 use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
@@ -34,6 +35,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
             new PackageNormalizer(),
                 $this->createMock(PackageRepository::class),
             $fileStorage,
+            $this->createMock(ClientRegistry::class),
             'gitlab.com'
         );
         $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';

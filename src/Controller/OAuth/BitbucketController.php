@@ -8,8 +8,7 @@ use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
-use Buddy\Repman\Service\BitbucketApi;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Buddy\Repman\Service\Integration\BitbucketApi;
 use League\OAuth2\Client\Token\AccessToken;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +31,7 @@ final class BitbucketController extends OAuthController
     /**
      * @Route("/auth/bitbucket", name="auth_bitbucket_start", methods={"GET"})
      */
-    public function auth(ClientRegistry $clientRegistry): Response
+    public function auth(): Response
     {
         return $this->oauth->getClient('bitbucket')->redirect(['email'], ['redirect_uri' => $this->generateUrl('login_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
@@ -59,7 +58,7 @@ final class BitbucketController extends OAuthController
     {
         /** @var User */
         $user = $this->getUser();
-        if ($userQuery->findOAuthAccessToken($user->id(), OAuthToken::TYPE_BITBUCKET)->isPresent()) {
+        if ($userQuery->hasOAuthAccessToken($user->id(), OAuthToken::TYPE_BITBUCKET)) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_BITBUCKET]);
         }
         $this->session->set('organization', $organization->alias());

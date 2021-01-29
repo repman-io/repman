@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Buddy\Repman\Service\BuddyApi;
+use Buddy\Repman\Service\Integration\BuddyApi;
 use GuzzleHttp\Psr7\Response;
 use Psr\Container\ContainerInterface;
 

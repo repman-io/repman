@@ -20,10 +20,8 @@ use Buddy\Repman\Query\Api\Model\Package;
 use Buddy\Repman\Query\Api\Model\Packages;
 use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\Organization;
-use Buddy\Repman\Query\User\UserQuery;
-use Buddy\Repman\Service\BitbucketApi;
-use Buddy\Repman\Service\GitLabApi;
-use Munus\Control\Option;
+use Buddy\Repman\Service\IntegrationRegister;
+use Buddy\Repman\Service\User\UserOAuthTokenProvider;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
@@ -39,16 +37,14 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 final class PackageController extends ApiController
 {
     private PackageQuery $packageQuery;
-    private UserQuery $userQuery;
-    private GitlabApi $gitlabApi;
-    private BitbucketApi $bitbucketApi;
+    private UserOAuthTokenProvider $oauthProvider;
+    private IntegrationRegister $integrations;
 
-    public function __construct(PackageQuery $packageQuery, UserQuery $userQuery, GitLabApi $gitlabApi, BitbucketApi $bitbucketApi)
+    public function __construct(PackageQuery $packageQuery, UserOAuthTokenProvider $oauthProvider, IntegrationRegister $integrations)
     {
         $this->packageQuery = $packageQuery;
-        $this->userQuery = $userQuery;
-        $this->gitlabApi = $gitlabApi;
-        $this->bitbucketApi = $bitbucketApi;
+        $this->oauthProvider = $oauthProvider;
+        $this->integrations = $integrations;
     }
 
     /**
@@ -325,7 +321,9 @@ final class PackageController extends ApiController
         try {
             $id = $this->handleAddPackage($type, $form, $organization, $json);
         } catch (\InvalidArgumentException $exception) {
-            $form->submit($json);
+            if (!$form->isSubmitted()) {
+                $form->submit($json);
+            }
             $form->get('type')->addError(new FormError($exception->getMessage()));
         } catch (\RuntimeException $exception) {
             $form->get('repository')->addError(new FormError($exception->getMessage()));
@@ -404,6 +402,7 @@ final class PackageController extends ApiController
      */
     private function packageNewFromGitHub(FormInterface $form, Organization $organization, array $json): ?string
     {
+        // verification if the user has the appropriate integration
         $this->getToken(OAuthToken::TYPE_GITHUB);
 
         $form->submit($json);
@@ -431,15 +430,13 @@ final class PackageController extends ApiController
      */
     private function packageNewFromGitLab(FormInterface $form, Organization $organization, array $json): ?string
     {
-        $token = $this->getToken(OAuthToken::TYPE_GITLAB);
-
         $form->submit($json);
         if (!$form->isValid()) {
             return null;
         }
 
         $repo = $form->get('repository')->getData();
-        $projects = $this->gitlabApi->projects($token->get());
+        $projects = $this->integrations->gitLabApi()->projects($this->getToken(OAuthToken::TYPE_GITLAB));
         $byNames = array_flip($projects->names());
         $projectId = $byNames[$repo] ?? null;
 
@@ -466,15 +463,13 @@ final class PackageController extends ApiController
      */
     private function packageNewFromBitbucket(FormInterface $form, Organization $organization, array $json): ?string
     {
-        $token = $this->getToken(OAuthToken::TYPE_BITBUCKET);
-
         $form->submit($json);
         if (!$form->isValid()) {
             return null;
         }
 
         $repo = $form->get('repository')->getData();
-        $repos = $this->bitbucketApi->repositories($token->get());
+        $repos = $this->integrations->bitbucketApi()->repositories($this->getToken(OAuthToken::TYPE_BITBUCKET));
         $byNames = array_flip($repos->names());
         $repoUuid = $byNames[$repo] ?? null;
 
@@ -496,13 +491,10 @@ final class PackageController extends ApiController
         return $id;
     }
 
-    /**
-     * @return Option<string>
-     */
-    private function getToken(string $type): Option
+    private function getToken(string $type): string
     {
-        $token = $this->userQuery->findOAuthAccessToken($this->getUser()->id(), $type);
-        if ($token->isEmpty()) {
+        $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), $type);
+        if ($token === null) {
             throw new \InvalidArgumentException("Missing $type integration.");
         }
 

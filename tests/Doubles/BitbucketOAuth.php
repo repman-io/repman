@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Buddy\Repman\Service\BitbucketApi;
+use Buddy\Repman\Service\Integration\BitbucketApi;
 use GuzzleHttp\Psr7\Response;
 use Psr\Container\ContainerInterface;
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Security;
 
 use Bitbucket\Exception\ExceptionInterface;
-use Buddy\Repman\Service\BitbucketApi;
+use Buddy\Repman\Service\Integration\BitbucketApi;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
 use League\OAuth2\Client\Token\AccessToken;

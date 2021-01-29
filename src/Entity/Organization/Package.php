@@ -6,6 +6,7 @@ namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package\Version;
+use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -204,14 +205,14 @@ class Package
         return $this->isSynchronized() && $this->lastSyncError === null;
     }
 
-    public function oauthToken(): string
+    public function oauthToken(): OAuthToken
     {
         $token = $this->organization->oauthToken(str_replace('-oauth', '', $this->type));
         if ($token === null) {
             throw new \RuntimeException('Oauth token not found');
         }
 
-        return $token->accessToken();
+        return $token;
     }
 
     public function hasOAuthToken(): bool

@@ -48,7 +48,7 @@ final class AnonymousOrganizationUserAuthenticator extends AbstractGuardAuthenti
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         if (!$userProvider instanceof OrganizationProvider) {
-            throw new \InvalidArgumentException();
+            throw new \InvalidArgumentException(); // @codeCoverageIgnore
         }
 
         return $userProvider->loadUserByAlias($credentials);

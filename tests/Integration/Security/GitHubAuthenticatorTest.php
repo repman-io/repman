@@ -6,7 +6,7 @@ namespace Buddy\Repman\Tests\Integration\Security;
 
 use Buddy\Repman\Security\GitHubAuthenticator;
 use Buddy\Repman\Security\UserProvider;
-use Buddy\Repman\Service\GitHubApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Tests\Doubles\GitHubOAuth;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Github\Exception\ApiLimitExceedException;

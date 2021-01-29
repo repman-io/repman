@@ -10,10 +10,11 @@ use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Repository\OrganizationRepository;
-use Buddy\Repman\Service\GitHubApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
+use function Ramsey\Uuid\v4;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
 final class OrganizationControllerTest extends FunctionalTestCase
@@ -151,6 +152,13 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('1 entries', $response);
         self::assertStringContainsString($packageId2, $response);
         self::assertStringNotContainsString($packageId, $response);
+
+        // Test serach query params passing
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'search' => 'buddy', 'limit' => 1]));
+        self::assertTrue($this->client->getResponse()->isOk());
+        $response = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('2 entries', $response);
+        self::assertStringContainsString('search=buddy', $response);
     }
 
     public function testPagination(): void
@@ -447,6 +455,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable(), Version::STABILITY_STABLE),
         ];
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, 'This is a readme');
+        $this->fixtures->addScanResult($packageId, 'ok');
 
         $this->client->request('GET', $this->urlTo('organization_package_details', [
             'organization' => 'buddy',
@@ -462,6 +471,13 @@ final class OrganizationControllerTest extends FunctionalTestCase
             self::assertStringContainsString($version->reference(), $this->lastResponseBody());
         }
         self::assertStringContainsString('This is a readme', $this->lastResponseBody());
+
+        $this->client->request('GET', $this->urlTo('organization_package_details', [
+            'organization' => 'buddy',
+            'package' => v4(),
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
     }
 
     public function testPackageStats(): void

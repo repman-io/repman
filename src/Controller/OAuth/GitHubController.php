@@ -8,7 +8,7 @@ use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
-use Buddy\Repman\Service\GitHubApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
 use League\OAuth2\Client\Token\AccessToken;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +61,7 @@ final class GitHubController extends OAuthController
     {
         /** @var User */
         $user = $this->getUser();
-        if ($userQuery->findOAuthAccessToken($user->id(), OAuthToken::TYPE_GITHUB)->isPresent()) {
+        if ($userQuery->hasOAuthAccessToken($user->id(), OAuthToken::TYPE_GITHUB)) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_GITHUB]);
         }
         $this->session->set('organization', $organization->alias());

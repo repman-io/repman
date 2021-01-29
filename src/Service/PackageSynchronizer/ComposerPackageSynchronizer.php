@@ -22,6 +22,7 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
+use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -32,23 +33,30 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     private PackageRepository $packageRepository;
     private Storage $distStorage;
     private ReadmeExtractor $readmeExtractor;
+    private ClientRegistry $oauth;
     private string $gitlabUrl;
 
-    public function __construct(PackageManager $packageManager, PackageNormalizer $packageNormalizer, PackageRepository $packageRepository, Storage $distStorage, string $gitlabUrl)
-    {
+    public function __construct(
+        PackageManager $packageManager,
+        PackageNormalizer $packageNormalizer,
+        PackageRepository $packageRepository,
+        Storage $distStorage,
+        ClientRegistry $oauth,
+        string $gitlabUrl
+    ) {
         $this->packageManager = $packageManager;
         $this->packageNormalizer = $packageNormalizer;
         $this->packageRepository = $packageRepository;
         $this->distStorage = $distStorage;
+        $this->oauth = $oauth;
         $this->gitlabUrl = $gitlabUrl;
         $this->readmeExtractor = new ReadmeExtractor($this->distStorage);
     }
 
     public function synchronize(Package $package): void
     {
-        $io = $this->createIO($package);
-
         try {
+            $io = $this->createIO($package);
             /** @var RepositoryInterface $repository */
             $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package, $io)));
             $json = ['packages' => []];
@@ -169,7 +177,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         } catch (\Throwable $exception) {
             $package->syncFailure(sprintf('Error: %s%s',
                 $exception->getMessage(),
-                strlen($io->getOutput()) > 1 ? "\nLogs:\n".$io->getOutput() : ''
+                isset($io) && strlen($io->getOutput()) > 1 ? "\nLogs:\n".$io->getOutput() : ''
             ));
         }
     }
@@ -183,7 +191,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             return [];
         }
 
-        return [sprintf('Authorization: Bearer %s', $package->oauthToken())];
+        return [sprintf('Authorization: Bearer %s', $this->accessToken($package))];
     }
 
     private function createIO(Package $package): BufferIO
@@ -191,18 +199,23 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE);
 
         if ($package->type() === 'github-oauth') {
-            $io->setAuthentication('github.com', $package->oauthToken(), 'x-oauth-basic');
+            $io->setAuthentication('github.com', $this->accessToken($package), 'x-oauth-basic');
         }
 
         if ($package->type() === 'gitlab-oauth') {
-            $io->setAuthentication((string) parse_url($this->gitlabUrl, PHP_URL_HOST), $package->oauthToken(), 'oauth2');
+            $io->setAuthentication((string) parse_url($this->gitlabUrl, PHP_URL_HOST), $this->accessToken($package), 'oauth2');
         }
 
         if ($package->type() === 'bitbucket-oauth') {
-            $io->setAuthentication('bitbucket.org', 'x-token-auth', $package->oauthToken());
+            $io->setAuthentication('bitbucket.org', 'x-token-auth', $this->accessToken($package));
         }
 
         return $io;
+    }
+
+    private function accessToken(Package $package): string
+    {
+        return $package->oauthToken()->accessToken($this->oauth);
     }
 
     private function createConfig(Package $package, IOInterface $io): Config

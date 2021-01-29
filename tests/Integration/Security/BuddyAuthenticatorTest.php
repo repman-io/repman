@@ -6,8 +6,8 @@ namespace Buddy\Repman\Tests\Integration\Security;
 
 use Buddy\Repman\Security\BuddyAuthenticator;
 use Buddy\Repman\Security\UserProvider;
-use Buddy\Repman\Service\BuddyApi;
-use Buddy\Repman\Service\BuddyApi\BuddyApiException;
+use Buddy\Repman\Service\Integration\BuddyApi;
+use Buddy\Repman\Service\Integration\BuddyApi\BuddyApiException;
 use Buddy\Repman\Tests\Doubles\BuddyOAuth;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use League\OAuth2\Client\Token\AccessToken;

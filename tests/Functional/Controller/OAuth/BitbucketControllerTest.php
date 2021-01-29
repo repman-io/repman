@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\OAuth;
 
-use Buddy\Repman\Entity\User\OAuthToken;
-use Buddy\Repman\Repository\UserRepository;
-use Buddy\Repman\Service\BitbucketApi;
+use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Tests\Doubles\BitbucketOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use GuzzleHttp\Psr7\Response;
 use KnpU\OAuth2ClientBundle\Exception\MissingAuthorizationCodeException;
-use Ramsey\Uuid\Uuid;
 
 final class BitbucketControllerTest extends FunctionalTestCase
 {
@@ -158,39 +155,6 @@ final class BitbucketControllerTest extends FunctionalTestCase
         $this->client->followRedirect();
 
         self::assertStringContainsString($error, $this->lastResponseBody());
-    }
-
-    public function testRedirectToRefreshOAuthTokenWhenTokenExpired(): void
-    {
-        $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
-        $this->fixtures->createOrganization('buddy', $userId);
-        $this->fixtures->createOauthToken($userId, 'bitbucket', 'old', 'refresh', (new \DateTimeImmutable())->modify('-1 hour'));
-
-        $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'bitbucket']));
-
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('refresh_oauth_token', ['type' => 'bitbucket'])));
-    }
-
-    public function testRefreshOauthToken(): void
-    {
-        $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
-        $this->fixtures->createOrganization('buddy', $userId);
-        $this->fixtures->createOauthToken($userId, 'bitbucket', 'old-token', 'refresh-token');
-
-        $this->client->disableReboot();
-        BitbucketOAuth::mockRefreshTokenResponse('new-token', $this->container());
-
-        $this->client->request('GET', $this->urlTo('refresh_oauth_token', ['type' => 'bitbucket']));
-
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'bitbucket'])));
-
-        /** @var OAuthToken $token */
-        $token = $this->container()
-            ->get(UserRepository::class)
-            ->getById(Uuid::fromString($userId))
-            ->oauthToken('bitbucket');
-
-        self::assertEquals('new-token', $token->accessToken());
     }
 
     public function testAddPackageFromBitbucketWithoutToken(): void
