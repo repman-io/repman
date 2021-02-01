@@ -10,14 +10,27 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
-## [Unreleased]
+## [1.2.0] - 2021-02-01
+
+### Added
+- Support for S3-compatible storage ([#332](https://github.com/repman-io/repman/pull/303), [#366](https://github.com/repman-io/repman/pull/366) thanks @pedro-stanaka)
+- Cached adapters to reduce IO/HTTP overhead (storage) ([#373](https://github.com/repman-io/repman/pull/373) thanks @pedro-stanaka)
+- Alternative domain separator option (to simplify working with certificates) ([#375](https://github.com/repman-io/repman/pull/375) thanks @jmalinens)
+- Error messages for webhook actions (better UX) ([#396](https://github.com/repman-io/repman/pull/396))
+- Adding support for self hosted gitlab on custom port ([#398](https://github.com/repman-io/repman/pull/398) thanks @Fahl-Design )
+
+### Changed
+- Improve organization invitation with registration/login flow ([#387](https://github.com/repman-io/repman/pull/387) thanks @noniagriconomie)
+- Refresh oauth token in runtime without failing message or redirect ([#395](https://github.com/repman-io/repman/pull/395), [#397](https://github.com/repman-io/repman/pull/397))
+- Upgrade Symfony to 5.2 ([#379](https://github.com/repman-io/repman/pull/379) and others from dependabot)
+- Upgrade Doctrine and other dependencies (gitlab-api, github-api, bitbucket-api, dev tools)
 
 ## [1.1.1] - 2020-12-02
 
-## Changed
+### Changed
 - Direct docker cron logs to file ([#330](https://github.com/repman-io/repman/pull/330))
 
-## Fixed
+### Fixed
 - Fix alias form constraint (regex) ([#326](https://github.com/repman-io/repman/pull/326))
 
 ## [1.1.0] - 2020-10-23
