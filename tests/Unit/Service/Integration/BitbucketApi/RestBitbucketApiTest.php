@@ -7,7 +7,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\BitbucketApi;
 use Bitbucket\Api\CurrentUser;
 use Bitbucket\Api\Repositories as RepositoriesApi;
 use Bitbucket\Client;
-use Bitbucket\ResultPager;
+use Bitbucket\ResultPagerInterface;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repositories;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 use Buddy\Repman\Service\Integration\BitbucketApi\RestBitbucketApi;
@@ -22,7 +22,7 @@ final class RestBitbucketApiTest extends TestCase
     private $clientMock;
 
     /**
-     * @var MockObject|ResultPager
+     * @var MockObject|ResultPagerInterface
      */
     private $pagerMock;
 
@@ -32,7 +32,7 @@ final class RestBitbucketApiTest extends TestCase
     {
         $this->clientMock = $this->createMock(Client::class);
         $this->clientMock->expects(self::once())->method('authenticate');
-        $this->pagerMock = $this->createMock(ResultPager::class);
+        $this->pagerMock = $this->createMock(ResultPagerInterface::class);
 
         $this->api = new RestBitbucketApi($this->clientMock, $this->pagerMock);
     }
@@ -101,14 +101,14 @@ final class RestBitbucketApiTest extends TestCase
     public function testAddHookWhenNotExist(): void
     {
         $repos = $this->createMock(RepositoriesApi::class);
-        $users = $this->createMock(RepositoriesApi\Users::class);
-        $hooks = $this->createMock(RepositoriesApi\Users\Hooks::class);
+        $workspaces = $this->createMock(RepositoriesApi\Workspaces::class);
+        $hooks = $this->createMock(RepositoriesApi\Workspaces\Hooks::class);
         $this->pagerMock->method('fetchAll')->willReturn([
             ['url' => 'https://bitbucket-pipelines.prod.public.atl-paas.net/rest/bitbucket/event/connect/onpush'],
         ]);
         $this->clientMock->method('repositories')->willReturn($repos);
-        $repos->method('users')->willReturn($users);
-        $users->method('hooks')->willReturn($hooks);
+        $repos->method('workspaces')->willReturn($workspaces);
+        $workspaces->method('hooks')->willReturn($hooks);
 
         $hooks->expects(self::once())->method('create');
 
@@ -118,15 +118,15 @@ final class RestBitbucketApiTest extends TestCase
     public function testDoNotAddHookWhenExist(): void
     {
         $repos = $this->createMock(RepositoriesApi::class);
-        $users = $this->createMock(RepositoriesApi\Users::class);
-        $hooks = $this->createMock(RepositoriesApi\Users\Hooks::class);
+        $workspaces = $this->createMock(RepositoriesApi\Workspaces::class);
+        $hooks = $this->createMock(RepositoriesApi\Workspaces\Hooks::class);
         $this->pagerMock->method('fetchAll')->willReturn([
             ['url' => 'https://bitbucket-pipelines.prod.public.atl-paas.net/rest/bitbucket/event/connect/onpush'],
             ['url' => 'https://webhook.url'],
         ]);
         $this->clientMock->method('repositories')->willReturn($repos);
-        $repos->method('users')->willReturn($users);
-        $users->method('hooks')->willReturn($hooks);
+        $repos->method('workspaces')->willReturn($workspaces);
+        $workspaces->method('hooks')->willReturn($hooks);
 
         $hooks->expects(self::never())->method('create');
 
@@ -136,8 +136,8 @@ final class RestBitbucketApiTest extends TestCase
     public function testRemoveHookWhenExist(): void
     {
         $repos = $this->createMock(RepositoriesApi::class);
-        $users = $this->createMock(RepositoriesApi\Users::class);
-        $hooks = $this->createMock(RepositoriesApi\Users\Hooks::class);
+        $workspaces = $this->createMock(RepositoriesApi\Workspaces::class);
+        $hooks = $this->createMock(RepositoriesApi\Workspaces\Hooks::class);
         $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'uuid' => '1d2c6ec8-1294-4471-b703-1d050f86bdd5',
@@ -145,8 +145,8 @@ final class RestBitbucketApiTest extends TestCase
             ],
         ]);
         $this->clientMock->method('repositories')->willReturn($repos);
-        $repos->method('users')->willReturn($users);
-        $users->method('hooks')->willReturn($hooks);
+        $repos->method('workspaces')->willReturn($workspaces);
+        $workspaces->method('hooks')->willReturn($hooks);
 
         $hooks->expects(self::once())->method('remove')->with('1d2c6ec8-1294-4471-b703-1d050f86bdd5');
 
@@ -156,8 +156,8 @@ final class RestBitbucketApiTest extends TestCase
     public function testRemoveHookWhenNotExist(): void
     {
         $repos = $this->createMock(RepositoriesApi::class);
-        $users = $this->createMock(RepositoriesApi\Users::class);
-        $hooks = $this->createMock(RepositoriesApi\Users\Hooks::class);
+        $workspaces = $this->createMock(RepositoriesApi\Workspaces::class);
+        $hooks = $this->createMock(RepositoriesApi\Workspaces\Hooks::class);
         $this->pagerMock->method('fetchAll')->willReturn([
             [
                 'uuid' => '1d2c6ec8-1294-4471-b703-1d050f86bdd5',
@@ -165,8 +165,8 @@ final class RestBitbucketApiTest extends TestCase
             ],
         ]);
         $this->clientMock->method('repositories')->willReturn($repos);
-        $repos->method('users')->willReturn($users);
-        $users->method('hooks')->willReturn($hooks);
+        $repos->method('workspaces')->willReturn($workspaces);
+        $workspaces->method('hooks')->willReturn($hooks);
 
         $hooks->expects(self::never())->method('remove');
 

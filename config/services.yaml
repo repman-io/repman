@@ -133,7 +133,8 @@ services:
             - '@?Http\Message\RequestFactory'
             - '@?Http\Message\StreamFactory'
 
-    Bitbucket\ResultPager:
+    Bitbucket\ResultPagerInterface:
+        class: Bitbucket\ResultPager
         arguments:
             - '@Bitbucket\Client'
 
