@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Integration\BitbucketApi;
 
 use Bitbucket\Client;
-use Bitbucket\ResultPager;
+use Bitbucket\ResultPagerInterface;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 
 final class RestBitbucketApi implements BitbucketApi
 {
     private Client $client;
-    private ResultPager $pager;
+    private ResultPagerInterface $pager;
 
-    public function __construct(Client $client, ResultPager $pager)
+    public function __construct(Client $client, ResultPagerInterface $pager)
     {
         $this->client = $client;
         $this->pager = $pager;
@@ -47,8 +47,8 @@ final class RestBitbucketApi implements BitbucketApi
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
-        [$username, $repo] = explode('/', $fullName);
-        $hooks = $this->client->repositories()->users($username)->hooks($repo);
+        [$workspace, $repo] = explode('/', $fullName);
+        $hooks = $this->client->repositories()->workspaces($workspace)->hooks($repo);
 
         foreach ($this->pager->fetchAll($hooks, 'list') as $hook) {
             if ($hook['url'] === $hookUrl) {
@@ -67,9 +67,9 @@ final class RestBitbucketApi implements BitbucketApi
     public function removeHook(string $accessToken, string $fullName, string $hookUrl): void
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
-        [$username, $repo] = explode('/', $fullName);
+        [$workspace, $repo] = explode('/', $fullName);
 
-        $hooks = $this->client->repositories()->users($username)->hooks($repo);
+        $hooks = $this->client->repositories()->workspaces($workspace)->hooks($repo);
 
         foreach ($this->pager->fetchAll($hooks, 'list') as $hook) {
             if ($hook['url'] === $hookUrl) {
