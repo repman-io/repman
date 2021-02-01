@@ -7,14 +7,17 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Service\Telemetry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class IndexController extends AbstractController
 {
+    private SessionInterface $session;
     private Telemetry $telemetry;
 
-    public function __construct(Telemetry $telemetry)
+    public function __construct(SessionInterface $session, Telemetry $telemetry)
     {
+        $this->session = $session;
         $this->telemetry = $telemetry;
     }
 
@@ -23,6 +26,13 @@ final class IndexController extends AbstractController
      */
     public function index(): Response
     {
+        if ($this->session->has('organization-token')) {
+            $organizationToken = $this->session->get('organization-token');
+            $this->session->remove('organization-token');
+
+            return $this->redirectToRoute('organization_accept_invitation', ['token' => $organizationToken]);
+        }
+
         $showTelemetryPrompt = !$this->telemetry->isInstanceIdPresent();
 
         return $this->render('index.html.twig', [
