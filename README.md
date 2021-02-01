@@ -17,6 +17,7 @@
 - allows to create individual access tokens
 - supports private package import from **GitHub**, **GitLab** and **Bitbucket** with one click
 - REST API
+- security scanner (with e-mail reports)
 
 Documentation: [https://repman.io/docs/](https://repman.io/docs/)
 
