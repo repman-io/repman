@@ -23,7 +23,7 @@
         "ext-json": "*",
         "ext-pdo_pgsql": "*",
         "ext-zip": "*",
-        "bitbucket/client": "^2.1",
+        "bitbucket/client": "^4.0",
         "buddy-works/buddy-works-php-api": "^1.3",
         "buddy-works/oauth2-client": "^1.0",
         "cbschuld/browser.php": "^1.9",
