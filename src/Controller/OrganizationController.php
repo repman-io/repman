@@ -295,6 +295,12 @@ final class OrganizationController extends AbstractController
      */
     public function removeOrganization(Organization $organization): Response
     {
+        $offset = 0;
+        while (($packages = $this->packageQuery->findAll($organization->id(), new PackageQuery\Filter($offset, $limit = 100))) !== []) {
+            array_walk($packages, [$this, 'tryToRemoveWebhook']);
+            $offset += $limit;
+        }
+
         $this->dispatchMessage(new RemoveOrganization($organization->id()));
         $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));
 

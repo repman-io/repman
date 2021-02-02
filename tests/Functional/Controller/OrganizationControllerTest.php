@@ -9,7 +9,9 @@ use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
+use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Repository\OrganizationRepository;
+use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -96,7 +98,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isForbidden());
     }
 
-    public function testPackages(): void
+    public function testPackageList(): void
     {
         $anotherUserID = $this->fixtures->createUser('another@user.com', 'secret');
 
@@ -305,6 +307,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
 
+        $this->client->disableReboot();
         $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
@@ -312,6 +315,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
+        self::assertEquals(['some/repo'], $this->container()->get(GitHubApi::class)->removedWebhooks());
     }
 
     public function testRemoveGitHubPackageAndIgnoreWebhookError(): void
@@ -674,18 +678,28 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testRemoveOrganization(): void
     {
-        $buddyId = $this->fixtures->createOrganization('buddy inc', $this->userId);
-        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $organizationId = $this->fixtures->createOrganization('buddy inc', $this->userId);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_BITBUCKET);
+        $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com');
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
+        $this->fixtures->setWebhookCreated($this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'org/repo']));
+        $this->fixtures->setWebhookCreated($this->fixtures->addPackage($organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'webhook/problem']));
+        $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(new \RuntimeException('Repository was archived'));
 
         $this->client->request('DELETE', $this->urlTo('organization_remove', [
             'organization' => 'buddy-inc',
         ]));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->client->disableReboot();
         $this->client->followRedirect();
 
         self::assertStringContainsString('Organization buddy inc has been successfully removed', $this->lastResponseBody());
+        self::assertStringContainsString('Repository was archived', $this->lastResponseBody());
+        self::assertEquals(0, $this->container()->get(PackageQuery::class)->count($organizationId, new PackageQuery\Filter()));
+        self::assertEquals(['org/repo'], $this->container()->get(GitHubApi::class)->removedWebhooks());
+        self::assertEquals([], $this->container()->get(BitbucketApi::class)->removedWebhooks());
     }
 
     public function testRemoveForbiddenOrganization(): void
