@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use function Ramsey\Uuid\v4;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class RegistrationControllerTest extends FunctionalTestCase
 {
@@ -21,6 +23,22 @@ final class RegistrationControllerTest extends FunctionalTestCase
 
         $this->client->followRedirect();
         self::assertStringContainsString('Your account has been created', $this->lastResponseBody());
+    }
+
+    public function testSuccessfulRegistrationWithInvitationToken(): void
+    {
+        $this->client->disableReboot();
+        $this->container()->get(SessionInterface::class)->set('organization-token', $token = v4());
+        $this->client->request('GET', $this->urlTo('app_register'));
+        $this->client->submitForm('Sign up', [
+            'email' => 'test@buddy.works',
+            'plainPassword[first]' => 'secret123',
+            'plainPassword[second]' => 'secret123',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_accept_invitation', [
+            'token' => $token,
+        ])));
     }
 
     public function testEmailConfirmed(): void

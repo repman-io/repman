@@ -60,12 +60,9 @@ class RegistrationController extends AbstractController
             $this->guard->authenticateUser($email, $request);
 
             if ($this->session->has('organization-token')) {
-                $organizationToken = $this->session->get('organization-token');
-                $this->session->remove('organization-token');
-
                 $this->addFlash('success', 'Your account has been created.');
 
-                return $this->redirectToRoute('organization_accept_invitation', ['token' => $organizationToken]);
+                return $this->redirectToRoute('organization_accept_invitation', ['token' => $this->session->remove('organization-token')]);
             }
 
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');

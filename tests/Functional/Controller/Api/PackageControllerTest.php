@@ -8,6 +8,8 @@ use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Service\Integration\BitbucketApi;
+use Buddy\Repman\Service\Integration\GitHubApi;
+use Buddy\Repman\Service\Integration\GitLabApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -253,7 +255,7 @@ final class PackageControllerTest extends FunctionalTestCase
         );
     }
 
-    public function testRemovePackageWhenWebhookRemovalFailed(): void
+    public function testRemovePackageWhenBitbucketWebhookRemovalFailed(): void
     {
         $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_BITBUCKET);
         $packageId = $this->fixtures->addPackage($this->organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'some/repo']);
@@ -280,6 +282,54 @@ final class PackageControllerTest extends FunctionalTestCase
                 ->getById($packageId)
                 ->isEmpty()
         );
+    }
+
+    public function testRemovePackageWhenGithubWebhookRemovalFailed(): void
+    {
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
+        $packageId = $this->fixtures->addPackage($this->organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'org/repo']);
+        $this->fixtures->setWebhookCreated($packageId);
+
+        $this->loginApiUser($this->apiToken);
+
+        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new \RuntimeException('Webhook already removed'));
+        $this->client->request('DELETE', $this->urlTo('api_package_remove', [
+            'organization' => self::$organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertMatchesPattern('
+            {
+                "warning": "@string@.contains(\'Webhook already removed\')"
+            }
+        ', (string) $this->client->getResponse()->getContent());
+
+        self::assertTrue($this->container()->get(DbalPackageQuery::class)->getById($packageId)->isEmpty());
+    }
+
+    public function testRemovePackageWhenGitlabWebhookRemovalFailed(): void
+    {
+        $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITLAB);
+        $packageId = $this->fixtures->addPackage($this->organizationId, 'https://buddy.com', 'gitlab-oauth', [Metadata::GITLAB_PROJECT_ID => 1234]);
+        $this->fixtures->setWebhookCreated($packageId);
+
+        $this->loginApiUser($this->apiToken);
+
+        $this->container()->get(GitLabApi::class)->setExceptionOnNextCall(new \RuntimeException('Webhook already removed'));
+        $this->client->request('DELETE', $this->urlTo('api_package_remove', [
+            'organization' => self::$organization,
+            'package' => $packageId,
+        ]));
+
+        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertMatchesPattern('
+            {
+                "warning": "@string@.contains(\'Webhook already removed\')"
+            }
+        ', (string) $this->client->getResponse()->getContent());
+
+        self::assertTrue($this->container()->get(DbalPackageQuery::class)->getById($packageId)->isEmpty());
     }
 
     public function testRemovePackageNonExisting(): void
