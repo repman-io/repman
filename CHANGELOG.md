@@ -10,6 +10,11 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [1.2.1] - 2021-02-03
+
+### Fixed
+- Remove webhook when package removed (API) and organization removed (UI) ([#404](https://github.com/repman-io/repman/pull/404))
+
 ## [1.2.0] - 2021-02-01
 
 ### Added
