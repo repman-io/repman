@@ -68,6 +68,16 @@ final class MemberControllerTest extends FunctionalTestCase
         );
     }
 
+    public function testRedirectOnAcceptInvitationWhenNotLogged(): void
+    {
+        $this->fixtures->createUser($email = 'some@buddy.works', $password = 'secret123');
+        $this->fixtures->inviteUser($this->organizationId, 'some@buddy.works', $token = '04550fd6-47d1-491f-84d6-227d4a1a38e8');
+
+        $this->client->request('GET', $this->urlTo('organization_accept_invitation', ['token' => $token]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_login')));
+    }
+
     public function testLogoutUserOnInvalidInvitation(): void
     {
         $this->fixtures->createUser($email = 'some@buddy.works', $password = 'secret123');

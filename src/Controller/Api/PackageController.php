@@ -12,6 +12,9 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
+use Buddy\Repman\Message\Organization\Package\RemoveBitbucketHook;
+use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
+use Buddy\Repman\Message\Organization\Package\RemoveGitLabHook;
 use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Message\Organization\RemovePackage;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
@@ -31,6 +34,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -150,7 +154,7 @@ final class PackageController extends ApiController
      *
      * @OA\Response(
      *     response=200,
-     *     description="Package removed"
+     *     description="Package removed, if there was a problem with removing the webhook, the 'warning' field will appear"
      * )
      *
      * @OA\Response(
@@ -167,9 +171,12 @@ final class PackageController extends ApiController
      */
     public function removePackage(Organization $organization, Package $package): JsonResponse
     {
+        $warning = $this->tryToRemoveWebhook($package);
         $this->dispatchMessage(new RemovePackage($package->getId(), $organization->id()));
 
-        return new JsonResponse();
+        return new JsonResponse($warning !== null ? [
+            'warning' => $warning,
+        ] : null);
     }
 
     /**
@@ -499,5 +506,34 @@ final class PackageController extends ApiController
         }
 
         return $token;
+    }
+
+    private function tryToRemoveWebhook(Package $package): ?string
+    {
+        $warning = null;
+        if ($package->getWebhookCreatedAt() !== null) {
+            try {
+                switch ($package->getType()) {
+                    case 'github-oauth':
+                        $this->dispatchMessage(new RemoveGitHubHook($package->getId()));
+                        break;
+                    case 'gitlab-oauth':
+                        $this->dispatchMessage(new RemoveGitLabHook($package->getId()));
+                        break;
+                    case 'bitbucket-oauth':
+                        $this->dispatchMessage(new RemoveBitbucketHook($package->getId()));
+                        break;
+                }
+            } catch (HandlerFailedException $exception) {
+                $reason = current($exception->getNestedExceptions());
+
+                $warning = sprintf(
+                    'Webhook removal failed due to "%s". Please remove it manually.',
+                    $reason !== false ? $reason->getMessage() : $exception->getMessage()
+                );
+            }
+        }
+
+        return $warning;
     }
 }

@@ -27,16 +27,11 @@ final class IndexController extends AbstractController
     public function index(): Response
     {
         if ($this->session->has('organization-token')) {
-            $organizationToken = $this->session->get('organization-token');
-            $this->session->remove('organization-token');
-
-            return $this->redirectToRoute('organization_accept_invitation', ['token' => $organizationToken]);
+            return $this->redirectToRoute('organization_accept_invitation', ['token' => $this->session->remove('organization-token')]);
         }
 
-        $showTelemetryPrompt = !$this->telemetry->isInstanceIdPresent();
-
         return $this->render('index.html.twig', [
-            'showTelemetryPrompt' => $showTelemetryPrompt,
+            'showTelemetryPrompt' => !$this->telemetry->isInstanceIdPresent(),
             'telemetryDocsUrl' => $this->telemetry->docsUrl(),
         ]);
     }

@@ -11,6 +11,10 @@ final class FakeBitbucketApi implements BitbucketApi
 {
     private string $primaryEmail = '';
     private ?\Throwable $exception = null;
+    /**
+     * @var string[]
+     */
+    private array $removedWebhooks = [];
 
     public function primaryEmail(string $accessToken): string
     {
@@ -46,6 +50,15 @@ final class FakeBitbucketApi implements BitbucketApi
     public function removeHook(string $accessToken, string $fullName, string $hookUrl): void
     {
         $this->throwExceptionIfSet();
+        $this->removedWebhooks[] = $fullName;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function removedWebhooks(): array
+    {
+        return $this->removedWebhooks;
     }
 
     private function throwExceptionIfSet(): void
