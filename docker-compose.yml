@@ -13,7 +13,6 @@ services:
       POSTGRES_USER: main
       POSTGRES_PASSWORD: main
       POSTGRES_DB: main
-    ports: [5432]
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
