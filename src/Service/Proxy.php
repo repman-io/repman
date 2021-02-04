@@ -199,16 +199,18 @@ final class Proxy
                 $path = $file['path'];
                 $contents = (string) \stream_get_contents($stream);
 
-                $this->filesystem->putStream($path, $stream);
-                $this->filesystem->put(
-                    (string) \preg_replace(
-                        '/(.+?)(\$\w+|)(\.json)$/',
-                        '${1}\$'.\hash('sha256', $contents).'.json',
-                        $path,
-                        1
-                    ),
-                    $contents
-                );
+                $this->filesystem->put($path, $contents);
+                if (strpos($path, $this->name.'/p2') === false) {
+                    $this->filesystem->put(
+                        (string) \preg_replace(
+                            '/(.+?)(\$\w+|)(\.json)$/',
+                            '${1}\$'.\hash('sha256', $contents).'.json',
+                            $path,
+                            1
+                        ),
+                        $contents
+                    );
+                }
             });
         }
     }
@@ -228,8 +230,12 @@ final class Proxy
             }
 
             if ($file['timestamp'] >= $latest[$key]['timestamp']) {
+                $this->filesystem->delete($latest[$key]['path']);
                 $latest[$key] = $file;
+                continue;
             }
+
+            $this->filesystem->delete($file['path']);
         }
 
         $providers = [];
