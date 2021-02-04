@@ -127,7 +127,7 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testProviderAction(): void
     {
-        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman$985a77691ad57c77f96e5b97ae30828c75e4030b65e6211a0a20c54f594c5ea9.json', [], [], [
+        $response = $this->contentFromStream(fn () => $this->client->request('GET', '/p/buddy-works/repman$d5d2c9708c1240da3913ee9fba51759b14b8443826a93b84fa0fa95d70cd3703.json', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
         ]));
 
