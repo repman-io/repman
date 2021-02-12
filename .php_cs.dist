@@ -2,7 +2,8 @@
 
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__ . '/src')
-    ->in(__DIR__ . '/tests');
+    ->in(__DIR__ . '/tests')
+;
 
 $config = new PhpCsFixer\Config();
 return $config->setRiskyAllowed(true)
@@ -38,4 +39,5 @@ return $config->setRiskyAllowed(true)
         // risky -->
         'strict_param' => true,
     ])
-    ->setFinder($finder);
+    ->setFinder($finder)
+;
