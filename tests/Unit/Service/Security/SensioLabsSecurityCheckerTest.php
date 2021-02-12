@@ -23,7 +23,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
         $this->repoDir = sys_get_temp_dir().'/repman/security-advisories-repo';
         $this->filesystem = new Filesystem();
 
-        $this->checker = new SensioLabsSecurityChecker($this->dbDir, $this->repoDir);
+        $this->checker = new SensioLabsSecurityChecker($this->dbDir, 'file://'.$this->repoDir);
     }
 
     protected function tearDown(): void
@@ -124,7 +124,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     public function testThrowErrorWhenUpdateFails(): void
     {
         $this->expectException(ProcessFailedException::class);
-        $this->expectExceptionMessage("repository '{$this->repoDir}' does not exist");
+        $this->expectExceptionMessage("'{$this->repoDir}' does not appear to be a git repository");
         $this->checker->update();
     }
 
