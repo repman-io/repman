@@ -5,8 +5,8 @@ $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/tests')
 ;
 
-return PhpCsFixer\Config::create()
-    ->setRiskyAllowed(true)
+$config = new PhpCsFixer\Config();
+return $config->setRiskyAllowed(true)
     ->setRules([
         '@PHP71Migration' => true,
         '@Symfony' => true,
@@ -34,7 +34,7 @@ return PhpCsFixer\Config::create()
         'global_namespace_import' => [
             'import_classes' => false,
             'import_constants' => false,
-            'import_functions' => false
+            'import_functions' => false,
         ],
         // risky -->
         'strict_param' => true,
