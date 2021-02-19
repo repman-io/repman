@@ -1,4 +1,10 @@
 {
+    "async-aws/core": {
+        "version": "1.9.0"
+    },
+    "async-aws/ses": {
+        "version": "1.4.0"
+    },
     "aws/aws-sdk-php": {
         "version": "3.158.21"
     },

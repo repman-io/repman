@@ -23,6 +23,7 @@
         "ext-json": "*",
         "ext-pdo_pgsql": "*",
         "ext-zip": "*",
+        "async-aws/ses": "^1.4",
         "bitbucket/client": "^4.0",
         "buddy-works/buddy-works-php-api": "^1.3",
         "buddy-works/oauth2-client": "^1.0",
