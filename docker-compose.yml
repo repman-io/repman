@@ -22,9 +22,7 @@ services:
     sysctls:
       net.core.somaxconn: 2048
     command: >
-      bash -c 'bin/console cache:clear &&
-      bin/console cache:warmup &&
-      bin/console d:m:m --no-interaction &&
+      bash -c 'bin/console d:m:m --no-interaction &&
       bin/console messenger:setup-transports --no-interaction &&
       bin/console repman:security:update-db &&
       bin/console assets:install &&
@@ -32,6 +30,7 @@ services:
     env_file: .env.docker
     volumes:
       - app-var:/app/var
+      - /app/var/cache
       - app-public:/app/public
     depends_on:
       - database
@@ -43,6 +42,7 @@ services:
     env_file: .env.docker
     volumes:
       - app-var:/app/var
+      - /app/var/cache
     depends_on:
       - app
 
@@ -53,6 +53,7 @@ services:
     env_file: .env.docker
     volumes:
       - app-var:/app/var
+      - /app/var/cache
       - docker-crontabs:/var/spool/cron/crontabs
     depends_on:
       - app
