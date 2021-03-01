@@ -15,4 +15,11 @@ final class DistTest extends TestCase
 
         self::assertEquals(md5('dev-master/feature'), $dist->version());
     }
+
+    public function testVersionDevMaster(): void
+    {
+        $dist = new Dist('repo', 'package', 'dev-master', '123456', 'zip');
+
+        self::assertEquals('9999999-dev', $dist->version());
+    }
 }
