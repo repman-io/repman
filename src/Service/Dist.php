@@ -37,6 +37,10 @@ final class Dist
             return md5($this->version);
         }
 
+        if ($this->version === 'dev-master') {
+            return '9999999-dev';
+        }
+
         return $this->version;
     }
 
