@@ -10,6 +10,16 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [1.2.2] - 2021-03-02
+### Fixed
+- Fix: composer 9999999-dev issue ([#422](https://github.com/repman-io/repman/pull/422) thanks @slappyslap)
+- Make `var/cache` ephemeral ([#420](https://github.com/repman-io/repman/pull/420))
+- Add async-aws/ses to composer ([#418](https://github.com/repman-io/repman/pull/418) thanks @nandogameiro)
+- Enable http2 for composer v2  ([#416](https://github.com/repman-io/repman/pull/416))
+- Test compatibility issues and small deprecation fix ([#414](https://github.com/repman-io/repman/pull/414) thanks @pedro-stanaka)
+- Remove old metadata files when sync proxy metadata ([#412](https://github.com/repman-io/repman/pull/412))
+- Remove PostgreSQL exposed port from docker-compose.yml ([#410](https://github.com/repman-io/repman/pull/410))
+
 ## [1.2.1] - 2021-02-03
 
 ### Fixed
