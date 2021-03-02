@@ -4,6 +4,7 @@
 
 - symfony version has been raised to `5.2`, so if you have made any custom changes, we encourage you
   to read their upgrade guide [UPGRADE-5.2.md](https://github.com/symfony/symfony/blob/master/UPGRADE-5.2.md)
+- clear cache (when using docker-compose.yml, more details in [#417](https://github.com/repman-io/repman/issues/417))
 
 ## UPGRADE FROM 1.0.x to 1.1.x
 
