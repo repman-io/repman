@@ -135,17 +135,38 @@ final class ProxyTest extends TestCase
         $this->createMetadataFile('repman-io/example', '8596c2e5', '2019-02-01 08:00:00');
         $this->createMetadataFile('repman-io/example', '90f50046', '2021-02-01 08:00:00');
 
+        $newProvider = 'packagist.org/provider/provider-latest$9574a5410c31b1839e902dca97a3e0f892363864838fc5b522627c81300a60d3.json';
+
+        $verOldProvider = $this->createProviderLatest('OLD1', '2021-01-01 07:00:00');
+        $oldProvider = $this->createProviderLatest('OLD2', '2021-01-01 08:00:00');
+
+        self::assertTrue($this->filesystem->has($verOldProvider));
+        self::assertTrue($this->filesystem->has($oldProvider));
+        self::assertFalse($this->filesystem->has($newProvider));
+
         $this->proxy->updateLatestProviders();
 
         self::assertFalse($this->filesystem->has('packagist.org/p/repman-io/example$33f034b1.json'));
         self::assertFalse($this->filesystem->has('packagist.org/p/repman-io/example$7596c2e5.json'));
         self::assertFalse($this->filesystem->has('packagist.org/p/repman-io/example$8596c2e5.json'));
         self::assertTrue($this->filesystem->has('packagist.org/p/repman-io/example$90f50046.json'));
-        self::assertTrue($this->filesystem->has('packagist.org/provider/provider-latest$9574a5410c31b1839e902dca97a3e0f892363864838fc5b522627c81300a60d3.json'));
+
+        // only one old provider should persist and new one should be crated
+        self::assertFalse($this->filesystem->has($verOldProvider));
+        self::assertTrue($this->filesystem->has($oldProvider));
+        self::assertTrue($this->filesystem->has($newProvider));
     }
 
     private function createMetadataFile(string $package, string $hash, string $time): void
     {
         $this->filesystem->write('packagist.org/p/'.$package.'$'.$hash.'.json', 'content', ['timestamp' => strtotime($time)]);
+    }
+
+    private function createProviderLatest(string $hash, string $time): string
+    {
+        $path = "packagist.org/provider/provider-latest$${hash}.json";
+        $this->filesystem->write($path, 'content', ['timestamp' => strtotime($time)]);
+
+        return $path;
     }
 }
