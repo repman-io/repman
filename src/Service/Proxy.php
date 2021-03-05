@@ -121,7 +121,15 @@ final class Proxy
     {
         $packages = GenericList::empty();
         foreach ($this->filesystem->listContents(\sprintf('%s/dist', $this->name)) as $vendor) {
+            if ('dir' !== $vendor['type']) {
+                continue;
+            }
+
             foreach ($this->filesystem->listContents($vendor['path']) as $package) {
+                if ('dir' !== $package['type']) {
+                    continue;
+                }
+
                 $packages = $packages->append($vendor['basename'].'/'.$package['basename']);
             }
         }
@@ -298,7 +306,7 @@ final class Proxy
 
         $stream = $this->filesystem->readStream($path);
         if ($stream === false) {
-            return Option::none();
+            return Option::none(); // @codeCoverageIgnore
         }
 
         $fileSize = $this->filesystem->getSize($path);
@@ -327,7 +335,7 @@ final class Proxy
 
         $stream = $this->filesystem->readStream($path);
         if ($stream === false) {
-            return Option::none();
+            return Option::none(); // @codeCoverageIgnore
         }
 
         $fileSize = $this->filesystem->getSize($path);

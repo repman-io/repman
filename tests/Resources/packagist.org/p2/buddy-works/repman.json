@@ -25,7 +25,6 @@
         "dist": {
           "type": "zip",
           "url": "https:\/\/api.github.com\/repos\/munusphp\/munus\/zipball\/5e77ad71826b9411cb873c0947a7d541d822dff1",
-          "reference": "5e77ad71826b9411cb873c0947a7d541d822dff1",
           "shasum": ""
         },
         "type": "library",
