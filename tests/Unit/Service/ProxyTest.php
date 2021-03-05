@@ -27,6 +27,11 @@ final class ProxyTest extends TestCase
         );
     }
 
+    public function testUrl(): void
+    {
+        self::assertEquals('https://packagist.org', $this->proxy->url());
+    }
+
     public function testPackageMetadataDownload(): void
     {
         $this->downloader->addContent('https://packagist.org/p2/buddy-works/repman.json', 'metadata');
