@@ -148,7 +148,7 @@
         ],
         "coverage-ci": [
             "phpunit --colors=never --coverage-clover 'clover.xml'",
-            "bin/coverage-checker clover.xml 99"
+            "bin/coverage-checker clover.xml 100"
         ],
         "coverage-html": [
             "@phpunit --coverage-html coverage"

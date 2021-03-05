@@ -98,19 +98,22 @@ class DateExtension extends AbstractExtension
         $diff = $date->diff($now);
 
         // Check for each interval if it appears in the $diff object.
+        $result = '';
         foreach (self::$units as $attribute => $unit) {
             $count = $diff->$attribute;
 
             if (0 !== $count) {
                 if ($attribute === 'f') {
-                    return 'just now';
+                    $result = 'just now';
+                    break;
                 }
 
-                return $this->getPluralizedInterval($count, $diff->invert, $unit);
+                $result = $this->getPluralizedInterval($count, $diff->invert, $unit);
+                break;
             }
         }
 
-        return '';
+        return $result;
     }
 
     /**
