@@ -35,7 +35,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         $result = $commandTester->execute([]);
 
-        self::assertTrue(file_exists($newDist));
+        self::assertFileExists($newDist);
         self::assertEquals($result, 0);
         @unlink($newDist);
 
@@ -44,7 +44,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         $result = $commandTester->execute([]);
 
-        self::assertFalse(file_exists($newDist));
+        self::assertFileDoesNotExist($newDist);
         self::assertEquals($result, 0);
     }
 
@@ -68,7 +68,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         $result = $commandTester->execute([]);
 
-        self::assertFalse(file_exists($newDist));
+        self::assertFileDoesNotExist($newDist);
         self::assertEquals($result, 0);
     }
 

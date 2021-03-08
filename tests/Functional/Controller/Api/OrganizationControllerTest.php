@@ -35,7 +35,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
-        self::assertEquals(count($json['data']), 1);
+        self::assertCount(1, $json['data']);
         self::assertEquals($json['data'][0]['name'], 'Buddy works');
         self::assertEquals($json['data'][0]['alias'], 'buddy-works');
         self::assertEquals($json['data'][0]['hasAnonymousAccess'], false);
@@ -56,7 +56,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
 
-        self::assertEquals(count($json['data']), 20);
+        self::assertCount(20, $json['data']);
         self::assertEquals($json['data'][0]['name'], 'test-list-name#27');
         self::assertEquals($json['data'][19]['name'], 'test-list-name#7');
 
