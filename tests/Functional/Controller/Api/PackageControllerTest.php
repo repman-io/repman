@@ -146,7 +146,7 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
 
-        self::assertEquals(count($json['data']), 20);
+        self::assertCount(20, $json['data']);
         self::assertEquals($json['total'], 41);
 
         $baseUrl = $this->urlTo('api_packages', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);

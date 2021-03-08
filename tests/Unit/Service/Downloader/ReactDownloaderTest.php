@@ -14,7 +14,7 @@ final class ReactDownloaderTest extends TestCase
     {
         $packages = __DIR__.'/../../../Resources/packages.json';
 
-        self::assertTrue(is_resource((new ReactDownloader())->getContents($packages)->getOrNull()));
+        self::assertIsResource((new ReactDownloader())->getContents($packages)->getOrNull());
     }
 
     public function testFailedDownload(): void

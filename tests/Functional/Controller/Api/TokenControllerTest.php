@@ -37,7 +37,7 @@ final class TokenControllerTest extends FunctionalTestCase
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
-        self::assertEquals(count($json['data']), 1);
+        self::assertCount(1, $json['data']);
         self::assertEquals($json['data'][0]['name'], 'test-list-name');
         self::assertEquals($json['data'][0]['value'], 'test-list-value');
         self::assertNotEmpty($json['data'][0]['createdAt']);
@@ -62,7 +62,7 @@ final class TokenControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
 
-        self::assertEquals(count($json['data']), 20);
+        self::assertCount(20, $json['data']);
         self::assertEquals($json['data'][0]['name'], 'test-list-name#28');
         self::assertEquals($json['data'][19]['name'], 'test-list-name#8');
 
