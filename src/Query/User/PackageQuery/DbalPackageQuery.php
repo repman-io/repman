@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\Filter as BaseFilter;
 use Buddy\Repman\Query\User\Model\Installs;
@@ -204,6 +205,119 @@ final class DbalPackageQuery implements PackageQuery
                     ':package_id' => $packageId,
                 ]
             );
+    }
+
+    /**
+     * @return Link[]
+     */
+    public function getDependantLinks(string $packageName, string $organizationId): array
+    {
+        return array_map(function (array $data): Link {
+            return (new Link(
+                    $data['id'],
+                    $data['type'],
+                    $data['target'],
+                    $data['constraint'],
+                    $data['package_id']
+                ))
+                ->setPackageName($data['name']);
+        }, $this->connection->fetchAllAssociative(
+            'SELECT
+                l.id,
+                l.type,
+                l.target,
+                l.constraint,
+                p.id as package_id,
+                p.name
+            FROM organization_package_link l
+            JOIN organization_package p ON (p.id = l.package_id AND p.organization_id = l.organization_id)
+            WHERE l.target = :package_name
+            AND l.organization_id = :organization_id', [
+            ':package_name' => $packageName,
+            ':organization_id' => $organizationId,
+        ]));
+    }
+
+    /**
+     * @return Link[]
+     */
+    public function getLinks(string $packageId, string $organizationId): array
+    {
+        return array_map(function (array $data): Link {
+            return new Link(
+                $data['id'],
+                $data['type'],
+                $data['target'],
+                $data['constraint'],
+                $data['package_id'],
+                $data['target_package_id']
+            );
+        }, $this->connection->fetchAllAssociative(
+            'SELECT
+                l.id,
+                l.type,
+                l.target,
+                l.constraint,
+                l.package_id,
+                p.id as target_package_id
+            FROM organization_package_link l
+            LEFT JOIN organization_package p ON (p.name = l.target AND p.organization_id = :organization_id)
+            WHERE package_id = :package_id', [
+                ':organization_id' => $organizationId,
+                ':package_id' => $packageId,
+        ]));
+    }
+
+    /**
+     * @param Link[] $links
+     * @return array<string,PackageDetails>
+     */
+    public function hydratePackageLinks(string $organizationId, array $links): array
+    {
+        // TODO: Implement hydratePackageLinks() method.
+        $linkNames = array_map(fn(Link $link) => $link->target(), $links);
+
+        $data = $this->connection->fetchAllAssociative(
+            'SELECT
+                id,
+                organization_id,
+                type,
+                repository_url,
+                name,
+                latest_released_version,
+                latest_release_date,
+                description,
+                last_sync_at,
+                last_sync_error,
+                webhook_created_at,
+                webhook_created_error,
+                last_scan_date,
+                last_scan_status,
+                last_scan_result,
+                keep_last_releases
+            FROM organization_package
+            WHERE organization_id = ?
+            AND name IN (?)
+            GROUP BY id',
+            [
+                $organizationId,
+                $linkNames,
+            ],
+            [
+                \PDO::PARAM_STR,
+                Connection::PARAM_STR_ARRAY,
+            ]
+        );
+
+        $items = [];
+
+        foreach ($data as $row) {
+            $package = $this->hydratePackageDetails($row);
+
+            $items[$package->name()] = $package;
+        }
+
+        return $items;
     }
 
     /**

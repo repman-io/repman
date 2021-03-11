@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -121,6 +122,12 @@ class Package
     private Collection $versions;
 
     /**
+     * @var Collection<int,Link>|Link[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Link", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
+     */
+    private Collection $links;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private int $keepLastReleases = 0;
@@ -136,6 +143,7 @@ class Package
         $this->metadata = $metadata;
         $this->keepLastReleases = $keepLastReleases;
         $this->versions = new ArrayCollection();
+        $this->links = new ArrayCollection();
     }
 
     public function id(): UuidInterface
@@ -318,6 +326,21 @@ class Package
 
         $version->setPackage($this);
         $this->versions->add($version);
+    }
+
+    /**
+     * @return Collection<int,Link>|Link[]
+     */
+    public function links(): Collection
+    {
+        return $this->links;
+    }
+
+    public function addLink(Link $link): void
+    {
+        $link->setPackage($this);
+        $link->setOrganization($this->organization);
+        $this->links->add($link);
     }
 
     public function removeVersion(Version $version): void

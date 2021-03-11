@@ -146,6 +146,41 @@
         </div>
     {% endif %}
 
+    {% if packageLinks|length > 0 %}
+        <hr />
+
+        <h3>Dependencies</h3>
+
+        {% for type,links in packageLinks %}
+            {{ type }}
+            {% for link in links %}
+                <li>
+                    {% if link.targetPackageId %}
+                    <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">
+                        {{ link.target }}: {{ link.constraint }}
+                    </a>
+                    {% else %}
+                        {{ link.target }}: {{ link.constraint }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    {% if dependants|length > 0 %}
+        <hr />
+
+        <h3>Dependants</h3>
+
+        {% for link in dependants %}
+                <li>
+                    <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.packageId}) }}">
+                            {{ link.packageName }}: {{ link.constraint }}
+                    </a>
+                </li>
+        {% endfor %}
+    {% endif %}
+
     {% if package.readme() %}
         <hr />
 

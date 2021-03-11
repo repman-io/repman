@@ -149,6 +149,31 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
                 if ($latest->getVersion() === $version['version']) {
                     $this->readmeExtractor->extractReadme($package, $dist);
+
+                    // @todo Loop around all the types without copy/pasting so much
+
+                    // Set the version links
+                    foreach ($latest->getRequires() as $require) {
+                        $package->addLink(
+                            new Package\Link(
+                                Uuid::uuid4()->toString(),
+                                'require',
+                                $require->getTarget(),
+                                $require->getPrettyConstraint(),
+                            )
+                        );
+                    }
+
+                    foreach ($latest->getDevRequires() as $require) {
+                        $package->addLink(
+                            new Package\Link(
+                                Uuid::uuid4()->toString(),
+                                'devRequire',
+                                $require->getTarget(),
+                                $require->getPrettyConstraint(),
+                            )
+                        );
+                    }
                 }
 
                 $package->addOrUpdateVersion(
