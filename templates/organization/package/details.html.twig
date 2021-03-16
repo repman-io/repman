@@ -149,28 +149,30 @@
     {% if packageLinks|length > 0 %}
         <hr />
 
-        <h3>Dependencies</h3>
-
-        {% for type,links in packageLinks %}
-            {{ type }}
-            {% for link in links %}
-                <li>
-                    {% if link.targetPackageId %}
-                    <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">
-                        {{ link.target }}: {{ link.constraint }}
-                    </a>
-                    {% else %}
-                        {{ link.target }}: {{ link.constraint }}
-                    {% endif %}
-                </li>
+        <div class="d-flex flex-wrap">
+            {% for type,links in packageLinks %}
+                <div class="p-2 flex-fill">
+                    <h5>{{ type }}</h5>
+                    {% for link in links %}
+                        <li>
+                            {% if link.targetPackageId %}
+                            <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">
+                                {{ link.target }}: {{ link.constraint }}
+                            </a>
+                            {% else %}
+                                {{ link.target }}: {{ link.constraint }}
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </div>
             {% endfor %}
-        {% endfor %}
+        </div>
     {% endif %}
 
     {% if dependants|length > 0 %}
         <hr />
 
-        <h3>Dependants</h3>
+        <h3>Dependants (todo: remove)</h3>
 
         {% for link in dependants %}
                 <li>

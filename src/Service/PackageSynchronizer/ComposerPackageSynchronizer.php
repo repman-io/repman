@@ -19,6 +19,7 @@ use Composer\Factory;
 use Composer\IO\BufferIO;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
+use Composer\Package\Link;
 use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
@@ -150,27 +151,33 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 if ($latest->getVersion() === $version['version']) {
                     $this->readmeExtractor->extractReadme($package, $dist);
 
-                    // @todo Loop around all the types without copy/pasting so much
-
                     // Set the version links
-                    foreach ($latest->getRequires() as $require) {
-                        $package->addLink(
-                            new Package\Link(
-                                Uuid::uuid4()->toString(),
-                                'require',
-                                $require->getTarget(),
-                                $require->getPrettyConstraint(),
-                            )
-                        );
+                    $types = ['requires', 'devRequires', 'provides', 'replaces', 'conflicts'];
+
+                    foreach ($types as $type) {
+                        /** @var Link[] $links */
+                        $links = $latest->{"get{$type}"}();
+
+                        foreach ($links as $link) {
+                            $package->addLink(
+                                new Package\Link(
+                                    Uuid::uuid4()->toString(),
+                                    $type,
+                                    $link->getTarget(),
+                                    $link->getPrettyConstraint(),
+                                )
+                            );
+                        }
                     }
 
-                    foreach ($latest->getDevRequires() as $require) {
+                    // suggests are different
+                    foreach ($latest->getSuggests() as $linkName => $linkDescription) {
                         $package->addLink(
                             new Package\Link(
                                 Uuid::uuid4()->toString(),
-                                'devRequire',
-                                $require->getTarget(),
-                                $require->getPrettyConstraint(),
+                                'suggests',
+                                $linkName,
+                                $linkDescription,
                             )
                         );
                     }

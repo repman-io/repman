@@ -57,12 +57,6 @@ interface PackageQuery
      */
     public function getDependantLinks(string $packageName, string $organizationId): array;
 
-    /**
-     * @param Link[] $links
-     * @return array<string,PackageDetails>
-     */
-    public function hydratePackageLinks(string $organizationId, array $links): array;
-
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs;
 
     /**

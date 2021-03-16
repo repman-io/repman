@@ -269,58 +269,6 @@ final class DbalPackageQuery implements PackageQuery
     }
 
     /**
-     * @param Link[] $links
-     * @return array<string,PackageDetails>
-     */
-    public function hydratePackageLinks(string $organizationId, array $links): array
-    {
-        // TODO: Implement hydratePackageLinks() method.
-        $linkNames = array_map(fn(Link $link) => $link->target(), $links);
-
-        $data = $this->connection->fetchAllAssociative(
-            'SELECT
-                id,
-                organization_id,
-                type,
-                repository_url,
-                name,
-                latest_released_version,
-                latest_release_date,
-                description,
-                last_sync_at,
-                last_sync_error,
-                webhook_created_at,
-                webhook_created_error,
-                last_scan_date,
-                last_scan_status,
-                last_scan_result,
-                keep_last_releases
-            FROM organization_package
-            WHERE organization_id = ?
-            AND name IN (?)
-            GROUP BY id',
-            [
-                $organizationId,
-                $linkNames,
-            ],
-            [
-                \PDO::PARAM_STR,
-                Connection::PARAM_STR_ARRAY,
-            ]
-        );
-
-        $items = [];
-
-        foreach ($data as $row) {
-            $package = $this->hydratePackageDetails($row);
-
-            $items[$package->name()] = $package;
-        }
-
-        return $items;
-    }
-
-    /**
      * @return Version[]
      */
     public function getVersions(string $packageId, BaseFilter $filter): array
