@@ -152,13 +152,11 @@
         <div class="d-flex flex-wrap">
             {% for type,links in packageLinks %}
                 <div class="p-2 flex-fill">
-                    <h5>{{ type }}</h5>
+                    <h4>{{ type }}</h4>
                     {% for link in links %}
                         <li>
                             {% if link.targetPackageId %}
-                            <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">
-                                {{ link.target }}: {{ link.constraint }}
-                            </a>
+                                <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">{{ link.target }}</a>: {{ link.constraint }}
                             {% else %}
                                 {{ link.target }}: {{ link.constraint }}
                             {% endif %}
@@ -167,20 +165,6 @@
                 </div>
             {% endfor %}
         </div>
-    {% endif %}
-
-    {% if dependants|length > 0 %}
-        <hr />
-
-        <h3>Dependants (todo: remove)</h3>
-
-        {% for link in dependants %}
-                <li>
-                    <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.packageId}) }}">
-                            {{ link.packageName }}: {{ link.constraint }}
-                    </a>
-                </li>
-        {% endfor %}
     {% endif %}
 
     {% if package.readme() %}

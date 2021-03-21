@@ -115,6 +115,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             usort($versions, fn ($item1, $item2) => $item2['releaseDate'] <=> $item1['releaseDate']);
 
             $encounteredVersions = [];
+            $encounteredLinks = [];
             foreach ($versions as $version) {
                 $dist = new Dist(
                     $version['organizationAlias'],
@@ -167,6 +168,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                                     $link->getPrettyConstraint(),
                                 )
                             );
+                            $encounteredLinks[] = $type.'-'.$link->getTarget();
                         }
                     }
 
@@ -180,6 +182,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                                 $linkDescription,
                             )
                         );
+                        $encounteredLinks[] = 'suggests-'.$linkName;
                     }
                 }
 
@@ -202,6 +205,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 $latest instanceof CompletePackage ? ($latest->getDescription() ?? 'n/a') : 'n/a',
                 $latest->getStability() === Version::STABILITY_STABLE ? $latest->getPrettyVersion() : 'no stable release',
                 $encounteredVersions,
+                $encounteredLinks,
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );
 

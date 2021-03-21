@@ -52,10 +52,7 @@ interface PackageQuery
      */
     public function getLinks(string $packageId, string $organizationId): array;
 
-    /**
-     * @return Link[]
-     */
-    public function getDependantLinks(string $packageName, string $organizationId): array;
+    public function getDependantCount(string $packageName, string $organizationId): int;
 
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs;
 

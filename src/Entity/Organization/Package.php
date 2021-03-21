@@ -171,8 +171,9 @@ class Package
 
     /**
      * @param string[] $encounteredVersions
+     * @param string[] $encounteredVersions
      */
-    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, \DateTimeImmutable $latestReleaseDate): void
+    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, \DateTimeImmutable $latestReleaseDate): void
     {
         $this->setName($name);
         $this->description = $description;
@@ -181,6 +182,11 @@ class Package
         foreach ($this->versions as $version) {
             if (!in_array($version->version(), $encounteredVersions, true)) {
                 $this->versions->removeElement($version);
+            }
+        }
+        foreach ($this->links as $link) {
+            if (!in_array($link->type().'-'.$link->target(), $encounteredLinks, true)) {
+                $this->links->removeElement($link);
             }
         }
         $this->lastSyncAt = new \DateTimeImmutable();

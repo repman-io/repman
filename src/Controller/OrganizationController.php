@@ -111,7 +111,7 @@ final class OrganizationController extends AbstractController
         $filter = Filter::fromRequest($request);
 
         $packageLinks = $this->packageQuery->getLinks($package->id(), $organization->id());
-        $dependants = $this->packageQuery->getDependantLinks($package->name(), $organization->id());
+        $dependantCount = $this->packageQuery->getDependantCount($package->name(), $organization->id());
 
         $groupedPackageLinks = [];
 
@@ -131,7 +131,7 @@ final class OrganizationController extends AbstractController
             'versions' => $this->packageQuery->getVersions($package->id(), $filter),
             'installs' => $this->packageQuery->getInstalls($package->id(), 0),
             'packageLinks' => $groupedPackageLinks,
-            'dependants' => $dependants,
+            'dependantCount' => $dependantCount,
         ]);
     }
 
