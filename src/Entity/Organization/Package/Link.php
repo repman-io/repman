@@ -13,10 +13,9 @@ use Ramsey\Uuid\UuidInterface;
  * @ORM\Entity
  * @ORM\Table(
  *     name="organization_package_link",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="package_version", columns={"package_id", "version"})},
  *     indexes={
- *      @ORM\Index(name="version_package_id_idx", columns={"package_id"}),
- *      @ORM\Index(name="version_date_idx", columns={"date"})
+ *      @ORM\Index(name="link_package_id_idx", columns={"package_id"}),
+ *      @ORM\Index(name="link_target_idx", columns={"target"}),
  *     }
  * )
  */
