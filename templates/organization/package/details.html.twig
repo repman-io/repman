@@ -149,19 +149,34 @@
     {% if packageLinks|length > 0 %}
         <hr />
 
-        <div class="d-flex flex-wrap">
-            {% for type,links in packageLinks %}
-                <div class="p-2 flex-fill">
-                    <h4>{{ type }}</h4>
-                    {% for link in links %}
-                        <li>
-                            {% if link.targetPackageId %}
-                                <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">{{ link.target }}</a>: {{ link.constraint }}
-                            {% else %}
-                                {{ link.target }}: {{ link.constraint }}
-                            {% endif %}
-                        </li>
-                    {% endfor %}
+        <div class="row">
+            {% set types = {
+                'requires': 'Requirements',
+                'devRequires': 'Dev Requirements',
+                'suggests': 'Suggestions',
+                'provides': 'Provides',
+                'conflicts': 'Conflicts',
+                'replaces': 'Replaces',
+            } %}
+
+            {% for type,label in types %}
+                <div class="col-4">
+                    <h4>{{ label }}</h4>
+                    {% if packageLinks[type] is defined and packageLinks[type]|length > 0 %}
+                        <ul>
+                            {% for link in packageLinks[type] %}
+                                <li>
+                                    {% if link.targetPackageId %}
+                                        <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">{{ link.target }}</a>: {{ link.constraint }}
+                                    {% else %}
+                                        {{ link.target }}: {{ link.constraint }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <em>None</em>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
