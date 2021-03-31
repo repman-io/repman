@@ -111,7 +111,11 @@ final class OrganizationController extends AbstractController
         $filter = Filter::fromRequest($request);
 
         $packageLinks = $this->packageQuery->getLinks($package->id(), $organization->id());
-        $dependantCount = $this->packageQuery->getDependantCount($package->name(), $organization->id());
+
+        /** @var string $packageName */
+        $packageName = $package->name();
+
+        $dependantCount = $this->packageQuery->getDependantCount($packageName, $organization->id());
 
         $groupedPackageLinks = [];
 

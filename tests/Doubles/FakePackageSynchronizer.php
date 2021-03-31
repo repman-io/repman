@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Doubles;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Service\PackageSynchronizer;
 
@@ -22,6 +23,11 @@ final class FakePackageSynchronizer implements PackageSynchronizer
      */
     private array $versions = [];
 
+    /**
+     * @var Link[]
+     */
+    private array $links = [];
+
     public function __construct()
     {
         $this->latestReleaseDate = new \DateTimeImmutable();
@@ -29,8 +35,9 @@ final class FakePackageSynchronizer implements PackageSynchronizer
 
     /**
      * @param Version[] $versions
+     * @param Link[]    $links
      */
-    public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], ?string $readme = null): void
+    public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], array $links = [], ?string $readme = null): void
     {
         $this->name = $name;
         $this->description = $description;
@@ -38,6 +45,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
         $this->latestReleaseDate = $latestReleaseDate;
         $this->error = null;
         $this->versions = $versions;
+        $this->links = $links;
         $this->readme = $readme;
     }
 
@@ -64,11 +72,19 @@ final class FakePackageSynchronizer implements PackageSynchronizer
             return $version->version();
         }, $this->versions);
 
+        $encounteredLinks = [];
+
+        foreach ($this->links as $link) {
+            $package->addLink($link);
+            $encounteredLinks[] = $link->type().'-'.$link->target();
+        }
+
         $package->syncSuccess(
             $this->name,
             $this->description,
             $this->latestReleasedVersion,
             $encounteredVersions,
+            $encounteredLinks,
             $this->latestReleaseDate
         );
     }

@@ -17,6 +17,7 @@ use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
+use Ramsey\Uuid\Uuid;
 
 final class DbalPackageQuery implements PackageQuery
 {
@@ -235,7 +236,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): Link {
             return new Link(
-                $data['id'],
+                Uuid::fromString($data['id']),
                 $data['type'],
                 $data['target'],
                 $data['constraint'],

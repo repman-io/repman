@@ -28,12 +28,20 @@
         </div>
 
         <div class="row">
-            <div class="col-6">
+            <div class="col-3">
                 <h4>Total Installs</h4>
                 <p>
                     <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}"
                        class="number-format">
                         {{ installs.total }}
+                    </a>
+                </p>
+            </div>
+            <div class="col-3">
+                <h4>Dependant Packages</h4>
+                <p>
+                    <a href="{{ path('organization_packages', {organization: organization.alias, search: "depends:"~package.name}) }}" class="number-format">
+                        {{ dependantCount }}
                     </a>
                 </p>
             </div>

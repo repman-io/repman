@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration;
 
 use Buddy\Repman\Entity\Organization\Member;
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Message\Admin\ChangeConfig;
@@ -200,10 +201,11 @@ final class FixturesManager
 
     /**
      * @param Version[] $versions
+     * @param Link[]    $links
      */
-    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], ?string $readme = null): void
+    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], array $links = [], ?string $readme = null): void
     {
-        $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions, $readme);
+        $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions, $links, $readme);
         $this->dispatchMessage(new SynchronizePackage($packageId));
         $this->container->get(EntityManagerInterface::class)->flush();
     }

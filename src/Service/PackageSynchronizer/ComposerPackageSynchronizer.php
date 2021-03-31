@@ -157,18 +157,21 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
                     foreach ($types as $type) {
                         /** @var Link[] $links */
-                        $links = $latest->{"get{$type}"}();
+                        $functionName = 'get'.$type;
+                        if (method_exists($latest, $functionName)) {
+                            $links = $latest->{$functionName}();
 
-                        foreach ($links as $link) {
-                            $package->addLink(
-                                new Package\Link(
-                                    Uuid::uuid4()->toString(),
-                                    $type,
-                                    $link->getTarget(),
-                                    $link->getPrettyConstraint(),
-                                )
-                            );
-                            $encounteredLinks[] = $type.'-'.$link->getTarget();
+                            foreach ($links as $link) {
+                                $package->addLink(
+                                    new Package\Link(
+                                        Uuid::uuid4(),
+                                        $type,
+                                        $link->getTarget(),
+                                        $link->getPrettyConstraint(),
+                                    )
+                                );
+                                $encounteredLinks[] = $type.'-'.$link->getTarget();
+                            }
                         }
                     }
 
@@ -176,7 +179,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     foreach ($latest->getSuggests() as $linkName => $linkDescription) {
                         $package->addLink(
                             new Package\Link(
-                                Uuid::uuid4()->toString(),
+                                Uuid::uuid4(),
                                 'suggests',
                                 $linkName,
                                 $linkDescription,

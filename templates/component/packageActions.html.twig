@@ -13,11 +13,6 @@
                 {% include 'svg/bar-chart.svg' %} Statistics
             </a>
         {% endif %}
-        {% if currentPath != 'organization_packages' and dependantCount > 0 %}
-            <a href="{{ path('organization_packages', {organization: organization.alias, search: "depends:"~package.name}) }}" class="dropdown-item">
-                {% include 'svg/package.svg' %} {{ dependantCount }} dependant{% if dependantCount > 1 %}s{% endif %}
-            </a>
-        {% endif %}
         {% if currentPath != 'organization_package_webhook' %}
             <a href="{{ path('organization_package_webhook', {organization: organization.alias, package: package.id}) }}" class="dropdown-item">
                 {% include 'svg/link.svg' %} Webhook

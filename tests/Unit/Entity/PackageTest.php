@@ -23,7 +23,7 @@ final class PackageTest extends TestCase
     {
         $this->expectException(\RuntimeException::class);
 
-        $this->package->syncSuccess('../invalid/name', 'desc', '1.2.0.0', [], new \DateTimeImmutable());
+        $this->package->syncSuccess('../invalid/name', 'desc', '1.2.0.0', [], [], new \DateTimeImmutable());
     }
 
     public function testSyncSuccessRemovesUnencounteredVersions(): void
@@ -32,7 +32,7 @@ final class PackageTest extends TestCase
         $this->package->addOrUpdateVersion($version2 = new Version(Uuid::uuid4(), '1.0.1', 'anotherref', 5678, new \DateTimeImmutable(), Version::STABILITY_STABLE));
         $this->package->addOrUpdateVersion($version3 = new Version(Uuid::uuid4(), '1.1.0', 'lastref', 6543, new \DateTimeImmutable(), Version::STABILITY_STABLE));
 
-        $this->package->syncSuccess('some/package', 'desc', '1.1.0', ['1.0.0', '1.1.0'], new \DateTimeImmutable());
+        $this->package->syncSuccess('some/package', 'desc', '1.1.0', ['1.0.0', '1.1.0'], [], new \DateTimeImmutable());
 
         self::assertCount(2, $this->package->versions());
         self::assertContains($version1, $this->package->versions());

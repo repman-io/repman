@@ -171,7 +171,7 @@ class Package
 
     /**
      * @param string[] $encounteredVersions
-     * @param string[] $encounteredVersions
+     * @param string[] $encounteredLinks
      */
     public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, \DateTimeImmutable $latestReleaseDate): void
     {

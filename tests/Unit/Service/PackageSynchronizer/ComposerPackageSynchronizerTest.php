@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist\Storage;
@@ -92,6 +93,12 @@ final class ComposerPackageSynchronizerTest extends TestCase
         }, $package->versions()->toArray());
         sort($versionStrings, SORT_NATURAL);
         self::assertEquals(['1.0.0', '1.1.0', '1.1.1', '1.2.0'], $versionStrings);
+
+        /** @var Link[] $links */
+        $links = $package->links();
+        self::assertCount(1, $links, 'The latest version has one link, an older one has two');
+        self::assertEquals('php', $links[0]->target());
+        self::assertEquals('^7.4.1', $links[0]->constraint());
     }
 
     public function testSynchronizePackageThatAlreadyExists(): void

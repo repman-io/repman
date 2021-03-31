@@ -7,6 +7,7 @@ namespace Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity
@@ -25,7 +26,7 @@ class Link
      * @ORM\Id()
      * @ORM\Column(type="uuid")
      */
-    private string $id;
+    private UuidInterface $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization")
@@ -60,7 +61,7 @@ class Link
     private ?string $targetPackageId;
 
     public function __construct(
-        string $id,
+        UuidInterface $id,
         string $type,
         string $target,
         string $constraint,
@@ -75,7 +76,7 @@ class Link
         $this->targetPackageId = $targetPackageId;
     }
 
-    public function id(): string
+    public function id(): UuidInterface
     {
         return $this->id;
     }
