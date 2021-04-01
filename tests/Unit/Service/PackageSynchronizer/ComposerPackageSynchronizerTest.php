@@ -95,10 +95,20 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertEquals(['1.0.0', '1.1.0', '1.1.1', '1.2.0'], $versionStrings);
 
         /** @var Link[] $links */
-        $links = $package->links();
-        self::assertCount(1, $links, 'The latest version has one link, an older one has two');
-        self::assertEquals('php', $links[0]->target());
-        self::assertEquals('^7.4.1', $links[0]->constraint());
+        $links = $package->links()->toArray();
+        self::assertCount(6, $links);
+
+        $linkStrings = array_map(
+            fn (Link $link): string => $link->type().'-'.$link->target().'-'.$link->constraint(),
+            $links
+        );
+
+        self::assertContains('requires-php-^7.4.1', $linkStrings);
+        self::assertContains('devRequires-buddy-works/dev-^1.0', $linkStrings);
+        self::assertContains('provides-buddy-works/provide-^1.0', $linkStrings);
+        self::assertContains('replaces-buddy-works/replace-^1.0', $linkStrings);
+        self::assertContains('conflicts-buddy-works/conflict-^1.0', $linkStrings);
+        self::assertContains('suggests-buddy-works/suggests-You really should', $linkStrings);
     }
 
     public function testSynchronizePackageThatAlreadyExists(): void
