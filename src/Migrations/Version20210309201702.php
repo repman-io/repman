@@ -23,7 +23,7 @@ final class Version20210309201702 extends AbstractMigration
 
         $this->addSql('CREATE TABLE organization_package_link (id UUID NOT NULL, organization_id UUID NOT NULL, package_id UUID NOT NULL, target VARCHAR(255) NOT NULL, "constraint" VARCHAR(255) NOT NULL, type VARCHAR (255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX link_package_id_idx ON organization_package_link (package_id)');
-        $this->addSql('CREATE INDEX link_organization_id_idx ON organization_package_link (organization_id)');
+        $this->addSql('CREATE INDEX IDX_4A06082932C8A3DE ON organization_package_link (organization_id)');
         $this->addSql('CREATE INDEX link_target_idx ON organization_package_link (target)');
         $this->addSql('COMMENT ON COLUMN organization_package_link.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN organization_package_link.package_id IS \'(DC2Type:uuid)\'');
