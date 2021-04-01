@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Entity;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
 use PHPUnit\Framework\TestCase;
@@ -38,6 +39,27 @@ final class PackageTest extends TestCase
         self::assertContains($version1, $this->package->versions());
         self::assertNotContains($version2, $this->package->versions());
         self::assertContains($version3, $this->package->versions());
+    }
+
+    public function testSyncSuccessRemovesUnencounteredLinks(): void
+    {
+        $this->package->addLink($link1 = new Link(Uuid::uuid4(), 'replaces', 'buddy-works/testone', '^1.0'));
+        $this->package->addLink($link2 = new Link(Uuid::uuid4(), 'replaces', 'buddy-works/testtwo', '^1.0'));
+        $this->package->addLink($link3 = new Link(Uuid::uuid4(), 'replaces', 'buddy-works/testthree', '^1.0'));
+
+        $this->package->syncSuccess(
+            'some/package',
+            'desc',
+            '1.1.0',
+            [],
+            ['replaces-buddy-works/testone', 'replaces-buddy-works/testthree'],
+            new \DateTimeImmutable()
+        );
+
+        self::assertCount(2, $this->package->links());
+        self::assertContains($link1, $this->package->links());
+        self::assertNotContains($link2, $this->package->links());
+        self::assertContains($link3, $this->package->links());
     }
 
     public function testOuathTokenNotFound(): void

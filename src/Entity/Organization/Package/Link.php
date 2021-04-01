@@ -55,8 +55,6 @@ class Link
     private string $constraint;
 
     private ?string $packageId;
-    private ?string $packageName;
-
     private ?string $targetPackageId;
 
     public function __construct(
@@ -75,21 +73,9 @@ class Link
         $this->targetPackageId = $targetPackageId;
     }
 
-    public function id(): UuidInterface
-    {
-        return $this->id;
-    }
-
     public function type(): string
     {
         return $this->type;
-    }
-
-    public function setType(string $type): self
-    {
-        $this->type = $type;
-
-        return $this;
     }
 
     public function target(): string
@@ -97,45 +83,14 @@ class Link
         return $this->target;
     }
 
-    public function setTarget(string $target): self
-    {
-        $this->target = $target;
-
-        return $this;
-    }
-
     public function constraint(): string
     {
         return $this->constraint;
     }
 
-    public function setConstraint(string $constraint): self
-    {
-        $this->constraint = $constraint;
-
-        return $this;
-    }
-
-    public function packageId(): ?string
-    {
-        return $this->packageId;
-    }
-
     public function targetPackageId(): ?string
     {
         return $this->targetPackageId;
-    }
-
-    public function packageName(): ?string
-    {
-        return $this->packageName;
-    }
-
-    public function setPackageName(?string $packageName): self
-    {
-        $this->packageName = $packageName;
-
-        return $this;
     }
 
     public function setOrganization(Organization $organization): void
