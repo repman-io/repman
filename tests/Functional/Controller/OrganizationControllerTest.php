@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
@@ -161,6 +162,29 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $response = (string) $this->client->getResponse()->getContent();
         self::assertStringContainsString('2 entries', $response);
         self::assertStringContainsString('search=buddy', $response);
+    }
+
+    public function testDependantSearch(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/testing', '1', '1.1.1', new \DateTimeImmutable());
+
+        $packageId2 = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $links = [
+            new Link(Uuid::uuid4(), 'requires', 'buddy-works/testing', '^1.5'),
+        ];
+        $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new \DateTimeImmutable(), [], $links);
+
+        // Search for 'testing' (which is in name)
+        $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'search' => 'depends:buddy-works/testing']));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        $response = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('1 entries', $response);
+        self::assertStringNotContainsString($packageId, $response);
+        self::assertStringContainsString($packageId2, $response);
     }
 
     public function testPagination(): void
@@ -459,10 +483,14 @@ final class OrganizationControllerTest extends FunctionalTestCase
             new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1048576, new \DateTimeImmutable(), Version::STABILITY_STABLE),
             new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable(), Version::STABILITY_STABLE),
         ];
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, 'This is a readme');
+        $links = [
+            new Link(Uuid::uuid4(), 'requires', 'buddy-works/target', '^1.5'),
+            new Link(Uuid::uuid4(), 'suggests', 'buddy-works/buddy', '^2.0'), // Suggest self to test dependant link
+        ];
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, $links, 'This is a readme');
         $this->fixtures->addScanResult($packageId, 'ok');
 
-        $this->client->request('GET', $this->urlTo('organization_package_details', [
+        $crawler = $this->client->request('GET', $this->urlTo('organization_package_details', [
             'organization' => 'buddy',
             'package' => $packageId,
         ]));
@@ -475,6 +503,17 @@ final class OrganizationControllerTest extends FunctionalTestCase
             self::assertStringContainsString($version->version(), $this->lastResponseBody());
             self::assertStringContainsString($version->reference(), $this->lastResponseBody());
         }
+
+        $crawlerText = $crawler->text(null, true);
+
+        self::assertStringContainsString('Requirements', $this->lastResponseBody());
+        foreach ($links as $link) {
+            self::assertStringContainsString("{$link->target()}: {$link->constraint()}", $crawlerText);
+        }
+
+        self::assertStringContainsString('Dependant Packages 1', $crawlerText);
+        self::assertStringContainsString('depends:buddy-works/buddy', $this->lastResponseBody());
+
         self::assertStringContainsString('This is a readme', $this->lastResponseBody());
 
         $this->client->request('GET', $this->urlTo('organization_package_details', [

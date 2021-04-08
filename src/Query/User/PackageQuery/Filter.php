@@ -27,6 +27,21 @@ class Filter extends \Buddy\Repman\Query\Filter
         return $this->searchTerm !== null;
     }
 
+    public function hasLinkSearch(): bool
+    {
+        // @todo Allow more search types?
+        return $this->searchTerm !== null && str_starts_with($this->searchTerm, 'depends:');
+    }
+
+    public function getLinkSearch(): ?string
+    {
+        if ($this->searchTerm === null) {
+            return null;
+        }
+
+        return substr($this->searchTerm, strlen('depends:'));
+    }
+
     public function getQueryStringParams(): array
     {
         $params = parent::getQueryStringParams();

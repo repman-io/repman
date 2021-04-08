@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist\Storage;
@@ -92,6 +93,22 @@ final class ComposerPackageSynchronizerTest extends TestCase
         }, $package->versions()->toArray());
         sort($versionStrings, SORT_NATURAL);
         self::assertEquals(['1.0.0', '1.1.0', '1.1.1', '1.2.0'], $versionStrings);
+
+        /** @var Link[] $links */
+        $links = $package->links()->toArray();
+        self::assertCount(6, $links);
+
+        $linkStrings = array_map(
+            fn (Link $link): string => $link->type().'-'.$link->target().'-'.$link->constraint(),
+            $links
+        );
+
+        self::assertContains('requires-php-^7.4.1', $linkStrings);
+        self::assertContains('devRequires-buddy-works/dev-^1.0', $linkStrings);
+        self::assertContains('provides-buddy-works/provide-^1.0', $linkStrings);
+        self::assertContains('replaces-buddy-works/replace-^1.0', $linkStrings);
+        self::assertContains('conflicts-buddy-works/conflict-^1.0', $linkStrings);
+        self::assertContains('suggests-buddy-works/suggests-You really should', $linkStrings);
     }
 
     public function testSynchronizePackageThatAlreadyExists(): void

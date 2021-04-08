@@ -28,12 +28,20 @@
         </div>
 
         <div class="row">
-            <div class="col-6">
+            <div class="col-3">
                 <h4>Total Installs</h4>
                 <p>
                     <a href="{{ path('organization_package_stats', {organization: organization.alias, package: package.id}) }}"
                        class="number-format">
                         {{ installs.total }}
+                    </a>
+                </p>
+            </div>
+            <div class="col-3">
+                <h4>Dependant Packages</h4>
+                <p>
+                    <a href="{{ path('organization_packages', {organization: organization.alias, search: "depends:"~package.name}) }}" class="number-format">
+                        {{ dependantCount }}
                     </a>
                 </p>
             </div>
@@ -143,6 +151,42 @@
     {% else %}
         <div class="alert alert-warning">
             This package is not synced yet!
+        </div>
+    {% endif %}
+
+    {% if packageLinks|length > 0 %}
+        <hr />
+
+        <div class="row">
+            {% set types = {
+                'requires': 'Requirements',
+                'devRequires': 'Dev Requirements',
+                'suggests': 'Suggestions',
+                'provides': 'Provides',
+                'conflicts': 'Conflicts',
+                'replaces': 'Replaces',
+            } %}
+
+            {% for type,label in types %}
+                <div class="col-4">
+                    <h4>{{ label }}</h4>
+                    {% if packageLinks[type] is defined and packageLinks[type]|length > 0 %}
+                        <ul>
+                            {% for link in packageLinks[type] %}
+                                <li>
+                                    {% if link.targetPackageId %}
+                                        <a href="{{ path('organization_package_details', {organization: organization.alias, package: link.targetPackageId}) }}">{{ link.target }}</a>: {{ link.constraint }}
+                                    {% else %}
+                                        {{ link.target }}: {{ link.constraint }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <em>None</em>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     {% endif %}
 

@@ -19,6 +19,7 @@ use Composer\Factory;
 use Composer\IO\BufferIO;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
+use Composer\Package\Link;
 use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
@@ -114,6 +115,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             usort($versions, fn ($item1, $item2) => $item2['releaseDate'] <=> $item1['releaseDate']);
 
             $encounteredVersions = [];
+            $encounteredLinks = [];
             foreach ($versions as $version) {
                 $dist = new Dist(
                     $version['organizationAlias'],
@@ -149,6 +151,42 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
                 if ($latest->getVersion() === $version['version']) {
                     $this->readmeExtractor->extractReadme($package, $dist);
+
+                    // Set the version links
+                    $types = ['requires', 'devRequires', 'provides', 'replaces', 'conflicts'];
+
+                    foreach ($types as $type) {
+                        /** @var Link[] $links */
+                        $functionName = 'get'.$type;
+                        if (method_exists($latest, $functionName)) {
+                            $links = $latest->{$functionName}();
+
+                            foreach ($links as $link) {
+                                $package->addLink(
+                                    new Package\Link(
+                                        Uuid::uuid4(),
+                                        $type,
+                                        $link->getTarget(),
+                                        $link->getPrettyConstraint(),
+                                    )
+                                );
+                                $encounteredLinks[] = $type.'-'.$link->getTarget();
+                            }
+                        }
+                    }
+
+                    // suggests are different
+                    foreach ($latest->getSuggests() as $linkName => $linkDescription) {
+                        $package->addLink(
+                            new Package\Link(
+                                Uuid::uuid4(),
+                                'suggests',
+                                $linkName,
+                                $linkDescription,
+                            )
+                        );
+                        $encounteredLinks[] = 'suggests-'.$linkName;
+                    }
                 }
 
                 $package->addOrUpdateVersion(
@@ -170,6 +208,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 $latest instanceof CompletePackage ? ($latest->getDescription() ?? 'n/a') : 'n/a',
                 $latest->getStability() === Version::STABILITY_STABLE ? $latest->getPrettyVersion() : 'no stable release',
                 $encounteredVersions,
+                $encounteredLinks,
                 \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
             );
 

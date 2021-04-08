@@ -110,6 +110,23 @@ final class OrganizationController extends AbstractController
     {
         $filter = Filter::fromRequest($request);
 
+        $packageLinks = $this->packageQuery->getLinks($package->id(), $organization->id());
+
+        /** @var string $packageName */
+        $packageName = $package->name();
+
+        $dependantCount = $this->packageQuery->getDependantCount($packageName, $organization->id());
+
+        $groupedPackageLinks = [];
+
+        foreach ($packageLinks as $packageLink) {
+            if (!isset($groupedPackageLinks[$packageLink->type()])) {
+                $groupedPackageLinks[$packageLink->type()] = [];
+            }
+
+            $groupedPackageLinks[$packageLink->type()][] = $packageLink;
+        }
+
         return $this->render('organization/package/details.html.twig', [
             'organization' => $organization,
             'package' => $package,
@@ -117,6 +134,8 @@ final class OrganizationController extends AbstractController
             'count' => $this->packageQuery->versionCount($package->id()),
             'versions' => $this->packageQuery->getVersions($package->id(), $filter),
             'installs' => $this->packageQuery->getInstalls($package->id(), 0),
+            'packageLinks' => $groupedPackageLinks,
+            'dependantCount' => $dependantCount,
         ]);
     }
 

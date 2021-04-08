@@ -9,6 +9,11 @@ parameters:
             path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
 
         -
+            message: "#^Variable method call on Composer\\\\Package\\\\PackageInterface\\.$#"
+            count: 1
+            path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+        -
             message: "#^Variable property access on DateInterval\\.$#"
             count: 1
             path: src/Service/Twig/DateExtension.php

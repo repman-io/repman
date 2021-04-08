@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\Filter as BaseFilter;
 use Buddy\Repman\Query\User\Model\Installs;
@@ -16,6 +17,7 @@ use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
+use Ramsey\Uuid\Uuid;
 
 final class DbalPackageQuery implements PackageQuery
 {
@@ -31,24 +33,28 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function findAll(string $organizationId, Filter $filter): array
     {
-        $filterSQL = '';
+        $filterSQL = $joinSQL = '';
         $params = [
             ':organization_id' => $organizationId,
             ':limit' => $filter->getLimit(),
             ':offset' => $filter->getOffset(),
         ];
 
-        if ($filter->hasSearchTerm()) {
-            $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term) ';
+        if ($filter->hasLinkSearch()) {
+            $filterSQL = ' AND l.target = :link';
+            $params[':link'] = $filter->getLinkSearch();
+            $joinSQL = 'JOIN organization_package_link l ON (p.id = l.package_id AND p.organization_id = :organization_id) ';
+        } elseif ($filter->hasSearchTerm()) {
+            $filterSQL = ' AND (p.name ILIKE :term OR p.description ILIKE :term)';
             $params[':term'] = '%'.$filter->getSearchTerm().'%';
         }
 
         $sortSQL = 'name ASC';
 
         $sortColumnMappings = [
-            'name' => 'name',
-            'version' => 'latest_released_version',
-            'date' => 'latest_release_date',
+            'name' => 'p.name',
+            'version' => 'p.latest_released_version',
+            'date' => 'p.latest_release_date',
         ];
 
         if ($filter->hasSort() && isset($sortColumnMappings[$filter->getSortColumn()])) {
@@ -61,26 +67,26 @@ final class DbalPackageQuery implements PackageQuery
             },
             $this->connection->fetchAllAssociative(
                 'SELECT
-                id,
-                organization_id,
-                type,
-                repository_url,
-                name,
-                latest_released_version,
-                latest_release_date,
-                description,
-                last_sync_at,
-                last_sync_error,
-                webhook_created_at,
-                webhook_created_error,
-                last_scan_date,
-                last_scan_status,
-                last_scan_result,
-                keep_last_releases
-            FROM organization_package
-            WHERE organization_id = :organization_id
+                p.id,
+                p.organization_id,
+                p.type,
+                p.repository_url,
+                p.name,
+                p.latest_released_version,
+                p.latest_release_date,
+                p.description,
+                p.last_sync_at,
+                p.last_sync_error,
+                p.webhook_created_at,
+                p.webhook_created_error,
+                p.last_scan_date,
+                p.last_scan_status,
+                p.last_scan_result,
+                p.keep_last_releases
+            FROM organization_package p '.$joinSQL
+            .'WHERE p.organization_id = :organization_id
             '.$filterSQL.'
-            GROUP BY id
+            GROUP BY p.id
             ORDER BY '.$sortSQL.'
             LIMIT :limit OFFSET :offset',
                 $params
@@ -106,21 +112,25 @@ final class DbalPackageQuery implements PackageQuery
 
     public function count(string $organizationId, Filter $filter): int
     {
-        $filterSQL = '';
+        $filterSQL = $joinSQL = '';
         $params = [
             ':organization_id' => $organizationId,
         ];
 
-        if ($filter->hasSearchTerm()) {
-            $filterSQL = ' AND (name ILIKE :term OR description ILIKE :term)';
+        if ($filter->hasLinkSearch()) {
+            $filterSQL = ' AND l.target = :link';
+            $params[':link'] = $filter->getLinkSearch();
+            $joinSQL = 'JOIN organization_package_link l ON (p.id = l.package_id AND p.organization_id = :organization_id) ';
+        } elseif ($filter->hasSearchTerm()) {
+            $filterSQL = ' AND (p.name ILIKE :term OR p.description ILIKE :term)';
             $params[':term'] = '%'.$filter->getSearchTerm().'%';
         }
 
         return (int) $this
             ->connection
             ->fetchOne(
-                'SELECT COUNT(id) FROM "organization_package"
-                WHERE organization_id = :organization_id'.$filterSQL,
+                'SELECT COUNT(DISTINCT p.id) FROM organization_package p '.$joinSQL
+                .'WHERE p.organization_id = :organization_id'.$filterSQL,
                 $params
             );
     }
@@ -204,6 +214,49 @@ final class DbalPackageQuery implements PackageQuery
                     ':package_id' => $packageId,
                 ]
             );
+    }
+
+    public function getDependantCount(string $packageName, string $organizationId): int
+    {
+        return (int) $this->connection->fetchOne(
+            'SELECT
+            COUNT(DISTINCT package_id)
+            FROM organization_package_link
+            WHERE target = :package_name
+            AND organization_id = :organization_id', [
+            ':package_name' => $packageName,
+            ':organization_id' => $organizationId,
+        ]);
+    }
+
+    /**
+     * @return Link[]
+     */
+    public function getLinks(string $packageId, string $organizationId): array
+    {
+        return array_map(function (array $data): Link {
+            return new Link(
+                Uuid::fromString($data['id']),
+                $data['type'],
+                $data['target'],
+                $data['constraint'],
+                $data['package_id'],
+                $data['target_package_id']
+            );
+        }, $this->connection->fetchAllAssociative(
+            'SELECT
+                l.id,
+                l.type,
+                l.target,
+                l.constraint,
+                l.package_id,
+                p.id as target_package_id
+            FROM organization_package_link l
+            LEFT JOIN organization_package p ON (p.name = l.target AND p.organization_id = :organization_id)
+            WHERE package_id = :package_id', [
+                ':organization_id' => $organizationId,
+                ':package_id' => $packageId,
+        ]));
     }
 
     /**

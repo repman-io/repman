@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization;
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -121,6 +122,12 @@ class Package
     private Collection $versions;
 
     /**
+     * @var Collection<int,Link>|Link[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Link", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
+     */
+    private Collection $links;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private int $keepLastReleases = 0;
@@ -136,6 +143,7 @@ class Package
         $this->metadata = $metadata;
         $this->keepLastReleases = $keepLastReleases;
         $this->versions = new ArrayCollection();
+        $this->links = new ArrayCollection();
     }
 
     public function id(): UuidInterface
@@ -163,8 +171,9 @@ class Package
 
     /**
      * @param string[] $encounteredVersions
+     * @param string[] $encounteredLinks
      */
-    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, \DateTimeImmutable $latestReleaseDate): void
+    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, \DateTimeImmutable $latestReleaseDate): void
     {
         $this->setName($name);
         $this->description = $description;
@@ -173,6 +182,11 @@ class Package
         foreach ($this->versions as $version) {
             if (!in_array($version->version(), $encounteredVersions, true)) {
                 $this->versions->removeElement($version);
+            }
+        }
+        foreach ($this->links as $link) {
+            if (!in_array($link->type().'-'.$link->target(), $encounteredLinks, true)) {
+                $this->links->removeElement($link);
             }
         }
         $this->lastSyncAt = new \DateTimeImmutable();
@@ -318,6 +332,21 @@ class Package
 
         $version->setPackage($this);
         $this->versions->add($version);
+    }
+
+    /**
+     * @return Collection<int,Link>|Link[]
+     */
+    public function links(): Collection
+    {
+        return $this->links;
+    }
+
+    public function addLink(Link $link): void
+    {
+        $link->setPackage($this);
+        $link->setOrganization($this->organization);
+        $this->links->add($link);
     }
 
     public function removeVersion(Version $version): void

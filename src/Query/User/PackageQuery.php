@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User;
 
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
@@ -45,6 +46,13 @@ interface PackageQuery
      * @return Version[]
      */
     public function getVersions(string $packageId, Filter $filter): array;
+
+    /**
+     * @return Link[]
+     */
+    public function getLinks(string $packageId, string $organizationId): array;
+
+    public function getDependantCount(string $packageName, string $organizationId): int;
 
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs;
 
