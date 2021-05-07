@@ -84,7 +84,12 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 }
             }
 
+            /** @var string|null $name */
             $name = $latest->getPrettyName();
+
+            if ($name === null) {
+                throw new \RuntimeException('Missing package name in latest version. Revision: '.$latest->getDistReference());
+            }
 
             if (preg_match(Package::NAME_PATTERN, $name, $matches) !== 1) {
                 throw new \RuntimeException("Package name {$name} is invalid");
