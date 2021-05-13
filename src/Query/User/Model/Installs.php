@@ -34,7 +34,7 @@ final class Installs
 
     public function daysTotal(): int
     {
-        return (int) array_sum(array_map(fn (Day $day) => $day->installs(), $this->days));
+        return array_sum(array_map(fn (Day $day) => $day->installs(), $this->days));
     }
 
     public function total(): int
