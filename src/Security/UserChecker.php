@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Security;
 
 use Buddy\Repman\Security\Model\User;
-use Symfony\Component\Security\Core\Exception\DisabledException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -22,7 +22,7 @@ class UserChecker implements UserCheckerInterface
         }
 
         if ($user->isDisabled()) {
-            throw new DisabledException();
+            throw new CustomUserMessageAuthenticationException('Account is disabled.');
         }
     }
 }
