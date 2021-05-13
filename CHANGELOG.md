@@ -10,13 +10,19 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [1.3.1] - 2021-05-13
+### Security
+- Update Symfony to 5.2.8 - fix [CVE-2021-21424](https://symfony.com/blog/cve-2021-21424-prevent-user-enumeration-in-authentication-mechanisms)
+
+### Changed
+- Update dependencies ([#456](https://github.com/repman-io/repman/pull/456))
+
 ## [1.3.0] - 2021-04-28
 ### Security
 - Update composer - fix [GHSA-h5h8-pc6h-jvvx](https://github.com/composer/composer/security/advisories/GHSA-h5h8-pc6h-jvvx)
 
 ### Added
 - Dependency/dependant tracking ([#426](https://github.com/repman-io/repman/pull/426) thanks @giggsey)
-
 
 ## [1.2.2] - 2021-03-02
 ### Fixed
