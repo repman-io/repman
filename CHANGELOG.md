@@ -10,6 +10,10 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [1.3.2] - 2021-05-20
+### Security
+- Update Symfony to 5.2.9 - fix [CVE-2021-21424](https://symfony.com/blog/cve-2021-21424-prevent-user-enumeration-in-authentication-mechanisms)
+
 ## [1.3.1] - 2021-05-13
 ### Security
 - Update Symfony to 5.2.8 - fix [CVE-2021-21424](https://symfony.com/blog/cve-2021-21424-prevent-user-enumeration-in-authentication-mechanisms)
