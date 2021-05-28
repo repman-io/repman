@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc423e7328369fe9aac761a874ea4411",
+    "content-hash": "10b2e9c37759d92cadc03c4d6cb8111d",
     "packages": [
         {
             "name": "async-aws/core",
@@ -13906,16 +13906,16 @@
         },
         {
             "name": "johnkary/phpunit-speedtrap",
-            "version": "v3.3.0",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/johnkary/phpunit-speedtrap.git",
-                "reference": "9ba81d42676da31366c85d3ff8c10a8352d02030"
+                "reference": "5f9b160eac87e975f1c6ca9faee5125f0616fba3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johnkary/phpunit-speedtrap/zipball/9ba81d42676da31366c85d3ff8c10a8352d02030",
-                "reference": "9ba81d42676da31366c85d3ff8c10a8352d02030",
+                "url": "https://api.github.com/repos/johnkary/phpunit-speedtrap/zipball/5f9b160eac87e975f1c6ca9faee5125f0616fba3",
+                "reference": "5f9b160eac87e975f1c6ca9faee5125f0616fba3",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -13958,9 +13958,9 @@
             ],
             "support": {
                 "issues": "https://github.com/johnkary/phpunit-speedtrap/issues",
-                "source": "https://github.com/johnkary/phpunit-speedtrap/tree/v3.3.0"
+                "source": "https://github.com/johnkary/phpunit-speedtrap/tree/v4.0.0"
             },
-            "time": "2020-12-18T16:20:16+00:00"
+            "time": "2021-05-03T02:37:05+00:00"
         },
         {
             "name": "league/flysystem-memory",
