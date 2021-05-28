@@ -92,7 +92,7 @@
         "ekino/phpstan-banned-code": "^0.3.1",
         "fakerphp/faker": "^1.9",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "johnkary/phpunit-speedtrap": "^3.2",
+        "johnkary/phpunit-speedtrap": "^4.0",
         "league/flysystem-memory": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.0",
