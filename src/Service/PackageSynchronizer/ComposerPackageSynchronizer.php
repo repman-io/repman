@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Dist;
@@ -19,7 +20,7 @@ use Composer\Factory;
 use Composer\IO\BufferIO;
 use Composer\IO\IOInterface;
 use Composer\Package\CompletePackage;
-use Composer\Package\Link;
+use Composer\Package\Link as ComposerLink;
 use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
@@ -158,23 +159,12 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     $this->readmeExtractor->extractReadme($package, $dist);
 
                     // Set the version links
-                    $types = ['requires', 'devRequires', 'provides', 'replaces', 'conflicts'];
-
-                    foreach ($types as $type) {
-                        /** @var Link[] $links */
+                    foreach (['requires', 'devRequires', 'provides', 'replaces', 'conflicts'] as $type) {
                         $functionName = 'get'.$type;
                         if (method_exists($latest, $functionName)) {
-                            $links = $latest->{$functionName}();
-
-                            foreach ($links as $link) {
-                                $package->addLink(
-                                    new Package\Link(
-                                        Uuid::uuid4(),
-                                        $type,
-                                        $link->getTarget(),
-                                        $link->getPrettyConstraint(),
-                                    )
-                                );
+                            /** @var ComposerLink $link */
+                            foreach ($latest->{$functionName}() as $link) {
+                                $package->addLink(new Link(Uuid::uuid4(), $package, $type, $link->getTarget(), $link->getPrettyConstraint()));
                                 $encounteredLinks[$type.'-'.$link->getTarget()] = true;
                             }
                         }
@@ -182,14 +172,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
                     // suggests are different
                     foreach ($latest->getSuggests() as $linkName => $linkDescription) {
-                        $package->addLink(
-                            new Package\Link(
-                                Uuid::uuid4(),
-                                'suggests',
-                                $linkName,
-                                $linkDescription,
-                            )
-                        );
+                        $package->addLink(new Link(Uuid::uuid4(), $package, 'suggests', $linkName, $linkDescription));
                         $encounteredLinks['suggests-'.$linkName] = true;
                     }
                 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
-use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\Security\ScanPackage;
+use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Repository\OrganizationRepository;
@@ -173,7 +173,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $packageId2 = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $links = [
-            new Link(Uuid::uuid4(), 'requires', 'buddy-works/testing', '^1.5'),
+            new Link('requires', 'buddy-works/testing', '^1.5'),
         ];
         $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new \DateTimeImmutable(), [], $links);
 
@@ -484,8 +484,8 @@ final class OrganizationControllerTest extends FunctionalTestCase
             new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1073741824, new \DateTimeImmutable(), Version::STABILITY_STABLE),
         ];
         $links = [
-            new Link(Uuid::uuid4(), 'requires', 'buddy-works/target', '^1.5'),
-            new Link(Uuid::uuid4(), 'suggests', 'buddy-works/buddy', '^2.0'), // Suggest self to test dependant link
+            new Link('requires', 'buddy-works/target', '^1.5'),
+            new Link('suggests', 'buddy-works/buddy', '^2.0'), // Suggest self to test dependant link
         ];
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, $links, 'This is a readme');
         $this->fixtures->addScanResult($packageId, 'ok');

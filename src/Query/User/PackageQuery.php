@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User;
 
-use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\Model\PackageDetails;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
@@ -48,7 +48,7 @@ interface PackageQuery
     public function getVersions(string $packageId, Filter $filter): array;
 
     /**
-     * @return Link[]
+     * @return array<string,Link[]>
      */
     public function getLinks(string $packageId, string $organizationId): array;
 

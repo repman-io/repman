@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
-use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
-use Ramsey\Uuid\Uuid;
 
 final class SynchronizePackageHandlerTest extends IntegrationTestCase
 {
@@ -18,14 +17,13 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
     {
         $organizationId = $this->fixtures->createOrganization('Buddy', $this->fixtures->createUser());
         $packageId = $this->fixtures->addPackage($organizationId, 'https://github.com/buddy-works/repman', 'vcs');
-        $link = new Link(Uuid::uuid4(), 'requires', 'buddy-works/target', '^1.5');
         $this->container()->get(PackageSynchronizer::class)->setData(
             $name = 'buddy-works/repman',
             $description = 'Repman - PHP repository manager',
             $version = '2.0.0',
             $date = new \DateTimeImmutable(),
             [],
-            [$link],
+            [$link = new Link('requires', 'buddy-works/target', '^1.5')],
         );
 
         $this->dispatchMessage(new SynchronizePackage($packageId));
@@ -42,7 +40,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
         self::assertEquals($date->format('Y-m-d H:i:s'), $releaseDate->format('Y-m-d H:i:s'));
 
         /** @var Link[] $packageLinks */
-        $packageLinks = $this->container()->get(DbalPackageQuery::class)->getLinks($packageId, $organizationId);
+        $packageLinks = $this->container()->get(DbalPackageQuery::class)->getLinks($packageId, $organizationId)['requires'];
         self::assertCount(1, $packageLinks);
         self::assertEquals($link->target(), $packageLinks[0]->target());
         self::assertEquals($link->constraint(), $packageLinks[0]->constraint());

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration;
 
 use Buddy\Repman\Entity\Organization\Member;
-use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Message\Admin\ChangeConfig;
@@ -24,6 +23,7 @@ use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\DisableUser;
 use Buddy\Repman\Message\User\GenerateApiToken;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
+use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Repository\ScanResultRepository;

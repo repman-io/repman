@@ -7,7 +7,9 @@ namespace Buddy\Repman\Tests\Doubles;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
+use Buddy\Repman\Query\User\Model\Package\Link as LinkModel;
 use Buddy\Repman\Service\PackageSynchronizer;
+use Ramsey\Uuid\Uuid;
 
 final class FakePackageSynchronizer implements PackageSynchronizer
 {
@@ -24,7 +26,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
     private array $versions = [];
 
     /**
-     * @var Link[]
+     * @var LinkModel[]
      */
     private array $links = [];
 
@@ -34,8 +36,8 @@ final class FakePackageSynchronizer implements PackageSynchronizer
     }
 
     /**
-     * @param Version[] $versions
-     * @param Link[]    $links
+     * @param Version[]   $versions
+     * @param LinkModel[] $links
      */
     public function setData(string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], array $links = [], ?string $readme = null): void
     {
@@ -75,7 +77,7 @@ final class FakePackageSynchronizer implements PackageSynchronizer
         $encounteredLinks = [];
 
         foreach ($this->links as $link) {
-            $package->addLink($link);
+            $package->addLink(new Link(Uuid::uuid4(), $package, $link->type(), $link->target(), $link->constraint()));
             $encounteredLinks[] = $link->type().'-'.$link->target();
         }
 

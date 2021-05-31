@@ -43,9 +43,9 @@ final class PackageTest extends TestCase
 
     public function testSyncSuccessRemovesUnencounteredLinks(): void
     {
-        $this->package->addLink($link1 = new Link(Uuid::uuid4(), 'replaces', 'buddy-works/testone', '^1.0'));
-        $this->package->addLink($link2 = new Link(Uuid::uuid4(), 'replaces', 'buddy-works/testtwo', '^1.0'));
-        $this->package->addLink($link3 = new Link(Uuid::uuid4(), 'replaces', 'buddy-works/testthree', '^1.0'));
+        $this->package->addLink($link1 = new Link(Uuid::uuid4(), $this->package, 'replaces', 'buddy-works/testone', '^1.0'));
+        $this->package->addLink($link2 = new Link(Uuid::uuid4(), $this->package, 'replaces', 'buddy-works/testtwo', '^1.0'));
+        $this->package->addLink($link3 = new Link(Uuid::uuid4(), $this->package, 'replaces', 'buddy-works/testthree', '^1.0'));
 
         $this->package->syncSuccess(
             'some/package',
@@ -64,8 +64,8 @@ final class PackageTest extends TestCase
 
     public function testSyncSuccessRemovesDuplicatedLinks(): void
     {
-        $this->package->addLink(new Link(Uuid::uuid4(), 'requires', 'phpunit/phpunit', '^1.0'));
-        $this->package->addLink(new Link(Uuid::uuid4(), 'requires', 'phpunit/phpunit', '^1.0'));
+        $this->package->addLink(new Link(Uuid::uuid4(), $this->package, 'requires', 'phpunit/phpunit', '^1.0'));
+        $this->package->addLink(new Link(Uuid::uuid4(), $this->package, 'requires', 'phpunit/phpunit', '^1.0'));
         $this->package->syncSuccess('some/package', 'desc', '1.1.0', [], array_flip(['requires-phpunit/phpunit']), new \DateTimeImmutable());
 
         self::assertCount(1, $this->package->links());

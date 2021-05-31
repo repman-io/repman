@@ -28,12 +28,6 @@ class Link
     private UuidInterface $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private Organization $organization;
-
-    /**
      * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization\Package", inversedBy="links")
      * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
@@ -54,23 +48,18 @@ class Link
      */
     private string $constraint;
 
-    private ?string $packageId;
-    private ?string $targetPackageId;
-
     public function __construct(
         UuidInterface $id,
+        Package $package,
         string $type,
         string $target,
-        string $constraint,
-        ?string $packageId = null,
-        ?string $targetPackageId = null
+        string $constraint
     ) {
         $this->id = $id;
+        $this->package = $package;
         $this->type = $type;
         $this->target = $target;
         $this->constraint = $constraint;
-        $this->packageId = $packageId;
-        $this->targetPackageId = $targetPackageId;
     }
 
     public function type(): string
@@ -86,26 +75,5 @@ class Link
     public function constraint(): string
     {
         return $this->constraint;
-    }
-
-    public function targetPackageId(): ?string
-    {
-        return $this->targetPackageId;
-    }
-
-    public function setOrganization(Organization $organization): void
-    {
-        if (isset($this->organization)) {
-            throw new \RuntimeException('You can not change link organization');
-        }
-        $this->organization = $organization;
-    }
-
-    public function setPackage(Package $package): void
-    {
-        if (isset($this->package)) {
-            throw new \RuntimeException('You can not change link package');
-        }
-        $this->package = $package;
     }
 }
