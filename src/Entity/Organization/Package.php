@@ -170,8 +170,8 @@ class Package
     }
 
     /**
-     * @param string[] $encounteredVersions
-     * @param string[] $encounteredLinks
+     * @param array<string,bool> $encounteredVersions
+     * @param array<string,bool> $encounteredLinks
      */
     public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, \DateTimeImmutable $latestReleaseDate): void
     {
@@ -179,15 +179,26 @@ class Package
         $this->description = $description;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
-        foreach ($this->versions as $version) {
-            if (!in_array($version->version(), $encounteredVersions, true)) {
-                $this->versions->removeElement($version);
+        foreach ($this->versions as $key => $version) {
+            if (!isset($encounteredVersions[$version->version()])) {
+                $this->versions->remove($key);
             }
         }
-        foreach ($this->links as $link) {
-            if (!in_array($link->type().'-'.$link->target(), $encounteredLinks, true)) {
-                $this->links->removeElement($link);
+
+        $uniqueLinks = [];
+        foreach ($this->links as $key => $link) {
+            $uniqueKey = $link->type().'-'.$link->target();
+            if (!isset($encounteredLinks[$uniqueKey])) {
+                $this->links->remove($key);
+                continue;
             }
+
+            if (!isset($uniqueLinks[$uniqueKey])) {
+                $uniqueLinks[$uniqueKey] = true;
+                continue;
+            }
+
+            $this->links->remove($key);
         }
         $this->lastSyncAt = new \DateTimeImmutable();
         $this->lastSyncError = null;

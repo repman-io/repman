@@ -54,8 +54,8 @@ final class PackageMother
     }
 
     /**
-     * @param string[] $unencounteredVersions
-     * @param string[] $unencounteredLinks
+     * @param array<string,bool> $unencounteredVersions
+     * @param array<string,bool> $unencounteredLinks
      */
     public static function synchronized(string $name, string $latestVersion, string $url = '', array $unencounteredVersions = [], array $unencounteredLinks = []): Package
     {

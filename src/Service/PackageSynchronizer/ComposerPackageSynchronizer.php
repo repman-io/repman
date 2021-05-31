@@ -175,7 +175,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                                         $link->getPrettyConstraint(),
                                     )
                                 );
-                                $encounteredLinks[] = $type.'-'.$link->getTarget();
+                                $encounteredLinks[$type.'-'.$link->getTarget()] = true;
                             }
                         }
                     }
@@ -190,7 +190,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                                 $linkDescription,
                             )
                         );
-                        $encounteredLinks[] = 'suggests-'.$linkName;
+                        $encounteredLinks['suggests-'.$linkName] = true;
                     }
                 }
 
@@ -205,7 +205,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     )
                 );
 
-                $encounteredVersions[] = $version['prettyVersion'];
+                $encounteredVersions[$version['prettyVersion']] = true;
             }
 
             $package->syncSuccess(

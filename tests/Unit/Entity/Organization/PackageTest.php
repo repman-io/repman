@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Buddy\Repman\Tests\Unit\Entity;
+namespace Buddy\Repman\Tests\Unit\Entity\Organization;
 
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Link;
@@ -33,7 +33,7 @@ final class PackageTest extends TestCase
         $this->package->addOrUpdateVersion($version2 = new Version(Uuid::uuid4(), '1.0.1', 'anotherref', 5678, new \DateTimeImmutable(), Version::STABILITY_STABLE));
         $this->package->addOrUpdateVersion($version3 = new Version(Uuid::uuid4(), '1.1.0', 'lastref', 6543, new \DateTimeImmutable(), Version::STABILITY_STABLE));
 
-        $this->package->syncSuccess('some/package', 'desc', '1.1.0', ['1.0.0', '1.1.0'], [], new \DateTimeImmutable());
+        $this->package->syncSuccess('some/package', 'desc', '1.1.0', array_flip(['1.0.0', '1.1.0']), [], new \DateTimeImmutable());
 
         self::assertCount(2, $this->package->versions());
         self::assertContains($version1, $this->package->versions());
@@ -52,7 +52,7 @@ final class PackageTest extends TestCase
             'desc',
             '1.1.0',
             [],
-            ['replaces-buddy-works/testone', 'replaces-buddy-works/testthree'],
+            array_flip(['replaces-buddy-works/testone', 'replaces-buddy-works/testthree']),
             new \DateTimeImmutable()
         );
 
@@ -60,6 +60,15 @@ final class PackageTest extends TestCase
         self::assertContains($link1, $this->package->links());
         self::assertNotContains($link2, $this->package->links());
         self::assertContains($link3, $this->package->links());
+    }
+
+    public function testSyncSuccessRemovesDuplicatedLinks(): void
+    {
+        $this->package->addLink(new Link(Uuid::uuid4(), 'requires', 'phpunit/phpunit', '^1.0'));
+        $this->package->addLink(new Link(Uuid::uuid4(), 'requires', 'phpunit/phpunit', '^1.0'));
+        $this->package->syncSuccess('some/package', 'desc', '1.1.0', [], array_flip(['requires-phpunit/phpunit']), new \DateTimeImmutable());
+
+        self::assertCount(1, $this->package->links());
     }
 
     public function testOuathTokenNotFound(): void
