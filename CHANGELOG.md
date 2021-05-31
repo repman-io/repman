@@ -10,6 +10,15 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [1.3.3] - 2021-05-31
+### Fixed
+- Fix package dependencies duplication ([#472](https://github.com/repman-io/repman/pull/472))
+
+### Changed
+- Remove Link entity from package read model ([#473](https://github.com/repman-io/repman/pull/473))
+- Reduce sql query executions for organization token ([#474](https://github.com/repman-io/repman/pull/474))
+- Update dependencies (dependabot updates)
+
 ## [1.3.2] - 2021-05-20
 ### Security
 - Update Symfony to 5.2.9 - fix [CVE-2021-21424](https://symfony.com/blog/cve-2021-21424-prevent-user-enumeration-in-authentication-mechanisms)
