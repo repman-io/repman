@@ -29,6 +29,8 @@ interface OrganizationQuery
      */
     public function findAllTokens(string $organizationId, Filter $filter): array;
 
+    public function findAnyToken(string $organizationId): ?string;
+
     public function tokenCount(string $organizationId): int;
 
     public function getInstalls(string $organizationId, int $lastDays = 30): Installs;

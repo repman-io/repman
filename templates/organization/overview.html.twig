@@ -12,7 +12,7 @@
 
 {% block token %}
     {% if tokenCount <= 1 %}
-        <span class="token d-none" data-type="token">{{ organization.token }}</span>
+        <span class="token d-none" data-type="token">{{ token }}</span>
         <button class="btn btn-primary btn-sm show-token">Show token</button>
     {% else %}
         <a href="{{ path('organization_tokens', {organization: organization.alias}) }}" class="btn btn-primary btn-sm">Get token</a>
@@ -37,7 +37,7 @@
 {% block content %}
     <div class="markdown">
         {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}
-            {% if organization.token %}
+            {% if tokenCount > 0 %}
                 <p>Configure global authentication to access this organization's packages:</p>
                 <div class="highlight">
                     <pre>composer config --global --auth http-basic.{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }} token {{ block('token') | spaceless }}</pre>

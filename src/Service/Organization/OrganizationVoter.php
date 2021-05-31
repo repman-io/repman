@@ -57,13 +57,18 @@ final class OrganizationVoter extends Voter
         }
 
         if ($subject instanceof Request) {
-            $checkOrganization = $this->organizations->getByAlias($subject->get('organization'))->getOrNull();
+            $alias = $subject->get('organization');
+            $checkOrganization = $this->organizations->getByAlias($alias)->getOrNull();
+            if ($checkOrganization instanceof Organization) {
+                $subject->attributes->set('organization', $checkOrganization);
+            }
+
             if ($checkOrganization instanceof Organization && $checkOrganization->hasAnonymousAccess()) {
                 return true;
             }
 
             foreach ($user->organizations() as $organization) {
-                if ($organization->alias() !== $subject->get('organization')) {
+                if ($organization->alias() !== $alias) {
                     continue;
                 }
 
