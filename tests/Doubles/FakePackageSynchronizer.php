@@ -83,8 +83,8 @@ final class FakePackageSynchronizer implements PackageSynchronizer
             $this->name,
             $this->description,
             $this->latestReleasedVersion,
-            $encounteredVersions,
-            $encounteredLinks,
+            array_flip($encounteredVersions),
+            array_flip($encounteredLinks),
             $this->latestReleaseDate
         );
     }
