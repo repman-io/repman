@@ -19,19 +19,16 @@ final class Organization
      */
     private array $members;
 
-    private ?string $token;
-
     /**
      * @param Member[] $members
      */
-    public function __construct(string $id, string $name, string $alias, array $members, bool $hasAnonymousAccess, ?string $token = null)
+    public function __construct(string $id, string $name, string $alias, array $members, bool $hasAnonymousAccess)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
         $this->members = array_map(fn (Member $member) => $member, $members);
         $this->hasAnonymousAccess = $hasAnonymousAccess;
-        $this->token = $token;
     }
 
     public function id(): string
@@ -47,11 +44,6 @@ final class Organization
     public function alias(): string
     {
         return $this->alias;
-    }
-
-    public function token(): ?string
-    {
-        return $this->token;
     }
 
     public function isMember(string $userId): bool

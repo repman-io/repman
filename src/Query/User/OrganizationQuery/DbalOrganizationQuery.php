@@ -79,6 +79,15 @@ final class DbalOrganizationQuery implements OrganizationQuery
         ]));
     }
 
+    public function findAnyToken(string $organizationId): ?string
+    {
+        $token = $this->connection->fetchOne('SELECT value FROM organization_token WHERE organization_id = :id', [
+            ':id' => $organizationId,
+        ]);
+
+        return $token !== false ? $token : null;
+    }
+
     public function tokenCount(string $organizationId): int
     {
         return (int) $this
@@ -221,9 +230,6 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     private function hydrateOrganization(array $data): Organization
     {
-        $token = $this->connection->fetchOne('SELECT value FROM organization_token WHERE organization_id = :id', [
-            ':id' => $data['id'],
-        ]);
         $members = $this->connection->fetchAllAssociative('SELECT m.user_id, m.role, u.email FROM organization_member m JOIN "user" u ON u.id = m.user_id WHERE m.organization_id = :id', [
             ':id' => $data['id'],
         ]);
@@ -234,7 +240,6 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['alias'],
             array_map(fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
             $data['has_anonymous_access'],
-            $token !== false ? $token : null
         );
     }
 
