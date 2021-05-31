@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
-use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\Filter as BaseFilter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Package;
+use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\Model\PackageDetails;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\Model\ScanResult;
@@ -17,7 +17,6 @@ use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
-use Ramsey\Uuid\Uuid;
 
 final class DbalPackageQuery implements PackageQuery
 {
@@ -219,44 +218,43 @@ final class DbalPackageQuery implements PackageQuery
     public function getDependantCount(string $packageName, string $organizationId): int
     {
         return (int) $this->connection->fetchOne(
-            'SELECT
-            COUNT(DISTINCT package_id)
-            FROM organization_package_link
-            WHERE target = :package_name
-            AND organization_id = :organization_id', [
+            'SELECT COUNT (DISTINCT l.package_id)
+            FROM organization_package_link l
+            JOIN organization_package p ON p.id = l.package_id
+            WHERE l.target = :package_name
+            AND p.organization_id = :organization_id', [
             ':package_name' => $packageName,
             ':organization_id' => $organizationId,
         ]);
     }
 
     /**
-     * @return Link[]
+     * @return array<string,Link[]>
      */
     public function getLinks(string $packageId, string $organizationId): array
     {
-        return array_map(function (array $data): Link {
-            return new Link(
-                Uuid::fromString($data['id']),
-                $data['type'],
-                $data['target'],
-                $data['constraint'],
-                $data['package_id'],
-                $data['target_package_id']
-            );
-        }, $this->connection->fetchAllAssociative(
+        $links = [];
+        foreach ($this->connection->fetchAllAssociative(
             'SELECT
-                l.id,
                 l.type,
                 l.target,
                 l.constraint,
-                l.package_id,
                 p.id as target_package_id
             FROM organization_package_link l
             LEFT JOIN organization_package p ON (p.name = l.target AND p.organization_id = :organization_id)
             WHERE package_id = :package_id', [
-                ':organization_id' => $organizationId,
-                ':package_id' => $packageId,
-        ]));
+            ':organization_id' => $organizationId,
+            ':package_id' => $packageId,
+        ]) as $data) {
+            $links[(string) $data['type']][] = new Link(
+                $data['type'],
+                $data['target'],
+                $data['constraint'],
+                $data['target_package_id']
+            );
+        }
+
+        return $links;
     }
 
     /**

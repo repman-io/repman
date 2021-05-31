@@ -355,8 +355,6 @@ class Package
 
     public function addLink(Link $link): void
     {
-        $link->setPackage($this);
-        $link->setOrganization($this->organization);
         $this->links->add($link);
     }
 
