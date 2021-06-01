@@ -22,11 +22,11 @@ organization_repo_url:
     host: '{organization}{sep1}repo{sep2}{domain}'
     defaults:
         domain: '%domain%'
-        sep1: '%domain_separator%'
+        sep1: '%organization_separator%'
         sep2: '%domain_separator%'
     requirements:
-        domain: "%domain%"
-        sep1: '%domain_separator%'
+        domain: '%domain%'
+        sep1: '%organization_separator%'
         sep2: '%domain_separator%'
 
 login_github_check:
