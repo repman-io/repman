@@ -100,8 +100,8 @@ final class RepoController extends AbstractController
      * @Route("/downloads",
      *     name="repo_package_downloads",
      *     host="{organization}{sep1}repo{sep2}{domain}",
-     *     defaults={"domain":"%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
-     *     requirements={"domain"="%domain%","sep1"="%domain_separator%","sep2"="%domain_separator%"},
+     *     defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
+     *     requirements={"domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
      *     methods={"POST"})
      */
     public function downloads(Request $request, Organization $organization): JsonResponse
