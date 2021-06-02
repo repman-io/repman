@@ -7,7 +7,7 @@ parameters:
     package_name_pattern: '[A-Za-z0-9_.-]+/[A-Za-z0-9_./~-]+?'
     organization_pattern: '[a-z0-9_-]+' # remember to change in security.yaml (access_control)
     domain_separator: '%env(resolve:APP_DOMAIN_SEPARATOR)%' # '-' can be used as alternative for simpler certificate handling in 1 organization self-hosted installs
-    organization_separator: '%env(resolve:APP_ORGANIZATION_SEPARATOR)%' # secondary separator, see organization_repo_url
+    organization_separator: '%env(default:domain_separator:resolve:APP_ORGANIZATION_SEPARATOR)%' # secondary separator, see organization_repo_url
     uuid_pattern: '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
     dists_dir: '%env(resolve:PROXY_DIST_DIR)%'
     repo_dir: '%env(resolve:PACKAGES_DIST_DIR)%'
