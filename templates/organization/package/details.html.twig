@@ -17,9 +17,13 @@
 
     {% if package.name %}
         <div class="row">
-            <div class="col-6">
+            <div class="col-3">
                 <h4>Package name</h4>
                 <p>{{ package.name }}</p>
+            </div>
+            <div class="col-3">
+                <h4>Repository URL</h4>
+                <p><a href="{{ package.url }}" target="_blank" rel="nofollow noopener noreferrer">{{ package.url }}</a></p>
             </div>
             <div class="col-6">
                 <h4>Description</h4>

@@ -10,6 +10,7 @@ final class PackageDetails
 
     private string $id;
     private string $organizationId;
+    private string $url;
     private ?string $name;
     private ?string $description;
     private ?string $latestReleasedVersion;
@@ -21,6 +22,7 @@ final class PackageDetails
     public function __construct(
         string $id,
         string $organizationId,
+        string $url,
         ?string $name = null,
         ?string $latestReleasedVersion = null,
         ?\DateTimeImmutable $latestReleaseDate = null,
@@ -32,6 +34,7 @@ final class PackageDetails
     ) {
         $this->id = $id;
         $this->organizationId = $organizationId;
+        $this->url = $url;
         $this->name = $name;
         $this->latestReleasedVersion = $latestReleasedVersion;
         $this->latestReleaseDate = $latestReleaseDate;
@@ -50,6 +53,11 @@ final class PackageDetails
     public function organizationId(): string
     {
         return $this->organizationId;
+    }
+
+    public function url(): string
+    {
+        return $this->url;
     }
 
     public function name(): ?string

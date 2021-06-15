@@ -446,6 +446,7 @@ final class DbalPackageQuery implements PackageQuery
         return new PackageDetails(
             $data['id'],
             $data['organization_id'],
+            $data['repository_url'],
             $data['name'],
             $data['latest_released_version'],
             $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,

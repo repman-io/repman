@@ -27,7 +27,7 @@ final class PackageDetailsParamConverterTest extends TestCase
 
     public function testConvertPackage(): void
     {
-        $package = new PackageDetails($id = '12cfc5f0-19d7-4144-916c-cfbbf9384c29', 'e20ea9cc-de3e-4d10-9e81-e30b6c3d217c');
+        $package = new PackageDetails($id = '12cfc5f0-19d7-4144-916c-cfbbf9384c29', 'e20ea9cc-de3e-4d10-9e81-e30b6c3d217c', 'https://app.repman.io/');
         $queryMock = $this->createMock(PackageQuery::class);
         $queryMock->expects(self::once())->method('getDetailsById')->willReturn(Option::some($package));
 
@@ -39,7 +39,7 @@ final class PackageDetailsParamConverterTest extends TestCase
 
     public function testCheckIfPackageBelongsToOrganization(): void
     {
-        $package = new PackageDetails($id = '12cfc5f0-19d7-4144-916c-cfbbf9384c29', 'e20ea9cc-de3e-4d10-9e81-e30b6c3d217c');
+        $package = new PackageDetails($id = '12cfc5f0-19d7-4144-916c-cfbbf9384c29', 'e20ea9cc-de3e-4d10-9e81-e30b6c3d217c', 'https://app.repman.io/');
         $queryMock = $this->createMock(PackageQuery::class);
         $queryMock->expects(self::once())->method('getDetailsById')->willReturn(Option::some($package));
 
