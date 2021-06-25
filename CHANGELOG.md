@@ -10,6 +10,10 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [1.3.4] - 2021-06-25
+### Security
+- Upgrade flysystem to 1.1.4 - fix [CVE-2021-32708](https://github.com/thephpleague/flysystem/security/advisories/GHSA-9f46-5r25-5wfm)
+
 ## [1.3.3] - 2021-05-31
 ### Fixed
 - Fix package dependencies duplication ([#472](https://github.com/repman-io/repman/pull/472))
