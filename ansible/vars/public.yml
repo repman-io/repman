@@ -25,6 +25,8 @@ app_shared_resources:
 app_secret: "{{ lookup('env', 'REPMAN_APP_SECRET') or 'c6bd0523-77dd-4201-9c62-47a71234d0a5' }}"
 server_hostname: 'repman.io'
 
+# Add this to allow make requests only from proxy
+nginx_proxy_secret: "{{ lookup('env', 'REPMAN_PROXY_SECRET') or '' }}"
 nginx_client_max_body_size: 200M
 app_message_consumers_name: message-consumer
 
