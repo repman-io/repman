@@ -65,28 +65,25 @@ final class FakePackageSynchronizer implements PackageSynchronizer
         }
 
         $package->setReadme($this->readme);
-
+        $encounteredVersions = [];
         foreach ($this->versions as $version) {
             $package->addOrUpdateVersion($version);
+            $encounteredVersions[$version->version()] = true;
         }
-
-        $encounteredVersions = array_map(function (Version $version): string {
-            return $version->version();
-        }, $this->versions);
 
         $encounteredLinks = [];
 
         foreach ($this->links as $link) {
             $package->addLink(new Link(Uuid::uuid4(), $package, $link->type(), $link->target(), $link->constraint()));
-            $encounteredLinks[] = $link->type().'-'.$link->target();
+            $encounteredLinks[$link->type().'-'.$link->target()] = true;
         }
 
         $package->syncSuccess(
             $this->name,
             $this->description,
             $this->latestReleasedVersion,
-            array_flip($encounteredVersions),
-            array_flip($encounteredLinks),
+            $encounteredVersions,
+            $encounteredLinks,
             $this->latestReleaseDate
         );
     }

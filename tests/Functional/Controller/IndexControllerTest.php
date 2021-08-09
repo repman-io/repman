@@ -6,7 +6,6 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use function Ramsey\Uuid\v4;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class IndexControllerTest extends FunctionalTestCase
 {
@@ -31,8 +30,9 @@ final class IndexControllerTest extends FunctionalTestCase
         $this->createAndLoginAdmin();
 
         $this->client->disableReboot();
-        $this->container()->get(SessionInterface::class)->set('organization-token', $token);
-
+        // start new session
+        $this->client->request('GET', $this->urlTo('index'));
+        $this->client->getRequest()->getSession()->set('organization-token', $token);
         $this->client->request('GET', $this->urlTo('index'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_accept_invitation', [

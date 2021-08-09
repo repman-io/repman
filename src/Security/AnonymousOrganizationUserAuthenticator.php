@@ -4,59 +4,55 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use Buddy\Repman\Security\Model\Organization;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-final class AnonymousOrganizationUserAuthenticator extends AbstractGuardAuthenticator
+final class AnonymousOrganizationUserAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
+    private OrganizationProvider $organizationProvider;
+
+    public function __construct(OrganizationProvider $organizationProvider)
+    {
+        $this->organizationProvider = $organizationProvider;
+    }
+
     /**
      * @codeCoverageIgnore
-     *
-     * @return Response
      */
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, AuthenticationException $authException = null): JsonResponse
     {
         return new JsonResponse([
             'message' => 'Authentication Required',
         ], Response::HTTP_UNAUTHORIZED);
     }
 
-    public function supports(Request $request)
-    {
-        return $request->get('_route') !== 'repo_package_downloads'
-            && !$request->headers->has('PHP_AUTH_USER')
-            && !$request->headers->has('PHP_AUTH_PW');
-    }
-
-    public function getCredentials(Request $request)
+    public function authenticate(Request $request): PassportInterface
     {
         $organizationAlias = $request->get('organization');
         if ($organizationAlias === null) {
             throw new BadCredentialsException();
         }
 
-        return $organizationAlias;
+        return new SelfValidatingPassport(new UserBadge($organizationAlias, function (string $organizationAlias): Organization {
+            return $this->organizationProvider->loadUserByAlias($organizationAlias);
+        }));
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function supports(Request $request): ?bool
     {
-        if (!$userProvider instanceof OrganizationProvider) {
-            throw new \InvalidArgumentException(); // @codeCoverageIgnore
-        }
-
-        return $userProvider->loadUserByAlias($credentials);
-    }
-
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        return true;
+        return $request->get('_route') !== 'repo_package_downloads'
+            && !$request->headers->has('PHP_AUTH_USER')
+            && !$request->headers->has('PHP_AUTH_PW');
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
@@ -66,16 +62,8 @@ final class AnonymousOrganizationUserAuthenticator extends AbstractGuardAuthenti
         ], Response::HTTP_FORBIDDEN);
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         return null;
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function supportsRememberMe(): bool
-    {
-        return false;
     }
 }

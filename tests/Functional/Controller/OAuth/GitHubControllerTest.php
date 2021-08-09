@@ -86,6 +86,21 @@ final class GitHubControllerTest extends FunctionalTestCase
         self::assertStringContainsString('test@buddy.works', $this->lastResponseBody());
     }
 
+    public function testRedirectToRequestedPathOnSuccessfulLoginWithGitHub(): void
+    {
+        $this->fixtures->createOAuthUser($email = 'test@buddy.works');
+        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $params = $this->getQueryParamsFromLastResponse();
+
+        $this->client->disableReboot();
+        GitHubOAuth::mockTokenResponse($email, $this->container());
+        $this->client->request('GET', $this->urlTo('user_profile'));
+
+        $this->client->request('GET', $this->urlTo('login_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        // authenticator user $targetPath, so in test env localhost will be added to url
+        self::assertTrue($this->client->getResponse()->isRedirect('http://localhost/user'));
+    }
+
     public function testDisplayErrorIfSomethingGoesWrongDuringRegister(): void
     {
         $this->client->request('GET', $this->urlTo('register_github_start'));

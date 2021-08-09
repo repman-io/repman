@@ -7,9 +7,10 @@ namespace Buddy\Repman\Security\Model;
 use Buddy\Repman\Security\Model\User\Organization;
 use Munus\Control\Option;
 use Symfony\Component\Security\Core\User\EquatableInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final class User implements UserInterface, EquatableInterface
+final class User implements UserInterface, EquatableInterface, PasswordAuthenticatedUserInterface
 {
     private string $id;
     private string $email;
@@ -126,6 +127,11 @@ final class User implements UserInterface, EquatableInterface
     public function getUsername(): string
     {
         return $this->email;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->getUsername();
     }
 
     public function eraseCredentials(): void

@@ -5,71 +5,47 @@ declare(strict_types=1);
 namespace Buddy\Repman\Security;
 
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\SocialAuthenticator;
+use KnpU\OAuth2ClientBundle\Security\Exception\IdentityProviderAuthenticationException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Omines\OAuth2\Client\Provider\GitlabResourceOwner;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-final class GitLabAuthenticator extends SocialAuthenticator
+final class GitLabAuthenticator extends OAuthAuthenticator
 {
-    private ClientRegistry $clientRegistry;
-    private RouterInterface $router;
-    private Session $session;
-
-    public function __construct(ClientRegistry $clientRegistry, RouterInterface $router, Session $session)
+    public function __construct(ClientRegistry $clientRegistry, RouterInterface $router, UserProvider $userProvider)
     {
         $this->clientRegistry = $clientRegistry;
+        $this->userProvider = $userProvider;
         $this->router = $router;
-        $this->session = $session;
     }
 
-    public function supports(Request $request)
+    public function supports(Request $request): bool
     {
         return $request->attributes->get('_route') === 'login_gitlab_check';
     }
 
-    public function getCredentials(Request $request)
-    {
-        return $this->fetchAccessToken($this->clientRegistry->getClient('gitlab'), ['redirect_uri' => $this->router->generate('login_gitlab_check', [], RouterInterface::ABSOLUTE_URL)]);
-    }
-
-    public function getUser($credentials, UserProviderInterface $userProvider)
+    public function authenticate(Request $request): PassportInterface
     {
         try {
             /** @var GitlabResourceOwner $gitLabUser */
-            $gitLabUser = $this->clientRegistry->getClient('gitlab')->fetchUserFromToken($credentials);
-        } catch (IdentityProviderException $exception) {
+            $gitLabUser = $this->clientRegistry->getClient('gitlab')->fetchUserFromToken($this->fetchAccessToken(
+                $this->clientRegistry->getClient('gitlab'),
+                $request->attributes->get('_route')
+            ));
+        } catch (IdentityProviderException | IdentityProviderAuthenticationException $exception) {
             throw new CustomUserMessageAuthenticationException($exception->getMessage());
         }
 
-        return $userProvider->loadUserByUsername($gitLabUser->getEmail());
-    }
+        $user = $this->userProvider->loadUserByIdentifier($gitLabUser->getEmail());
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
-    {
-        $this->session->getFlashBag()->add('danger', strtr($exception->getMessageKey(), $exception->getMessageData()));
-
-        return new RedirectResponse($this->router->generate('app_login'));
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey): Response
-    {
-        return new RedirectResponse($this->router->generate('index'));
-    }
-
-    /**
-     * @codeCoverageIgnore auth is started in LoginFormAuthenticator, see security.yml -> entry_point
-     */
-    public function start(Request $request, AuthenticationException $authException = null): Response
-    {
-        return new RedirectResponse($this->router->generate('app_login'));
+        return new SelfValidatingPassport(new UserBadge($gitLabUser->getEmail(), function () use ($user): UserInterface {
+            return $user;
+        }));
     }
 }

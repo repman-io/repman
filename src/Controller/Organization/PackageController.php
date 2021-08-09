@@ -155,7 +155,7 @@ final class PackageController extends AbstractController
     }
 
     /**
-     * @param string[] $choices
+     * @param array<string,int|string> $choices
      */
     private function addRepositoriesChoiceType(FormInterface $form, array $choices): void
     {

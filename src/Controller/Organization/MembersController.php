@@ -21,19 +21,16 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 final class MembersController extends AbstractController
 {
-    private SessionInterface $session;
     private OrganizationQuery $organizations;
     private TokenStorageInterface $tokenStorage;
 
-    public function __construct(SessionInterface $session, OrganizationQuery $organizations, TokenStorageInterface $tokenStorage)
+    public function __construct(OrganizationQuery $organizations, TokenStorageInterface $tokenStorage)
     {
-        $this->session = $session;
         $this->organizations = $organizations;
         $this->tokenStorage = $tokenStorage;
     }
@@ -57,12 +54,12 @@ final class MembersController extends AbstractController
     /**
      * @Route("/user/invitation/{token}", name="organization_accept_invitation", methods={"GET"}, requirements={"token"="%uuid_pattern%"})
      */
-    public function acceptInvitation(string $token): Response
+    public function acceptInvitation(Request $request, string $token): Response
     {
         /** @var User|null $user */
         $user = $this->getUser();
         if (null === $user) {
-            $this->session->set('organization-token', $token);
+            $request->getSession()->set('organization-token', $token);
 
             $this->addFlash('info', 'You need to sign in or sign up to be able to accept this invitation.');
 
@@ -78,7 +75,7 @@ final class MembersController extends AbstractController
         }
 
         $this->dispatchMessage(new AcceptInvitation($token, $user->id()));
-        $this->session->remove('organization-token');
+        $request->getSession()->remove('organization-token');
         $this->addFlash('success', sprintf('The invitation to %s organization has been accepted', $organization->get()->name()));
 
         return $this->redirectToRoute('organization_overview', ['organization' => $organization->get()->alias()]);

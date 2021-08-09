@@ -50,28 +50,21 @@ abstract class FunctionalTestCase extends WebTestCase
 
     protected function createAndLoginAdmin(string $email = 'test@buddy.works', string $password = 'password', ?string $confirmToken = null): string
     {
-        if (static::$booted) {
-            self::ensureKernelShutdown();
-        }
-        $this->client = static::createClient([], [
-            'PHP_AUTH_USER' => $email,
-            'PHP_AUTH_PW' => $password,
-        ]);
-        $this->fixtures = new FixturesManager(self::$kernel->getContainer()->get('test.service_container'));
+        $this->client->setServerParameter('PHP_AUTH_USER', $email);
+        $this->client->setServerParameter('PHP_AUTH_PW', $password);
 
         return $this->fixtures->createAdmin($email, $password, $confirmToken);
     }
 
     protected function loginUser(string $email, string $password): void
     {
-        if (static::$booted) {
-            self::ensureKernelShutdown();
-        }
+        $this->client->setServerParameter('PHP_AUTH_USER', $email);
+        $this->client->setServerParameter('PHP_AUTH_PW', $password);
+    }
 
-        $this->client = static::createClient([], [
-            'PHP_AUTH_USER' => $email,
-            'PHP_AUTH_PW' => $password,
-        ]);
+    protected function logoutCurrentUser(): void
+    {
+        $this->client->setServerParameters([]);
     }
 
     protected function container(): ContainerInterface
@@ -81,12 +74,6 @@ abstract class FunctionalTestCase extends WebTestCase
 
     protected function loginApiUser(string $token): void
     {
-        if (static::$booted) {
-            self::ensureKernelShutdown();
-        }
-
-        $this->client = static::createClient([], [
-            'HTTP_X-API-TOKEN' => $token,
-        ]);
+        $this->client->setServerParameter('HTTP_X-API-TOKEN', $token);
     }
 }

@@ -14,19 +14,16 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class RegistrationController extends AbstractController
 {
-    private SessionInterface $session;
     private UserGuardHelper $guard;
     private Config $config;
 
-    public function __construct(SessionInterface $session, UserGuardHelper $guard, Config $config)
+    public function __construct(UserGuardHelper $guard, Config $config)
     {
-        $this->session = $session;
         $this->guard = $guard;
         $this->config = $config;
     }
@@ -59,10 +56,10 @@ class RegistrationController extends AbstractController
 
             $this->guard->authenticateUser($email, $request);
 
-            if ($this->session->has('organization-token')) {
+            if ($request->getSession()->has('organization-token')) {
                 $this->addFlash('success', 'Your account has been created.');
 
-                return $this->redirectToRoute('organization_accept_invitation', ['token' => $this->session->remove('organization-token')]);
+                return $this->redirectToRoute('organization_accept_invitation', ['token' => $request->getSession()->remove('organization-token')]);
             }
 
             $this->addFlash('success', 'Your account has been created. Please create a new organization.');

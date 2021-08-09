@@ -5,19 +5,22 @@ declare(strict_types=1);
 namespace Buddy\Repman\Security;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 final class UserGuardHelper
 {
     private UserProvider $userProvider;
-    private GuardAuthenticatorHandler $guardHandler;
     private LoginFormAuthenticator $authenticator;
+    private TokenStorageInterface $tokenStorage;
 
-    public function __construct(UserProvider $userProvider, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator)
+    public function __construct(UserProvider $userProvider, LoginFormAuthenticator $authenticator, TokenStorageInterface $tokenStorage)
     {
         $this->userProvider = $userProvider;
-        $this->guardHandler = $guardHandler;
         $this->authenticator = $authenticator;
+        $this->tokenStorage = $tokenStorage;
     }
 
     public function userExists(string $email): bool
@@ -27,9 +30,10 @@ final class UserGuardHelper
 
     public function authenticateUser(string $email, Request $request): void
     {
-        $this->guardHandler->authenticateWithToken(
-            $this->authenticator->createAuthenticatedToken($this->userProvider->loadUserByUsername($email), 'main'),
-            $request
-        );
+        $token = $this->authenticator->createAuthenticatedToken(new SelfValidatingPassport(new UserBadge($email, function (string $email): UserInterface {
+            return $this->userProvider->loadUserByIdentifier($email);
+        })), 'main');
+        $this->tokenStorage->setToken($token);
+        $request->getSession()->set('_security_main', serialize($token));
     }
 }
