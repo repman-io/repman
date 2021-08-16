@@ -41,7 +41,11 @@ parameters:
             message: "#^Variable method call on React\\\\Http\\\\Browser\\.$#"
             count: 1
             path: src/Service/Downloader/ReactDownloader.php
-
+        -
+            message: "#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\:\\:getFlashBag\\(\\)\\.$#"
+            paths:
+                - src/
+                - tests/
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:

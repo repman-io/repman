@@ -8,18 +8,18 @@ use Buddy\Repman\Message\User\ResetPassword;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 final class ResetPasswordHandler implements MessageHandlerInterface
 {
     private UserRepository $users;
-    private EncoderFactoryInterface $encoderFactory;
+    private PasswordHasherFactoryInterface $hasherFactory;
     private int $resetPasswordTokenTtl;
 
-    public function __construct(UserRepository $users, EncoderFactoryInterface $encoderFactory, int $resetPasswordTokenTtl)
+    public function __construct(UserRepository $users, PasswordHasherFactoryInterface $hasherFactory, int $resetPasswordTokenTtl)
     {
         $this->users = $users;
-        $this->encoderFactory = $encoderFactory;
+        $this->hasherFactory = $hasherFactory;
         $this->resetPasswordTokenTtl = $resetPasswordTokenTtl;
     }
 
@@ -27,7 +27,7 @@ final class ResetPasswordHandler implements MessageHandlerInterface
     {
         $this->users->getByResetPasswordToken($message->token())->resetPassword(
             $message->token(),
-            $this->encoderFactory->getEncoder(User::class)->encodePassword($message->password(), null),
+            $this->hasherFactory->getPasswordHasher(User::class)->hash($message->password()),
             $this->resetPasswordTokenTtl
         );
     }

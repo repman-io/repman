@@ -765,7 +765,7 @@
         "version": "v5.0.2"
     },
     "symfony/intl": {
-        "version": "v5.0.2"
+        "version": "v5.3.0"
     },
     "symfony/lock": {
         "version": "v5.0.7"
@@ -828,6 +828,9 @@
     },
     "symfony/orm-pack": {
         "version": "v1.0.7"
+    },
+    "symfony/password-hasher": {
+        "version": "v5.3.0"
     },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.18.1"

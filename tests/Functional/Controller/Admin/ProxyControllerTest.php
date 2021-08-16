@@ -44,6 +44,7 @@ final class ProxyControllerTest extends FunctionalTestCase
         $this->client->request('DELETE', $this->urlTo('admin_dist_remove', ['proxy' => 'packagist.org', 'packageName' => 'vendor/package']));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_dist_list', ['proxy' => 'packagist.org'])));
-        self::assertTrue($this->container()->get('session')->getFlashBag()->has('success'));
+        $this->client->followRedirect();
+        self::assertStringContainsString('Dist files for package vendor/package will be removed', $this->lastResponseBody());
     }
 }

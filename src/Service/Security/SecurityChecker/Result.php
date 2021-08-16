@@ -22,7 +22,7 @@ final class Result
     }
 
     /**
-     * @return array<string,string|array<string,string>>
+     * @return array<string,string|array<array<string,string>>>
      */
     public function toArray(): array
     {

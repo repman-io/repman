@@ -7,7 +7,7 @@ namespace Buddy\Repman\Security;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
 use Doctrine\DBAL\Connection;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -25,10 +25,15 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
 
     public function loadUserByUsername(string $username): UserInterface
     {
-        $data = $this->getUserDataByEmail($username);
+        return $this->loadUserByIdentifier($username);
+    }
+
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        $data = $this->getUserDataByEmail($identifier);
 
         if ($data === false) {
-            throw new UsernameNotFoundException();
+            throw new UserNotFoundException();
         }
 
         return $this->hydrateUser($data);
@@ -36,7 +41,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
 
     public function refreshUser(UserInterface $user): UserInterface
     {
-        return $this->loadUserByUsername($user->getUsername());
+        return $this->loadUserByIdentifier($user->getUserIdentifier());
     }
 
     public function supportsClass(string $class): bool

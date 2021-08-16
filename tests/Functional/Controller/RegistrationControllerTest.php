@@ -6,7 +6,6 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use function Ramsey\Uuid\v4;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class RegistrationControllerTest extends FunctionalTestCase
 {
@@ -28,8 +27,8 @@ final class RegistrationControllerTest extends FunctionalTestCase
     public function testSuccessfulRegistrationWithInvitationToken(): void
     {
         $this->client->disableReboot();
-        $this->container()->get(SessionInterface::class)->set('organization-token', $token = v4());
         $this->client->request('GET', $this->urlTo('app_register'));
+        $this->client->getRequest()->getSession()->set('organization-token', $token = v4());
         $this->client->submitForm('Sign up', [
             'email' => 'test@buddy.works',
             'plainPassword[first]' => 'secret123',

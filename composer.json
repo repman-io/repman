@@ -44,7 +44,7 @@
         "league/oauth2-github": "^3.0",
         "m4tthumphrey/php-gitlab-api": "^11.0",
         "munusphp/munus": "^0.4.0",
-        "nelmio/api-doc-bundle": "v4.1.1",
+        "nelmio/api-doc-bundle": "^4.3",
         "nelmio/cors-bundle": "^2.1",
         "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
@@ -61,6 +61,7 @@
         "symfony/form": "*",
         "symfony/framework-bundle": "*",
         "symfony/http-client": "*",
+        "symfony/intl": "5.3.*",
         "symfony/lock": "*",
         "symfony/mailer": "*",
         "symfony/messenger": "*",
@@ -96,7 +97,7 @@
         "league/flysystem-memory": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.0",
-        "phpstan/phpstan": "^0.12.18",
+        "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-deprecation-rules": "^0.12.2",
         "phpstan/phpstan-doctrine": "^0.12.9",
         "phpstan/phpstan-phpunit": "^0.12.5",
@@ -117,7 +118,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "5.2.*"
+            "require": "5.3.*"
         }
     },
     "autoload": {

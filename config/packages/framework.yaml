@@ -7,6 +7,7 @@ framework:
     # Remove or comment this section to explicitly disable session support.
     session:
         handler_id: null
+        storage_factory_id: 'session.storage.factory.native'
         cookie_secure: auto
         cookie_samesite: lax
 

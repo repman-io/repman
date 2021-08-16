@@ -72,6 +72,7 @@ final class MemberControllerTest extends FunctionalTestCase
     {
         $this->fixtures->createUser($email = 'some@buddy.works', $password = 'secret123');
         $this->fixtures->inviteUser($this->organizationId, 'some@buddy.works', $token = '04550fd6-47d1-491f-84d6-227d4a1a38e8');
+        $this->logoutCurrentUser();
 
         $this->client->request('GET', $this->urlTo('organization_accept_invitation', ['token' => $token]));
 

@@ -46,7 +46,7 @@
                         {% include 'svg/user.svg' %}
                     </span>
                     <span class="ml-2 d-none d-lg-block lh-1">
-                        {{ app.user.username }}
+                        {{ app.user.userIdentifier }}
                         {% if is_granted('ROLE_ADMIN') %}
                             <span class="text-muted d-block mt-1 text-h6">Administrator</span>
                         {% endif %}

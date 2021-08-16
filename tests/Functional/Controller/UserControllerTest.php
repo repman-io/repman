@@ -48,7 +48,8 @@ final class UserControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('user_profile')));
 
-        $this->client->followRedirect();
+        $this->client->setServerParameter('PHP_AUTH_PW', 'secret123');
+        $this->client->request('GET', $this->urlTo('user_profile'));
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Your password has been changed', $this->lastResponseBody());

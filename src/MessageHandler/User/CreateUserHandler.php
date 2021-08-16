@@ -10,17 +10,17 @@ use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User as SecurityUser;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 final class CreateUserHandler implements MessageHandlerInterface
 {
     private UserRepository $users;
-    private EncoderFactoryInterface $encoderFactory;
+    private PasswordHasherFactoryInterface $hasherFactory;
 
-    public function __construct(UserRepository $users, EncoderFactoryInterface $encoderFactory)
+    public function __construct(UserRepository $users, PasswordHasherFactoryInterface $hasherFactory)
     {
         $this->users = $users;
-        $this->encoderFactory = $encoderFactory;
+        $this->hasherFactory = $hasherFactory;
     }
 
     public function __invoke(CreateUser $message): void
@@ -31,7 +31,7 @@ final class CreateUserHandler implements MessageHandlerInterface
             $message->confirmToken(),
             $message->roles()
         );
-        $user->setPassword($this->encoderFactory->getEncoder(SecurityUser::class)->encodePassword($message->plainPassword(), null));
+        $user->setPassword($this->hasherFactory->getPasswordHasher(SecurityUser::class)->hash($message->plainPassword()));
 
         $this->users->add($user);
     }

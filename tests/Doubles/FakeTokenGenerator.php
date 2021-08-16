@@ -12,7 +12,14 @@ final class FakeTokenGenerator implements TokenGenerator
 
     public function generate(): string
     {
-        return $this->nextToken !== null ? $this->nextToken : bin2hex(random_bytes(32));
+        if ($this->nextToken !== null) {
+            $nextToken = $this->nextToken;
+            $this->nextToken = null;
+
+            return $nextToken;
+        }
+
+        return bin2hex(random_bytes(32));
     }
 
     public function setNextToken(string $token): void

@@ -7,7 +7,7 @@ namespace Buddy\Repman\Security;
 use Buddy\Repman\Security\Model\Organization;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -33,15 +33,22 @@ final class OrganizationProvider implements UserProviderInterface
         return $this->hydrateOrganization($data);
     }
 
-    public function refreshUser(UserInterface $user)
+    public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        $data = $this->getUserDataByToken((string) $user->getPassword());
+        $data = $this->getUserDataByToken($identifier);
 
         if ($data === false) {
-            throw new UsernameNotFoundException();
+            throw new UserNotFoundException();
         }
 
+        $this->updateLastUsed($identifier);
+
         return $this->hydrateOrganization($data);
+    }
+
+    public function refreshUser(UserInterface $user)
+    {
+        return $this->loadUserByIdentifier((string) $user->getPassword());
     }
 
     public function supportsClass(string $class)

@@ -9,12 +9,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
-final class TokenAuthenticator extends AbstractGuardAuthenticator
+final class TokenAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
+    private OrganizationProvider $organizationProvider;
+
+    public function __construct(OrganizationProvider $organizationProvider)
+    {
+        $this->organizationProvider = $organizationProvider;
+    }
+
     /**
      * @codeCoverageIgnore
      *
@@ -29,27 +40,21 @@ final class TokenAuthenticator extends AbstractGuardAuthenticator
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
-    public function supports(Request $request)
+    public function supports(Request $request): ?bool
     {
         return $request->headers->has('PHP_AUTH_USER') && $request->headers->has('PHP_AUTH_PW');
     }
 
-    public function getCredentials(Request $request)
+    public function authenticate(Request $request): PassportInterface
     {
-        return [
-            'token' => $request->headers->get('PHP_AUTH_PW'),
-            'organization' => $request->get('organization'),
-        ];
-    }
+        $organization = $this->organizationProvider->loadUserByIdentifier($request->headers->get('PHP_AUTH_PW', ''));
+        if ($organization->getUserIdentifier() !== $request->get('organization')) {
+            throw new BadCredentialsException();
+        }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
-    {
-        return $userProvider->loadUserByUsername($credentials['token']);
-    }
-
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        return $credentials['organization'] === $user->getUsername();
+        return new SelfValidatingPassport(new UserBadge($organization->getUserIdentifier(), function () use ($organization): UserInterface {
+            return $organization;
+        }));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
@@ -61,16 +66,8 @@ final class TokenAuthenticator extends AbstractGuardAuthenticator
         return new JsonResponse($data, Response::HTTP_FORBIDDEN);
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         return null;
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function supportsRememberMe(): bool
-    {
-        return false;
     }
 }

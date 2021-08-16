@@ -1,12 +1,11 @@
 security:
-    encoders:
+    enable_authenticator_manager: true
+    password_hashers:
         Buddy\Repman\Security\Model\User:
             algorithm: auto
     providers:
         user_provider:
             id: Buddy\Repman\Security\UserProvider
-        organization_provider:
-            id: Buddy\Repman\Security\OrganizationProvider
         api_user_provider:
             id: Buddy\Repman\Security\ApiUserProvider
     firewalls:
@@ -15,34 +14,27 @@ security:
             security: false
         repo:
             host: '([a-z0-9_-]+)\%organization_separator%repo\%domain_separator%(.+)'
-            anonymous: true
             logout: false
             stateless: true
-            provider: organization_provider
-            guard:
-                authenticators:
-                    - Buddy\Repman\Security\TokenAuthenticator
-                    - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
-                entry_point: Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
+            custom_authenticators:
+                - Buddy\Repman\Security\TokenAuthenticator
+                - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
+            entry_point: Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
         api:
             pattern: ^/api(?!/doc)
             stateless: true
-            provider: api_user_provider
-            guard:
-                authenticators:
-                    - Buddy\Repman\Security\ApiTokenAuthenticator
+            custom_authenticators:
+                - Buddy\Repman\Security\ApiTokenAuthenticator
         main:
-            anonymous: true
             lazy: true
             provider: user_provider
-            guard:
-                authenticators:
-                    - Buddy\Repman\Security\LoginFormAuthenticator
-                    - Buddy\Repman\Security\GitHubAuthenticator
-                    - Buddy\Repman\Security\GitLabAuthenticator
-                    - Buddy\Repman\Security\BitbucketAuthenticator
-                    - Buddy\Repman\Security\BuddyAuthenticator
-                entry_point: Buddy\Repman\Security\LoginFormAuthenticator
+            custom_authenticators:
+                - Buddy\Repman\Security\LoginFormAuthenticator
+                - Buddy\Repman\Security\GitHubAuthenticator
+                - Buddy\Repman\Security\GitLabAuthenticator
+                - Buddy\Repman\Security\BitbucketAuthenticator
+                - Buddy\Repman\Security\BuddyAuthenticator
+            entry_point: Buddy\Repman\Security\LoginFormAuthenticator
             logout:
                 path: app_logout
                 target: index

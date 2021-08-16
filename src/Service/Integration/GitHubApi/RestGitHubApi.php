@@ -86,7 +86,7 @@ final class RestGitHubApi implements GitHubApi
     }
 
     /**
-     * @return array[]
+     * @return mixed[]
      */
     private function privateRepos(): array
     {
@@ -96,7 +96,7 @@ final class RestGitHubApi implements GitHubApi
     }
 
     /**
-     * @return array[]
+     * @return mixed[]
      */
     private function organizationRepos(string $organization): array
     {
@@ -106,7 +106,7 @@ final class RestGitHubApi implements GitHubApi
     }
 
     /**
-     * @return array[]
+     * @return mixed[]
      */
     private function memberships(): array
     {
