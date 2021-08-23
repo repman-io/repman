@@ -103,7 +103,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
             $data['email_confirm_token'],
             json_decode($data['roles'], true),
             array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
-            $data['email_scan_result'],
+            (bool) $data['email_scan_result'],
             $data['timezone'],
         );
     }
