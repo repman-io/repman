@@ -90,7 +90,7 @@
         "coduo/php-matcher": "^4.0",
         "dama/doctrine-test-bundle": "^6.3",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
-        "ekino/phpstan-banned-code": "^0.3.1",
+        "ekino/phpstan-banned-code": "^0.5.0",
         "fakerphp/faker": "^1.9",
         "friendsofphp/php-cs-fixer": "^2.16",
         "johnkary/phpunit-speedtrap": "^4.0",
