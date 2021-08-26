@@ -7,3 +7,4 @@ sentry:
             - 'Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException'
             - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
             - 'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException'
+            - 'Symfony\Component\Console\Exception\CommandNotFoundException'
