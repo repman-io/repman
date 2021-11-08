@@ -69,7 +69,7 @@ services:
       - app
     volumes:
       - app-public:/app/public
-      - docker-logs-nginx/:/var/log/nginx
+      - docker-logs-nginx:/var/log/nginx
       - docker-nginx-scripts:/nginx
       - docker-nginx-ssl-certs:/etc/ssl/certs
       - docker-nginx-ssl-private:/etc/ssl/private
