@@ -31,7 +31,6 @@
 .DS_Store
 ###< OS ###
 
-
 ###> Docker ###
 docker-compose.*.yml
 /docker/logs/nginx/*
@@ -41,3 +40,5 @@ docker-compose.*.yml
 /docker/nginx/ssl/private/*
 !/docker/nginx/ssl/private/.gitkeep
 ###< Docker ###
+
+composer.phar
