@@ -54,10 +54,10 @@ final class DbalTelemetryQuery implements TelemetryQuery
             GROUP BY o.id
             LIMIT :limit OFFSET :offset',
             [
-                ':role_member' => Member::ROLE_MEMBER,
-                ':role_owner' => Member::ROLE_OWNER,
-                ':limit' => $limit,
-                ':offset' => $offset,
+                'role_member' => Member::ROLE_MEMBER,
+                'role_owner' => Member::ROLE_OWNER,
+                'limit' => $limit,
+                'offset' => $offset,
             ])
         );
     }
@@ -103,10 +103,10 @@ final class DbalTelemetryQuery implements TelemetryQuery
             WHERE p.organization_id = :organization_id
             LIMIT :limit OFFSET :offset',
             [
-                ':organization_id' => $organizationId,
-                ':till' => $till->format('Y-m-d'),
-                ':limit' => $limit,
-                ':offset' => $offset,
+                'organization_id' => $organizationId,
+                'till' => $till->format('Y-m-d'),
+                'limit' => $limit,
+                'offset' => $offset,
             ])
         );
     }
@@ -119,7 +119,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 'SELECT COUNT(id) FROM "organization_package"
                 WHERE organization_id = :organization_id',
                 [
-                    ':organization_id' => $organizationId,
+                    'organization_id' => $organizationId,
                 ]
             );
     }
@@ -131,7 +131,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
             ->fetchOne(
                 'SELECT COUNT(date) FROM "proxy_package_download"
                 WHERE date::date <= :till',
-                [':till' => $till->format('Y-m-d')]
+                ['till' => $till->format('Y-m-d')]
             );
     }
 
@@ -142,7 +142,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
             ->fetchOne(
                 'SELECT COUNT(date) FROM "organization_package_download"
                 WHERE date::date <= :till',
-                [':till' => $till->format('Y-m-d')]
+                ['till' => $till->format('Y-m-d')]
             );
     }
 }

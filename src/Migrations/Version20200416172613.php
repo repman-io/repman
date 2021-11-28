@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Migrations;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20200416172613 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('CREATE TABLE organization_member (id UUID NOT NULL, user_id UUID NOT NULL, organization_id UUID NOT NULL, role VARCHAR(15) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_756A2A8DA76ED395 ON organization_member (user_id)');
@@ -41,7 +42,7 @@ final class Version20200416172613 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('DROP TABLE organization_member');
         $this->addSql('DROP TABLE organization_invitation');

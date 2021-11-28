@@ -34,8 +34,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ORDER BY o.alias
             LIMIT :limit OFFSET :offset',
             [
-                ':limit' => $filter->getLimit(),
-                ':offset' => $filter->getOffset(),
+                'limit' => $filter->getLimit(),
+                'offset' => $filter->getOffset(),
             ])
         );
     }
@@ -53,7 +53,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day($row['date'], $row['count']);
             }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
-                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             ])),
             $lastDays,
             (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download')

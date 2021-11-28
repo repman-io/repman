@@ -34,15 +34,15 @@ final class DbalUserQuery implements UserQuery
             FROM user_oauth_token
             WHERE user_id = :user_id
             ORDER BY created_at DESC', [
-            ':user_id' => $userId,
+            'user_id' => $userId,
         ]));
     }
 
     public function hasOAuthAccessToken(string $userId, string $type): bool
     {
         return $this->connection->fetchAssociative('SELECT access_token FROM user_oauth_token WHERE user_id = :user_id AND type = :type', [
-            ':user_id' => $userId,
-            ':type' => $type,
+            'user_id' => $userId,
+            'type' => $type,
         ]) !== false;
     }
 
@@ -59,9 +59,9 @@ final class DbalUserQuery implements UserQuery
             WHERE user_id = :id
             ORDER BY UPPER(name) ASC
             LIMIT :limit OFFSET :offset', [
-            ':id' => $userId,
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'id' => $userId,
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ]));
     }
 
@@ -71,7 +71,7 @@ final class DbalUserQuery implements UserQuery
             ->connection
             ->fetchOne(
                 'SELECT COUNT(value) FROM user_api_token WHERE user_id = :id',
-                [':id' => $userId]
+                ['id' => $userId]
             );
     }
 

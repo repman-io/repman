@@ -24,8 +24,8 @@ final class DbalUserQuery implements UserQuery
         return array_map(function (array $data): User {
             return $this->hydrateUser($data);
         }, $this->connection->fetchAllAssociative('SELECT id, email, status, roles FROM "user" ORDER BY email LIMIT :limit OFFSET :offset', [
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ]));
     }
 
@@ -35,7 +35,7 @@ final class DbalUserQuery implements UserQuery
     public function getByEmail(string $email): Option
     {
         $data = $this->connection->fetchAssociative('SELECT id, email, status, roles FROM "user" WHERE email = :email', [
-            ':email' => \mb_strtolower($email),
+            'email' => \mb_strtolower($email),
         ]);
         if ($data === false) {
             return Option::none();
@@ -50,7 +50,7 @@ final class DbalUserQuery implements UserQuery
     public function getById(string $id): Option
     {
         $data = $this->connection->fetchAssociative('SELECT id, email, status, roles FROM "user" WHERE id = :id', [
-            ':id' => $id,
+            'id' => $id,
         ]);
         if ($data === false) {
             return Option::none();

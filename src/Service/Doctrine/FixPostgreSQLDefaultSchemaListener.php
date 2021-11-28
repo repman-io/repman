@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Doctrine;
 
-use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
+use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 
 /**
@@ -17,8 +17,8 @@ final class FixPostgreSQLDefaultSchemaListener
         $schemaManager = $args
             ->getEntityManager()
             ->getConnection()
-            ->getSchemaManager();
-        if (!$schemaManager instanceof PostgreSqlSchemaManager) {
+            ->createSchemaManager();
+        if (!$schemaManager instanceof PostgreSQLSchemaManager) {
             return;
         }
         foreach ($schemaManager->getExistingSchemaSearchPaths() as $namespace) {

@@ -57,7 +57,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
     public function emailExist(string $email): bool
     {
         return false !== $this->connection->fetchOne('SELECT id FROM "user" WHERE email = :email', [
-                ':email' => \mb_strtolower($email),
+                'email' => \mb_strtolower($email),
         ]);
     }
 

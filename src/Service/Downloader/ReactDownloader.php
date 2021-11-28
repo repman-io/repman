@@ -9,7 +9,7 @@ use Buddy\Repman\Service\Downloader;
 use Clue\React\Mq\Queue;
 use Munus\Control\Option;
 use Psr\Http\Message\ResponseInterface;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\Http\Browser;
 use React\Promise\PromiseInterface;
@@ -23,7 +23,7 @@ final class ReactDownloader implements Downloader
 
     public function __construct()
     {
-        $this->loop = Factory::create();
+        $this->loop = Loop::get();
         $this->browser = new Browser($this->loop, new Connector($this->loop, ['timeout' => 10]));
         $this->queue = new Queue(100, null, function (string $type, string $url, array $headers = []): PromiseInterface {
             return $this->browser->{$type}($url, array_merge($headers, ['User-Agent' => $this->userAgent()]));
