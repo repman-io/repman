@@ -47,9 +47,9 @@ final class DbalPackageQuery implements PackageQuery
             GROUP BY id
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
-                ':organization_id' => $organizationId,
-                ':limit' => $limit,
-                ':offset' => $offset,
+                'organization_id' => $organizationId,
+                'limit' => $limit,
+                'offset' => $offset,
             ]));
     }
 
@@ -61,7 +61,7 @@ final class DbalPackageQuery implements PackageQuery
                 'SELECT COUNT(id) FROM "organization_package"
                 WHERE organization_id = :organization_id',
                 [
-                    ':organization_id' => $organizationId,
+                    'organization_id' => $organizationId,
                 ]
             );
     }
@@ -89,8 +89,8 @@ final class DbalPackageQuery implements PackageQuery
                 keep_last_releases
             FROM "organization_package"
             WHERE organization_id = :organization_id AND id = :id', [
-            ':organization_id' => $organizationId,
-            ':id' => $id,
+            'organization_id' => $organizationId,
+            'id' => $id,
         ]);
         if ($data === false) {
             return Option::none();

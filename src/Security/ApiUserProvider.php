@@ -98,8 +98,8 @@ final class ApiUserProvider implements UserProviderInterface
         $this->connection->executeQuery(
             'UPDATE user_api_token
             SET last_used_at = :now WHERE value = :value', [
-            ':now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-            ':value' => $token,
+            'now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'value' => $token,
         ]);
     }
 }

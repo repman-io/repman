@@ -34,18 +34,18 @@ final class DbalPackageQuery implements PackageQuery
     {
         $filterSQL = $joinSQL = '';
         $params = [
-            ':organization_id' => $organizationId,
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'organization_id' => $organizationId,
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ];
 
         if ($filter->hasLinkSearch()) {
             $filterSQL = ' AND l.target = :link';
-            $params[':link'] = $filter->getLinkSearch();
+            $params['link'] = $filter->getLinkSearch();
             $joinSQL = 'JOIN organization_package_link l ON (p.id = l.package_id AND p.organization_id = :organization_id) ';
         } elseif ($filter->hasSearchTerm()) {
             $filterSQL = ' AND (p.name ILIKE :term OR p.description ILIKE :term)';
-            $params[':term'] = '%'.$filter->getSearchTerm().'%';
+            $params['term'] = '%'.$filter->getSearchTerm().'%';
         }
 
         $sortSQL = 'name ASC';
@@ -105,7 +105,7 @@ final class DbalPackageQuery implements PackageQuery
             FROM "organization_package"
             WHERE organization_id = :organization_id AND name IS NOT NULL',
             [
-            ':organization_id' => $organizationId,
+            'organization_id' => $organizationId,
         ]));
     }
 
@@ -113,16 +113,16 @@ final class DbalPackageQuery implements PackageQuery
     {
         $filterSQL = $joinSQL = '';
         $params = [
-            ':organization_id' => $organizationId,
+            'organization_id' => $organizationId,
         ];
 
         if ($filter->hasLinkSearch()) {
             $filterSQL = ' AND l.target = :link';
-            $params[':link'] = $filter->getLinkSearch();
+            $params['link'] = $filter->getLinkSearch();
             $joinSQL = 'JOIN organization_package_link l ON (p.id = l.package_id AND p.organization_id = :organization_id) ';
         } elseif ($filter->hasSearchTerm()) {
             $filterSQL = ' AND (p.name ILIKE :term OR p.description ILIKE :term)';
-            $params[':term'] = '%'.$filter->getSearchTerm().'%';
+            $params['term'] = '%'.$filter->getSearchTerm().'%';
         }
 
         return (int) $this
@@ -159,7 +159,7 @@ final class DbalPackageQuery implements PackageQuery
                 keep_last_releases
             FROM "organization_package"
             WHERE id = :id', [
-            ':id' => $id,
+            'id' => $id,
         ]);
         if ($data === false) {
             return Option::none();
@@ -193,7 +193,7 @@ final class DbalPackageQuery implements PackageQuery
                 readme
             FROM "organization_package"
             WHERE id = :id', [
-            ':id' => $id,
+            'id' => $id,
         ]);
         if ($data === false) {
             return Option::none();
@@ -210,7 +210,7 @@ final class DbalPackageQuery implements PackageQuery
                 'SELECT COUNT(id) FROM "organization_package_version"
                 WHERE package_id = :package_id',
                 [
-                    ':package_id' => $packageId,
+                    'package_id' => $packageId,
                 ]
             );
     }
@@ -223,8 +223,8 @@ final class DbalPackageQuery implements PackageQuery
             JOIN organization_package p ON p.id = l.package_id
             WHERE l.target = :package_name
             AND p.organization_id = :organization_id', [
-            ':package_name' => $packageName,
-            ':organization_id' => $organizationId,
+            'package_name' => $packageName,
+            'organization_id' => $organizationId,
         ]);
     }
 
@@ -243,8 +243,8 @@ final class DbalPackageQuery implements PackageQuery
             FROM organization_package_link l
             LEFT JOIN organization_package p ON (p.name = l.target AND p.organization_id = :organization_id)
             WHERE package_id = :package_id', [
-            ':organization_id' => $organizationId,
-            ':package_id' => $packageId,
+            'organization_id' => $organizationId,
+            'package_id' => $packageId,
         ]) as $data) {
             $links[(string) $data['type']][] = new Link(
                 $data['type'],
@@ -280,23 +280,23 @@ final class DbalPackageQuery implements PackageQuery
             WHERE package_id = :package_id
             ORDER BY date DESC
             LIMIT :limit OFFSET :offset', [
-            ':package_id' => $packageId,
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'package_id' => $packageId,
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ]));
     }
 
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs
     {
         $params = [
-            ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
-            ':package' => $packageId,
+            'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            'package' => $packageId,
         ];
         $query = 'SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id = :package ';
 
         if ($version !== null) {
             $query .= ' AND version = :version';
-            $params[':version'] = $version;
+            $params['version'] = $version;
         }
 
         $query .= ' GROUP BY date) AS installs ORDER BY date ASC';
@@ -306,7 +306,7 @@ final class DbalPackageQuery implements PackageQuery
                 return new Installs\Day($row['date'], $row['count']);
             }, $this->connection->fetchAllAssociative($query, $params)),
             $lastDays,
-            (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', [':package' => $packageId])
+            (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', ['package' => $packageId])
         );
     }
 
@@ -318,7 +318,7 @@ final class DbalPackageQuery implements PackageQuery
         return array_column($this->connection->fetchAllAssociative('
             SELECT DISTINCT version FROM organization_package_download
             WHERE package_id= :package ORDER BY version DESC', [
-            ':package' => $packageId,
+            'package' => $packageId,
         ]), 'version');
     }
 
@@ -326,7 +326,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $row): WebhookRequest {
             return new WebhookRequest($row['date'], $row['ip'], $row['user_agent']);
-        }, $this->connection->fetchAllAssociative('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', [':package' => $packageId]));
+        }, $this->connection->fetchAllAssociative('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', ['package' => $packageId]));
     }
 
     /**
@@ -351,9 +351,9 @@ final class DbalPackageQuery implements PackageQuery
             WHERE package_id = :package_id
             ORDER BY date DESC
             LIMIT :limit OFFSET :offset', [
-                ':package_id' => $packageId,
-                ':limit' => $filter->getLimit(),
-                ':offset' => $filter->getOffset(),
+                'package_id' => $packageId,
+                'limit' => $filter->getLimit(),
+                'offset' => $filter->getOffset(),
             ]));
     }
 
@@ -365,7 +365,7 @@ final class DbalPackageQuery implements PackageQuery
                 'SELECT COUNT(id) FROM "organization_package_scan_result"
                 WHERE package_id = :package_id',
                 [
-                    ':package_id' => $packageId,
+                    'package_id' => $packageId,
                 ]
             );
     }
@@ -385,8 +385,8 @@ final class DbalPackageQuery implements PackageQuery
             GROUP BY p.id, o.alias
             ORDER BY p.last_sync_at ASC
             LIMIT :limit OFFSET :offset', [
-                ':limit' => $limit,
-                ':offset' => $offset,
+                'limit' => $limit,
+                'offset' => $offset,
             ]
         ));
     }
@@ -479,8 +479,8 @@ final class DbalPackageQuery implements PackageQuery
             WHERE stability != :stability
             AND package_id = :package_id',
             [
-                ':package_id' => $packageId,
-                ':stability' => VersionEntity::STABILITY_STABLE,
+                'package_id' => $packageId,
+                'stability' => VersionEntity::STABILITY_STABLE,
             ]
         ));
     }

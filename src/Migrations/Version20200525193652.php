@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Migrations;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20200525193652 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('CREATE TABLE organization_package_scan_result (id UUID NOT NULL, package_id UUID NOT NULL, date TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, status VARCHAR(7) NOT NULL, version VARCHAR(255) NOT NULL, content JSON NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_9AB3F43AF44CABFF ON organization_package_scan_result (package_id)');
@@ -38,7 +39,7 @@ final class Version20200525193652 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('DROP TABLE organization_package_scan_result');
         $this->addSql('ALTER TABLE organization_package DROP last_scan_result');

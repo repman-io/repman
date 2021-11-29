@@ -69,8 +69,8 @@ final class OrganizationProvider implements UserProviderInterface
     private function updateLastUsed(string $token): void
     {
         $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
-            ':now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-            ':value' => $token,
+            'now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'value' => $token,
         ]);
     }
 
@@ -84,7 +84,7 @@ final class OrganizationProvider implements UserProviderInterface
             JOIN organization o ON o.id = t.organization_id
             WHERE t.value = :token',
             [
-                ':token' => $token,
+                'token' => $token,
             ]);
     }
 
@@ -98,7 +98,7 @@ final class OrganizationProvider implements UserProviderInterface
             FROM organization
             WHERE alias = :alias AND has_anonymous_access = true",
             [
-                ':alias' => $alias,
+                'alias' => $alias,
             ]);
     }
 

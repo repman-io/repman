@@ -31,7 +31,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
         $data = $this->connection->fetchAssociative(
             'SELECT id, name, alias, has_anonymous_access
             FROM "organization" WHERE alias = :alias', [
-            ':alias' => $alias,
+            'alias' => $alias,
         ]);
 
         if ($data === false) {
@@ -49,8 +49,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             JOIN organization_invitation i ON o.id = i.organization_id
             WHERE i.token = :token AND i.email = :email
         ', [
-            ':token' => $token,
-            ':email' => $email,
+            'token' => $token,
+            'email' => $email,
         ]);
 
         if ($data === false) {
@@ -73,16 +73,16 @@ final class DbalOrganizationQuery implements OrganizationQuery
             WHERE organization_id = :id
             ORDER BY UPPER(name) ASC
             LIMIT :limit OFFSET :offset', [
-            ':id' => $organizationId,
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'id' => $organizationId,
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ]));
     }
 
     public function findAnyToken(string $organizationId): ?string
     {
         $token = $this->connection->fetchOne('SELECT value FROM organization_token WHERE organization_id = :id', [
-            ':id' => $organizationId,
+            'id' => $organizationId,
         ]);
 
         return $token !== false ? $token : null;
@@ -94,26 +94,26 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ->connection
             ->fetchOne(
                 'SELECT COUNT(value) FROM organization_token WHERE organization_id = :id',
-                [':id' => $organizationId]
+                ['id' => $organizationId]
             );
     }
 
     public function getInstalls(string $organizationId, int $lastDays = 30): Installs
     {
-        $packagesId = array_column($this->connection->fetchAllAssociative('SELECT id FROM organization_package WHERE organization_id = :id', [':id' => $organizationId]), 'id');
+        $packagesId = array_column($this->connection->fetchAllAssociative('SELECT id FROM organization_package WHERE organization_id = :id', ['id' => $organizationId]), 'id');
 
         return new Installs(
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day($row['date'], $row['count']);
             }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
-                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
-                ':packages' => $packagesId,
-            ], [':packages' => Connection::PARAM_STR_ARRAY])),
+                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                'packages' => $packagesId,
+            ], ['packages' => Connection::PARAM_STR_ARRAY])),
             $lastDays,
             (int) $this->connection->fetchOne(
                 'SELECT COUNT(package_id) FROM organization_package_download WHERE package_id IN (:packages)',
-                [':packages' => $packagesId],
-                [':packages' => Connection::PARAM_STR_ARRAY]
+                ['packages' => $packagesId],
+                ['packages' => Connection::PARAM_STR_ARRAY]
             )
         );
     }
@@ -132,9 +132,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             WHERE organization_id = :id
             ORDER BY email ASC
             LIMIT :limit OFFSET :offset', [
-            ':id' => $organizationId,
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'id' => $organizationId,
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ]));
     }
 
@@ -144,7 +144,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ->connection
             ->fetchOne(
                 'SELECT COUNT(*) FROM organization_invitation WHERE organization_id = :id',
-                [':id' => $organizationId]
+                ['id' => $organizationId]
             );
     }
 
@@ -166,9 +166,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             WHERE m.organization_id = :id
             ORDER BY u.email ASC
             LIMIT :limit OFFSET :offset', [
-            ':id' => $organizationId,
-            ':limit' => $filter->getLimit(),
-            ':offset' => $filter->getOffset(),
+            'id' => $organizationId,
+            'limit' => $filter->getLimit(),
+            'offset' => $filter->getOffset(),
         ]));
     }
 
@@ -178,7 +178,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ->connection
             ->fetchOne(
                 'SELECT COUNT(*) FROM organization_member WHERE organization_id = :id',
-                [':id' => $organizationId]
+                ['id' => $organizationId]
             );
     }
 
@@ -189,8 +189,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ->fetchOne(
                 'SELECT 1 FROM organization_member AS m JOIN "user" u ON u.id = m.user_id WHERE organization_id = :id AND u.email = :email',
                 [
-                    ':id' => $organizationId,
-                    ':email' => $email,
+                    'id' => $organizationId,
+                    'email' => $email,
                 ]
             );
     }
@@ -202,8 +202,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             ->fetchOne(
                 'SELECT 1 FROM organization_invitation WHERE organization_id = :id AND email = :email',
                 [
-                    ':id' => $organizationId,
-                    ':email' => $email,
+                    'id' => $organizationId,
+                    'email' => $email,
                 ]
             );
     }
@@ -218,8 +218,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
             FROM organization_token
             WHERE organization_id = :organization_id AND value = :value
             LIMIT 1', [
-            ':organization_id' => $organizationId,
-            ':value' => $value,
+            'organization_id' => $organizationId,
+            'value' => $value,
         ]);
 
         return $data === false ? Option::none() : Option::some($this->hydrateToken($data));
@@ -231,7 +231,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     private function hydrateOrganization(array $data): Organization
     {
         $members = $this->connection->fetchAllAssociative('SELECT m.user_id, m.role, u.email FROM organization_member m JOIN "user" u ON u.id = m.user_id WHERE m.organization_id = :id', [
-            ':id' => $data['id'],
+            'id' => $data['id'],
         ]);
 
         return new Organization(

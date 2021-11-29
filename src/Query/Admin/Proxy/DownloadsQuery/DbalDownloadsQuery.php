@@ -27,9 +27,9 @@ final class DbalDownloadsQuery implements DownloadsQuery
     {
         $packages = [];
         foreach ($this->connection->fetchAllAssociative('SELECT package, COUNT(package) AS downloads, MAX(date) AS date FROM proxy_package_download WHERE package IN (:packages) GROUP BY package ORDER BY package', [
-            ':packages' => $names,
+            'packages' => $names,
         ], [
-            ':packages' => Connection::PARAM_STR_ARRAY,
+            'packages' => Connection::PARAM_STR_ARRAY,
         ]) as $row) {
             $packages[$row['package']] = new Package(
                 $row['downloads'],
@@ -46,7 +46,7 @@ final class DbalDownloadsQuery implements DownloadsQuery
             array_map(function (array $row): Installs\Day {
                 return new Installs\Day(substr($row['date'], 0, 10), $row['count']);
             }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
-                ':date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             ])),
             $lastDays,
             (int) $this->connection->fetchOne('SELECT COUNT(*) FROM proxy_package_download')

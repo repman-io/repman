@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Migrations;
 
 use Buddy\Repman\Entity\Organization\Member;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use Ramsey\Uuid\Uuid;
@@ -22,7 +23,7 @@ final class Version20200429045703 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('ALTER TABLE organization_package ADD CONSTRAINT FK_13BAEFD632C8A3DE FOREIGN KEY (organization_id) REFERENCES organization (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE organization_token ADD CONSTRAINT FK_D1B047FC32C8A3DE FOREIGN KEY (organization_id) REFERENCES organization (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -52,7 +53,7 @@ final class Version20200429045703 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('ALTER TABLE organization_token DROP CONSTRAINT FK_D1B047FC32C8A3DE');
         $this->addSql('ALTER TABLE user_oauth_token DROP CONSTRAINT FK_712F82BFA76ED395');
