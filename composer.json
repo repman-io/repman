@@ -50,7 +50,7 @@
         "ramsey/uuid-doctrine": "^1.5",
         "react/http": "^1.0",
         "sensio/framework-extra-bundle": "^5.5",
-        "sentry/sentry-symfony": "^3.4",
+        "sentry/sentry-symfony": "^4.2",
         "stevenmaguire/oauth2-bitbucket": "^3.0",
         "symfony/amazon-mailer": "5.3.*",
         "symfony/asset": "5.3.*",
