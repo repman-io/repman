@@ -3,6 +3,7 @@ includes:
 parameters:
     level: max
     reportMaybesInPropertyPhpDocTypes: false
+    checkExplicitMixed: false
     ignoreErrors:
         -
             message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
@@ -16,11 +17,6 @@ parameters:
 
         -
             message: "#^Variable property access on DateInterval\\.$#"
-            count: 1
-            path: src/Service/Twig/DateExtension.php
-
-        -
-            message: "#^Only booleans are allowed in a ternary operator condition, int given\\.$#"
             count: 1
             path: src/Service/Twig/DateExtension.php
         -
@@ -43,9 +39,8 @@ parameters:
             count: 1
             path: src/Service/Downloader/ReactDownloader.php
         -
-            message: "#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\:\\:getFlashBag\\(\\)\\.$#"
+            message: "#^Service \"[.a-zA-Z\\\\]+\" is private\\.$#"
             paths:
-                - src/
                 - tests/
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions

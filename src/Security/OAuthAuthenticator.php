@@ -16,6 +16,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -42,7 +43,10 @@ abstract class OAuthAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        $request->getSession()->getFlashBag()->add('danger', strtr($exception->getMessageKey(), $exception->getMessageData()));
+        /** @var Session $session */
+        $session = $request->getSession();
+
+        $session->getFlashBag()->add('danger', strtr($exception->getMessageKey(), $exception->getMessageData()));
 
         return new RedirectResponse($this->router->generate('app_login'));
     }

@@ -131,7 +131,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
 
     public function getUserIdentifier(): string
     {
-        return $this->getUsername();
+        return $this->email;
     }
 
     public function eraseCredentials(): void
@@ -146,7 +146,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
             return false;
         }
 
-        if ($this->getUsername() !== $user->getUsername()) {
+        if ($this->getUserIdentifier() !== $user->getUserIdentifier()) {
             return false;
         }
 

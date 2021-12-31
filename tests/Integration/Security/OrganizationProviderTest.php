@@ -24,13 +24,13 @@ final class OrganizationProviderTest extends IntegrationTestCase
         self::assertTrue($provider->supportsClass(Organization::class));
 
         /** @var Organization $organization */
-        $organization = $this->container()->get(OrganizationProvider::class)->loadUserByUsername('org1-token');
+        $organization = $this->container()->get(OrganizationProvider::class)->loadUserByIdentifier('org1-token');
 
         self::assertEquals('buddy', $organization->name());
         self::assertEquals($org1Id, $organization->id());
         self::assertEquals('org1-token', $organization->getPassword());
         self::assertEquals('', $organization->getSalt());
-        self::assertEquals('buddy', $organization->getUsername());
+        self::assertEquals('buddy', $organization->getUserIdentifier());
 
         self::assertEquals($organization, $provider->refreshUser($organization));
 

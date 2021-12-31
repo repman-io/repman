@@ -156,6 +156,6 @@ class DateExtension extends AbstractExtension
             $unit .= 's';
         }
 
-        return $invert ? "in $count $unit" : "$count $unit ago";
+        return $invert === 1 ? "in $count $unit" : "$count $unit ago";
     }
 }
