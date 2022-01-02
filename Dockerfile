@@ -46,6 +46,9 @@ RUN printf "Host *\n    StrictHostKeyChecking no" > /etc/ssh/ssh_config
 RUN mkdir /app
 WORKDIR /app
 
+# Switch to unprivileged user
+USER repman
+
 COPY . .
 
 ENV APP_ENV=prod
