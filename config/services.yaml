@@ -51,6 +51,7 @@ services:
             - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
             - '%env(STORAGE_AWS_KEY)%'
             - '%env(STORAGE_AWS_SECRET)%'
+            - '%env(STORAGE_AWS_ENDPOINT)%'
 
     Aws\S3\S3Client:
         lazy: true
