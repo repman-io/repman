@@ -19,6 +19,7 @@ parameters:
     security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
     instance_id_file: '%kernel.project_dir%/var/instance-id'
     kernel_version: !php/const Buddy\Repman\Kernel::REPMAN_VERSION
+    storage.aws.endpoint: ~
 
 services:
     # default configuration for services in *this* file
@@ -51,7 +52,7 @@ services:
             - '%env(bool:STORAGE_AWS_OPAQUE_AUTH)%'
             - '%env(STORAGE_AWS_KEY)%'
             - '%env(STORAGE_AWS_SECRET)%'
-            - '%env(STORAGE_AWS_ENDPOINT)%'
+            - '%env(default:storage.aws.endpoint:STORAGE_AWS_ENDPOINT)%'
 
     Aws\S3\S3Client:
         lazy: true
