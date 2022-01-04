@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\Aws;
 use Aws\Credentials\Credentials;
 use Buddy\Repman\Service\Integration\Aws\S3AdapterFactory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriInterface;
 
 class S3AdapterFactoryTest extends TestCase
 {
@@ -35,6 +36,26 @@ class S3AdapterFactoryTest extends TestCase
         $creds = $instance->getCredentials()->wait();
         self::assertSame('mykey', $creds->getAccessKeyId());
         self::assertSame('secret', $creds->getSecretKey());
+    }
+
+    public function testCreateWithoutEndpoint(): void
+    {
+        $factory = new S3AdapterFactory('eu-east-1', true, 'mykey', 'secret');
+
+        $instance = $factory->create();
+        $endpoint = $instance->getEndpoint();
+
+        self::assertSame($endpoint->getHost(), 's3.eu-east-1.amazonaws.com');
+    }
+
+    public function testCreateWithEndpoint(): void
+    {
+        $factory = new S3AdapterFactory('eu-east-1', true, 'mykey', 'secret', 'https://s3.example.com');
+
+        $instance = $factory->create();
+        $endpoint = $instance->getEndpoint();
+
+        self::assertSame($endpoint->getHost(), 's3.example.com');
     }
 
     /**
