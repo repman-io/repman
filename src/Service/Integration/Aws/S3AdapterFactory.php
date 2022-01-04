@@ -18,8 +18,13 @@ final class S3AdapterFactory
 
     private ?string $endpoint;
 
-    public function __construct(string $region, bool $isOpaqueAuth, ?string $key = null, ?string $secret = null, ?string $endpoint = null)
-    {
+    public function __construct(
+        string $region,
+        bool $isOpaqueAuth,
+        ?string $key = null,
+        ?string $secret = null,
+        ?string $endpoint = null
+    ) {
         $this->region = $region;
         $this->isOpaqueAuth = $isOpaqueAuth;
         $this->endpoint = $endpoint;

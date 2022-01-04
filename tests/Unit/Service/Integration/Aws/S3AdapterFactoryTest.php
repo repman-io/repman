@@ -7,7 +7,6 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\Aws;
 use Aws\Credentials\Credentials;
 use Buddy\Repman\Service\Integration\Aws\S3AdapterFactory;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\UriInterface;
 
 class S3AdapterFactoryTest extends TestCase
 {
@@ -50,7 +49,13 @@ class S3AdapterFactoryTest extends TestCase
 
     public function testCreateWithEndpoint(): void
     {
-        $factory = new S3AdapterFactory('eu-east-1', true, 'mykey', 'secret', 'https://s3.example.com');
+        $factory = new S3AdapterFactory(
+            'eu-east-1',
+            true,
+            'mykey',
+            'secret',
+            'https://s3.example.com'
+        );
 
         $instance = $factory->create();
         $endpoint = $instance->getEndpoint();
