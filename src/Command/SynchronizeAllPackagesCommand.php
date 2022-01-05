@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Entity\Organization;
-use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Repository\OrganizationRepository;
-use Buddy\Repman\Repository\PackageRepository;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -61,7 +58,6 @@ final class SynchronizeAllPackagesCommand extends Command
     }
 
     /**
-     * @param string|null $organizationAlias
      * @return Organization[]
      */
     protected function getOrganizationsToSync(?string $organizationAlias): array
