@@ -13,13 +13,13 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 final class RepoController extends AbstractController
 {
@@ -41,32 +41,42 @@ final class RepoController extends AbstractController
      * @Route("/packages.json", host="{organization}{sep1}repo{sep2}{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"}, requirements={"domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
      * @Cache(public=false)
      */
-    public function packages(Request $request, Organization $organization): JsonResponse
+    public function packages(Request $request, Organization $organization): Response
     {
         $packageNames = $this->packageQuery->getAllNames($organization->id());
-        [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $packageNames);
+        [$lastModified, $loader] = $this->packageManager->findProviders($organization->alias(), $packageNames);
 
-        $response = (new JsonResponse([
-            'packages' => $packages,
-            'available-packages' => array_map(static fn (PackageName $packageName) => $packageName->name(), $packageNames),
-            'metadata-url' => '/p2/%package%.json',
-            'notify-batch' => $this->generateUrl('repo_package_downloads', [
-                'organization' => $organization->alias(),
-            ], UrlGeneratorInterface::ABSOLUTE_URL),
-            'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
-            'mirrors' => [
-                [
-                    'dist-url' => $this->generateUrl(
-                        'organization_repo_url',
-                        ['organization' => $organization->alias()],
-                        RouterInterface::ABSOLUTE_URL
-                    ).'dists/%package%/%version%/%reference%.%type%',
-                    'preferred' => true,
+        $response = (new StreamedResponse(function () use ($organization, $packageNames, $loader): void {
+            $outputStream = \fopen('php://output', 'wb');
+            if (false === $outputStream) {
+                throw new HttpException(500, 'Could not open output stream to send binary file.'); // @codeCoverageIgnore
+            }
+
+            \fwrite($outputStream, ' ');
+            \flush();
+            \fwrite($outputStream, (string) \json_encode([
+                'packages' => $loader(),
+                'available-packages' => array_map(static fn (PackageName $packageName) => $packageName->name(), $packageNames),
+                'metadata-url' => '/p2/%package%.json',
+                'providers-url' => '/p2/%package%.json',
+                'notify-batch' => $this->generateUrl('repo_package_downloads', [
+                    'organization' => $organization->alias(),
+                ], UrlGeneratorInterface::ABSOLUTE_URL),
+                'search' => 'https://packagist.org/search.json?q=%query%&type=%type%',
+                'mirrors' => [
+                    [
+                        'dist-url' => $this->generateUrl(
+                                'organization_repo_url',
+                                ['organization' => $organization->alias()],
+                                UrlGeneratorInterface::ABSOLUTE_URL
+                            ).'dists/%package%/%version%/%reference%.%type%',
+                        'preferred' => true,
+                    ],
                 ],
-            ],
-        ]))
-        ->setPrivate()
-        ->setLastModified($lastModified);
+            ], JsonResponse::DEFAULT_ENCODING_OPTIONS));
+        }, Response::HTTP_OK, ['Content-Type' => 'application/json', 'X-Accel-Buffering' => 'no']))
+            ->setLastModified($lastModified)
+            ->setPrivate();
 
         $response->isNotModified($request);
 
@@ -149,18 +159,27 @@ final class RepoController extends AbstractController
      *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
      * @Cache(public=false)
      */
-    public function providerV2(Request $request, Organization $organization, string $package): JsonResponse
+    public function providerV2(Request $request, Organization $organization, string $package): Response
     {
-        [$lastModified, $providerData] = $this->packageManager->findProviders(
+        [$lastModified, $loader] = $this->packageManager->findProviders(
             $organization->alias(),
             [new PackageName('', $package)]
         );
 
-        if ($providerData === []) {
+        if ($lastModified === null) {
             throw new NotFoundHttpException();
         }
 
-        $response = (new JsonResponse($providerData))
+        $response = (new StreamedResponse(function () use ($loader): void {
+            $outputStream = \fopen('php://output', 'wb');
+            if (false === $outputStream) {
+                throw new HttpException(500, 'Could not open output stream to send binary file.'); // @codeCoverageIgnore
+            }
+
+            \fwrite($outputStream, ' ');
+            \flush();
+            \fwrite($outputStream, (string) \json_encode($loader(), JsonResponse::DEFAULT_ENCODING_OPTIONS));
+        }, Response::HTTP_OK, ['Content-Type' => 'application/json', 'X-Accel-Buffering' => 'no']))
             ->setLastModified($lastModified)
             ->setPrivate();
 

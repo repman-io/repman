@@ -53,7 +53,7 @@ final class PackageManagerTest extends TestCase
                 'reference' => 'ac7dcaf888af2324cd14200769362129c8dd8550',
             ],
             'version_normalized' => '1.2.3.0',
-        ]]], $providers);
+        ]]], $providers());
     }
 
     public function testReturnDistributionFilenameWhenExist(): void

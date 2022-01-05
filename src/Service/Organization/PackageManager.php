@@ -28,12 +28,12 @@ class PackageManager
     /**
      * @param PackageName[] $packages
      *
-     * @return array{\DateTimeImmutable|null, mixed[]}
+     * @return array{\DateTimeImmutable|null, callable(): mixed[]}
      */
     public function findProviders(string $organizationAlias, array $packages): array
     {
-        $data = [];
         $lastModified = null;
+        $filepaths = [];
 
         foreach ($packages as $package) {
             $filepath = $this->filepath($organizationAlias, $package->name());
@@ -47,15 +47,22 @@ class PackageManager
                 $lastModified = $fileModifyDate;
             }
 
-            $json = \unserialize(
-                (string) $this->repoFilesystem->read($filepath), ['allowed_classes' => false]
-            );
-            $data[] = $json['packages'] ?? [];
+            $filepaths[] = $filepath;
         }
+
+        $loader = function () use ($filepaths): array {
+            $data = [];
+            foreach ($filepaths as $filepath) {
+                $json = \unserialize((string) $this->repoFilesystem->read($filepath), ['allowed_classes' => false]);
+                $data[] = $json['packages'] ?? [];
+            }
+
+            return \array_merge(...$data);
+        };
 
         return [
             $lastModified,
-            \array_merge(...$data),
+            $loader,
         ];
     }
 
