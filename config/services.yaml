@@ -22,7 +22,7 @@ parameters:
     storage.aws.endpoint: ~ # Default to null
     storage.aws.key: ~
     storage.aws.secret: ~
-    storage.aws.opaque_auth: false # Default to true
+    storage.aws.opaque_auth: false # Default to false
 
 services:
     # default configuration for services in *this* file
