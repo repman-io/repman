@@ -4,7 +4,7 @@ ARG TIMEZONE="UTC"
 
 SHELL ["sh", "-eo", "pipefail", "-c"]
 
-# install composer and extensions: pdo_pgsql, intl, zip
+# install composer and extensions: pdo_pgsql, redis, intl, zip
 RUN apk update && \
     apk add --no-cache -q \
     $PHPIZE_DEPS \
@@ -17,6 +17,8 @@ RUN apk update && \
     icu-dev \
     libzip-dev \
     openssh-client \
+    && pecl install \
+    redis \
     && \
     curl -sS https://getcomposer.org/installer | \
     php -- --install-dir=/usr/local/bin --filename=composer && \
@@ -26,6 +28,7 @@ RUN apk update && \
     docker-php-ext-install pdo_pgsql && \
     docker-php-ext-install intl && \
     docker-php-ext-install zip && \
+    docker-php-ext-enable redis.so && \
     rm -rf /var/cache/apk/*
 
 # set timezone

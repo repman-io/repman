@@ -8,8 +8,8 @@ framework:
         failure_transport: failed
 
         transports:
-            async: 'doctrine://default?auto_setup=false'
-            failed: 'doctrine://default?queue_name=failed&auto_setup=false'
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+            failed: '%env(MESSENGER_TRANSPORT_FAILED_DSN)%'
 
         routing:
             'Buddy\Repman\Message\Organization\SynchronizePackage': async

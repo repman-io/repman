@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7631696c61c53f4b9bb71444acb03d6e",
+    "content-hash": "c3d383497c2cadc746746951f9d06538",
     "packages": [
         {
             "name": "async-aws/core",
@@ -11770,16 +11770,16 @@
         },
         {
             "name": "symfony/redis-messenger",
-            "version": "v5.3.10",
+            "version": "v5.3.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/redis-messenger.git",
-                "reference": "94ba9b20a7f2b28ec9e93823d7912ced0108b398"
+                "reference": "56626720a8802ca3bb8303f5ba2115bde21dec74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/redis-messenger/zipball/94ba9b20a7f2b28ec9e93823d7912ced0108b398",
-                "reference": "94ba9b20a7f2b28ec9e93823d7912ced0108b398",
+                "url": "https://api.github.com/repos/symfony/redis-messenger/zipball/56626720a8802ca3bb8303f5ba2115bde21dec74",
+                "reference": "56626720a8802ca3bb8303f5ba2115bde21dec74",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -11823,7 +11823,7 @@
             "description": "Symfony Redis extension Messenger Bridge",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/redis-messenger/tree/v5.3.10"
+                "source": "https://github.com/symfony/redis-messenger/tree/v5.3.13"
             },
             "funding": [
                 {
@@ -11839,7 +11839,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-10-25T14:58:02+00:00"
+            "time": "2021-12-28T17:08:14+00:00"
         },
         {
             "name": "symfony/routing",
@@ -17318,5 +17318,5 @@
         "ext-zip": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
