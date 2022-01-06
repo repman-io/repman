@@ -37,6 +37,32 @@ class S3AdapterFactoryTest extends TestCase
         self::assertSame('secret', $creds->getSecretKey());
     }
 
+    public function testCreateWithoutEndpoint(): void
+    {
+        $factory = new S3AdapterFactory('eu-east-1', true, 'mykey', 'secret');
+
+        $instance = $factory->create();
+        $endpoint = $instance->getEndpoint();
+
+        self::assertSame($endpoint->getHost(), 's3.eu-east-1.amazonaws.com');
+    }
+
+    public function testCreateWithEndpoint(): void
+    {
+        $factory = new S3AdapterFactory(
+            'eu-east-1',
+            true,
+            'mykey',
+            'secret',
+            'https://s3.example.com'
+        );
+
+        $instance = $factory->create();
+        $endpoint = $instance->getEndpoint();
+
+        self::assertSame($endpoint->getHost(), 's3.example.com');
+    }
+
     /**
      * @return array<string, array<string, ?string>>
      */
