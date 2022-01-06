@@ -42,6 +42,21 @@ parameters:
             message: "#^Service \"[.a-zA-Z\\\\]+\" is private\\.$#"
             paths:
                 - tests/
+        -
+            message: """
+                    #^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\User\\:
+                    since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+                """
+            count: 1
+            path: tests/Unit/Security/Model/UserTest.php
+        -
+            message: """
+                    #^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\Organization\\:
+                    since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+                """
+            count: 1
+            path: tests/Unit/Security/Model/OrganizationTest.php
+
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:

@@ -32,4 +32,9 @@ final class UserTest extends TestCase
         self::assertFalse($this->user->isEqualTo(UserMother::withRoles(['ROLE_ADMIN'])));
         self::assertFalse($this->user->isEqualTo(new Organization('id', 'name', 'alias', 'token')));
     }
+
+    public function testGetUsername(): void
+    {
+        self::assertSame('test@repman.io', $this->user->getUsername());
+    }
 }
