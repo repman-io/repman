@@ -59,10 +59,8 @@ class Trigger
             throw new \RuntimeException('Can not change hook type');
         }
 
-        if (!in_array($type, self::TRIGGER_TYPES)) {
-            throw new \RuntimeException(
-                sprintf('Hook Type %s does not exist. Available Hook Types are %s', $type, implode(', ', self::TRIGGER_TYPES))
-            );
+        if (!in_array($type, self::TRIGGER_TYPES, true)) {
+            throw new \RuntimeException(sprintf('Hook Type %s does not exist. Available Hook Types are %s', $type, implode(', ', self::TRIGGER_TYPES)));
         }
 
         $this->type = $type;
