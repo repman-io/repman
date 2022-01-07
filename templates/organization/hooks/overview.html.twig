@@ -1,7 +1,36 @@
 {% extends 'base.html.twig' %}
 
+{% block header_btn %}
+    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+        <a href="{{ url('organization_package_new', {"organization":organization.alias}) }}" class="btn btn-success">
+            {% include 'svg/plus-square.svg' %} Add Webhook
+        </a>
+    {% endif %}
+{% endblock %}
 {% block header %}Webhooks for {{ organization.name }}{% endblock %}
 
 {% block content %}
-    <h3>Webhooks!</h3>
+<div class="markdown">
+    <table class="table">
+        <thead>
+        <tr>
+            <th colspan="4">Organization hooks</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for hook in hooks %}
+            <tr>
+                <td colspan="3"><b>{{ hook.url }}</b><br>{% for trigger in hook.triggers %}<code>{{ trigger.type }}</code>{% endfor %}</td>
+                <td colspan="1">
+                    {% include 'component/hookActions.html.twig' %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No webooks configured for {{ organization.name }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

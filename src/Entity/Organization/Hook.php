@@ -35,6 +35,16 @@ class Hook
      */
     private Collection $triggers;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private string $url;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private string $secret;
+
     public function __construct(
         UuidInterface $id
     ) {
@@ -72,5 +82,37 @@ class Hook
                 $this->triggers->removeElement($trigger);
             }
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function url(): string
+    {
+        return $this->url;
+    }
+
+    /**
+     * @param string $url
+     */
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function secret(): string
+    {
+        return $this->secret;
+    }
+
+    /**
+     * @param string $secret
+     */
+    public function setSecret(string $secret): void
+    {
+        $this->secret = $secret;
     }
 }

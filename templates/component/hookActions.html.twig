@@ -1,0 +1,15 @@
+{% set currentPath = app.request.get('_route') %}
+<span class="dropdown ml-1">
+    <button class="btn btn-secondary dropdown-toggle" data-toggle="dropdown">Actions</button>
+    <div class="dropdown-menu">
+            <a
+                class="dropdown-item"
+                data-target="confirmation"
+                data-action="{{ path('organization_package_remove', {organization: organization.alias, package: hook.id }) }}"
+                data-method="DELETE"
+                href="#"
+            >
+                {% include 'svg/trash.svg' %} Remove
+            </a>
+    </div>
+</span>
