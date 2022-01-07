@@ -28,15 +28,20 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class UserController extends AbstractController
 {
     private UserQuery $userQuery;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(UserQuery $userQuery)
-    {
+    public function __construct(
+        UserQuery $userQuery,
+        MessageBusInterface $messageBus
+    ) {
         $this->userQuery = $userQuery;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -56,14 +61,14 @@ final class UserController extends AbstractController
             'action' => $this->generateUrl('user_email_preferences'),
         ]);
 
-        $timezoneForm = $this->createForm(ChangeTimeZoneType::class, [
+        $timezoneForm = $this->createForm(ChangeTimezoneType::class, [
             'timezone' => $this->getUser()->timezone(),
         ]);
         $timezoneForm->handleRequest($request);
 
         if ($timezoneForm->isSubmitted() && $timezoneForm->isValid()) {
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-            $this->dispatchMessage(new ChangeTimezone(
+            $this->messageBus->dispatch(new ChangeTimezone(
                 $this->getUser()->id(),
                 $timezoneForm->get('timezone')->getData())
             );
@@ -75,7 +80,7 @@ final class UserController extends AbstractController
         if ($passwordForm->isSubmitted() && $passwordForm->isValid()) {
             $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-            $this->dispatchMessage(new ChangePassword(
+            $this->messageBus->dispatch(new ChangePassword(
                 $this->getUser()->id(),
                 $passwordForm->get('plainPassword')->getData()
             ));
@@ -102,7 +107,7 @@ final class UserController extends AbstractController
         $emailPreferencesForm = $this->createForm(ChangeEmailPreferencesType::class);
         $emailPreferencesForm->handleRequest($request);
 
-        $this->dispatchMessage(new ChangeEmailPreferences(
+        $this->messageBus->dispatch(new ChangeEmailPreferences(
             $this->getUser()->id(),
             $emailPreferencesForm->get('emailScanResult')->getData()
         ));
@@ -117,7 +122,7 @@ final class UserController extends AbstractController
     public function remove(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->dispatchMessage(new RemoveUser($this->getUser()->id()));
+        $this->messageBus->dispatch(new RemoveUser($this->getUser()->id()));
         $this->addFlash('success', 'User has been successfully removed');
 
         return $this->redirectToRoute('index');
@@ -129,7 +134,7 @@ final class UserController extends AbstractController
     public function resendVerificationEmail(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->dispatchMessage(new SendConfirmToken(
+        $this->messageBus->dispatch(new SendConfirmToken(
             $this->getUser()->email(),
             $this->getUser()->emailConfirmToken()
         ));
@@ -144,7 +149,7 @@ final class UserController extends AbstractController
     public function removeOAuthToken(string $type): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        $this->dispatchMessage(new RemoveOAuthToken($this->getUser()->id(), $type));
+        $this->messageBus->dispatch(new RemoveOAuthToken($this->getUser()->id(), $type));
         $this->addFlash('success', sprintf('%s has been successfully unlinked.', \ucfirst($type)));
 
         return $this->redirectToRoute('user_profile');
@@ -177,7 +182,7 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new GenerateApiToken(
+            $this->messageBus->dispatch(new GenerateApiToken(
                 $this->getUser()->id(),
                 $name = $form->get('name')->getData()
             ));
@@ -199,7 +204,7 @@ final class UserController extends AbstractController
      */
     public function regenerateApiToken(string $token): Response
     {
-        $this->dispatchMessage(new RegenerateApiToken($this->getUser()->id(), $token));
+        $this->messageBus->dispatch(new RegenerateApiToken($this->getUser()->id(), $token));
 
         $this->addFlash('success', 'API token has been successfully regenerated');
 
@@ -213,7 +218,7 @@ final class UserController extends AbstractController
      */
     public function removeApiToken(string $token): Response
     {
-        $this->dispatchMessage(new RemoveApiToken($this->getUser()->id(), $token));
+        $this->messageBus->dispatch(new RemoveApiToken($this->getUser()->id(), $token));
 
         $this->addFlash('success', 'API token has been successfully removed');
 
@@ -237,12 +242,12 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new CreateOrganization(
+            $this->messageBus->dispatch(new CreateOrganization(
                 $id = Uuid::uuid4()->toString(),
                 $this->getUser()->id(),
                 $name = $form->get('name')->getData()
             ));
-            $this->dispatchMessage(new GenerateToken($id, 'default'));
+            $this->messageBus->dispatch(new GenerateToken($id, 'default'));
 
             $this->addFlash('success', sprintf('Organization "%s" has been created', $name));
 
