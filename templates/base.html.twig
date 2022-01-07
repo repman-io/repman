@@ -70,6 +70,13 @@
                                             <span class="d-none d-sm-block">Members</span>
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link {{ current_route == 'organization_hooks' ? 'active' : '' }}" href="{{ path('organization_hooks', {"organization":organization.alias}) }}">
+                                            {# TODO: Add webooks icon #}
+                                            <span class="nav-icon">{% include 'svg/briefcase.svg' %}</span>
+                                            <span class="d-none d-sm-block">Webooks</span>
+                                        </a>
+                                    </li>
                                 {% endif %}
                                 {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
                                     <li class="nav-item">
