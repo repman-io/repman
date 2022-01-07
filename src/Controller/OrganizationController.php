@@ -39,17 +39,23 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
     private PackageQuery $packageQuery;
     private OrganizationQuery $organizationQuery;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(PackageQuery $packageQuery, OrganizationQuery $organizationQuery)
-    {
+    public function __construct(
+        PackageQuery $packageQuery,
+        OrganizationQuery $organizationQuery,
+        MessageBusInterface $messageBus
+    ) {
         $this->packageQuery = $packageQuery;
         $this->organizationQuery = $organizationQuery;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -94,7 +100,7 @@ final class OrganizationController extends AbstractController
     {
         $this->tryToRemoveWebhook($package);
 
-        $this->dispatchMessage(new RemovePackage(
+        $this->messageBus->dispatch(new RemovePackage(
             $package->id(),
             $organization->id()
         ));
@@ -160,13 +166,13 @@ final class OrganizationController extends AbstractController
         if ($request->isMethod(Request::METHOD_POST)) {
             switch ($package->type()) {
                 case 'github-oauth':
-                    $this->dispatchMessage(new AddGitHubHook($package->id()));
+                    $this->messageBus->dispatch(new AddGitHubHook($package->id()));
                     break;
                 case 'gitlab-oauth':
-                    $this->dispatchMessage(new AddGitLabHook($package->id()));
+                    $this->messageBus->dispatch(new AddGitLabHook($package->id()));
                     break;
                 case 'bitbucket-oauth':
-                    $this->dispatchMessage(new AddBitbucketHook($package->id()));
+                    $this->messageBus->dispatch(new AddBitbucketHook($package->id()));
                     break;
             }
             $this->addFlash('success', sprintf('Webhook for "%s" will be synchronized in background.', $package->name()));
@@ -190,7 +196,7 @@ final class OrganizationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new GenerateToken(
+            $this->messageBus->dispatch(new GenerateToken(
                 $organization->id(),
                 $name = $form->get('name')->getData()
             ));
@@ -226,7 +232,7 @@ final class OrganizationController extends AbstractController
      */
     public function regenerateToken(Organization $organization, Token $token): Response
     {
-        $this->dispatchMessage(new RegenerateToken(
+        $this->messageBus->dispatch(new RegenerateToken(
             $organization->id(),
             $token->value()
         ));
@@ -241,7 +247,7 @@ final class OrganizationController extends AbstractController
      */
     public function removeToken(Organization $organization, Token $token): Response
     {
-        $this->dispatchMessage(new RemoveToken(
+        $this->messageBus->dispatch(new RemoveToken(
             $organization->id(),
             $token->value()
         ));
@@ -260,7 +266,7 @@ final class OrganizationController extends AbstractController
         $renameForm = $this->createForm(ChangeNameType::class, ['name' => $organization->name()]);
         $renameForm->handleRequest($request);
         if ($renameForm->isSubmitted() && $renameForm->isValid()) {
-            $this->dispatchMessage(new ChangeName($organization->id(), $renameForm->get('name')->getData()));
+            $this->messageBus->dispatch(new ChangeName($organization->id(), $renameForm->get('name')->getData()));
             $this->addFlash('success', 'Organization name been successfully changed.');
 
             return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
@@ -269,7 +275,7 @@ final class OrganizationController extends AbstractController
         $aliasForm = $this->createForm(ChangeAliasType::class, ['alias' => $organization->alias()]);
         $aliasForm->handleRequest($request);
         if ($aliasForm->isSubmitted() && $aliasForm->isValid()) {
-            $this->dispatchMessage(new ChangeAlias($organization->id(), $aliasForm->get('alias')->getData()));
+            $this->messageBus->dispatch(new ChangeAlias($organization->id(), $aliasForm->get('alias')->getData()));
             $this->addFlash('success', 'Organization alias has been successfully changed.');
 
             return $this->redirectToRoute('organization_settings', ['organization' => $aliasForm->get('alias')->getData()]);
@@ -278,7 +284,7 @@ final class OrganizationController extends AbstractController
         $anonymousAccessForm = $this->createForm(ChangeAnonymousAccessType::class, ['hasAnonymousAccess' => $organization->hasAnonymousAccess()]);
         $anonymousAccessForm->handleRequest($request);
         if ($anonymousAccessForm->isSubmitted() && $anonymousAccessForm->isValid()) {
-            $this->dispatchMessage(new ChangeAnonymousAccess($organization->id(), $anonymousAccessForm->get('hasAnonymousAccess')->getData()));
+            $this->messageBus->dispatch(new ChangeAnonymousAccess($organization->id(), $anonymousAccessForm->get('hasAnonymousAccess')->getData()));
             $this->addFlash('success', 'Anonymous access has been successfully changed.');
 
             return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
@@ -304,7 +310,7 @@ final class OrganizationController extends AbstractController
             $offset += $limit;
         }
 
-        $this->dispatchMessage(new RemoveOrganization($organization->id()));
+        $this->messageBus->dispatch(new RemoveOrganization($organization->id()));
         $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));
 
         return $this->redirectToRoute('index');
@@ -329,7 +335,7 @@ final class OrganizationController extends AbstractController
      */
     public function scanPackage(Organization $organization, Package $package): Response
     {
-        $this->dispatchMessage(new ScanPackage($package->id()));
+        $this->messageBus->dispatch(new ScanPackage($package->id()));
 
         $this->addFlash('success', 'Package will be scanned in the background');
 
@@ -358,13 +364,13 @@ final class OrganizationController extends AbstractController
             try {
                 switch ($package->type()) {
                     case 'github-oauth':
-                        $this->dispatchMessage(new RemoveGitHubHook($package->id()));
+                        $this->messageBus->dispatch(new RemoveGitHubHook($package->id()));
                         break;
                     case 'gitlab-oauth':
-                        $this->dispatchMessage(new RemoveGitLabHook($package->id()));
+                        $this->messageBus->dispatch(new RemoveGitLabHook($package->id()));
                         break;
                     case 'bitbucket-oauth':
-                        $this->dispatchMessage(new RemoveBitbucketHook($package->id()));
+                        $this->messageBus->dispatch(new RemoveBitbucketHook($package->id()));
                         break;
                 }
             } catch (HandlerFailedException $exception) {
