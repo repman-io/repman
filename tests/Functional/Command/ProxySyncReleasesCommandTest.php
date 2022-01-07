@@ -9,12 +9,13 @@ use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
-use Symfony\Component\Lock\Store\PdoStore;
+use Symfony\Component\Lock\Store\DoctrineDbalStore;
 
 final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 {
@@ -108,9 +109,9 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 
     private function lockFactory(): LockFactory
     {
-        /** @var \PDO */
+        /** @var Connection */
         $connection = self::$kernel->getContainer()->get('doctrine')->getConnection();
 
-        return new LockFactory(new PdoStore($connection));
+        return new LockFactory(new DoctrineDbalStore($connection));
     }
 }
