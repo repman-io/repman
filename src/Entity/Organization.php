@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use Buddy\Repman\Entity\Organization\Hook;
 use Buddy\Repman\Entity\Organization\Invitation;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
@@ -66,6 +67,12 @@ class Organization
     private Collection $members;
 
     /**
+     * @var Collection<int,Hook>|Hook[]
+     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Hook", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     */
+    private Collection $hooks;
+
+    /**
      * @ORM\Column(type="boolean", options={"default": false})
      */
     private bool $hasAnonymousAccess = false;
@@ -80,6 +87,7 @@ class Organization
         $this->tokens = new ArrayCollection();
         $this->invitations = new ArrayCollection();
         $this->members = new ArrayCollection();
+        $this->hooks = new ArrayCollection();
         $this->members->add($member = new Member(Uuid::uuid4(), $owner, $this, Member::ROLE_OWNER));
         $owner->addMembership($member);
     }
@@ -266,5 +274,24 @@ class Organization
         $lastOwner = $owners->first();
 
         return $lastOwner->userId()->equals($user->id());
+    }
+
+    public function addHook(Hook $hook): void
+    {
+        if ($this->hooks->contains($hook)) {
+            return;
+        }
+
+        $hook->setOrganization($this);
+        $this->hooks->add($hook);
+    }
+
+    public function removeHook(string $uuid): void
+    {
+        foreach ($this->hooks as $hook) {
+            if ($hook->isEqual($uuid)) {
+                $this->hooks->removeElement($hook);
+            }
+        }
     }
 }
