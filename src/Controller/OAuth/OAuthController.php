@@ -19,18 +19,25 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 abstract class OAuthController extends AbstractController
 {
     protected UserGuardHelper $guard;
     protected ClientRegistry $oauth;
     private Config $config;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(UserGuardHelper $guard, ClientRegistry $oauth, Config $config)
-    {
+    public function __construct(
+        UserGuardHelper $guard,
+        ClientRegistry $oauth,
+        Config $config,
+        MessageBusInterface $messageBus
+    ) {
         $this->guard = $guard;
         $this->oauth = $oauth;
         $this->config = $config;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -46,7 +53,7 @@ abstract class OAuthController extends AbstractController
             $email = $emailProvider();
             $params = [];
             if (!$this->guard->userExists($email)) {
-                $this->dispatchMessage(new CreateOAuthUser($email));
+                $this->messageBus->dispatch(new CreateOAuthUser($email));
                 $this->addFlash('success', 'Your account has been created. Please create a new organization.');
                 $params['origin'] = $type;
             } else {
@@ -71,7 +78,7 @@ abstract class OAuthController extends AbstractController
         try {
             /** @var AccessToken $token */
             $token = $tokenProvider();
-            $this->dispatchMessage(
+            $this->messageBus->dispatch(
                 new AddOAuthToken(
                     Uuid::uuid4()->toString(),
                     $user->id(),
