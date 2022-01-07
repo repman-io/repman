@@ -12,10 +12,8 @@ use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
 use Buddy\Repman\Tests\MotherObject\Security\UserMother;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\NullToken;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 final class OrganizationVoterTest extends TestCase
