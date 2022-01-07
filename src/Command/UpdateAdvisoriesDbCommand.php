@@ -36,7 +36,7 @@ final class UpdateAdvisoriesDbCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->checker->update()) {
             $this->scanCommand->execute(new ArrayInput([]), new NullOutput());

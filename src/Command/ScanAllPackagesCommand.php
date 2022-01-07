@@ -43,7 +43,7 @@ final class ScanAllPackagesCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $count = $this->packageQuery->getAllSynchronizedCount();
         $limit = 50;
