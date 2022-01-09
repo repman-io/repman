@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b988e4e2cb3120d4cfc47e95e68994fb",
+    "content-hash": "0cde00da873c17994fc173205b392369",
     "packages": [
         {
             "name": "async-aws/core",
@@ -14435,9 +14435,6 @@
             },
             "require": {
                 "php": "^7.1 || ^8.0"
-            },
-            "replace": {
-                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",
