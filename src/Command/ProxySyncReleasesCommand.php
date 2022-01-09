@@ -111,7 +111,7 @@ final class ProxySyncReleasesCommand extends Command
 
         $xml = @simplexml_load_string((string) stream_get_contents($stream));
         if ($xml === false) {
-            throw new \RunTimeException('Unable to parse RSS feed');
+            throw new \RuntimeException('Unable to parse RSS feed');
         }
 
         return $xml;

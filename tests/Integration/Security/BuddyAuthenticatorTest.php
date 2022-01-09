@@ -10,6 +10,7 @@ use Buddy\Repman\Service\Integration\BuddyApi\BuddyApiException;
 use Buddy\Repman\Tests\Doubles\BuddyOAuth;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 
@@ -23,7 +24,10 @@ final class BuddyAuthenticatorTest extends IntegrationTestCase
         );
 
         self::assertTrue($response->isRedirection());
-        self::assertTrue($request->getSession()->getFlashBag()->has('danger'));
+
+        $session = $request->getSession();
+        self::assertInstanceOf(Session::class, $session);
+        self::assertTrue($session->getFlashBag()->has('danger'));
     }
 
     public function testThrowExceptionIfUserWasNotFound(): void

@@ -3,6 +3,7 @@ includes:
 parameters:
     level: max
     reportMaybesInPropertyPhpDocTypes: false
+    checkExplicitMixed: false
     ignoreErrors:
         -
             message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
@@ -16,11 +17,6 @@ parameters:
 
         -
             message: "#^Variable property access on DateInterval\\.$#"
-            count: 1
-            path: src/Service/Twig/DateExtension.php
-
-        -
-            message: "#^Only booleans are allowed in a ternary operator condition, int given\\.$#"
             count: 1
             path: src/Service/Twig/DateExtension.php
         -
@@ -43,10 +39,24 @@ parameters:
             count: 1
             path: src/Service/Downloader/ReactDownloader.php
         -
-            message: "#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\:\\:getFlashBag\\(\\)\\.$#"
+            message: "#^Service \"[.a-zA-Z\\\\]+\" is private\\.$#"
             paths:
-                - src/
                 - tests/
+        -
+            message: """
+                    #^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\User\\:
+                    since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+                """
+            count: 1
+            path: tests/Unit/Security/Model/UserTest.php
+        -
+            message: """
+                    #^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\Organization\\:
+                    since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+                """
+            count: 1
+            path: tests/Unit/Security/Model/OrganizationTest.php
+
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:

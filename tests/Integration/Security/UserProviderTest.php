@@ -14,10 +14,10 @@ final class UserProviderTest extends IntegrationTestCase
         $this->fixtures->createUser($email = 'test@buddy.works');
         $provider = $this->container()->get(UserProvider::class);
 
-        $user = $provider->loadUserByUsername($email);
+        $user = $provider->loadUserByIdentifier($email);
         $provider->upgradePassword($user, 'new-encoded');
 
-        $user = $provider->loadUserByUsername($email);
+        $user = $provider->loadUserByIdentifier($email);
 
         self::assertEquals('new-encoded', $user->getPassword());
     }

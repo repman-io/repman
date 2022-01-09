@@ -88,7 +88,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
-        $user = $this->getByEmail($user->getUsername());
+        $user = $this->getByEmail($user->getUserIdentifier());
         $user->setPassword($newEncodedPassword);
         $this->_em->persist($user);
         $this->_em->flush();
