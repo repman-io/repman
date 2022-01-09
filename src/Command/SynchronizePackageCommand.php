@@ -40,7 +40,7 @@ final class SynchronizePackageCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         /** @var string $packageId */
         $packageId = $input->getArgument('packageId');

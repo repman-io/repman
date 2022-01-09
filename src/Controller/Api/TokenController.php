@@ -17,16 +17,21 @@ use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class TokenController extends ApiController
 {
     private OrganizationQuery $organizationQuery;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(OrganizationQuery $organizationQuery)
-    {
+    public function __construct(
+        OrganizationQuery $organizationQuery,
+        MessageBusInterface $messageBus
+    ) {
         $this->organizationQuery = $organizationQuery;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -118,7 +123,7 @@ final class TokenController extends ApiController
             return $this->badRequest($this->getErrors($form));
         }
 
-        $this->dispatchMessage(new GenerateToken(
+        $this->messageBus->dispatch(new GenerateToken(
             $organization->id(),
             $name = $form->get('name')->getData()
         ));
@@ -158,7 +163,7 @@ final class TokenController extends ApiController
      */
     public function removeToken(Organization $organization, Token $token): JsonResponse
     {
-        $this->dispatchMessage(new RemoveToken($organization->id(), $token->getValue()));
+        $this->messageBus->dispatch(new RemoveToken($organization->id(), $token->getValue()));
 
         return new JsonResponse();
     }
@@ -191,7 +196,7 @@ final class TokenController extends ApiController
      */
     public function regenerateToken(Organization $organization, Token $token): JsonResponse
     {
-        $this->dispatchMessage(new RegenerateToken($organization->id(), $token->getValue()));
+        $this->messageBus->dispatch(new RegenerateToken($organization->id(), $token->getValue()));
 
         return $this->json(
             $this->organizationQuery

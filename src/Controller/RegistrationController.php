@@ -15,17 +15,23 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class RegistrationController extends AbstractController
 {
     private UserGuardHelper $guard;
     private Config $config;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(UserGuardHelper $guard, Config $config)
-    {
+    public function __construct(
+        UserGuardHelper $guard,
+        Config $config,
+        MessageBusInterface $messageBus
+    ) {
         $this->guard = $guard;
         $this->config = $config;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -40,14 +46,14 @@ class RegistrationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->ensureLocalRegistrationIsEnabled();
-            $this->dispatchMessage(new CreateUser(
+            $this->messageBus->dispatch(new CreateUser(
                 Uuid::uuid4()->toString(),
                 $email = $form->get('email')->getData(),
                 $form->get('plainPassword')->getData(),
                 $confirmToken = Uuid::uuid4()->toString(),
                 ['ROLE_USER']
             ));
-            $this->dispatchMessage(new SendConfirmToken(
+            $this->messageBus->dispatch(new SendConfirmToken(
                 $email,
                 $confirmToken
             ));
@@ -82,7 +88,7 @@ class RegistrationController extends AbstractController
         $this->ensureLocalRegistrationIsEnabled();
 
         try {
-            $this->dispatchMessage(new ConfirmEmail($token));
+            $this->messageBus->dispatch(new ConfirmEmail($token));
             $this->addFlash('success', 'E-mail address was confirmed. Enjoy your Repman account.');
         } catch (\RuntimeException | \InvalidArgumentException $exception) {
             $this->addFlash('danger', 'Invalid or expired e-mail confirm token');

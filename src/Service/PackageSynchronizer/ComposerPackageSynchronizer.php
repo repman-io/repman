@@ -228,7 +228,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $port = ':'.$port;
         }
 
-        return (string) \parse_url($this->gitlabUrl, \PHP_URL_HOST).$port;
+        return \parse_url($this->gitlabUrl, \PHP_URL_HOST).$port;
     }
 
     private function createIO(Package $package): BufferIO

@@ -18,16 +18,21 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 final class ProxyController extends AbstractController
 {
     private ProxyRegister $register;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(ProxyRegister $register)
-    {
+    public function __construct(
+        ProxyRegister $register,
+        MessageBusInterface $messageBus
+    ) {
         $this->register = $register;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -247,7 +252,7 @@ final class ProxyController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $this->dispatchMessage(new AddDownloads(
+        $this->messageBus->dispatch(new AddDownloads(
             \array_map(function (array $data): Package {
                 return new Package($data['name'], $data['version']);
             }, \array_filter($contents['downloads'], function (array $row): bool {

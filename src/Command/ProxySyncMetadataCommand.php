@@ -39,7 +39,7 @@ final class ProxySyncMetadataCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $lock = $this->lockFactory->createLock(self::LOCK_NAME, self::LOCK_TTL);
         if (!$lock->acquire()) {

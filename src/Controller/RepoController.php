@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -24,11 +25,16 @@ final class RepoController extends AbstractController
 {
     private PackageQuery $packageQuery;
     private PackageManager $packageManager;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(PackageQuery $packageQuery, PackageManager $packageManager)
-    {
+    public function __construct(
+        PackageQuery $packageQuery,
+        PackageManager $packageManager,
+        MessageBusInterface $messageBus
+    ) {
         $this->packageQuery = $packageQuery;
         $this->packageManager = $packageManager;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -121,7 +127,7 @@ final class RepoController extends AbstractController
             }
 
             if (isset($packageMap[$package['name']])) {
-                $this->dispatchMessage(new AddDownload(
+                $this->messageBus->dispatch(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
                     new \DateTimeImmutable(),

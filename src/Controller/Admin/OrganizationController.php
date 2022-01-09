@@ -11,15 +11,20 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
     private OrganizationQuery $organizationQuery;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(OrganizationQuery $organizationQuery)
-    {
+    public function __construct(
+        OrganizationQuery $organizationQuery,
+        MessageBusInterface $messageBus
+    ) {
         $this->organizationQuery = $organizationQuery;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -41,7 +46,7 @@ final class OrganizationController extends AbstractController
      */
     public function remove(Organization $organization, Request $request): Response
     {
-        $this->dispatchMessage(new RemoveOrganization($organization->id()));
+        $this->messageBus->dispatch(new RemoveOrganization($organization->id()));
         $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));
 
         return $this->redirectToRoute('admin_organization_list');

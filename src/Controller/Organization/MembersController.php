@@ -21,6 +21,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -28,11 +29,16 @@ final class MembersController extends AbstractController
 {
     private OrganizationQuery $organizations;
     private TokenStorageInterface $tokenStorage;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(OrganizationQuery $organizations, TokenStorageInterface $tokenStorage)
-    {
+    public function __construct(
+        OrganizationQuery $organizations,
+        TokenStorageInterface $tokenStorage,
+        MessageBusInterface $messageBus
+    ) {
         $this->organizations = $organizations;
         $this->tokenStorage = $tokenStorage;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -74,7 +80,7 @@ final class MembersController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $this->dispatchMessage(new AcceptInvitation($token, $user->id()));
+        $this->messageBus->dispatch(new AcceptInvitation($token, $user->id()));
         $request->getSession()->remove('organization-token');
         $this->addFlash('success', sprintf('The invitation to %s organization has been accepted', $organization->get()->name()));
 
@@ -91,7 +97,7 @@ final class MembersController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new InviteUser(
+            $this->messageBus->dispatch(new InviteUser(
                 $email = $form->get('email')->getData(),
                 $form->get('role')->getData(),
                 $organization->id(),
@@ -131,7 +137,7 @@ final class MembersController extends AbstractController
      */
     public function removeInvitation(Organization $organization, string $token): Response
     {
-        $this->dispatchMessage(new RemoveInvitation($organization->id(), $token));
+        $this->messageBus->dispatch(new RemoveInvitation($organization->id(), $token));
         $this->addFlash('success', 'The invitation has been deleted');
 
         return $this->redirectToRoute('organization_invitations', ['organization' => $organization->alias()]);
@@ -146,7 +152,7 @@ final class MembersController extends AbstractController
         if ($organization->isLastOwner($member->userId())) {
             $this->addFlash('danger', sprintf('Member "%s" cannot be removed. Organisation must have at least one owner.', $member->email()));
         } else {
-            $this->dispatchMessage(new RemoveMember($organization->id(), $member->userId()));
+            $this->messageBus->dispatch(new RemoveMember($organization->id(), $member->userId()));
             $this->addFlash('success', sprintf('Member "%s" has been removed from organization', $member->email()));
         }
 
@@ -163,7 +169,7 @@ final class MembersController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->dispatchMessage(new ChangeRole(
+            $this->messageBus->dispatch(new ChangeRole(
                 $organization->id(),
                 $member->userId(),
                 $form->get('role')->getData()

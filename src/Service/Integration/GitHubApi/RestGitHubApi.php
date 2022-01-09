@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Integration\GitHubApi;
 
 use Buddy\Repman\Service\Integration\GitHubApi;
+use Github\AuthMethod;
 use Github\Client;
 use Github\ResultPager;
 
@@ -19,7 +20,7 @@ final class RestGitHubApi implements GitHubApi
 
     public function primaryEmail(string $accessToken): string
     {
-        $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
         foreach ($this->client->currentUser()->emails()->all() as $email) {
             if ($email['primary'] === true) {
                 return $email['email'];
@@ -34,7 +35,7 @@ final class RestGitHubApi implements GitHubApi
      */
     public function repositories(string $accessToken): array
     {
-        $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
 
         $repos = array_map(fn ($repo) => $repo['full_name'], $this->privateRepos());
 
@@ -53,7 +54,7 @@ final class RestGitHubApi implements GitHubApi
     public function addHook(string $accessToken, string $repo, string $url): void
     {
         [$owner, $repo] = explode('/', $repo);
-        $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
 
         foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
             if ($hook['config']['url'] === $url) {
@@ -76,7 +77,7 @@ final class RestGitHubApi implements GitHubApi
     public function removeHook(string $accessToken, string $repo, string $url): void
     {
         [$owner, $repo] = explode('/', $repo);
-        $this->client->authenticate($accessToken, null, Client::AUTH_JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
 
         foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
             if ($hook['config']['url'] === $url) {

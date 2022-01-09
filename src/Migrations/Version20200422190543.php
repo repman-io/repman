@@ -24,8 +24,4 @@ final class Version20200422190543 extends AbstractMigration
         $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
         $this->addSql('UPDATE "user" SET email = lower(email)');
     }
-
-    public function down(Schema $schema): void
-    {
-    }
 }

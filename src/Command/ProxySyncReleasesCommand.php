@@ -46,7 +46,7 @@ final class ProxySyncReleasesCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->lock = $this
             ->lockFactory
