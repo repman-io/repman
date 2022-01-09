@@ -352,6 +352,6 @@ final class Proxy
 
     private function metadataPath(string $url): string
     {
-        return (string) \parse_url($url, \PHP_URL_HOST).'/'.\ltrim((string) \parse_url($url, \PHP_URL_PATH), '/');
+        return \parse_url($url, \PHP_URL_HOST).'/'.\ltrim((string) \parse_url($url, \PHP_URL_PATH), '/');
     }
 }

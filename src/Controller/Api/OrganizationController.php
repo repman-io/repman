@@ -16,16 +16,21 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class OrganizationController extends ApiController
 {
     private OrganizationQuery $organizationQuery;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(OrganizationQuery $organizationQuery)
-    {
+    public function __construct(
+        OrganizationQuery $organizationQuery,
+        MessageBusInterface $messageBus
+    ) {
         $this->organizationQuery = $organizationQuery;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -102,7 +107,7 @@ final class OrganizationController extends ApiController
             return $this->badRequest($this->getErrors($form));
         }
 
-        $this->dispatchMessage(new CreateOrganization(
+        $this->messageBus->dispatch(new CreateOrganization(
             $id = Uuid::uuid4()->toString(),
             $this->getUser()->id(),
             $form->get('name')->getData()

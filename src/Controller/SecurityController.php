@@ -13,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
@@ -20,11 +21,16 @@ class SecurityController extends AbstractController
 {
     private AuthenticationUtils $authenticationUtils;
     private Config $config;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(AuthenticationUtils $authenticationUtils, Config $config)
-    {
+    public function __construct(
+        AuthenticationUtils $authenticationUtils,
+        Config $config,
+        MessageBusInterface $messageBus
+    ) {
         $this->authenticationUtils = $authenticationUtils;
         $this->config = $config;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -52,7 +58,7 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $browser = new \Browser();
-            $this->dispatchMessage(new SendPasswordResetLink(
+            $this->messageBus->dispatch(new SendPasswordResetLink(
                 $form->get('email')->getData(),
                 $browser->getPlatform(),
                 $browser->getBrowser().' '.$browser->getVersion()
@@ -74,7 +80,7 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->dispatchMessage(new ResetPassword(
+                $this->messageBus->dispatch(new ResetPassword(
                     $form->get('token')->getData(),
                     $form->get('password')->getData()
                 ));

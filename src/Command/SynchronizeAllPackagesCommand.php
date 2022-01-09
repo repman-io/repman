@@ -40,7 +40,7 @@ final class SynchronizeAllPackagesCommand extends Command
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $organizations = $this->getOrganizationsToSync($input->getArgument('organization'));
         $output->writeln(sprintf('Synchronizing packages of %d organizations.', count($organizations)));

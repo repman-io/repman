@@ -14,15 +14,20 @@ use Buddy\Repman\Query\Filter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class UserController extends AbstractController
 {
     private UserQuery $userQuery;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(UserQuery $userQuery)
-    {
+    public function __construct(
+        UserQuery $userQuery,
+        MessageBusInterface $messageBus
+    ) {
         $this->userQuery = $userQuery;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -44,7 +49,7 @@ final class UserController extends AbstractController
      */
     public function disable(User $user, Request $request): Response
     {
-        $this->dispatchMessage(new DisableUser($user->id()));
+        $this->messageBus->dispatch(new DisableUser($user->id()));
         $this->addFlash('success', sprintf('User %s has been successfully disabled', $user->email()));
 
         return $this->redirectToRoute('admin_user_list');
@@ -55,7 +60,7 @@ final class UserController extends AbstractController
      */
     public function enable(User $user, Request $request): Response
     {
-        $this->dispatchMessage(new EnableUser($user->id()));
+        $this->messageBus->dispatch(new EnableUser($user->id()));
         $this->addFlash('success', sprintf('User %s has been successfully enabled', $user->email()));
 
         return $this->redirectToRoute('admin_user_list');
@@ -71,7 +76,7 @@ final class UserController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $roles = (bool) $form->get('admin')->getData() ? ['ROLE_ADMIN'] : [];
             $userRoles = array_diff($user->roles(), ['ROLE_ADMIN']);
-            $this->dispatchMessage(new ChangeRoles($user->id(), array_merge($userRoles, $roles)));
+            $this->messageBus->dispatch(new ChangeRoles($user->id(), array_merge($userRoles, $roles)));
             $this->addFlash('success', sprintf('User %s roles has been successfully changed', $user->email()));
 
             return $this->redirectToRoute('admin_user_list');

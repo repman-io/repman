@@ -35,6 +35,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -43,12 +44,18 @@ final class PackageController extends ApiController
     private PackageQuery $packageQuery;
     private UserOAuthTokenProvider $oauthProvider;
     private IntegrationRegister $integrations;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(PackageQuery $packageQuery, UserOAuthTokenProvider $oauthProvider, IntegrationRegister $integrations)
-    {
+    public function __construct(
+        PackageQuery $packageQuery,
+        UserOAuthTokenProvider $oauthProvider,
+        IntegrationRegister $integrations,
+        MessageBusInterface $messageBus
+    ) {
         $this->packageQuery = $packageQuery;
         $this->oauthProvider = $oauthProvider;
         $this->integrations = $integrations;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -172,7 +179,7 @@ final class PackageController extends ApiController
     public function removePackage(Organization $organization, Package $package): JsonResponse
     {
         $warning = $this->tryToRemoveWebhook($package);
-        $this->dispatchMessage(new RemovePackage($package->getId(), $organization->id()));
+        $this->messageBus->dispatch(new RemovePackage($package->getId(), $organization->id()));
 
         return new JsonResponse($warning !== null ? [
             'warning' => $warning,
@@ -208,7 +215,7 @@ final class PackageController extends ApiController
      */
     public function synchronizePackage(Organization $organization, Package $package): JsonResponse
     {
-        $this->dispatchMessage(new SynchronizePackage($package->getId()));
+        $this->messageBus->dispatch(new SynchronizePackage($package->getId()));
 
         return new JsonResponse();
     }
@@ -269,13 +276,13 @@ final class PackageController extends ApiController
             return $this->badRequest($this->getErrors($form));
         }
 
-        $this->dispatchMessage(new Update(
+        $this->messageBus->dispatch(new Update(
             $package->getId(),
             $form->get('url')->getData(),
             $form->get('keepLastReleases')->getData(),
         ));
 
-        $this->dispatchMessage(new SynchronizePackage($package->getId()));
+        $this->messageBus->dispatch(new SynchronizePackage($package->getId()));
 
         return new JsonResponse();
     }
@@ -391,7 +398,7 @@ final class PackageController extends ApiController
         }
 
         $type = $form->get('type')->getData();
-        $this->dispatchMessage(new AddPackage(
+        $this->messageBus->dispatch(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
             $form->get('repository')->getData(),
@@ -399,7 +406,7 @@ final class PackageController extends ApiController
             [],
             $form->get('keepLastReleases')->getData()
         ));
-        $this->dispatchMessage(new SynchronizePackage($id));
+        $this->messageBus->dispatch(new SynchronizePackage($id));
 
         return $id;
     }
@@ -418,7 +425,7 @@ final class PackageController extends ApiController
         }
 
         $repo = $form->get('repository')->getData();
-        $this->dispatchMessage(new AddPackage(
+        $this->messageBus->dispatch(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
             "https://github.com/{$repo}",
@@ -426,8 +433,8 @@ final class PackageController extends ApiController
             [Metadata::GITHUB_REPO_NAME => $repo],
             $form->get('keepLastReleases')->getData()
         ));
-        $this->dispatchMessage(new SynchronizePackage($id));
-        $this->dispatchMessage(new AddGitHubHook($id));
+        $this->messageBus->dispatch(new SynchronizePackage($id));
+        $this->messageBus->dispatch(new AddGitHubHook($id));
 
         return $id;
     }
@@ -451,7 +458,7 @@ final class PackageController extends ApiController
             throw new \RuntimeException("Repository '$repo' not found.");
         }
 
-        $this->dispatchMessage(new AddPackage(
+        $this->messageBus->dispatch(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
             $projects->get($projectId)->url(),
@@ -459,8 +466,8 @@ final class PackageController extends ApiController
             [Metadata::GITLAB_PROJECT_ID => $projectId],
             $form->get('keepLastReleases')->getData()
         ));
-        $this->dispatchMessage(new SynchronizePackage($id));
-        $this->dispatchMessage(new AddGitLabHook($id));
+        $this->messageBus->dispatch(new SynchronizePackage($id));
+        $this->messageBus->dispatch(new AddGitLabHook($id));
 
         return $id;
     }
@@ -484,7 +491,7 @@ final class PackageController extends ApiController
             throw new \RuntimeException("Repository '$repo' not found.");
         }
 
-        $this->dispatchMessage(new AddPackage(
+        $this->messageBus->dispatch(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
             $repos->get($repoUuid)->url(),
@@ -492,8 +499,8 @@ final class PackageController extends ApiController
             [Metadata::BITBUCKET_REPO_NAME => $repos->get($repoUuid)->name()],
             $form->get('keepLastReleases')->getData()
         ));
-        $this->dispatchMessage(new SynchronizePackage($id));
-        $this->dispatchMessage(new AddBitbucketHook($id));
+        $this->messageBus->dispatch(new SynchronizePackage($id));
+        $this->messageBus->dispatch(new AddBitbucketHook($id));
 
         return $id;
     }
@@ -515,13 +522,13 @@ final class PackageController extends ApiController
             try {
                 switch ($package->getType()) {
                     case 'github-oauth':
-                        $this->dispatchMessage(new RemoveGitHubHook($package->getId()));
+                        $this->messageBus->dispatch(new RemoveGitHubHook($package->getId()));
                         break;
                     case 'gitlab-oauth':
-                        $this->dispatchMessage(new RemoveGitLabHook($package->getId()));
+                        $this->messageBus->dispatch(new RemoveGitLabHook($package->getId()));
                         break;
                     case 'bitbucket-oauth':
-                        $this->dispatchMessage(new RemoveBitbucketHook($package->getId()));
+                        $this->messageBus->dispatch(new RemoveBitbucketHook($package->getId()));
                         break;
                 }
             } catch (HandlerFailedException $exception) {

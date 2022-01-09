@@ -29,6 +29,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -37,11 +38,16 @@ final class PackageController extends AbstractController
 {
     private UserOAuthTokenProvider $oauthProvider;
     private IntegrationRegister $integrations;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(UserOAuthTokenProvider $oauthProvider, IntegrationRegister $integrations)
-    {
+    public function __construct(
+        UserOAuthTokenProvider $oauthProvider,
+        IntegrationRegister $integrations,
+        MessageBusInterface $messageBus
+    ) {
         $this->oauthProvider = $oauthProvider;
         $this->integrations = $integrations;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -112,7 +118,7 @@ final class PackageController extends AbstractController
      */
     public function updatePackage(Organization $organization, Package $package): Response
     {
-        $this->dispatchMessage(new SynchronizePackage($package->id()));
+        $this->messageBus->dispatch(new SynchronizePackage($package->id()));
 
         $this->addFlash('success', 'Package will be synchronized in the background');
 
@@ -134,13 +140,13 @@ final class PackageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
 
-            $this->dispatchMessage(new Update(
+            $this->messageBus->dispatch(new Update(
                 $package->id(),
                 $data['url'],
                 $data['keepLastReleases'],
             ));
 
-            $this->dispatchMessage(new SynchronizePackage($package->id()));
+            $this->messageBus->dispatch(new SynchronizePackage($package->id()));
 
             $this->addFlash('success', 'Package will be synchronized in the background');
 
@@ -195,7 +201,7 @@ final class PackageController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $type = $form->get('type')->getData();
 
-            $this->dispatchMessage(new AddPackage(
+            $this->messageBus->dispatch(new AddPackage(
                 $id = Uuid::uuid4()->toString(),
                 $organization->id(),
                 $form->get('url')->getData(),
@@ -203,7 +209,7 @@ final class PackageController extends AbstractController
                 [],
                 $form->get('keepLastReleases')->getData()
             ));
-            $this->dispatchMessage(new SynchronizePackage($id));
+            $this->messageBus->dispatch(new SynchronizePackage($id));
 
             return $this->packageHasBeenAdded($organization);
         }
@@ -224,7 +230,7 @@ final class PackageController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             foreach ($form->get('repositories')->getData() as $repo) {
-                $this->dispatchMessage(new AddPackage(
+                $this->messageBus->dispatch(new AddPackage(
                     $id = Uuid::uuid4()->toString(),
                     $organization->id(),
                     "https://github.com/{$repo}",
@@ -232,8 +238,8 @@ final class PackageController extends AbstractController
                     [Metadata::GITHUB_REPO_NAME => $repo],
                     $form->get('keepLastReleases')->getData()
                 ));
-                $this->dispatchMessage(new SynchronizePackage($id));
-                $this->dispatchMessage(new AddGitHubHook($id));
+                $this->messageBus->dispatch(new SynchronizePackage($id));
+                $this->messageBus->dispatch(new AddGitHubHook($id));
             }
 
             return $this->packageHasBeenAdded($organization);
@@ -255,7 +261,7 @@ final class PackageController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             foreach ($form->get('repositories')->getData() as $projectId) {
-                $this->dispatchMessage(new AddPackage(
+                $this->messageBus->dispatch(new AddPackage(
                     $id = Uuid::uuid4()->toString(),
                     $organization->id(),
                     $projects->get($projectId)->url(),
@@ -263,8 +269,8 @@ final class PackageController extends AbstractController
                     [Metadata::GITLAB_PROJECT_ID => $projectId],
                     $form->get('keepLastReleases')->getData()
                 ));
-                $this->dispatchMessage(new SynchronizePackage($id));
-                $this->dispatchMessage(new AddGitLabHook($id));
+                $this->messageBus->dispatch(new SynchronizePackage($id));
+                $this->messageBus->dispatch(new AddGitLabHook($id));
             }
 
             return $this->packageHasBeenAdded($organization);
@@ -286,7 +292,7 @@ final class PackageController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             foreach ($form->get('repositories')->getData() as $repoUuid) {
-                $this->dispatchMessage(new AddPackage(
+                $this->messageBus->dispatch(new AddPackage(
                     $id = Uuid::uuid4()->toString(),
                     $organization->id(),
                     $repos->get($repoUuid)->url(),
@@ -294,8 +300,8 @@ final class PackageController extends AbstractController
                     [Metadata::BITBUCKET_REPO_NAME => $repos->get($repoUuid)->name()],
                     $form->get('keepLastReleases')->getData()
                 ));
-                $this->dispatchMessage(new SynchronizePackage($id));
-                $this->dispatchMessage(new AddBitbucketHook($id));
+                $this->messageBus->dispatch(new SynchronizePackage($id));
+                $this->messageBus->dispatch(new AddBitbucketHook($id));
             }
 
             return $this->packageHasBeenAdded($organization);
