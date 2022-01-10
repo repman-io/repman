@@ -166,4 +166,15 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
     {
         return $this->timezone;
     }
+
+    public function isMemberOfOrganization(string $organizationAlias): bool
+    {
+        foreach ($this->organizations as $organization) {
+            if ($organization->alias() === $organizationAlias) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
