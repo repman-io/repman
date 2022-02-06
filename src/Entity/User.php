@@ -19,9 +19,9 @@ use Ramsey\Uuid\UuidInterface;
  */
 class User
 {
-    const STATUS_ENABLED = 'enabled';
+    public const STATUS_ENABLED = 'enabled';
 
-    const STATUS_DISABLED = 'disabled';
+    public const STATUS_DISABLED = 'disabled';
 
     /**
      * @ORM\Id

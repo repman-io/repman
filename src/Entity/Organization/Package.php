@@ -22,7 +22,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Package
 {
-    const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
+    public const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
 
     /**
      * @ORM\Id
