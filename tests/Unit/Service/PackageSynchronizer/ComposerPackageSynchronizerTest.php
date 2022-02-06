@@ -62,7 +62,13 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertTrue($json['packages']['repman-io/repman'] !== []);
         @unlink($path);
 
-        self::assertCount(1, $package->versions());
+        // if there is a feature branch detected, Composer PathRepository add a second package version with the feature branch version
+        self::assertGreaterThan(0, $package->versions()->count());
+
+        /** @var Version $firstVersion */
+        $firstVersion = $package->versions()->first();
+
+        self::assertSame('dev-master', $firstVersion->version());
     }
 
     public function testSynchronizeError(): void
