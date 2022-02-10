@@ -79,6 +79,13 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $latest = current($packages);
 
             foreach ($packages as $p) {
+                if ($p->getStability() === Version::STABILITY_STABLE) {
+                    $latest = $p;
+                    break;
+                }
+            }
+
+            foreach ($packages as $p) {
                 $json['packages'][$p->getPrettyName()][$p->getPrettyVersion()] = $this->packageNormalizer->normalize($p);
                 if (Comparator::greaterThan($p->getVersion(), $latest->getVersion()) && $p->getStability() === Version::STABILITY_STABLE) {
                     $latest = $p;
