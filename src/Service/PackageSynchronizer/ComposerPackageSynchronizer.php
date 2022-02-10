@@ -173,7 +173,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     // suggests are different
                     foreach ($latest->getSuggests() as $linkName => $linkDescription) {
                         if (\mb_strlen($linkDescription) > 255) {
-                            $linkDescription = \mb_substr($linkDescription, 0, 250) . ' [..]';
+                            $linkDescription = \mb_substr($linkDescription, 0, 250).' [..]';
                         }
 
                         $package->addLink(new Link(Uuid::uuid4(), $package, 'suggests', $linkName, $linkDescription));
