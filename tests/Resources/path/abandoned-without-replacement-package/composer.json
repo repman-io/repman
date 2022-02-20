@@ -1,0 +1,11 @@
+{
+    "name": "foo/foo",
+    "description": "Abandoned package",
+    "type": "library",
+    "require": {
+    },
+    "require-dev": {
+    },
+    "license": "MIT",
+    "abandoned": true
+}
