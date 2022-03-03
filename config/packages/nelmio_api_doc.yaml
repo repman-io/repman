@@ -2,6 +2,7 @@ nelmio_api_doc:
     models: { use_jms: false }
 
     documentation:
+        openapi: '3.0.0'
         info:
             title: Repman
             description: Private PHP Package Repository Manager
