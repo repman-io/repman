@@ -31,6 +31,17 @@
                         >
                             Remove
                         </button>
+                        {% if not app.user.isMemberOfOrganization(organization.alias) %}
+                            <button
+                                class="btn btn-warning btn-sm"
+                                type="button"
+                                data-target="confirmation"
+                                data-action="{{ path('admin_organization_add_admin', {organization: organization.alias}) }}"
+                                data-method="POST"
+                            >
+                                Invite current user
+                            </button>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

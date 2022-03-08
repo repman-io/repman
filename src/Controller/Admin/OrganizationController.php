@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Admin;
 
+use Buddy\Repman\Entity\Organization\Member;
+use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Organization;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +51,26 @@ final class OrganizationController extends AbstractController
     {
         $this->messageBus->dispatch(new RemoveOrganization($organization->id()));
         $this->addFlash('success', sprintf('Organization %s has been successfully removed', $organization->name()));
+
+        return $this->redirectToRoute('admin_organization_list');
+    }
+
+    /**
+     * @Route("/admin/organization/{organization}", name="admin_organization_add_admin", methods={"POST"}, requirements={"organization"="%organization_pattern%"})
+     */
+    public function addAdmin(Organization $organization, Request $request): Response
+    {
+        /** @var \Buddy\Repman\Security\Model\User $user */
+        $user = $this->getUser();
+
+        $this->messageBus->dispatch(new InviteUser(
+            $user->email(),
+            Member::ROLE_OWNER,
+            $organization->id(),
+            Uuid::uuid4()->toString()
+        ));
+
+        $this->addFlash('success', sprintf('The user %s has been successfully invited for %s', $user->email(), $organization->name()));
 
         return $this->redirectToRoute('admin_organization_list');
     }
