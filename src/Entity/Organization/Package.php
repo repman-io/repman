@@ -133,6 +133,11 @@ class Package
     private int $keepLastReleases = 0;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private ?string $replacementPackage = null;
+
+    /**
      * @param mixed[] $metadata
      */
     public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $keepLastReleases = 0)
@@ -380,5 +385,15 @@ class Package
     {
         $this->keepLastReleases = $keepLastReleases;
         $this->repositoryUrl = $url;
+    }
+
+    public function getReplacementPackage(): ?string
+    {
+        return $this->replacementPackage;
+    }
+
+    public function setReplacementPackage(?string $replacementPackage): void
+    {
+        $this->replacementPackage = $replacementPackage;
     }
 }
