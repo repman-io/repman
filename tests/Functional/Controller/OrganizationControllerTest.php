@@ -515,6 +515,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('depends:buddy-works/buddy', $this->lastResponseBody());
 
         self::assertStringContainsString('This is a readme', $this->lastResponseBody());
+        self::assertStringNotContainsString('This package is <b>abandoned</b>', $this->lastResponseBody());
 
         $this->client->request('GET', $this->urlTo('organization_package_details', [
             'organization' => 'buddy',
@@ -522,6 +523,40 @@ final class OrganizationControllerTest extends FunctionalTestCase
         ]));
 
         self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
+    /**
+     * @dataProvider getAbandonedReplacements
+     */
+    public function testPackageDetailsAbandoned(string $replacementPackage, string $expectedMessage): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), [], [], null, $replacementPackage);
+
+        $this->client->request('GET', $this->urlTo('organization_package_details', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString($expectedMessage, $this->lastResponseBody());
+    }
+
+    /**
+     * @return \Generator<array<mixed>>
+     */
+    public function getAbandonedReplacements(): \Generator
+    {
+        yield 'Abandoned without replacement package' => [
+            '',
+            'This package is <b>abandoned</b> and no longer maintained. No replacement package was suggested.',
+        ];
+
+        yield 'Abandoned with replacement package' => [
+            'foo/bar',
+            'This package is <b>abandoned</b> and no longer maintained. The author suggests using the <b>foo/bar</b> package instead.',
+        ];
     }
 
     public function testPackageStats(): void

@@ -190,7 +190,8 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_status,
                 last_scan_result,
                 keep_last_releases,
-                readme
+                readme,
+                replacement_package
             FROM "organization_package"
             WHERE id = :id', [
             'id' => $id,
@@ -455,6 +456,7 @@ final class DbalPackageQuery implements PackageQuery
             $scanResult,
             $data['keep_last_releases'] ?? 0,
             $data['readme'] ?? null,
+            $data['replacement_package'] ?? null,
         );
     }
 
