@@ -39,6 +39,18 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Organization Acme has been successfully removed', $this->lastResponseBody());
     }
 
+    public function testAddAdmin(): void
+    {
+        $this->client->request('POST', $this->urlTo('admin_organization_add_admin', [
+            'organization' => 'acme',
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_organization_list')));
+        $this->client->followRedirect();
+
+        self::assertStringContainsString('The user test@buddy.works has been successfully invited for Acme', $this->lastResponseBody());
+    }
+
     public function testStats(): void
     {
         $orgId = $this->fixtures->createOrganization('buddy', $this->userId);
