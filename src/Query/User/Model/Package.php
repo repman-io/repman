@@ -21,6 +21,7 @@ final class Package
     private ?\DateTimeImmutable $webhookCreatedAt;
     private ?string $webhookCreatedError;
     private int $keepLastReleases;
+    private bool $enableSecurityScan;
 
     public function __construct(
         string $id,
@@ -36,7 +37,8 @@ final class Package
         ?\DateTimeImmutable $webhookCreatedAt = null,
         ?string $webhookCreatedError = null,
         ?ScanResult $scanResult = null,
-        int $keepLastReleases = 0
+        int $keepLastReleases = 0,
+        bool $enableSecurityScan = true
     ) {
         $this->id = $id;
         $this->organizationId = $organizationId;
@@ -52,6 +54,7 @@ final class Package
         $this->webhookCreatedError = $webhookCreatedError;
         $this->scanResult = $scanResult ?? null;
         $this->keepLastReleases = $keepLastReleases;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function id(): string
@@ -127,5 +130,10 @@ final class Package
     public function keepLastReleases(): int
     {
         return $this->keepLastReleases;
+    }
+
+    public function isEnabledSecurityScan(): bool
+    {
+        return $this->enableSecurityScan;
     }
 }

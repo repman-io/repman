@@ -65,20 +65,25 @@
             <div class="col-6">
                 <h4>Security</h4>
                 <p>
+                    {% if package.isEnabledSecurityScan %}
                     <a
                             href="{{ path('organization_package_scan_results', {organization: organization.alias, package: package.id}) }}"
                             data-content="{% apply escape %}{% include 'organization/package/scanResultContent.html.twig' with {'result': package.lastScanResultContent, 'simple': true} %}{% endapply %}"
                             data-data-toggle="tooltip" title="{{ package.scanResultDate|date_time|time_diff }}"
                             data-toggle="scan-result-popover"
                     >
-                        {% if package.isScanResultOk %}
-                            <span class="badge badge-success">{{ package.scanResultStatus }}</span>
-                        {% elseif package.isScanResultPending or package.isScanResultNotAvailable %}
-                            <span class="badge badge-warning">{{ package.scanResultStatus }}</span>
-                        {% else %}
-                            <span class="badge badge-danger">{{ package.scanResultStatus }}</span>
-                        {% endif %}
+
+                            {% if package.isScanResultOk %}
+                                <span class="badge badge-success">{{ package.scanResultStatus }}</span>
+                            {% elseif package.isScanResultPending or package.isScanResultNotAvailable %}
+                                <span class="badge badge-warning">{{ package.scanResultStatus }}</span>
+                            {% else %}
+                                <span class="badge badge-danger">{{ package.scanResultStatus }}</span>
+                            {% endif %}
                     </a>
+                    {% else %}
+                        <span class="badge badge-info">Disabled</span>
+                    {% endif %}
                 </p>
             </div>
         </div>
