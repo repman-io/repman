@@ -382,6 +382,7 @@ final class PackageControllerTest extends FunctionalTestCase
         ]), [], [], [], (string) json_encode([
             'url' => 'new-url',
             'keepLastReleases' => 6,
+            'enableSecurityScan' => true,
         ]));
 
         $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
