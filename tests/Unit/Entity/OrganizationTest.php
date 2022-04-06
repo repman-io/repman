@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Entity;
 
+use RuntimeException;
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Token;
@@ -29,7 +31,7 @@ final class OrganizationTest extends TestCase
         $this->org->addToken($token);
         $this->org->addToken($token); // this should not throw exception
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $token->setOrganization($this->org);
     }
 
@@ -40,7 +42,7 @@ final class OrganizationTest extends TestCase
         $this->org->addPackage($package);
         $this->org->addPackage($package); // this should not throw exception
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $package->setOrganization($this->org);
     }
 
@@ -49,7 +51,7 @@ final class OrganizationTest extends TestCase
         $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
         $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->org->inviteUser('other@buddy.works', 'invalid-role', 'token');
     }
 
@@ -57,7 +59,7 @@ final class OrganizationTest extends TestCase
     {
         $this->org->acceptInvitation('not-exist', new User(Uuid::uuid4(), 'user@buddy.works', Uuid::uuid4()->toString(), []));
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->org->inviteUser('user@buddy.works', 'invalid-role', 'token');
     }
 
@@ -67,7 +69,7 @@ final class OrganizationTest extends TestCase
         $this->org->acceptInvitation('token', new User(Uuid::uuid4(), 'some@buddy.works', Uuid::uuid4()->toString(), []));
         $this->org->inviteUser('some@buddy.works', Member::ROLE_MEMBER, 'token');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->org->inviteUser('other@buddy.works', 'invalid-role', 'token');
     }
 
@@ -86,7 +88,7 @@ final class OrganizationTest extends TestCase
         $this->org->acceptInvitation('token', $member = new User(Uuid::uuid4(), 'some@buddy.works', Uuid::uuid4()->toString(), []));
         $this->org->removeMember($this->owner);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Organisation must have at least one owner.');
 
         $this->org->removeMember($member);
@@ -98,7 +100,7 @@ final class OrganizationTest extends TestCase
         $this->org->acceptInvitation('token', $member = new User(Uuid::uuid4(), 'some@buddy.works', Uuid::uuid4()->toString(), []));
         $this->org->changeRole($this->owner, Member::ROLE_MEMBER);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Organisation must have at least one owner.');
 
         $this->org->changeRole($member, Member::ROLE_MEMBER);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\PackageQuery;
 
+use DateTimeImmutable;
 use Buddy\Repman\Query\Api\Model\Package;
 use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\ScanResult;
@@ -24,9 +25,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(function (array $data): Package {
-            return $this->hydratePackage($data);
-        }, $this->connection->fetchAllAssociative(
+        return array_map(fn(array $data): Package => $this->hydratePackage($data), $this->connection->fetchAllAssociative(
             'SELECT
                 id,
                 type,
@@ -106,7 +105,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         $scanResult = isset($data['last_scan_status']) ?
             new ScanResult(
-                new \DateTimeImmutable($data['last_scan_date']),
+                new DateTimeImmutable($data['last_scan_date']),
                 $data['last_scan_status'],
                 $data['latest_released_version'],
                 $data['last_scan_result'],
@@ -118,11 +117,11 @@ final class DbalPackageQuery implements PackageQuery
             $data['repository_url'],
             $data['name'],
             $data['latest_released_version'],
-            $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,
+            $data['latest_release_date'] !== null ? new DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
-            $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
+            $data['last_sync_at'] !== null ? new DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
-            $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
+            $data['webhook_created_at'] !== null ? new DateTimeImmutable($data['webhook_created_at']) : null,
             $scanResult,
             $data['keep_last_releases']
         );

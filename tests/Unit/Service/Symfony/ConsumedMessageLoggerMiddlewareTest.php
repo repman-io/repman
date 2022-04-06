@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Symfony;
 
+use stdClass;
 use Buddy\Repman\Service\Symfony\ConsumedMessageLoggerMiddleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -16,7 +17,7 @@ final class ConsumedMessageLoggerMiddlewareTest extends TestCase
 {
     public function testIgnoreSyncMessages(): void
     {
-        $envelope = new Envelope(new \stdClass());
+        $envelope = new Envelope(new stdClass());
         $middleware = $this->createMock(MiddlewareInterface::class);
         $middleware->method('handle')->willReturn($envelope);
         $stack = $this->createMock(StackInterface::class);
@@ -31,7 +32,7 @@ final class ConsumedMessageLoggerMiddlewareTest extends TestCase
 
     public function testCollectMetricsForMessage(): void
     {
-        $envelope = new Envelope(new \stdClass(), [new ConsumedByWorkerStamp()]);
+        $envelope = new Envelope(new stdClass(), [new ConsumedByWorkerStamp()]);
         $middleware = $this->createMock(MiddlewareInterface::class);
         $middleware->method('handle')->willReturn($envelope);
         $stack = $this->createMock(StackInterface::class);

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization;
 
+use DateTimeImmutable;
+use RuntimeException;
 use Buddy\Repman\Entity\Organization;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -33,24 +35,24 @@ class Token
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $lastUsedAt = null;
+    private ?DateTimeImmutable $lastUsedAt = null;
 
     public function __construct(string $value, string $name)
     {
         $this->value = $value;
         $this->name = $name;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function setOrganization(Organization $organization): void
     {
         if (isset($this->organization)) {
-            throw new \RuntimeException('You can not change token organization');
+            throw new RuntimeException('You can not change token organization');
         }
         $this->organization = $organization;
     }

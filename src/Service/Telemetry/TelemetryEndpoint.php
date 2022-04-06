@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry;
 
+use RuntimeException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class TelemetryEndpoint implements Endpoint
 {
-    const URL = 'https://telemetry.repman.io';
+    public const URL = 'https://telemetry.repman.io';
 
-    const HEADERS = ['Content-Type' => 'application/json'];
+    public const HEADERS = ['Content-Type' => 'application/json'];
 
     private HttpClientInterface $client;
 
@@ -24,7 +25,7 @@ final class TelemetryEndpoint implements Endpoint
     {
         $this->checkResponse($this->client->request('POST', $this->telemetryUrl(), [
                 'headers' => self::HEADERS,
-                'body' => json_encode($entry),
+                'body' => json_encode($entry, JSON_THROW_ON_ERROR),
             ]
         ));
     }
@@ -33,7 +34,7 @@ final class TelemetryEndpoint implements Endpoint
     {
         $this->checkResponse($this->client->request('POST', $this->emailUrl(), [
                 'headers' => self::HEADERS,
-                'body' => json_encode($email),
+                'body' => json_encode($email, JSON_THROW_ON_ERROR),
             ]
         ));
     }
@@ -42,7 +43,7 @@ final class TelemetryEndpoint implements Endpoint
     {
         $this->checkResponse($this->client->request('DELETE', $this->emailUrl(), [
                 'headers' => self::HEADERS,
-                'body' => json_encode($email),
+                'body' => json_encode($email, JSON_THROW_ON_ERROR),
             ]
         ));
     }
@@ -60,7 +61,7 @@ final class TelemetryEndpoint implements Endpoint
     private function checkResponse(ResponseInterface $response): void
     {
         if ($response->getStatusCode() >= 400) {
-            throw new \RuntimeException(sprintf('Error while sending telemetry data. HTTP error: %d', $response->getStatusCode()));
+            throw new RuntimeException(sprintf('Error while sending telemetry data. HTTP error: %d', $response->getStatusCode()));
         }
     }
 }

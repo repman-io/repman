@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Command;
 
+use RuntimeException;
 use Buddy\Repman\Command\ProxySyncReleasesCommand;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
@@ -50,7 +51,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 
     public function testParsingError(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unable to parse RSS feed');
 
         $command = $this->prepareCommand('invalid xml');
@@ -93,7 +94,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 
     private function cache(): FilesystemAdapter
     {
-        return $this->cache = $this->cache ?? new FilesystemAdapter('test', 0, self::$kernel->getCacheDir());
+        return $this->cache ??= new FilesystemAdapter('test', 0, self::$kernel->getCacheDir());
     }
 
     private function fakeLockFactory(): LockFactory

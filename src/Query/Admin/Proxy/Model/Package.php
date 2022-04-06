@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin\Proxy\Model;
 
+use DateTimeImmutable;
 final class Package
 {
     private int $downloads;
-    private \DateTimeImmutable $lastDownload;
+    private DateTimeImmutable $lastDownload;
 
-    public function __construct(int $downloads, \DateTimeImmutable $lastDownload)
+    public function __construct(int $downloads, DateTimeImmutable $lastDownload)
     {
         $this->downloads = $downloads;
         $this->lastDownload = $lastDownload;
@@ -20,7 +21,7 @@ final class Package
         return $this->downloads;
     }
 
-    public function lastDownload(): \DateTimeImmutable
+    public function lastDownload(): DateTimeImmutable
     {
         return $this->lastDownload;
     }

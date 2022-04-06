@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization\Package;
 
+use DateTimeImmutable;
+use RuntimeException;
 use Buddy\Repman\Entity\Organization\Package;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
@@ -21,7 +23,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Version
 {
-    const STABILITY_STABLE = 'stable';
+    public const STABILITY_STABLE = 'stable';
 
     /**
      * @ORM\Id()
@@ -53,7 +55,7 @@ class Version
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $date;
+    private DateTimeImmutable $date;
 
     /**
      * @ORM\Column(type="string")
@@ -67,7 +69,7 @@ class Version
         string $version,
         string $reference,
         int $size,
-        \DateTimeImmutable $date,
+        DateTimeImmutable $date,
         string $stability
     ) {
         $this->id = $id;
@@ -98,7 +100,7 @@ class Version
         return $this->size;
     }
 
-    public function date(): \DateTimeImmutable
+    public function date(): DateTimeImmutable
     {
         return $this->date;
     }
@@ -113,7 +115,7 @@ class Version
         $this->size = $size;
     }
 
-    public function setDate(\DateTimeImmutable $date): void
+    public function setDate(DateTimeImmutable $date): void
     {
         $this->date = $date;
     }
@@ -121,7 +123,7 @@ class Version
     public function setPackage(Package $package): void
     {
         if (isset($this->package)) {
-            throw new \RuntimeException('You can not change version package');
+            throw new RuntimeException('You can not change version package');
         }
         $this->package = $package;
     }

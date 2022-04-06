@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
+use DateTimeImmutable;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,7 +69,7 @@ final class RepoControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($organizationId, 'secret-org-token');
         $packageId = Uuid::uuid4()->toString();
         $this->fixtures->createPackage($packageId, 'buddy', $organizationId);
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Test', '1.1.1', new \DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Test', '1.1.1', new DateTimeImmutable());
 
         // check token was never used
         $this->client->request('GET', $this->urlTo('organization_tokens', ['organization' => 'buddy']));
@@ -149,7 +150,7 @@ final class RepoControllerTest extends FunctionalTestCase
     public function testOrganizationTrackDownloads(): void
     {
         $this->fixtures->createPackage('c75b535f-5817-41a2-9424-e05476e7958f', 'buddy');
-        $this->fixtures->syncPackageWithData('c75b535f-5817-41a2-9424-e05476e7958f', 'buddy-works/repman', 'desc', '1.2.0', new \DateTimeImmutable());
+        $this->fixtures->syncPackageWithData('c75b535f-5817-41a2-9424-e05476e7958f', 'buddy-works/repman', 'desc', '1.2.0', new DateTimeImmutable());
 
         $this->client->request('POST', '/downloads', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
@@ -227,7 +228,7 @@ final class RepoControllerTest extends FunctionalTestCase
         $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
         $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
 
-        $fileModifiedTime = (new \DateTimeImmutable())
+        $fileModifiedTime = (new DateTimeImmutable())
             ->setTimestamp((int) \filemtime(__DIR__.'/../../Resources/p2/buddy-works/repman.json'));
 
         $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [

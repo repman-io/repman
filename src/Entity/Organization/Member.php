@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization;
 
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
@@ -47,7 +48,7 @@ class Member
     public function __construct(UuidInterface $id, User $user, Organization $organization, string $role)
     {
         if (!in_array($role, self::availableRoles(), true)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported role: %s', $role));
+            throw new InvalidArgumentException(sprintf('Unsupported role: %s', $role));
         }
 
         $this->id = $id;
@@ -59,7 +60,7 @@ class Member
     public function changeRole(string $role): void
     {
         if (!in_array($role, self::availableRoles(), true)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported role: %s', $role));
+            throw new InvalidArgumentException(sprintf('Unsupported role: %s', $role));
         }
 
         $this->role = $role;

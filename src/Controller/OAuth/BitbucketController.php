@@ -74,9 +74,7 @@ final class BitbucketController extends OAuthController
         return $this->storeRepoToken(
             $request,
             OAuthToken::TYPE_BITBUCKET,
-            function (): AccessToken {
-                return $this->oauth->getClient('bitbucket')->getAccessToken(['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
-            },
+            fn(): AccessToken => $this->oauth->getClient('bitbucket')->getAccessToken(['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]),
             'organization_package_new'
         );
     }

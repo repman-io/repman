@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization;
 
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -41,7 +42,7 @@ class Invitation
     public function __construct(string $token, string $email, Organization $organization, string $role)
     {
         if (!in_array($role, Member::availableRoles(), true)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported role: %s', $role));
+            throw new InvalidArgumentException(sprintf('Unsupported role: %s', $role));
         }
         $this->token = $token;
         $this->email = $email;

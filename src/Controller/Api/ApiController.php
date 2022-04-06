@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
+use JsonException;
 use Buddy\Repman\Query\Api\Model\Error;
 use Buddy\Repman\Query\Api\Model\Errors;
 use Buddy\Repman\Query\Api\Model\Links;
@@ -39,7 +40,7 @@ abstract class ApiController extends AbstractController
 
         try {
             $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $th) {
+        } catch (JsonException $th) {
             throw new BadRequestHttpException();
         }
 

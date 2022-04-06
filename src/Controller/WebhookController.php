@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use DateTimeImmutable;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Service\Organization\WebhookRequests;
@@ -33,7 +34,7 @@ final class WebhookController extends AbstractController
     public function package(Package $package, Request $request): Response
     {
         $this->messageBus->dispatch(new SynchronizePackage($package->id()));
-        $this->webhookRequests->add($package->id(), new \DateTimeImmutable(), $request->getClientIp(), $request->headers->get('User-Agent'));
+        $this->webhookRequests->add($package->id(), new DateTimeImmutable(), $request->getClientIp(), $request->headers->get('User-Agent'));
 
         return new JsonResponse(null, Response::HTTP_ACCEPTED);
     }

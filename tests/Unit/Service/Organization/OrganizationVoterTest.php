@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
+use Buddy\Repman\Security\Model\User\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Security\Model\User;
@@ -26,8 +27,8 @@ final class OrganizationVoterTest extends TestCase
     {
         $this->userId = 'some-id';
         $this->token = new UsernamePasswordToken(UserMother::withOrganizations($this->userId, [
-            new User\Organization('repman', 'name', 'owner', false),
-            new User\Organization('buddy', 'name', 'member', false),
+            new Organization('repman', 'name', 'owner', false),
+            new Organization('buddy', 'name', 'member', false),
         ]), 'password', ['key']);
         $queryMock = $this->getMockBuilder(OrganizationQuery::class)->getMock();
         $this->voter = new OrganizationVoter($queryMock);

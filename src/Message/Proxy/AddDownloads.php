@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\Proxy;
 
+use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 
 final class AddDownloads
@@ -12,14 +13,14 @@ final class AddDownloads
      * @var Package[]
      */
     private array $packages;
-    private \DateTimeImmutable $date;
+    private DateTimeImmutable $date;
     private ?string $ip;
     private ?string $userAgent;
 
     /**
      * @param Package[] $packages
      */
-    public function __construct(array $packages, \DateTimeImmutable $date, ?string $ip, ?string $userAgent)
+    public function __construct(array $packages, DateTimeImmutable $date, ?string $ip, ?string $userAgent)
     {
         $this->packages = $packages;
         $this->date = $date;
@@ -35,7 +36,7 @@ final class AddDownloads
         return $this->packages;
     }
 
-    public function date(): \DateTimeImmutable
+    public function date(): DateTimeImmutable
     {
         return $this->date;
     }

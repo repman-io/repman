@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Token implements \JsonSerializable
+use JsonSerializable;
+use DateTimeImmutable;
+use DateTime;
+final class Token implements JsonSerializable
 {
     private string $name;
     private string $value;
-    private \DateTimeImmutable $createdAt;
-    private ?\DateTimeImmutable $lastUsedAt;
+    private DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $lastUsedAt;
 
-    public function __construct(string $name, string $value, \DateTimeImmutable $createdAt, ?\DateTimeImmutable $lastUsedAt)
+    public function __construct(string $name, string $value, DateTimeImmutable $createdAt, ?DateTimeImmutable $lastUsedAt)
     {
         $this->name = $name;
         $this->value = $value;
@@ -29,12 +32,12 @@ final class Token implements \JsonSerializable
         return $this->value;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getLastUsedAt(): ?\DateTimeImmutable
+    public function getLastUsedAt(): ?DateTimeImmutable
     {
         return $this->lastUsedAt;
     }
@@ -47,8 +50,8 @@ final class Token implements \JsonSerializable
         return [
             'name' => $this->getName(),
             'value' => $this->getValue(),
-            'createdAt' => $this->getCreatedAt()->format(\DateTime::ATOM),
-            'lastUsedAt' => $this->getLastUsedAt() === null ? null : $this->getLastUsedAt()->format(\DateTime::ATOM),
+            'createdAt' => $this->getCreatedAt()->format(DateTime::ATOM),
+            'lastUsedAt' => $this->getLastUsedAt() === null ? null : $this->getLastUsedAt()->format(DateTime::ATOM),
         ];
     }
 }

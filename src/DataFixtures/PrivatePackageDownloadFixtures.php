@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\DataFixtures;
 
+use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
@@ -61,7 +62,7 @@ final class PrivatePackageDownloadFixtures extends Fixture
                 $this->em->persist(new Download(
                     Uuid::uuid4(),
                     Uuid::fromString($package->id()),
-                    (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
+                    (new DateTimeImmutable())->modify(sprintf('-%s days', $i)),
                     $this->faker->randomElement($versions),
                     $this->faker->ipv4,
                     $this->faker->userAgent

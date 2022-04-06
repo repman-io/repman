@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
+use RuntimeException;
+use DateTimeImmutable;
+use DateTime;
+use Throwable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Abandoned;
 use Buddy\Repman\Entity\Organization\Package\Link;
@@ -74,7 +78,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             });
 
             if ($packages === []) {
-                throw new \RuntimeException('Package not found');
+                throw new RuntimeException('Package not found');
             }
 
             $latest = current($packages);
@@ -90,15 +94,15 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $name = $latest->getPrettyName();
 
             if ($name === null) {
-                throw new \RuntimeException('Missing package name in latest version. Revision: '.$latest->getDistReference());
+                throw new RuntimeException('Missing package name in latest version. Revision: '.$latest->getDistReference());
             }
 
             if (preg_match(Package::NAME_PATTERN, $name, $matches) !== 1) {
-                throw new \RuntimeException("Package name {$name} is invalid");
+                throw new RuntimeException("Package name {$name} is invalid");
             }
 
             if (!$package->isSynchronized() && $this->packageRepository->packageExist($name, $package->organizationId())) {
-                throw new \RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
+                throw new RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
             }
 
             $versions = [];
@@ -113,7 +117,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                         'distType' => $p->getDistType(),
                         'distUrl' => $p->getDistUrl(),
                         'authHeaders' => $this->getAuthHeaders($package),
-                        'releaseDate' => \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime()),
+                        'releaseDate' => DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new DateTime()),
                         'stability' => $p->getStability(),
                     ];
                 }
@@ -205,11 +209,11 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 $latest->getStability() === Version::STABILITY_STABLE ? $latest->getPrettyVersion() : 'no stable release',
                 $encounteredVersions,
                 $encounteredLinks,
-                \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
+                DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new DateTime()),
             );
 
             $this->packageManager->saveProvider($json, $package->organizationAlias(), $name);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $package->syncFailure(sprintf('Error: %s%s',
                 $exception->getMessage(),
                 isset($io) && strlen($io->getOutput()) > 1 ? "\nLogs:\n".$io->getOutput() : ''

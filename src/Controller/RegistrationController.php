@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use RuntimeException;
+use InvalidArgumentException;
 use Buddy\Repman\Form\Type\User\RegisterType;
 use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateUser;
@@ -90,7 +92,7 @@ class RegistrationController extends AbstractController
         try {
             $this->messageBus->dispatch(new ConfirmEmail($token));
             $this->addFlash('success', 'E-mail address was confirmed. Enjoy your Repman account.');
-        } catch (\RuntimeException | \InvalidArgumentException $exception) {
+        } catch (RuntimeException | InvalidArgumentException $exception) {
             $this->addFlash('danger', 'Invalid or expired e-mail confirm token');
         }
 

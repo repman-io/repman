@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
+use ZipArchive;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Service\Dist\Storage;
 use League\CommonMark\CommonMarkConverter;
@@ -56,7 +57,7 @@ final class ReadmeExtractor
             return null;
         }
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $result = $zip->open($tmpLocalFilename->get());
         if ($result !== true) {
             return null;

@@ -117,7 +117,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('POST', $this->urlTo('api_organization_create'), [], [], [], (string) json_encode([
             'name' => self::$organization,
-        ]));
+        ], JSON_THROW_ON_ERROR));
 
         self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
         self::assertJsonStringEqualsJsonString(
@@ -140,6 +140,6 @@ final class OrganizationControllerTest extends FunctionalTestCase
      */
     private function jsonResponse(): array
     {
-        return json_decode($this->lastResponseBody(), true);
+        return json_decode($this->lastResponseBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

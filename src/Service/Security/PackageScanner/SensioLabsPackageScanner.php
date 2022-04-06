@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Security\PackageScanner;
 
+use Throwable;
+use DateTimeImmutable;
+use RuntimeException;
+use ZipArchive;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Message\Security\SendScanResult;
@@ -65,7 +69,7 @@ final class SensioLabsPackageScanner implements PackageScanner
 
                 $result[$lockFileName] = $scanResults;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->saveResult(
                 $package,
                 ScanResult::STATUS_ERROR,
@@ -87,7 +91,7 @@ final class SensioLabsPackageScanner implements PackageScanner
      */
     private function saveResult(Package $package, string $status, array $result): void
     {
-        $date = new \DateTimeImmutable();
+        $date = new DateTimeImmutable();
         $package->setScanResult($status, $date, $result);
         $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $result));
 
@@ -135,12 +139,12 @@ final class SensioLabsPackageScanner implements PackageScanner
                 );
 
                 return $filename->getOrElseThrow(
-                    new \RuntimeException("Distribution file for version $packageVersion not found")
+                    new RuntimeException("Distribution file for version $packageVersion not found")
                 );
             }
         }
 
-        throw new \RuntimeException("Version $normalizedVersion for package $packageName not found");
+        throw new RuntimeException("Version $normalizedVersion for package $packageName not found");
     }
 
     /**
@@ -149,10 +153,10 @@ final class SensioLabsPackageScanner implements PackageScanner
     private function extractLockFiles(string $distFilename): array
     {
         $tmpZipFile = $this->distStorage->getLocalFileForDistUrl($distFilename);
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $result = $zip->open($tmpZipFile->get());
         if ($result !== true) {
-            throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
+            throw new RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
         }
 
         $lockFiles = [];

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
+use RuntimeException;
+use InvalidArgumentException;
 use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use League\Flysystem\FileNotFoundException;
@@ -48,7 +50,7 @@ final class Proxy
             foreach ($this->decodeMetadata($package) as $packageData) {
                 if (($packageData['dist']['reference'] ?? '') === $ref) {
                     $this->filesystem->putStream($path, $this->downloader->getContents($packageData['dist']['url'])
-                        ->getOrElseThrow(new \RuntimeException(
+                        ->getOrElseThrow(new RuntimeException(
                                              \sprintf('Failed to download file from %s', $packageData['dist']['url'])))
                     );
                     break;
@@ -142,7 +144,7 @@ final class Proxy
             $path = $this->distPath($package, $lastDist['reference'], $lastDist['type']);
             if ($version === $packageData['version'] && !$this->filesystem->has($path)) {
                 $this->filesystem->writeStream($path, $this->downloader->getContents($lastDist['url'])
-                    ->getOrElseThrow(new \RuntimeException(\sprintf('Failed to download file from %s', $lastDist['url'])))
+                    ->getOrElseThrow(new RuntimeException(\sprintf('Failed to download file from %s', $lastDist['url'])))
                 );
                 break;
             }
@@ -152,7 +154,7 @@ final class Proxy
     public function removeDist(string $package): void
     {
         if (mb_strlen($package) === 0) {
-            throw new \InvalidArgumentException('Empty package name');
+            throw new InvalidArgumentException('Empty package name');
         }
 
         $this->filesystem->deleteDir(\sprintf('%s/dist/%s', $this->name, $package));
@@ -281,7 +283,7 @@ final class Proxy
     {
         /** @var Metadata $metadata */
         $metadata = $this->metadata($package)->getOrElse(Metadata::fromString('[]'));
-        $metadata = \json_decode((string) \stream_get_contents($metadata->stream()), true);
+        $metadata = \json_decode((string) \stream_get_contents($metadata->stream()), true, 512, JSON_THROW_ON_ERROR);
 
         return \is_array($metadata) ? ($metadata['packages'][$package] ?? []) : [];
     }

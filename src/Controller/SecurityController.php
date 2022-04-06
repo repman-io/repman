@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Browser;
 use Buddy\Repman\Form\Type\User\ResetPasswordType;
 use Buddy\Repman\Form\Type\User\SendResetPasswordLinkType;
 use Buddy\Repman\Message\User\ResetPassword;
@@ -57,7 +58,7 @@ class SecurityController extends AbstractController
         $form = $this->createForm(SendResetPasswordLinkType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $browser = new \Browser();
+            $browser = new Browser();
             $this->messageBus->dispatch(new SendPasswordResetLink(
                 $form->get('email')->getData(),
                 $browser->getPlatform(),

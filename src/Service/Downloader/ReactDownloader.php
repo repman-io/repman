@@ -25,9 +25,7 @@ final class ReactDownloader implements Downloader
     {
         $this->loop = Loop::get();
         $this->browser = new Browser($this->loop, new Connector($this->loop, ['timeout' => 10]));
-        $this->queue = new Queue(100, null, function (string $type, string $url, array $headers = []): PromiseInterface {
-            return $this->browser->{$type}($url, array_merge($headers, ['User-Agent' => $this->userAgent()]));
-        });
+        $this->queue = new Queue(100, null, fn(string $type, string $url, array $headers = []): PromiseInterface => $this->browser->{$type}($url, array_merge($headers, ['User-Agent' => $this->userAgent()])));
     }
 
     /**

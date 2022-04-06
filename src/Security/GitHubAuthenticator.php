@@ -45,8 +45,6 @@ final class GitHubAuthenticator extends OAuthAuthenticator
 
         $user = $this->userProvider->loadUserByIdentifier($email);
 
-        return new SelfValidatingPassport(new UserBadge($email, function () use ($user): UserInterface {
-            return $user;
-        }));
+        return new SelfValidatingPassport(new UserBadge($email, fn(): UserInterface => $user));
     }
 }

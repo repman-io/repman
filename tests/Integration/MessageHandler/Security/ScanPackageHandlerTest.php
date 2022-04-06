@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Security;
 
+use Exception;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\MessageHandler\Security\ScanPackageHandler;
 use Buddy\Repman\Query\User\PackageQuery;
@@ -43,7 +44,7 @@ final class ScanPackageHandlerTest extends IntegrationTestCase
         try {
             $handler = $this->container()->get(ScanPackageHandler::class);
             $handler->__invoke(new ScanPackage('1a01fc33-5265-43b9-9482-84eddcf0216e'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
         }
 
         self::assertNull($exception);

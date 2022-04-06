@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use DateTimeImmutable;
+use RuntimeException;
 use Buddy\Repman\Entity\Organization\Invitation;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
@@ -29,7 +31,7 @@ class Organization
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -75,7 +77,7 @@ class Organization
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->packages = new ArrayCollection();
         $this->tokens = new ArrayCollection();
         $this->invitations = new ArrayCollection();
@@ -207,7 +209,7 @@ class Organization
     public function removeMember(User $user): void
     {
         if ($this->isLastOwner($user)) {
-            throw new \RuntimeException('Organisation must have at least one owner.');
+            throw new RuntimeException('Organisation must have at least one owner.');
         }
 
         foreach ($this->members as $member) {
@@ -221,7 +223,7 @@ class Organization
     public function changeRole(User $user, string $role): void
     {
         if ($this->isLastOwner($user) && $role === Member::ROLE_MEMBER) {
-            throw new \RuntimeException('Organisation must have at least one owner.');
+            throw new RuntimeException('Organisation must have at least one owner.');
         }
 
         foreach ($this->members as $member) {

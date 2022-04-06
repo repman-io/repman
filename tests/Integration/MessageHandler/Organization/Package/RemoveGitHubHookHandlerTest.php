@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization\Package;
 
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
 use Buddy\Repman\MessageHandler\Organization\Package\RemoveGitHubHookHandler;
@@ -34,7 +35,7 @@ final class RemoveGitHubHookHandlerTest extends IntegrationTestCase
 
     public function testPackageNotFound(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Package 9691e73b-1738-42fe-9d5b-31d0dadf7407 not found.');
 
         $handler = $this->container()->get(RemoveGitHubHookHandler::class);

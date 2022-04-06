@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use DateTimeImmutable;
 use Buddy\Repman\Query\User\Model\Installs\Day;
 
 final class Installs
@@ -55,7 +56,7 @@ final class Installs
         }
 
         for ($i = 0; $i < $period; ++$i) {
-            $date = (new \DateTimeImmutable())->modify(sprintf('-%s days', $i))->format('Y-m-d');
+            $date = (new DateTimeImmutable())->modify(sprintf('-%s days', $i))->format('Y-m-d');
             if (!isset($all[$date])) {
                 $all[$date] = new Day($date, 0);
             }

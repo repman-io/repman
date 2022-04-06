@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\User;
 
+use DateTimeImmutable;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Grant\RefreshToken;
@@ -24,7 +25,7 @@ class UserOAuthTokenRefresher
 
         return new AccessToken(
             $accessToken->getToken(),
-            $accessToken->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($accessToken->getExpires()) : null
+            $accessToken->getExpires() !== null ? (new DateTimeImmutable())->setTimestamp($accessToken->getExpires()) : null
         );
     }
 }

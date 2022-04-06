@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry;
 
+use JsonSerializable;
+use DateTimeImmutable;
 use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 
-final class Entry implements \JsonSerializable
+final class Entry implements JsonSerializable
 {
-    private \DateTimeImmutable $date;
+    private DateTimeImmutable $date;
     private Instance $instance;
     private Downloads $downloads;
     private Proxy $proxy;
@@ -25,7 +27,7 @@ final class Entry implements \JsonSerializable
      * @param Organization[] $organizations
      */
     public function __construct(
-        \DateTimeImmutable $date,
+        DateTimeImmutable $date,
         Instance $instance,
         array $organizations,
         Downloads $downloads,

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Error implements \JsonSerializable
+use JsonSerializable;
+final class Error implements JsonSerializable
 {
     private string $field;
 

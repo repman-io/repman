@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use Buddy\Repman\Security\Model\User\Organization;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
 use Doctrine\DBAL\Connection;
@@ -101,8 +102,8 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
             $data['status'],
             $data['email_confirmed_at'] !== null,
             $data['email_confirm_token'],
-            json_decode($data['roles'], true),
-            array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
+            json_decode($data['roles'], true, 512, JSON_THROW_ON_ERROR),
+            array_map(fn (array $data) => new Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
             (bool) $data['email_scan_result'],
             $data['timezone'],
         );

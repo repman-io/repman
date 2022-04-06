@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use DateTimeImmutable;
 final class Package
 {
     use PackageScanResultTrait;
@@ -14,11 +15,11 @@ final class Package
     private string $url;
     private ?string $name;
     private ?string $latestReleasedVersion;
-    private ?\DateTimeImmutable $latestReleaseDate;
+    private ?DateTimeImmutable $latestReleaseDate;
     private ?string $description;
-    private ?\DateTimeImmutable $lastSyncAt;
+    private ?DateTimeImmutable $lastSyncAt;
     private ?string $lastSyncError;
-    private ?\DateTimeImmutable $webhookCreatedAt;
+    private ?DateTimeImmutable $webhookCreatedAt;
     private ?string $webhookCreatedError;
     private int $keepLastReleases;
 
@@ -29,11 +30,11 @@ final class Package
         string $url,
         ?string $name = null,
         ?string $latestReleasedVersion = null,
-        ?\DateTimeImmutable $latestReleaseDate = null,
+        ?DateTimeImmutable $latestReleaseDate = null,
         ?string $description = null,
-        ?\DateTimeImmutable $lastSyncAt = null,
+        ?DateTimeImmutable $lastSyncAt = null,
         ?string $lastSyncError = null,
-        ?\DateTimeImmutable $webhookCreatedAt = null,
+        ?DateTimeImmutable $webhookCreatedAt = null,
         ?string $webhookCreatedError = null,
         ?ScanResult $scanResult = null,
         int $keepLastReleases = 0
@@ -84,7 +85,7 @@ final class Package
         return $this->latestReleasedVersion;
     }
 
-    public function latestReleaseDate(): ?\DateTimeImmutable
+    public function latestReleaseDate(): ?DateTimeImmutable
     {
         return $this->latestReleaseDate;
     }
@@ -94,7 +95,7 @@ final class Package
         return $this->description;
     }
 
-    public function lastSyncAt(): ?\DateTimeImmutable
+    public function lastSyncAt(): ?DateTimeImmutable
     {
         return $this->lastSyncAt;
     }
@@ -104,7 +105,7 @@ final class Package
         return $this->lastSyncError;
     }
 
-    public function webhookCreatedAt(): ?\DateTimeImmutable
+    public function webhookCreatedAt(): ?DateTimeImmutable
     {
         return $this->webhookCreatedAt;
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Integration\BitbucketApi;
 
+use RuntimeException;
 use Bitbucket\Api\CurrentUser;
 use Bitbucket\Api\Repositories as RepositoriesApi;
 use Bitbucket\Client;
@@ -72,7 +73,7 @@ final class RestBitbucketApiTest extends TestCase
         $currentUser->method('listEmails')->willReturn([]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->api->primaryEmail('token');
     }
 

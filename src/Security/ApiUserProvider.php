@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use Buddy\Repman\Security\Model\User\Organization;
+use DateTimeImmutable;
 use Buddy\Repman\Security\Model\User;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -86,8 +88,8 @@ final class ApiUserProvider implements UserProviderInterface
             $data['status'],
             $data['email_confirmed_at'] !== null,
             $data['email_confirm_token'],
-            json_decode($data['roles'], true),
-            array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
+            json_decode($data['roles'], true, 512, JSON_THROW_ON_ERROR),
+            array_map(fn (array $data) => new Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
             $data['email_scan_result'],
             $data['timezone'],
         );
@@ -98,7 +100,7 @@ final class ApiUserProvider implements UserProviderInterface
         $this->connection->executeQuery(
             'UPDATE user_api_token
             SET last_used_at = :now WHERE value = :value', [
-            'now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'now' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
             'value' => $token,
         ]);
     }

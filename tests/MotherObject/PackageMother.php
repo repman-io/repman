@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\MotherObject;
 
+use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
@@ -72,7 +73,7 @@ final class PackageMother
             $latestVersion,
             $unencounteredVersions,
             $unencounteredLinks,
-            new \DateTimeImmutable()
+            new DateTimeImmutable()
         );
 
         return $package;

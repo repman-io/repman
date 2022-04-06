@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Command;
 
+use DateTimeImmutable;
+use DateTime;
 use Buddy\Repman\Command\ClearOldPrivateDistsCommand;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -37,7 +39,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->packageName,
             'description',
             $this->version,
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
             ]
@@ -67,7 +69,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->packageName,
             'description',
             $this->version,
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
                 $this->createVersion('dev-master', $devRef, 'dev'),
@@ -106,7 +108,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $this->packageName,
             'description',
             $this->version,
-            new \DateTimeImmutable(),
+            new DateTimeImmutable(),
             [
                 $this->createVersion($this->version, $this->ref, Version::STABILITY_STABLE),
                 $this->createVersion('dev-master', $dev1Ref, 'dev', 1),
@@ -166,7 +168,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
             $version,
             $ref,
             1234,
-            \DateTimeImmutable::createFromMutable((new \DateTime())->modify("+$dateOffset seconds")),
+            DateTimeImmutable::createFromMutable((new DateTime())->modify("+$dateOffset seconds")),
             $stability
         );
     }

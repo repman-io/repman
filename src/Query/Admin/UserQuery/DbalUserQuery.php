@@ -21,9 +21,7 @@ final class DbalUserQuery implements UserQuery
 
     public function findAll(Filter $filter): array
     {
-        return array_map(function (array $data): User {
-            return $this->hydrateUser($data);
-        }, $this->connection->fetchAllAssociative('SELECT id, email, status, roles FROM "user" ORDER BY email LIMIT :limit OFFSET :offset', [
+        return array_map(fn(array $data): User => $this->hydrateUser($data), $this->connection->fetchAllAssociative('SELECT id, email, status, roles FROM "user" ORDER BY email LIMIT :limit OFFSET :offset', [
             'limit' => $filter->getLimit(),
             'offset' => $filter->getOffset(),
         ]));
@@ -73,7 +71,7 @@ final class DbalUserQuery implements UserQuery
             $data['id'],
             $data['email'],
             $data['status'],
-            json_decode($data['roles'])
+            json_decode($data['roles'], null, 512, JSON_THROW_ON_ERROR)
         );
     }
 }

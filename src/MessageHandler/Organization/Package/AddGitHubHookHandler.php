@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\MessageHandler\Organization\Package;
 
+use Throwable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
@@ -27,7 +28,7 @@ final class AddGitHubHookHandler extends AbstractHookHandler
             );
 
             $package->webhookWasCreated();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $package->webhookWasNotCreated($exception->getMessage());
         }
     }

@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Twig;
 
+use DateTimeInterface;
+use DateTimeImmutable;
+use DateTimeZone;
 use Buddy\Repman\Security\Model\User;
 use Symfony\Component\Intl\Timezones;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -79,8 +82,8 @@ class DateExtension extends AbstractExtension
     /**
      * Filters for converting dates to a time ago string like Facebook and Twitter has.
      *
-     * @param string|\DateTimeInterface $date a string or DateTime object to convert
-     * @param string|\DateTimeInterface $now  A string or DateTime object to compare with. If none given, the current time will be used.
+     * @param string|DateTimeInterface $date a string or DateTime object to convert
+     * @param string|DateTimeInterface $now A string or DateTime object to compare with. If none given, the current time will be used.
      *
      * @return string the converted time
      */
@@ -89,7 +92,7 @@ class DateExtension extends AbstractExtension
         $date = twig_date_converter($env, $date);
 
         $now = $now === null
-            ? new \DateTimeImmutable(
+            ? new DateTimeImmutable(
                 twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
             )
             : twig_date_converter($env, $now);
@@ -114,22 +117,22 @@ class DateExtension extends AbstractExtension
     }
 
     /**
-     * @param string|\DateTimeInterface $date
+     * @param string|DateTimeInterface $date
      */
     public function dateTime(Environment $env, $date, ?string $sourceTimezone = null): string
     {
         $date = $sourceTimezone === null
             ? twig_date_converter($env, $date, $this->timezone)
-            : (new \DateTimeImmutable(
+            : (new DateTimeImmutable(
                 (twig_date_converter($env, $date))->format('Y-m-d H:i:s'),
-                new \DateTimeZone($sourceTimezone)
-            ))->setTimezone(new \DateTimeZone($this->timezone));
+                new DateTimeZone($sourceTimezone)
+            ))->setTimezone(new DateTimeZone($this->timezone));
 
         return $date->format('Y-m-d H:i:s');
     }
 
     /**
-     * @param string|\DateTimeInterface $date
+     * @param string|DateTimeInterface $date
      */
     public function dateTimeUtc(Environment $env, $date): string
     {
@@ -137,12 +140,12 @@ class DateExtension extends AbstractExtension
     }
 
     /**
-     * @param string|\DateTimeInterface $now A string or DateTime object. If none given, the current time will be used.
+     * @param string|DateTimeInterface $now A string or DateTime object. If none given, the current time will be used.
      */
     public function gmtOffset(Environment $env, $now = null): string
     {
         $now = $now === null
-            ? new \DateTimeImmutable(
+            ? new DateTimeImmutable(
                 twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
             )
             : twig_date_converter($env, $now);

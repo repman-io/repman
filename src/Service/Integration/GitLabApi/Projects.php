@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\GitLabApi;
 
+use RuntimeException;
 final class Projects
 {
     /**
@@ -37,7 +38,7 @@ final class Projects
     public function get(int $id): Project
     {
         if (!isset($this->projects[$id])) {
-            throw new \RuntimeException(sprintf('Project %s not found', $id));
+            throw new RuntimeException(sprintf('Project %s not found', $id));
         }
 
         return $this->projects[$id];

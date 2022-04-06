@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Integration\GitHubApi;
 
+use RuntimeException;
 use Buddy\Repman\Service\Integration\GitHubApi\RestGitHubApi;
 use Github\Api\CurrentUser;
 use Github\Api\CurrentUser\Emails;
@@ -70,7 +71,7 @@ final class RestGitHubApiTest extends TestCase
         $emails->method('all')->willReturn([]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->api->primaryEmail('token');
     }
 

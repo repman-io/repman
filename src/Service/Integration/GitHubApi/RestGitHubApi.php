@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\GitHubApi;
 
+use RuntimeException;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Github\AuthMethod;
 use Github\Client;
@@ -27,7 +28,7 @@ final class RestGitHubApi implements GitHubApi
             }
         }
 
-        throw new \RuntimeException('Primary e-mail not found.');
+        throw new RuntimeException('Primary e-mail not found.');
     }
 
     /**

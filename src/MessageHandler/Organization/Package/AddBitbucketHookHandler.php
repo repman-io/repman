@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\MessageHandler\Organization\Package;
 
+use Throwable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
@@ -26,7 +27,7 @@ final class AddBitbucketHookHandler extends AbstractHookHandler
                 $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
             );
             $package->webhookWasCreated();
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $package->webhookWasNotCreated($exception->getMessage());
         }
     }

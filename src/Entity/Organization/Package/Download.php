@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization\Package;
 
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 use Ramsey\Uuid\UuidInterface;
@@ -35,7 +36,7 @@ class Download
     /**
      * @ORM\Column(type="date_immutable")
      */
-    private \DateTimeImmutable $date;
+    private DateTimeImmutable $date;
 
     /**
      * @ORM\Column(type="string")
@@ -55,7 +56,7 @@ class Download
     public function __construct(
         UuidInterface $id,
         UuidInterface $packageId,
-        \DateTimeImmutable $date,
+        DateTimeImmutable $date,
         string $version,
         ?string $ip = null,
         ?string $userAgent = null

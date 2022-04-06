@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
+use Throwable;
+use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repositories;
 
 final class FakeBitbucketApi implements BitbucketApi
 {
     private string $primaryEmail = '';
-    private ?\Throwable $exception = null;
+    private ?Throwable $exception = null;
     /**
      * @var string[]
      */
@@ -28,7 +30,7 @@ final class FakeBitbucketApi implements BitbucketApi
         $this->primaryEmail = $primaryEmail;
     }
 
-    public function setExceptionOnNextCall(?\Throwable $exception): void
+    public function setExceptionOnNextCall(?Throwable $exception): void
     {
         $this->exception = $exception;
     }
@@ -38,7 +40,7 @@ final class FakeBitbucketApi implements BitbucketApi
         $this->throwExceptionIfSet();
 
         return new Repositories([
-            new BitbucketApi\Repository('{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}', 'buddy-works/repman', 'https://bitbucket.org/buddy-works/repman.git'),
+            new Repository('{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}', 'buddy-works/repman', 'https://bitbucket.org/buddy-works/repman.git'),
         ]);
     }
 

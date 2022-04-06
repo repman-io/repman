@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use RuntimeException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
@@ -22,7 +25,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Package
 {
-    const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
+    public const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
 
     /**
      * @ORM\Id
@@ -48,7 +51,7 @@ class Package
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $latestReleaseDate = null;
+    private ?DateTimeImmutable $latestReleaseDate = null;
 
     /**
      * @ORM\Column(type="text")
@@ -69,12 +72,12 @@ class Package
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeInterface $lastSyncAt;
+    private ?DateTimeInterface $lastSyncAt = null;
 
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $webhookCreatedAt = null;
+    private ?DateTimeImmutable $webhookCreatedAt = null;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -113,7 +116,7 @@ class Package
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $lastScanDate = null;
+    private ?DateTimeImmutable $lastScanDate = null;
 
     /**
      * @var Collection<int,Version>|Version[]
@@ -159,7 +162,7 @@ class Package
     public function setOrganization(Organization $organization): void
     {
         if (isset($this->organization)) {
-            throw new \RuntimeException('You can not change package organization');
+            throw new RuntimeException('You can not change package organization');
         }
         $this->organization = $organization;
     }
@@ -178,7 +181,7 @@ class Package
      * @param array<string,bool> $encounteredVersions
      * @param array<string,bool> $encounteredLinks
      */
-    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, \DateTimeImmutable $latestReleaseDate): void
+    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, DateTimeImmutable $latestReleaseDate): void
     {
         $this->setName($name);
         $this->description = $description;
@@ -205,13 +208,13 @@ class Package
 
             $this->links->remove($key);
         }
-        $this->lastSyncAt = new \DateTimeImmutable();
+        $this->lastSyncAt = new DateTimeImmutable();
         $this->lastSyncError = null;
     }
 
     public function syncFailure(string $error): void
     {
-        $this->lastSyncAt = new \DateTimeImmutable();
+        $this->lastSyncAt = new DateTimeImmutable();
         $this->lastSyncError = $error;
     }
 
@@ -244,7 +247,7 @@ class Package
     {
         $token = $this->organization->oauthToken(str_replace('-oauth', '', $this->type));
         if ($token === null) {
-            throw new \RuntimeException('Oauth token not found');
+            throw new RuntimeException('Oauth token not found');
         }
 
         return $token;
@@ -257,7 +260,7 @@ class Package
 
     public function webhookWasCreated(): void
     {
-        $this->webhookCreatedAt = new \DateTimeImmutable();
+        $this->webhookCreatedAt = new DateTimeImmutable();
         $this->webhookCreatedError = null;
     }
 
@@ -288,7 +291,7 @@ class Package
     public function metadata(string $key)
     {
         if (!isset($this->metadata[$key])) {
-            throw new \RuntimeException(sprintf('Metadata %s not found for project %s', $key, $this->id->toString()));
+            throw new RuntimeException(sprintf('Metadata %s not found for project %s', $key, $this->id->toString()));
         }
 
         return $this->metadata[$key];
@@ -312,7 +315,7 @@ class Package
     /**
      * @param mixed[] $result
      */
-    public function setScanResult(string $status, \DateTimeImmutable $date, array $result): void
+    public function setScanResult(string $status, DateTimeImmutable $date, array $result): void
     {
         $this->lastScanDate = $date;
         $this->lastScanStatus = $status;
@@ -322,7 +325,7 @@ class Package
     private function setName(string $name): void
     {
         if (preg_match(self::NAME_PATTERN, $name, $matches) !== 1) {
-            throw new \RuntimeException("Package name {$name} is invalid");
+            throw new RuntimeException("Package name {$name} is invalid");
         }
 
         $this->name = $name;

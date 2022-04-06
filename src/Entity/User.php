@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User\ApiToken;
 use Buddy\Repman\Entity\User\OAuthToken;
@@ -19,9 +21,9 @@ use Ramsey\Uuid\UuidInterface;
  */
 class User
 {
-    const STATUS_ENABLED = 'enabled';
+    public const STATUS_ENABLED = 'enabled';
 
-    const STATUS_DISABLED = 'disabled';
+    public const STATUS_DISABLED = 'disabled';
 
     /**
      * @ORM\Id
@@ -37,7 +39,7 @@ class User
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @var array<string>
@@ -54,7 +56,7 @@ class User
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $emailConfirmedAt = null;
+    private ?DateTimeImmutable $emailConfirmedAt = null;
 
     /**
      * @ORM\Column(type="string", unique=true)
@@ -69,7 +71,7 @@ class User
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
+    private ?DateTimeImmutable $resetPasswordTokenCreatedAt = null;
 
     /**
      * @var Collection<int,Member>|Member[]
@@ -114,7 +116,7 @@ class User
         $this->emailConfirmToken = $emailConfirmToken;
         $this->roles = array_values(array_unique($roles));
         $this->timezone = $timezone ?? date_default_timezone_get();
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->memberships = new ArrayCollection();
         $this->oauthTokens = new ArrayCollection();
         $this->apiTokens = new ArrayCollection();
@@ -123,17 +125,17 @@ class User
     public function setResetPasswordToken(string $token): void
     {
         $this->resetPasswordToken = $token;
-        $this->resetPasswordTokenCreatedAt = new \DateTimeImmutable();
+        $this->resetPasswordTokenCreatedAt = new DateTimeImmutable();
     }
 
     public function resetPassword(string $token, string $password, int $tokenTtl): void
     {
         if ($token !== $this->resetPasswordToken) {
-            throw new \InvalidArgumentException('Invalid reset password token');
+            throw new InvalidArgumentException('Invalid reset password token');
         }
 
-        if ($this->resetPasswordTokenCreatedAt === null || $this->resetPasswordTokenCreatedAt->modify(sprintf('%s sec', $tokenTtl)) < new \DateTimeImmutable()) {
-            throw new \InvalidArgumentException('Token expired');
+        if ($this->resetPasswordTokenCreatedAt === null || $this->resetPasswordTokenCreatedAt->modify(sprintf('%s sec', $tokenTtl)) < new DateTimeImmutable()) {
+            throw new InvalidArgumentException('Token expired');
         }
 
         $this->password = $password;
@@ -148,13 +150,13 @@ class User
         }
 
         if ($token !== $this->emailConfirmToken) {
-            throw new \InvalidArgumentException('Invalid confirm e-mail token');
+            throw new InvalidArgumentException('Invalid confirm e-mail token');
         }
 
-        $this->emailConfirmedAt = new \DateTimeImmutable();
+        $this->emailConfirmedAt = new DateTimeImmutable();
     }
 
-    public function emailConfirmedAt(): ?\DateTimeImmutable
+    public function emailConfirmedAt(): ?DateTimeImmutable
     {
         return $this->emailConfirmedAt;
     }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\OrganizationQuery;
 
+use Buddy\Repman\Query\User\Model\Installs\Day;
+use DateTimeImmutable;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
 use Buddy\Repman\Query\User\Model\Organization;
@@ -65,9 +67,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllTokens(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $data): Token {
-            return $this->hydrateToken($data);
-        }, $this->connection->fetchAllAssociative('
+        return array_map(fn(array $data): Token => $this->hydrateToken($data), $this->connection->fetchAllAssociative('
             SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :id
@@ -103,10 +103,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         $packagesId = array_column($this->connection->fetchAllAssociative('SELECT id FROM organization_package WHERE organization_id = :id', ['id' => $organizationId]), 'id');
 
         return new Installs(
-            array_map(function (array $row): Installs\Day {
-                return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
-                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            array_map(fn(array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
+                'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
                 'packages' => $packagesId,
             ], ['packages' => Connection::PARAM_STR_ARRAY])),
             $lastDays,
@@ -120,13 +118,11 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function findAllInvitations(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $row): Invitation {
-            return new Invitation(
-                $row['email'],
-                $row['role'],
-                $row['token']
-            );
-        }, $this->connection->fetchAllAssociative('
+        return array_map(fn(array $row): Invitation => new Invitation(
+            $row['email'],
+            $row['role'],
+            $row['token']
+        ), $this->connection->fetchAllAssociative('
             SELECT email, role, token
             FROM organization_invitation
             WHERE organization_id = :id
@@ -153,13 +149,11 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllMembers(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $row): Member {
-            return new Member(
-                $row['id'],
-                $row['email'],
-                $row['role']
-            );
-        }, $this->connection->fetchAllAssociative('
+        return array_map(fn(array $row): Member => new Member(
+            $row['id'],
+            $row['email'],
+            $row['role']
+        ), $this->connection->fetchAllAssociative('
             SELECT u.id, u.email, m.role
             FROM organization_member AS m
             JOIN "user" u ON u.id = m.user_id
@@ -251,8 +245,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return new Token(
             $data['name'],
             $data['value'],
-            new \DateTimeImmutable($data['created_at']),
-            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
+            new DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

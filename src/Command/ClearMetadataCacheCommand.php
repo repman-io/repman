@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
+use ArrayIterator;
 use Buddy\Repman\Service\Dist\FilePatternFilterIterator;
 use League\Flysystem\FilesystemInterface;
 use Symfony\Component\Console\Command\Command;
@@ -42,7 +43,7 @@ final class ClearMetadataCacheCommand extends Command
         $files = $this->repoFilesystem->listContents('/', true);
 
         $iterator = new FilePatternFilterIterator(
-            new \ArrayIterator($files),
+            new ArrayIterator($files),
             self::VCS_PATTERNS,
             '/.*json$/'
         );

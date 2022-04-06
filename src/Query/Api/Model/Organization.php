@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Organization implements \JsonSerializable
+use JsonSerializable;
+final class Organization implements JsonSerializable
 {
     private string $id;
     private string $name;

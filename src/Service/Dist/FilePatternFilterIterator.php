@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Dist;
 
-final class FilePatternFilterIterator extends \FilterIterator
+use FilterIterator;
+use Iterator;
+final class FilePatternFilterIterator extends FilterIterator
 {
     private ?string $excludedPattern = null;
     private string $inclusionPattern;
 
     /**
-     * @param \Iterator<array<string,string>> $iterator    The Iterator to filter
+     * @param Iterator<array<string, string>> $iterator The Iterator to filter
      * @param string[]                        $directories An array of directories to exclude
      */
-    public function __construct(\Iterator $iterator, array $directories, string $inclusionPattern)
+    public function __construct(Iterator $iterator, array $directories, string $inclusionPattern)
     {
         $this->inclusionPattern = $inclusionPattern;
         $patterns = [];

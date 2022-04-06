@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Admin;
 
+use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
@@ -60,7 +61,7 @@ final class OrganizationController extends AbstractController
      */
     public function addAdmin(Organization $organization, Request $request): Response
     {
-        /** @var \Buddy\Repman\Security\Model\User $user */
+        /** @var User $user */
         $user = $this->getUser();
 
         $this->messageBus->dispatch(new InviteUser(

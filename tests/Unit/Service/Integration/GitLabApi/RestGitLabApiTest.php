@@ -35,7 +35,7 @@ final class RestGitLabApiTest extends TestCase
         $projects = $this->createMock(ProjectsApi::class);
         $projects->method('all')->willReturn([
             [
-                'id' => 17275574,
+                'id' => 17_275_574,
                 'path' => 'left-pad',
                 'path_with_namespace' => 'repman/left-pad',
                 'created_at' => '2020-03-04T08:06:05.204Z',
@@ -45,7 +45,7 @@ final class RestGitLabApiTest extends TestCase
                 'web_url' => 'https://gitlab.com/repman/left-pad',
             ],
             [
-                'id' => 17275573,
+                'id' => 17_275_573,
                 'path' => 'right-pad',
                 'path_with_namespace' => 'repman/right-pad',
                 'created_at' => '2020-03-04T08:06:05.204Z',
@@ -58,8 +58,8 @@ final class RestGitLabApiTest extends TestCase
         $this->clientMock->method('projects')->willReturn($projects);
 
         self::assertEquals(new Projects([
-            new Project(17275574, 'repman/left-pad', 'https://gitlab.com/repman/left-pad'),
-            new Project(17275573, 'repman/right-pad', 'https://gitlab.com/repman/right-pad'),
+            new Project(17_275_574, 'repman/left-pad', 'https://gitlab.com/repman/left-pad'),
+            new Project(17_275_573, 'repman/right-pad', 'https://gitlab.com/repman/right-pad'),
         ]), $this->api->projects('gitlab-token'));
     }
 
@@ -68,7 +68,7 @@ final class RestGitLabApiTest extends TestCase
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::once())->method('addHook');
         $projects->method('hooks')->willReturn([[
-            'id' => 1834838,
+            'id' => 1_834_838,
             'url' => 'https://repman.wip/hook',
             'created_at' => '2020-03-04T10:26:45.746Z',
             'push_events' => true,
@@ -83,7 +83,7 @@ final class RestGitLabApiTest extends TestCase
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::never())->method('addHook');
         $projects->method('hooks')->willReturn([[
-            'id' => 1834838,
+            'id' => 1_834_838,
             'url' => 'https://webhook.url',
             'created_at' => '2020-03-04T10:26:45.746Z',
             'push_events' => true,
@@ -96,9 +96,9 @@ final class RestGitLabApiTest extends TestCase
     public function testRemoveHookWhenExist(): void
     {
         $projects = $this->createMock(ProjectsApi::class);
-        $projects->expects(self::once())->method('removeHook')->with(123, 1834838);
+        $projects->expects(self::once())->method('removeHook')->with(123, 1_834_838);
         $projects->method('hooks')->willReturn([[
-            'id' => 1834838,
+            'id' => 1_834_838,
             'url' => 'https://webhook.url',
             'created_at' => '2020-03-04T10:26:45.746Z',
             'push_events' => true,
@@ -113,7 +113,7 @@ final class RestGitLabApiTest extends TestCase
         $projects = $this->createMock(ProjectsApi::class);
         $projects->expects(self::never())->method('removeHook');
         $projects->method('hooks')->willReturn([[
-            'id' => 1834838,
+            'id' => 1_834_838,
             'url' => 'https://other.url',
             'created_at' => '2020-03-04T10:26:45.746Z',
             'push_events' => true,

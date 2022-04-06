@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use DateTime;
+use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Service\Proxy;
@@ -65,7 +67,7 @@ final class ProxyController extends AbstractController
             ->setPublic()
         ;
 
-        $now = new \DateTime();
+        $now = new DateTime();
         $response->setLastModified(
             $metadata->isPresent() ?
             $now->setTimestamp($metadata->get()->timestamp()) :
@@ -100,7 +102,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -131,7 +133,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -164,7 +166,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -195,7 +197,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -244,7 +246,7 @@ final class ProxyController extends AbstractController
      */
     public function downloads(Request $request): JsonResponse
     {
-        $contents = \json_decode($request->getContent(), true);
+        $contents = \json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (!isset($contents['downloads']) || !\is_array($contents['downloads']) || $contents['downloads'] === []) {
             return new JsonResponse([
                 'status' => 'error',
@@ -253,12 +255,8 @@ final class ProxyController extends AbstractController
         }
 
         $this->messageBus->dispatch(new AddDownloads(
-            \array_map(function (array $data): Package {
-                return new Package($data['name'], $data['version']);
-            }, \array_filter($contents['downloads'], function (array $row): bool {
-                return isset($row['name'], $row['version']);
-            })),
-            new \DateTimeImmutable(),
+            \array_map(fn(array $data): Package => new Package($data['name'], $data['version']), \array_filter($contents['downloads'], fn(array $row): bool => isset($row['name'], $row['version']))),
+            new DateTimeImmutable(),
             $request->getClientIp(),
             $request->headers->get('User-Agent')
         ));

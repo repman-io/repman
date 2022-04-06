@@ -10,7 +10,7 @@ class AliasGenerator
     {
         $text = transliterator_transliterate('Any-Latin; Latin-ASCII; [^\u001F-\u007f] remove', $name);
         $text = strtolower((string) $text);
-        $text = preg_replace('~[^-\w]+~', ' ', $text);
+        $text = preg_replace('~[^\-\w]+~', ' ', $text);
         $text = preg_replace('~\s+~', '-', (string) $text);
 
         return trim((string) $text, '-');

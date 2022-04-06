@@ -228,6 +228,6 @@ final class TokenControllerTest extends FunctionalTestCase
      */
     private function jsonResponse(): array
     {
-        return json_decode($this->lastResponseBody(), true);
+        return json_decode($this->lastResponseBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

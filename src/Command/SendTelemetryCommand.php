@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
+use DateTimeImmutable;
 use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
 use Symfony\Component\Console\Command\Command;
@@ -45,7 +46,7 @@ final class SendTelemetryCommand extends Command
         }
 
         $this->telemetry
-            ->collectAndSend((new \DateTimeImmutable())->modify('-1 day'));
+            ->collectAndSend((new DateTimeImmutable())->modify('-1 day'));
 
         return 0;
     }

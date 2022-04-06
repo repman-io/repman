@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\PackageSynchronizer;
 
+use ReflectionObject;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
@@ -88,9 +89,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         @unlink($path);
 
         self::assertCount(4, $package->versions());
-        $versionStrings = array_map(function (Version $version): string {
-            return $version->version();
-        }, $package->versions()->toArray());
+        $versionStrings = array_map(fn(Version $version): string => $version->version(), $package->versions()->toArray());
         sort($versionStrings, SORT_NATURAL);
         self::assertEquals(['1.0.0', '1.1.0', '1.1.1', '1.2.0'], $versionStrings);
 
@@ -220,9 +219,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         @unlink($path);
 
         self::assertCount($limit, $package->versions());
-        $versionStrings = array_map(function (Version $version): string {
-            return $version->version();
-        }, $package->versions()->toArray());
+        $versionStrings = array_map(fn(Version $version): string => $version->version(), $package->versions()->toArray());
         sort($versionStrings, SORT_NATURAL);
         self::assertEquals(['1.1.1', '1.2.0'], $versionStrings);
     }
@@ -274,7 +271,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
      */
     private function getProperty(object $object, string $property)
     {
-        $reflection = new \ReflectionObject($object);
+        $reflection = new ReflectionObject($object);
         $property = $reflection->getProperty($property);
         $property->setAccessible(true);
 

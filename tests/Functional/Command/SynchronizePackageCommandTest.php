@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Command;
 
+use DateTimeImmutable;
 use Buddy\Repman\Command\SynchronizePackageCommand;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
@@ -26,7 +27,7 @@ final class SynchronizePackageCommandTest extends FunctionalTestCase
     public function testSynchronizeSuccess(): void
     {
         $packageId = $this->fixtures->addPackage($this->buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable());
 
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');

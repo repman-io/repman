@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin\TelemetryQuery;
 
+use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Query\Admin\TelemetryQuery;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
@@ -33,15 +34,13 @@ final class DbalTelemetryQuery implements TelemetryQuery
      */
     public function organizations(int $limit = 100, int $offset = 0): array
     {
-        return array_map(function (array $data): Organization {
-            return new Organization(
-                $data['id'],
-                $data['tokens'],
-                $data['has_anonymous_access'],
-                $data['members'],
-                $data['owners'],
-            );
-        }, $this->connection->fetchAllAssociative(
+        return array_map(fn(array $data): Organization => new Organization(
+            $data['id'],
+            $data['tokens'],
+            $data['has_anonymous_access'],
+            $data['members'],
+            $data['owners'],
+        ), $this->connection->fetchAllAssociative(
             'SELECT
                 o.id,
                 COUNT(t.value) tokens,
@@ -74,21 +73,19 @@ final class DbalTelemetryQuery implements TelemetryQuery
     /**
      * @return Package[]
      */
-    public function packages(string $organizationId, \DateTimeImmutable $till, int $limit = 100, int $offset = 0): array
+    public function packages(string $organizationId, DateTimeImmutable $till, int $limit = 100, int $offset = 0): array
     {
-        return array_map(function (array $data): Package {
-            return new Package(
-                $data['type'],
-                $data['latest_release_date'] === null ? null : new \DateTimeImmutable($data['latest_release_date']),
-                $data['last_sync_at'] === null ? null : new \DateTimeImmutable($data['last_sync_at']),
-                $data['last_scan_date'] === null ? null : new \DateTimeImmutable($data['last_scan_date']),
-                $data['last_sync_error'] !== null,
-                $data['webhook_created_at'] !== null,
-                $data['last_scan_status'] ?? '',
-                $data['downloads'],
-                $data['webhooks'],
-            );
-        }, $this->connection->fetchAllAssociative(
+        return array_map(fn(array $data): Package => new Package(
+            $data['type'],
+            $data['latest_release_date'] === null ? null : new DateTimeImmutable($data['latest_release_date']),
+            $data['last_sync_at'] === null ? null : new DateTimeImmutable($data['last_sync_at']),
+            $data['last_scan_date'] === null ? null : new DateTimeImmutable($data['last_scan_date']),
+            $data['last_sync_error'] !== null,
+            $data['webhook_created_at'] !== null,
+            $data['last_scan_status'] ?? '',
+            $data['downloads'],
+            $data['webhooks'],
+        ), $this->connection->fetchAllAssociative(
             'SELECT
                 p.type,
                 p.latest_release_date,
@@ -124,7 +121,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
             );
     }
 
-    public function proxyDownloads(\DateTimeImmutable $till): int
+    public function proxyDownloads(DateTimeImmutable $till): int
     {
         return (int) $this
             ->connection
@@ -135,7 +132,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
             );
     }
 
-    public function privateDownloads(\DateTimeImmutable $till): int
+    public function privateDownloads(DateTimeImmutable $till): int
     {
         return (int) $this
             ->connection

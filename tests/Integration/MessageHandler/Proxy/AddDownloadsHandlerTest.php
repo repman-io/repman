@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Proxy;
 
+use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
@@ -23,7 +24,7 @@ final class AddDownloadsHandlerTest extends IntegrationTestCase
                 new Package('buddy-works/oauth2-client', '0.1.2'),
                 new Package('subctrine/dbal', '1.2.3'),
             ],
-            $date = new \DateTimeImmutable(),
+            $date = new DateTimeImmutable(),
             '156.101.44.101',
             'Repman 1.0'
         ));
@@ -36,8 +37,8 @@ final class AddDownloadsHandlerTest extends IntegrationTestCase
             ->findByNames(['buddy-works/oauth2-client', 'subctrine/dbal']);
 
         self::assertEquals([
-            'buddy-works/oauth2-client' => new DownloadPackage(2, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
-            'subctrine/dbal' => new DownloadPackage(1, new \DateTimeImmutable($date->format('Y-m-d H:i:s'))),
+            'buddy-works/oauth2-client' => new DownloadPackage(2, new DateTimeImmutable($date->format('Y-m-d H:i:s'))),
+            'subctrine/dbal' => new DownloadPackage(1, new DateTimeImmutable($date->format('Y-m-d H:i:s'))),
         ], $packages);
     }
 }

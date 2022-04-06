@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use DateTimeImmutable;
 use Buddy\Repman\Security\Model\Organization;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
@@ -69,7 +70,7 @@ final class OrganizationProvider implements UserProviderInterface
     private function updateLastUsed(string $token): void
     {
         $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
-            'now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'now' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
             'value' => $token,
         ]);
     }

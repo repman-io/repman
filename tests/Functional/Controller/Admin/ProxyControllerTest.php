@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\Admin;
 
+use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 
@@ -19,7 +20,7 @@ final class ProxyControllerTest extends FunctionalTestCase
     {
         $this->fixtures->addProxyPackageDownload(
             [new Package('buddy-works/repman', '1.0.0.0')],
-            new \DateTimeImmutable($time = '2020-04-27 19:34:00')
+            new DateTimeImmutable($time = '2020-04-27 19:34:00')
         );
         $this->client->request('GET', $this->urlTo('admin_dist_list', ['proxy' => 'packagist.org']));
 
@@ -31,7 +32,7 @@ final class ProxyControllerTest extends FunctionalTestCase
     {
         $this->fixtures->addProxyPackageDownload(
             [new Package('buddy-works/repman', '1.0.0.0')],
-            new \DateTimeImmutable('2020-04-27 19:34:00')
+            new DateTimeImmutable('2020-04-27 19:34:00')
         );
         $crawler = $this->client->request('GET', $this->urlTo('admin_proxy_stats'));
 

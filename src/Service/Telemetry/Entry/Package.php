@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-final class Package implements \JsonSerializable
+use JsonSerializable;
+use DateTimeImmutable;
+use DateTime;
+final class Package implements JsonSerializable
 {
     private string $type;
-    private ?\DateTimeImmutable $lastRelease;
-    private ?\DateTimeImmutable $lastSync;
-    private ?\DateTimeImmutable $lastScan;
+    private ?DateTimeImmutable $lastRelease;
+    private ?DateTimeImmutable $lastSync;
+    private ?DateTimeImmutable $lastScan;
     private bool $hasError;
     private bool $hasWebhook;
     private string $scanStatus;
@@ -18,9 +21,9 @@ final class Package implements \JsonSerializable
 
     public function __construct(
         string $type,
-        ?\DateTimeImmutable $lastRelease,
-        ?\DateTimeImmutable $lastSync,
-        ?\DateTimeImmutable $lastScan,
+        ?DateTimeImmutable $lastRelease,
+        ?DateTimeImmutable $lastSync,
+        ?DateTimeImmutable $lastScan,
         bool $hasError,
         bool $hasWebhook,
         string $scanStatus,
@@ -45,9 +48,9 @@ final class Package implements \JsonSerializable
     {
         return [
             'type' => $this->type,
-            'lastRelease' => $this->lastRelease === null ? null : $this->lastRelease->format(\DateTime::ATOM),
-            'lastSync' => $this->lastSync === null ? null : $this->lastSync->format(\DateTime::ATOM),
-            'lastScan' => $this->lastScan === null ? null : $this->lastScan->format(\DateTime::ATOM),
+            'lastRelease' => $this->lastRelease === null ? null : $this->lastRelease->format(DateTime::ATOM),
+            'lastSync' => $this->lastSync === null ? null : $this->lastSync->format(DateTime::ATOM),
+            'lastScan' => $this->lastScan === null ? null : $this->lastScan->format(DateTime::ATOM),
             'hasError' => $this->hasError,
             'hasWebhook' => $this->hasWebhook,
             'scanStatus' => $this->scanStatus,

@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-final class Proxy implements \JsonSerializable
+use JsonSerializable;
+final class Proxy implements JsonSerializable
 {
     private int $packages;
 

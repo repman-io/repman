@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization\Package;
 
+use DateTimeImmutable;
+use RuntimeException;
+use Exception;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Buddy\Repman\MessageHandler\Organization\Package\AddGitHubHookHandler;
@@ -26,10 +29,10 @@ final class AddGitHubHookHandlerTest extends IntegrationTestCase
 
         $package = $this->container()->get(PackageQuery::class)->getById($packageId);
 
-        self::assertInstanceOf(\DateTimeImmutable::class, $package->get()->webhookCreatedAt());
+        self::assertInstanceOf(DateTimeImmutable::class, $package->get()->webhookCreatedAt());
 
         $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(
-            new \RuntimeException($error = 'Repository was archived so is read-only.')
+            new RuntimeException($error = 'Repository was archived so is read-only.')
         );
         $handler->__invoke(new AddGitHubHook($packageId));
         $this->container()->get('doctrine.orm.entity_manager')->flush();
@@ -45,7 +48,7 @@ final class AddGitHubHookHandlerTest extends IntegrationTestCase
         try {
             $handler = $this->container()->get(AddGitHubHookHandler::class);
             $handler->__invoke(new AddGitHubHook('e0ea4d32-4144-4a67-9310-6dae483a6377'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
         }
 
         self::assertNull($exception);

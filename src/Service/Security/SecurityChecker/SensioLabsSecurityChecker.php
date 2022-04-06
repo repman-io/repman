@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Security\SecurityChecker;
 
+use UnexpectedValueException;
+use RecursiveIteratorIterator;
+use RecursiveCallbackFilterIterator;
+use RuntimeException;
+use SplFileInfo;
+use RecursiveDirectoryIterator;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -89,7 +95,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     {
         $contents = json_decode($lockFile, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \UnexpectedValueException('Invalid composer.lock');
+            throw new UnexpectedValueException('Invalid composer.lock');
         }
 
         $packages = [];
@@ -148,15 +154,15 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     }
 
     /**
-     * @return \RecursiveIteratorIterator<\RecursiveCallbackFilterIterator>
+     * @return RecursiveIteratorIterator<RecursiveCallbackFilterIterator>
      */
-    private function getDatabase(): \RecursiveIteratorIterator
+    private function getDatabase(): RecursiveIteratorIterator
     {
         if (!is_dir($this->databaseDir)) {
-            throw new \RuntimeException('Advisories database does not exist');
+            throw new RuntimeException('Advisories database does not exist');
         }
 
-        $advisoryFilter = function (\SplFileInfo $file): bool {
+        $advisoryFilter = function (SplFileInfo $file): bool {
             if ($file->isDir()) {
                 $dirName = $file->getFilename();
                 if ($dirName[0] == '.') {
@@ -167,9 +173,9 @@ final class SensioLabsSecurityChecker implements SecurityChecker
             return true;
         };
 
-        return new \RecursiveIteratorIterator(
-            new \RecursiveCallbackFilterIterator(
-                new \RecursiveDirectoryIterator($this->databaseDir),
+        return new RecursiveIteratorIterator(
+            new RecursiveCallbackFilterIterator(
+                new RecursiveDirectoryIterator($this->databaseDir),
                 $advisoryFilter
             )
         );

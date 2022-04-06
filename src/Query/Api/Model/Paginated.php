@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-abstract class Paginated implements \JsonSerializable
+use JsonSerializable;
+abstract class Paginated implements JsonSerializable
 {
     /**
      * @var object[]

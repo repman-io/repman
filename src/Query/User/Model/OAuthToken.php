@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use DateTimeImmutable;
 final class OAuthToken
 {
     private string $type;
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
-    public function __construct(string $type, \DateTimeImmutable $createdAt)
+    public function __construct(string $type, DateTimeImmutable $createdAt)
     {
         $this->type = $type;
         $this->createdAt = $createdAt;
@@ -20,7 +21,7 @@ final class OAuthToken
         return $this->type;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function createdAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }

@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
+use JsonSerializable;
+use DateTimeImmutable;
+use DateTime;
 use Buddy\Repman\Query\User\Model\ScanResult;
 
-final class Package implements \JsonSerializable
+final class Package implements JsonSerializable
 {
     private string $id;
     private string $type;
     private string $url;
     private ?string $name;
     private ?string $latestReleasedVersion;
-    private ?\DateTimeImmutable $latestReleaseDate;
+    private ?DateTimeImmutable $latestReleaseDate;
     private ?string $description;
-    private ?\DateTimeImmutable $lastSyncAt;
+    private ?DateTimeImmutable $lastSyncAt;
     private ?string $lastSyncError;
-    private ?\DateTimeImmutable $webhookCreatedAt;
+    private ?DateTimeImmutable $webhookCreatedAt;
     private ?ScanResult $scanResult;
     private int $keepLastReleases;
 
@@ -27,11 +30,11 @@ final class Package implements \JsonSerializable
         string $url,
         ?string $name = null,
         ?string $latestReleasedVersion = null,
-        ?\DateTimeImmutable $latestReleaseDate = null,
+        ?DateTimeImmutable $latestReleaseDate = null,
         ?string $description = null,
-        ?\DateTimeImmutable $lastSyncAt = null,
+        ?DateTimeImmutable $lastSyncAt = null,
         ?string $lastSyncError = null,
-        ?\DateTimeImmutable $webhookCreatedAt = null,
+        ?DateTimeImmutable $webhookCreatedAt = null,
         ?ScanResult $scanResult = null,
         int $keepLastReleases = 0
     ) {
@@ -74,7 +77,7 @@ final class Package implements \JsonSerializable
         return $this->latestReleasedVersion;
     }
 
-    public function getLatestReleaseDate(): ?\DateTimeImmutable
+    public function getLatestReleaseDate(): ?DateTimeImmutable
     {
         return $this->latestReleaseDate;
     }
@@ -84,7 +87,7 @@ final class Package implements \JsonSerializable
         return $this->description;
     }
 
-    public function getLastSyncAt(): ?\DateTimeImmutable
+    public function getLastSyncAt(): ?DateTimeImmutable
     {
         return $this->lastSyncAt;
     }
@@ -94,7 +97,7 @@ final class Package implements \JsonSerializable
         return $this->lastSyncError;
     }
 
-    public function getWebhookCreatedAt(): ?\DateTimeImmutable
+    public function getWebhookCreatedAt(): ?DateTimeImmutable
     {
         return $this->webhookCreatedAt;
     }
@@ -109,7 +112,7 @@ final class Package implements \JsonSerializable
         return $this->scanResult !== null ? $this->scanResult->status() : ScanResult::statusPending();
     }
 
-    public function getScanResultDate(): ?\DateTimeImmutable
+    public function getScanResultDate(): ?DateTimeImmutable
     {
         return $this->scanResult !== null ? $this->scanResult->date() : null;
     }
@@ -138,13 +141,13 @@ final class Package implements \JsonSerializable
             'url' => $this->getUrl(),
             'name' => $this->getName(),
             'latestReleasedVersion' => $this->getLatestReleasedVersion(),
-            'latestReleaseDate' => $this->getLatestReleaseDate() === null ? null : $this->getLatestReleaseDate()->format(\DateTime::ATOM),
+            'latestReleaseDate' => $this->getLatestReleaseDate() === null ? null : $this->getLatestReleaseDate()->format(DateTime::ATOM),
             'description' => $this->getDescription(),
-            'lastSyncAt' => $this->getLastSyncAt() === null ? null : $this->getLastSyncAt()->format(\DateTime::ATOM),
+            'lastSyncAt' => $this->getLastSyncAt() === null ? null : $this->getLastSyncAt()->format(DateTime::ATOM),
             'lastSyncError' => $this->getLastSyncError(),
-            'webhookCreatedAt' => $this->getWebhookCreatedAt() === null ? null : $this->getWebhookCreatedAt()->format(\DateTime::ATOM),
+            'webhookCreatedAt' => $this->getWebhookCreatedAt() === null ? null : $this->getWebhookCreatedAt()->format(DateTime::ATOM),
             'isSynchronizedSuccessfully' => $this->getIsSynchronizedSuccessfully(),
-            'scanResultDate' => $this->getScanResultDate() === null ? null : $this->getScanResultDate()->format(\DateTime::ATOM),
+            'scanResultDate' => $this->getScanResultDate() === null ? null : $this->getScanResultDate()->format(DateTime::ATOM),
             'scanResultStatus' => $this->getScanResultStatus(),
             'lastScanResultContent' => $this->getLastScanResultContent(),
             'keepLastReleases' => $this->getKeepLastReleases(),

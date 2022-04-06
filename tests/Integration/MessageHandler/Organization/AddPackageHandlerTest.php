@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
@@ -36,7 +37,7 @@ final class AddPackageHandlerTest extends IntegrationTestCase
 
     public function testMissingOrganization(): void
     {
-        self::expectException('Symfony\Component\Messenger\Exception\HandlerFailedException');
+        self::expectException(HandlerFailedException::class);
         self::expectExceptionMessage('Organization with id c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2 not found.');
 
         $this->dispatchMessage(new AddPackage(

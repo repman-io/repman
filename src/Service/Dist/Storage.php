@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Dist;
 
+use RuntimeException;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Downloader;
 use League\Flysystem\FileNotFoundException;
@@ -47,7 +48,7 @@ class Storage
                     throw new NotFoundHttpException(\sprintf('File not found at %s', $url));
                 }
             )->getOrElseThrow(
-                new \RuntimeException(\sprintf('Failed to download %s from %s', $dist->package(), $url))
+                new RuntimeException(\sprintf('Failed to download %s from %s', $dist->package(), $url))
             )
         );
     }
@@ -102,7 +103,7 @@ class Storage
             'wb'
         );
         if (false === $tmpLocalFileHandle) {
-            throw new \RuntimeException('Could not open temporary file for writing zip file for dist.');
+            throw new RuntimeException('Could not open temporary file for writing zip file for dist.');
         }
 
         $distReadStream = $this->readStream($distFilename)->getOrNull();

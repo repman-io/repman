@@ -30,9 +30,7 @@ final class UserGuardHelper
 
     public function authenticateUser(string $email, Request $request): void
     {
-        $token = $this->authenticator->createToken(new SelfValidatingPassport(new UserBadge($email, function (string $email): UserInterface {
-            return $this->userProvider->loadUserByIdentifier($email);
-        })), 'main');
+        $token = $this->authenticator->createToken(new SelfValidatingPassport(new UserBadge($email, fn(string $email): UserInterface => $this->userProvider->loadUserByIdentifier($email))), 'main');
         $this->tokenStorage->setToken($token);
         $request->getSession()->set('_security_main', serialize($token));
     }

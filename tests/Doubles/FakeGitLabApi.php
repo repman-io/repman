@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
+use Throwable;
+use Buddy\Repman\Service\Integration\GitLabApi\Project;
 use Buddy\Repman\Service\Integration\GitLabApi;
 use Buddy\Repman\Service\Integration\GitLabApi\Projects;
 
 final class FakeGitLabApi implements GitLabApi
 {
-    private ?\Throwable $exception = null;
+    private ?Throwable $exception = null;
 
-    public function setExceptionOnNextCall(?\Throwable $exception): void
+    public function setExceptionOnNextCall(?Throwable $exception): void
     {
         $this->exception = $exception;
     }
@@ -21,7 +23,7 @@ final class FakeGitLabApi implements GitLabApi
         $this->throwExceptionIfSet();
 
         return new Projects([
-            new GitLabApi\Project(123456, 'buddy-works/repman', 'https://gitlab.com/buddy-works/repman'),
+            new Project(123456, 'buddy-works/repman', 'https://gitlab.com/buddy-works/repman'),
         ]);
     }
 

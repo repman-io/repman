@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\Aws;
 
+use InvalidArgumentException;
 use Aws\S3\S3Client;
 
 final class S3AdapterFactory
@@ -31,10 +32,10 @@ final class S3AdapterFactory
 
         if ($this->isOpaqueAuth) {
             if ($key === null || $key === '') {
-                throw new \InvalidArgumentException('Must pass AWS key when authentication is opaque');
+                throw new InvalidArgumentException('Must pass AWS key when authentication is opaque');
             }
             if ($secret === null || $secret === '') {
-                throw new \InvalidArgumentException('Must pass AWS secret when authentication is opaque');
+                throw new InvalidArgumentException('Must pass AWS secret when authentication is opaque');
             }
 
             $this->key = $key;

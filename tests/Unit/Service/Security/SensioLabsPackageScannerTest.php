@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Security;
 
+use DateTimeImmutable;
+use ReflectionObject;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Repository\ScanResultRepository;
@@ -128,7 +130,7 @@ final class SensioLabsPackageScannerTest extends TestCase
         $packageManager = $this->createMock(PackageManager::class);
         $packageManager->method('findProviders')->willReturn(
             [
-                new \DateTimeImmutable(),
+                new DateTimeImmutable(),
                 [
                     'buddy-works/repman' => [
                         self::VERSION => [
@@ -170,7 +172,7 @@ final class SensioLabsPackageScannerTest extends TestCase
 
     private function assertPackageSecurity(string $expected, Package $package): void
     {
-        $reflection = new \ReflectionObject($package);
+        $reflection = new ReflectionObject($package);
         $property = $reflection->getProperty('lastScanStatus');
         $property->setAccessible(true);
 

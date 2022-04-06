@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Links implements \JsonSerializable
+use JsonSerializable;
+final class Links implements JsonSerializable
 {
     private string $baseUrl;
     private int $page;

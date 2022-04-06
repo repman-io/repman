@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Repository;
 
+use InvalidArgumentException;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Security\Model\User as SecurityUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -38,7 +39,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $user = $this->findOneBy(['email' => \mb_strtolower($email)]);
         if (!$user instanceof User) {
-            throw new \InvalidArgumentException(sprintf('User with email %s not found', \mb_strtolower($email)));
+            throw new InvalidArgumentException(sprintf('User with email %s not found', \mb_strtolower($email)));
         }
 
         return $user;
@@ -48,7 +49,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $user = $this->findOneBy(['resetPasswordToken' => $token]);
         if (!$user instanceof User) {
-            throw new \InvalidArgumentException(sprintf('User with reset password token %s not found', $token));
+            throw new InvalidArgumentException(sprintf('User with reset password token %s not found', $token));
         }
 
         return $user;
@@ -58,7 +59,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $user = $this->findOneBy(['emailConfirmToken' => $token]);
         if (!$user instanceof User) {
-            throw new \InvalidArgumentException(sprintf('User with email confirm token %s not found', $token));
+            throw new InvalidArgumentException(sprintf('User with email confirm token %s not found', $token));
         }
 
         return $user;
@@ -68,7 +69,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $user = $this->find($id);
         if (!$user instanceof User) {
-            throw new \InvalidArgumentException(sprintf('User with id %s not found', $id->toString()));
+            throw new InvalidArgumentException(sprintf('User with id %s not found', $id->toString()));
         }
 
         return $user;

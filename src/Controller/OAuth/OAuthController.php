@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
+use DateTimeImmutable;
 use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\Model\User;
@@ -85,7 +86,7 @@ abstract class OAuthController extends AbstractController
                     $type,
                     $token->getToken(),
                     $token->getRefreshToken(),
-                    $token->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($token->getExpires()) : null
+                    $token->getExpires() !== null ? (new DateTimeImmutable())->setTimestamp($token->getExpires()) : null
                 )
             );
 

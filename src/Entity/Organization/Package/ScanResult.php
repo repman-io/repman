@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization\Package;
 
+use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization\Package;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
@@ -20,11 +21,11 @@ use Ramsey\Uuid\UuidInterface;
  */
 class ScanResult
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_OK = 'ok';
-    const STATUS_WARNING = 'warning';
-    const STATUS_ERROR = 'error';
-    const STATUS_NOT_AVAILABLE = 'n/a';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_OK = 'ok';
+    public const STATUS_WARNING = 'warning';
+    public const STATUS_ERROR = 'error';
+    public const STATUS_NOT_AVAILABLE = 'n/a';
 
     /**
      * @ORM\Id
@@ -41,7 +42,7 @@ class ScanResult
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $date;
+    private DateTimeImmutable $date;
 
     /**
      * @ORM\Column(type="string", length=7)
@@ -62,7 +63,7 @@ class ScanResult
     /**
      * @param array<string,array<string,string>|string> $content
      */
-    public function __construct(UuidInterface $id, Package $package, \DateTimeImmutable $date, string $status, array $content)
+    public function __construct(UuidInterface $id, Package $package, DateTimeImmutable $date, string $status, array $content)
     {
         $this->id = $id;
         $this->package = $package;

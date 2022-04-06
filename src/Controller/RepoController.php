@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use DateTimeImmutable;
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
@@ -112,7 +113,7 @@ final class RepoController extends AbstractController
      */
     public function downloads(Request $request, Organization $organization): JsonResponse
     {
-        $contents = json_decode($request->getContent(), true);
+        $contents = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (!isset($contents['downloads']) || !is_array($contents['downloads']) || $contents['downloads'] === []) {
             return new JsonResponse([
                 'status' => 'error',
@@ -130,7 +131,7 @@ final class RepoController extends AbstractController
                 $this->messageBus->dispatch(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
-                    new \DateTimeImmutable(),
+                    new DateTimeImmutable(),
                     $request->getClientIp(),
                     $request->headers->get('User-Agent')
                 ));

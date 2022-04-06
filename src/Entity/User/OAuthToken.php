@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\User;
 
+use DateTimeImmutable;
+use LogicException;
+use Throwable;
+use RuntimeException;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,9 +23,9 @@ use Ramsey\Uuid\UuidInterface;
  */
 class OAuthToken
 {
-    const TYPE_GITHUB = 'github';
-    const TYPE_GITLAB = 'gitlab';
-    const TYPE_BITBUCKET = 'bitbucket';
+    public const TYPE_GITHUB = 'github';
+    public const TYPE_GITLAB = 'gitlab';
+    public const TYPE_BITBUCKET = 'bitbucket';
 
     /**
      * @ORM\Id
@@ -38,7 +42,7 @@ class OAuthToken
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @ORM\Column(type="string", length=9)
@@ -58,7 +62,7 @@ class OAuthToken
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $expiresAt = null;
+    private ?DateTimeImmutable $expiresAt = null;
 
     public function __construct(
         UuidInterface $id,
@@ -66,7 +70,7 @@ class OAuthToken
         string $type,
         string $accessToken,
         ?string $refreshToken = null,
-        ?\DateTimeImmutable $expiresAt = null
+        ?DateTimeImmutable $expiresAt = null
     ) {
         $this->id = $id;
         $this->user = $user->addOAuthToken($this);
@@ -74,7 +78,7 @@ class OAuthToken
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
         $this->expiresAt = $expiresAt;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function type(): string
@@ -89,17 +93,17 @@ class OAuthToken
 
     public function accessToken(UserOAuthTokenRefresher $tokenRefresher): string
     {
-        if ($this->expiresAt !== null && (new \DateTimeImmutable()) > $this->expiresAt->modify('-1 min')) {
+        if ($this->expiresAt !== null && (new DateTimeImmutable()) > $this->expiresAt->modify('-1 min')) {
             if ($this->refreshToken === null) {
-                throw new \LogicException('Unable to refresh access token without refresh token');
+                throw new LogicException('Unable to refresh access token without refresh token');
             }
 
             try {
                 $newToken = $tokenRefresher->refresh($this->type, $this->refreshToken);
                 $this->accessToken = $newToken->token();
                 $this->expiresAt = $newToken->expiresAt();
-            } catch (\Throwable $exception) {
-                throw new \RuntimeException('An error occurred while refreshing the access token: '.$exception->getMessage());
+            } catch (Throwable $exception) {
+                throw new RuntimeException('An error occurred while refreshing the access token: '.$exception->getMessage());
             }
         }
 

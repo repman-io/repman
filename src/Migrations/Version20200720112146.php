@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Migrations;
 
+use InvalidArgumentException;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Doctrine\DBAL\Schema\Schema;
@@ -19,7 +20,7 @@ final class Version20200720112146 extends AbstractMigration implements Container
     public function setContainer(ContainerInterface $container = null): void
     {
         if ($container === null) {
-            throw new \InvalidArgumentException('Container is required');
+            throw new InvalidArgumentException('Container is required');
         }
 
         $this->container = $container;

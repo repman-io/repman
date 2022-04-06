@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Form\Type\Api\AddPackageType;
@@ -334,12 +336,12 @@ final class PackageController extends ApiController
 
         try {
             $id = $this->handleAddPackage($type, $form, $organization, $json);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             if (!$form->isSubmitted()) {
                 $form->submit($json);
             }
             $form->get('type')->addError(new FormError($exception->getMessage()));
-        } catch (\RuntimeException $exception) {
+        } catch (RuntimeException $exception) {
             $form->get('repository')->addError(new FormError($exception->getMessage()));
         }
 
@@ -455,7 +457,7 @@ final class PackageController extends ApiController
         $projectId = $byNames[$repo] ?? null;
 
         if ($projectId === null) {
-            throw new \RuntimeException("Repository '$repo' not found.");
+            throw new RuntimeException("Repository '$repo' not found.");
         }
 
         $this->messageBus->dispatch(new AddPackage(
@@ -488,7 +490,7 @@ final class PackageController extends ApiController
         $repoUuid = $byNames[$repo] ?? null;
 
         if ($repoUuid === null) {
-            throw new \RuntimeException("Repository '$repo' not found.");
+            throw new RuntimeException("Repository '$repo' not found.");
         }
 
         $this->messageBus->dispatch(new AddPackage(
@@ -509,7 +511,7 @@ final class PackageController extends ApiController
     {
         $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), $type);
         if ($token === null) {
-            throw new \InvalidArgumentException("Missing $type integration.");
+            throw new InvalidArgumentException("Missing $type integration.");
         }
 
         return $token;

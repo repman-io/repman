@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Entity;
 
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User;
@@ -31,7 +32,7 @@ final class UserTest extends TestCase
     {
         $this->user->setResetPasswordToken('token');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->user->resetPassword('other', 'secret', 3600);
     }
@@ -40,7 +41,7 @@ final class UserTest extends TestCase
     {
         $this->user->setResetPasswordToken('token');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->user->resetPassword('token', 'secret', -1);
     }
@@ -63,7 +64,7 @@ final class UserTest extends TestCase
 
     public function testConfirmEmailAddressWithInvalidToken(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $this->user->confirmEmail('wrong');
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
+use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Repository\OrganizationRepository;
@@ -69,7 +70,7 @@ final class SynchronizeAllPackagesCommand extends Command
         $organization = $this->organizations->findOneBy(['alias' => $organizationAlias]);
 
         if (!$organization instanceof Organization) {
-            throw new \InvalidArgumentException(sprintf('Organization with alias %s not found.', $organizationAlias));
+            throw new InvalidArgumentException(sprintf('Organization with alias %s not found.', $organizationAlias));
         }
 
         return [$organization];

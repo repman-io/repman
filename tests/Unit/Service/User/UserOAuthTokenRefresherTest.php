@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\User;
 
+use DateTimeImmutable;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -30,6 +31,6 @@ class UserOAuthTokenRefresherTest extends TestCase
         $refresher = new UserOAuthTokenRefresher($oauth);
 
         self::assertEquals(new AccessToken('new-token'), $refresher->refresh('github', 'refresh-token'));
-        self::assertEquals(new AccessToken('new-token', (new \DateTimeImmutable())->setTimestamp(time() + 3600)), $refresher->refresh('github', 'refresh-token'));
+        self::assertEquals(new AccessToken('new-token', (new DateTimeImmutable())->setTimestamp(time() + 3600)), $refresher->refresh('github', 'refresh-token'));
     }
 }

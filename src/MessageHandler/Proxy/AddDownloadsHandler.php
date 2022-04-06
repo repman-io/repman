@@ -22,9 +22,7 @@ final class AddDownloadsHandler implements MessageHandlerInterface
     public function __invoke(AddDownloads $message): void
     {
         $this->downloads->save(
-            array_map(function (MessagePackage $package): Package {
-                return new Package($package->name(), $package->version());
-            }, $message->packages()),
+            array_map(fn(MessagePackage $package): Package => new Package($package->name(), $package->version()), $message->packages()),
             $message->date(),
             $message->ip(),
             $message->userAgent()
