@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "020f6a204f058025c008b42c225652a9",
+    "content-hash": "900b29fe77931b95a7b0d6e6553a1c4f",
     "packages": [
         {
             "name": "async-aws/core",
@@ -259,12 +259,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Aws\\": "src/"
-                },
                 "files": [
                     "src/functions.php"
-                ]
+                ],
+                "psr-4": {
+                    "Aws\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -445,16 +445,16 @@
         },
         {
             "name": "buddy-works/buddy-works-php-api",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buddy-works/buddy-works-php-api.git",
-                "reference": "1c590b6801875f8c11d660c9dd43d077d20532e4"
+                "reference": "3f40e7439d690f632d294707e42f9cb4d61c81ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buddy-works/buddy-works-php-api/zipball/1c590b6801875f8c11d660c9dd43d077d20532e4",
-                "reference": "1c590b6801875f8c11d660c9dd43d077d20532e4",
+                "url": "https://api.github.com/repos/buddy-works/buddy-works-php-api/zipball/3f40e7439d690f632d294707e42f9cb4d61c81ed",
+                "reference": "3f40e7439d690f632d294707e42f9cb4d61c81ed",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -466,13 +466,13 @@
             "require": {
                 "ext-mbstring": "*",
                 "guzzlehttp/guzzle": "~6.0",
-                "php": "^7.3"
+                "php": "^8.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpstan/phpstan": "^0.11.19",
-                "phpunit/phpunit": "^8.4",
-                "rector/rector": "^0.5.22"
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^0.11"
             },
             "type": "library",
             "autoload": {
@@ -510,9 +510,9 @@
             ],
             "support": {
                 "issues": "https://github.com/buddy-works/buddy-works-php-api/issues",
-                "source": "https://github.com/buddy-works/buddy-works-php-api/tree/master"
+                "source": "https://github.com/buddy-works/buddy-works-php-api/tree/1.4.0"
             },
-            "time": "2020-04-01T09:42:46+00:00"
+            "time": "2021-08-26T08:05:09+00:00"
         },
         {
             "name": "buddy-works/oauth2-client",
@@ -733,12 +733,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Clue\\StreamFilter\\": "src/"
-                },
                 "files": [
                     "src/functions_include.php"
-                ]
+                ],
+                "psr-4": {
+                    "Clue\\StreamFilter\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -3877,12 +3877,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Laminas\\Code\\": "src/"
-                },
                 "files": [
                     "polyfill/ReflectionEnumPolyfill.php"
-                ]
+                ],
+                "psr-4": {
+                    "Laminas\\Code\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -4749,12 +4749,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "JmesPath\\": "src/"
-                },
                 "files": [
                     "src/JmesPath.php"
-                ]
+                ],
+                "psr-4": {
+                    "JmesPath\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -5426,12 +5426,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Http\\Message\\": "src/"
-                },
                 "files": [
                     "src/filters.php"
-                ]
+                ],
+                "psr-4": {
+                    "Http\\Message\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -10156,14 +10156,14 @@
             },
             "type": "library",
             "autoload": {
+                "files": [
+                    "Resources/functions.php"
+                ],
                 "psr-4": {
                     "Symfony\\Component\\Intl\\": ""
                 },
                 "classmap": [
                     "Resources/stubs"
-                ],
-                "files": [
-                    "Resources/functions.php"
                 ],
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -11654,12 +11654,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Uuid\\": ""
-                },
                 "files": [
                     "bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Uuid\\": ""
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -14701,12 +14701,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                },
                 "files": [
                     "src/DeepCopy/deep_copy.php"
-                ]
+                ],
+                "psr-4": {
+                    "DeepCopy\\": "src/DeepCopy/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -16030,11 +16030,11 @@
                 }
             },
             "autoload": {
-                "classmap": [
-                    "src/"
-                ],
                 "files": [
                     "src/Framework/Assert/Functions.php"
+                ],
+                "classmap": [
+                    "src/"
                 ]
             },
             "notification-url": "https://repo.repman.io/downloads",
