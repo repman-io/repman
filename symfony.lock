@@ -874,6 +874,9 @@
     "symfony/property-info": {
         "version": "v5.1.3"
     },
+    "symfony/psr-http-message-bridge": {
+        "version": "v2.1.2"
+    },
     "symfony/redis-messenger": {
         "version": "v5.1.3"
     },
