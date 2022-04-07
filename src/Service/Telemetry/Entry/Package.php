@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-use JsonSerializable;
-use DateTimeImmutable;
 use DateTime;
+use DateTimeImmutable;
+use JsonSerializable;
+
 final class Package implements JsonSerializable
 {
     private string $type;

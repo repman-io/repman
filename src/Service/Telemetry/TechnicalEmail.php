@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Telemetry;
 
 use JsonSerializable;
+
 final class TechnicalEmail implements JsonSerializable
 {
     private string $email;

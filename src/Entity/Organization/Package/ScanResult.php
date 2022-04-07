@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization\Package;
 
-use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization\Package;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Index;
 use Ramsey\Uuid\UuidInterface;

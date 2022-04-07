@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization\Package;
 
-use DateTimeImmutable;
-use RuntimeException;
 use Buddy\Repman\Entity\Organization\Package;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
+use RuntimeException;
 
 /**
  * @ORM\Entity

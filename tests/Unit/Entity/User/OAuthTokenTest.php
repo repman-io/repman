@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Entity\User;
 
-use DateTimeImmutable;
-use RuntimeException;
-use LogicException;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
 use Buddy\Repman\Tests\MotherObject\OAuthTokenMother;
+use DateTimeImmutable;
+use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class OAuthTokenTest extends TestCase
 {

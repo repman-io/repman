@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\MessageHandler\Organization\Package;
 
-use Throwable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Throwable;
 
 final class AddGitHubHookHandler extends AbstractHookHandler
 {

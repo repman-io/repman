@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service;
 
-use RuntimeException;
 use Buddy\Repman\Service\Stream;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class StreamTest extends TestCase
 {

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use DateTimeImmutable;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Service\Organization\WebhookRequests;
+use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

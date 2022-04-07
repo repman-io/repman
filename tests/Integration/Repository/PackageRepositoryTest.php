@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\Repository;
 
-use DateTimeImmutable;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
 final class PackageRepositoryTest extends IntegrationTestCase

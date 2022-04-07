@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Security\PackageScanner;
 
-use Throwable;
-use DateTimeImmutable;
-use RuntimeException;
-use ZipArchive;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Message\Security\SendScanResult;
@@ -18,8 +14,12 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Composer\Semver\VersionParser;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Throwable;
+use ZipArchive;
 
 final class SensioLabsPackageScanner implements PackageScanner
 {

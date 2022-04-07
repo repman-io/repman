@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 
-use DateTimeImmutable;
-use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 use Buddy\Repman\Query\Admin\Proxy\Model\Package;
 use Buddy\Repman\Query\User\Model\Installs;
+use Buddy\Repman\Query\User\Model\Installs\Day;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class DbalDownloadsQuery implements DownloadsQuery
@@ -45,7 +45,7 @@ final class DbalDownloadsQuery implements DownloadsQuery
     public function getInstalls(int $lastDays = 30): Installs
     {
         return new Installs(
-            array_map(fn(array $row): Day => new Day(substr($row['date'], 0, 10), $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
+            array_map(fn (array $row): Day => new Day(substr($row['date'], 0, 10), $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
                 'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             ])),
             $lastDays,

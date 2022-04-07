@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Repository;
 
-use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 
 /**

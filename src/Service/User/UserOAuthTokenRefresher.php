@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\User;
 
-use DateTimeImmutable;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
+use DateTimeImmutable;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use League\OAuth2\Client\Grant\RefreshToken;
 

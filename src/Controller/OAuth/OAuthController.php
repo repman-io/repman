@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
-use DateTimeImmutable;
 use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
+use DateTimeImmutable;
 use Http\Client\Exception as HttpException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;

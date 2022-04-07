@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\Model;
 
 use DateTimeImmutable;
+
 trait PackageScanResultTrait
 {
     private ?ScanResult $scanResult = null;

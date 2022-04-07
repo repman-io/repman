@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Integration\GitLabApi;
 
-use RuntimeException;
 use Buddy\Repman\Service\Integration\GitLabApi\Project;
 use Buddy\Repman\Service\Integration\GitLabApi\Projects;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ProjectsTest extends TestCase
 {

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry;
 
-use JsonSerializable;
-use DateTimeImmutable;
 use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+use DateTimeImmutable;
+use JsonSerializable;
 
 final class Entry implements JsonSerializable
 {

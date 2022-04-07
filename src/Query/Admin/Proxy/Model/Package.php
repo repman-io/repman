@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\Admin\Proxy\Model;
 
 use DateTimeImmutable;
+
 final class Package
 {
     private int $downloads;

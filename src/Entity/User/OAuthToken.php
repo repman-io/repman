@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\User;
 
-use DateTimeImmutable;
-use LogicException;
-use Throwable;
-use RuntimeException;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use LogicException;
 use Ramsey\Uuid\UuidInterface;
+use RuntimeException;
+use Throwable;
 
 /**
  * @ORM\Entity

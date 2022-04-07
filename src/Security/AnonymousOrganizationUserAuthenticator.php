@@ -43,7 +43,7 @@ final class AnonymousOrganizationUserAuthenticator extends AbstractAuthenticator
             throw new BadCredentialsException();
         }
 
-        return new SelfValidatingPassport(new UserBadge($organizationAlias, fn(string $organizationAlias): Organization => $this->organizationProvider->loadUserByAlias($organizationAlias)));
+        return new SelfValidatingPassport(new UserBadge($organizationAlias, fn (string $organizationAlias): Organization => $this->organizationProvider->loadUserByAlias($organizationAlias)));
     }
 
     public function supports(Request $request): ?bool

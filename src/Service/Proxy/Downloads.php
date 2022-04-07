@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Proxy;
 
-use DateTimeImmutable;
 use Buddy\Repman\Service\Proxy\Downloads\Package;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class Downloads

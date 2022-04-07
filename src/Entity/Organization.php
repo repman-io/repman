@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
-use DateTimeImmutable;
-use RuntimeException;
 use Buddy\Repman\Entity\Organization\Invitation;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use RuntimeException;
 
 /**
  * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\OrganizationRepository")

@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization\Package;
 
-use DateTimeImmutable;
-use RuntimeException;
-use Exception;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\MessageHandler\Organization\Package\AddBitbucketHookHandler;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use DateTimeImmutable;
+use Exception;
+use RuntimeException;
 
 final class AddBitbucketHookHandlerTest extends IntegrationTestCase
 {

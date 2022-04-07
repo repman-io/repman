@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
-use InvalidArgumentException;
-use RuntimeException;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Form\Type\Api\AddPackageType;
@@ -27,9 +25,11 @@ use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\IntegrationRegister;
 use Buddy\Repman\Service\User\UserOAuthTokenProvider;
+use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;

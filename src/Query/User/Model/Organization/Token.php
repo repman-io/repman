@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\Model\Organization;
 
 use DateTimeImmutable;
+
 final class Token
 {
     private string $name;

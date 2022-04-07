@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Telemetry;
 
-use RuntimeException;
-use DateTimeImmutable;
 use Buddy\Repman\Service\Telemetry\Entry;
 use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
@@ -14,7 +12,9 @@ use Buddy\Repman\Service\Telemetry\Entry\Package;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 

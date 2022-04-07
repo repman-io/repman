@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Throwable;
 use Buddy\Repman\Service\Integration\BuddyApi;
+use Throwable;
 
 final class FakeBuddyApi implements BuddyApi
 {

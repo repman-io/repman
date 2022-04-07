@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\GitHubApi;
 
-use RuntimeException;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Github\AuthMethod;
 use Github\Client;
 use Github\ResultPager;
+use RuntimeException;
 
 final class RestGitHubApi implements GitHubApi
 {

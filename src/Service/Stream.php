@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service;
 
 use RuntimeException;
+
 final class Stream
 {
     /**

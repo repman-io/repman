@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
-use ReflectionObject;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use ReflectionObject;
 
 final class SecurityControllerTest extends FunctionalTestCase
 {

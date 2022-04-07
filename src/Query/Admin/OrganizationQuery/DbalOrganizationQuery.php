@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin\OrganizationQuery;
 
-use Buddy\Repman\Query\User\Model\Installs\Day;
-use DateTimeImmutable;
 use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
+use Buddy\Repman\Query\User\Model\Installs\Day;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class DbalOrganizationQuery implements OrganizationQuery
@@ -26,7 +26,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAll(Filter $filter): array
     {
-        return array_map(fn(array $data): Organization => $this->hydrateOrganization($data), $this->connection->fetchAllAssociative(
+        return array_map(fn (array $data): Organization => $this->hydrateOrganization($data), $this->connection->fetchAllAssociative(
             'SELECT o.id, o.name, o.alias, COUNT(p.id) packages_count
             FROM "organization" o
             LEFT JOIN "organization_package" p ON p.organization_id = o.id
@@ -50,7 +50,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getInstalls(int $lastDays = 30): Installs
     {
         return new Installs(
-            array_map(fn(array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
+            array_map(fn (array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
                 'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             ])),
             $lastDays,

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\User;
 
-use DateTimeImmutable;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
+use DateTimeImmutable;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2ClientInterface;
 use League\OAuth2\Client\Provider\AbstractProvider;

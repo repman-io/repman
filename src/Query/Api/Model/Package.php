@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-use JsonSerializable;
-use DateTimeImmutable;
-use DateTime;
 use Buddy\Repman\Query\User\Model\ScanResult;
+use DateTime;
+use DateTimeImmutable;
+use JsonSerializable;
 
 final class Package implements JsonSerializable
 {

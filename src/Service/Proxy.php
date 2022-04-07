@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
-use RuntimeException;
-use InvalidArgumentException;
 use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
+use InvalidArgumentException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Collection\GenericList;
 use Munus\Control\Option;
+use RuntimeException;
 
 final class Proxy
 {

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Entity\Organization;
 
-use RuntimeException;
-use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 
 final class PackageTest extends TestCase
 {

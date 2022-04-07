@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Integration\BitbucketApi;
 
 use RuntimeException;
+
 final class Repositories
 {
     /**

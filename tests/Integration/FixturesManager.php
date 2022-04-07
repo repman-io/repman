@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration;
 
-use DateTimeImmutable;
-use Symfony\Component\Filesystem\Filesystem;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package\ScanResult;
 use Buddy\Repman\Entity\Organization\Package\Version;
@@ -31,10 +29,12 @@ use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class FixturesManager

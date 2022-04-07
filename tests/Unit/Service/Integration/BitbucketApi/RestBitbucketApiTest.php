@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Integration\BitbucketApi;
 
-use RuntimeException;
 use Bitbucket\Api\CurrentUser;
 use Bitbucket\Api\Repositories as RepositoriesApi;
 use Bitbucket\Client;
@@ -14,6 +13,7 @@ use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 use Buddy\Repman\Service\Integration\BitbucketApi\RestBitbucketApi;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class RestBitbucketApiTest extends TestCase
 {

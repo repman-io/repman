@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
-use DateTimeImmutable;
-use Exception;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use DateTimeImmutable;
+use Exception;
 
 final class SynchronizePackageHandlerTest extends IntegrationTestCase
 {

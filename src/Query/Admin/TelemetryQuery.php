@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Admin;
 
-use DateTimeImmutable;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Package;
+use DateTimeImmutable;
 
 interface TelemetryQuery
 {

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Command;
 
-use DateTimeImmutable;
-use DateTime;
 use Buddy\Repman\Command\ClearOldPrivateDistsCommand;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Composer\Semver\VersionParser;
+use DateTime;
+use DateTimeImmutable;
 use League\Flysystem\FilesystemInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;

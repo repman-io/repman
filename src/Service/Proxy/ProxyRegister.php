@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Proxy;
 
-use RuntimeException;
 use Buddy\Repman\Service\Proxy;
 use Munus\Collection\GenericList;
 use Munus\Collection\Set;
+use RuntimeException;
 
 final class ProxyRegister
 {

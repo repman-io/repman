@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\Repository;
 
-use InvalidArgumentException;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\Organization;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Throwable;
-use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repositories;
+use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
+use Throwable;
 
 final class FakeBitbucketApi implements BitbucketApi
 {

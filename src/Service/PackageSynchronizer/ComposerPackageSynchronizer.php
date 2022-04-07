@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
-use RuntimeException;
-use DateTimeImmutable;
-use DateTime;
-use Throwable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Abandoned;
 use Buddy\Repman\Entity\Organization\Package\Link;
@@ -30,8 +26,12 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
+use DateTime;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 final class ComposerPackageSynchronizer implements PackageSynchronizer
 {

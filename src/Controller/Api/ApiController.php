@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Api;
 
-use JsonException;
 use Buddy\Repman\Query\Api\Model\Error;
 use Buddy\Repman\Query\Api\Model\Errors;
 use Buddy\Repman\Query\Api\Model\Links;
 use Buddy\Repman\Security\Model\User;
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;

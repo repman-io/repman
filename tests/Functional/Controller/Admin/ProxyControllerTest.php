@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\Admin;
 
-use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use DateTimeImmutable;
 
 final class ProxyControllerTest extends FunctionalTestCase
 {

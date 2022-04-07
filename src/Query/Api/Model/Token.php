@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-use JsonSerializable;
-use DateTimeImmutable;
 use DateTime;
+use DateTimeImmutable;
+use JsonSerializable;
+
 final class Token implements JsonSerializable
 {
     private string $name;

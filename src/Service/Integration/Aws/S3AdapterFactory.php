@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\Aws;
 
-use InvalidArgumentException;
 use Aws\S3\S3Client;
+use InvalidArgumentException;
 
 final class S3AdapterFactory
 {

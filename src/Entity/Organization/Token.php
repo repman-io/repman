@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization;
 
-use DateTimeImmutable;
-use RuntimeException;
 use Buddy\Repman\Entity\Organization;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use RuntimeException;
 
 /**
  * @ORM\Entity

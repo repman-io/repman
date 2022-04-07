@@ -115,7 +115,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testCreateOrganizationAlreadyExists(): void
     {
         $this->loginApiUser($this->apiToken);
-        $this->client->request('POST', $this->urlTo('api_organization_create'), [], [], [], (string) json_encode([
+        $this->client->request('POST', $this->urlTo('api_organization_create'), [], [], [], json_encode([
             'name' => self::$organization,
         ], JSON_THROW_ON_ERROR));
 

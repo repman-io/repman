@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 
 use DateTimeImmutable;
+
 class AccessToken
 {
     private string $token;

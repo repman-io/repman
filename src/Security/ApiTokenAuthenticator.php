@@ -43,7 +43,7 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
         try {
             $user = $this->provider->loadUserByIdentifier($request->headers->get('X-API-TOKEN', ''));
 
-            return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), fn(): UserInterface => $user));
+            return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), fn (): UserInterface => $user));
         } catch (UserNotFoundException $exception) {
             throw new BadCredentialsException();
         }

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller;
 
-use DateTimeImmutable;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;

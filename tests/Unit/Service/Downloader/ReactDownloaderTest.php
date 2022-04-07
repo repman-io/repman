@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Downloader;
 
-use LogicException;
 use Buddy\Repman\Service\Downloader\ReactDownloader;
+use LogicException;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
 

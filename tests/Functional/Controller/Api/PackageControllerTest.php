@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Controller\Api;
 
-use DateTimeImmutable;
-use DateTime;
-use RuntimeException;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
@@ -14,7 +11,10 @@ use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Integration\GitLabApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use DateTime;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 

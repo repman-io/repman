@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
-use SimpleXMLElement;
-use DateTimeImmutable;
-use RuntimeException;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
+use DateTimeImmutable;
+use RuntimeException;
+use SimpleXMLElement;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;

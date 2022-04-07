@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Message\Organization;
 
 use DateTimeImmutable;
+
 final class AddDownload
 {
     private string $packageId;

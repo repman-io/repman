@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\Admin;
 
-use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

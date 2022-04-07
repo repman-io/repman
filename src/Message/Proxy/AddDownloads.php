@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\Proxy;
 
-use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
+use DateTimeImmutable;
 
 final class AddDownloads
 {

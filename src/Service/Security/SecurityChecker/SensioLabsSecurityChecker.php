@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Security\SecurityChecker;
 
-use UnexpectedValueException;
-use RecursiveIteratorIterator;
+use Buddy\Repman\Service\Security\SecurityChecker;
 use RecursiveCallbackFilterIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileInfo;
-use RecursiveDirectoryIterator;
-use Buddy\Repman\Service\Security\SecurityChecker;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
+use UnexpectedValueException;
 
 final class SensioLabsSecurityChecker implements SecurityChecker
 {

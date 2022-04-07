@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use RuntimeException;
-use InvalidArgumentException;
 use Buddy\Repman\Form\Type\User\RegisterType;
 use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

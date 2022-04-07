@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Organization;
 
-use Buddy\Repman\Security\Model\User\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery;
-use Buddy\Repman\Security\Model\User;
+use Buddy\Repman\Security\Model\User\Organization;
 use Buddy\Repman\Service\Organization\OrganizationVoter;
 use Buddy\Repman\Tests\MotherObject\Query\OrganizationMother;
 use Buddy\Repman\Tests\MotherObject\Security\UserMother;

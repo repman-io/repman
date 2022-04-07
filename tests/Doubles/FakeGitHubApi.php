@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use Throwable;
 use Buddy\Repman\Service\Integration\GitHubApi;
+use Throwable;
 
 final class FakeGitHubApi implements GitHubApi
 {

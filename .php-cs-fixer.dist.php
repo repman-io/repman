@@ -31,11 +31,6 @@ return $config->setRiskyAllowed(true)
         'trim_array_spaces' => true,
         'single_blank_line_before_namespace' => true,
         'yoda_style' => false,
-        'global_namespace_import' => [
-            'import_classes' => false,
-            'import_constants' => false,
-            'import_functions' => false,
-        ],
         // risky -->
         'strict_param' => true,
     ])

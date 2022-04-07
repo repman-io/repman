@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Twig;
 
-use DateTimeInterface;
-use DateTimeImmutable;
-use DateTimeZone;
 use Buddy\Repman\Security\Model\User;
+use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 use Symfony\Component\Intl\Timezones;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
@@ -83,7 +83,7 @@ class DateExtension extends AbstractExtension
      * Filters for converting dates to a time ago string like Facebook and Twitter has.
      *
      * @param string|DateTimeInterface $date a string or DateTime object to convert
-     * @param string|DateTimeInterface $now A string or DateTime object to compare with. If none given, the current time will be used.
+     * @param string|DateTimeInterface $now  A string or DateTime object to compare with. If none given, the current time will be used.
      *
      * @return string the converted time
      */

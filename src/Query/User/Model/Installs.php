@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
-use DateTimeImmutable;
 use Buddy\Repman\Query\User\Model\Installs\Day;
+use DateTimeImmutable;
 
 final class Installs
 {

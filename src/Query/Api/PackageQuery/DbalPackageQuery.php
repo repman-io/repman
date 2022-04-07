@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\PackageQuery;
 
-use DateTimeImmutable;
 use Buddy\Repman\Query\Api\Model\Package;
 use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\ScanResult;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
@@ -25,7 +25,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(fn(array $data): Package => $this->hydratePackage($data), $this->connection->fetchAllAssociative(
+        return array_map(fn (array $data): Package => $this->hydratePackage($data), $this->connection->fetchAllAssociative(
             'SELECT
                 id,
                 type,

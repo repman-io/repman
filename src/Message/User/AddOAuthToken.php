@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Message\User;
 
 use DateTimeImmutable;
+
 final class AddOAuthToken
 {
     private string $id;

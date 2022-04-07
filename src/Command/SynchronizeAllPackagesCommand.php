@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Command;
 
-use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Repository\OrganizationRepository;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

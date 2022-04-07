@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Functional\Command;
 
-use DateTimeImmutable;
-use InvalidArgumentException;
 use Buddy\Repman\Command\SynchronizeAllPackagesCommand;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 

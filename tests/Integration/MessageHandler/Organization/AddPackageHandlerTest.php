@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
-use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 final class AddPackageHandlerTest extends IntegrationTestCase
 {

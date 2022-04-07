@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Security;
 
-use Exception;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\MessageHandler\Security\ScanPackageHandler;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\PackageQuery\Filter;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use Exception;
 
 final class ScanPackageHandlerTest extends IntegrationTestCase
 {

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity;
 
-use DateTimeImmutable;
-use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User\ApiToken;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 

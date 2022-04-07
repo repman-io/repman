@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use DateTimeImmutable;
 use Buddy\Repman\Security\Model\Organization;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;

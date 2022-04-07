@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Entity;
 
-use RuntimeException;
-use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Token;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 
 final class OrganizationTest extends TestCase
 {

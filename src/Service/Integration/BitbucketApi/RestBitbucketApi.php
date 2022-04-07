@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\BitbucketApi;
 
-use RuntimeException;
 use Bitbucket\Client;
 use Bitbucket\ResultPagerInterface;
 use Buddy\Repman\Service\Integration\BitbucketApi;
+use RuntimeException;
 
 final class RestBitbucketApi implements BitbucketApi
 {
@@ -36,7 +36,7 @@ final class RestBitbucketApi implements BitbucketApi
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
 
-        return new Repositories(array_map(fn(array $repo): Repository => new Repository(
+        return new Repositories(array_map(fn (array $repo): Repository => new Repository(
             $repo['uuid'],
             $repo['full_name'],
             $repo['links']['html']['href'].'.git'

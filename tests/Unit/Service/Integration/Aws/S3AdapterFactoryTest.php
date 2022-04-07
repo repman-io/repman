@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Integration\Aws;
 
-use InvalidArgumentException;
 use Aws\Credentials\Credentials;
 use Buddy\Repman\Service\Integration\Aws\S3AdapterFactory;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class S3AdapterFactoryTest extends TestCase

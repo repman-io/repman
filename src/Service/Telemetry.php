@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service;
 
-use DateTimeImmutable;
 use Buddy\Repman\Kernel;
 use Buddy\Repman\Query\Admin\TelemetryQuery;
 use Buddy\Repman\Service\Proxy as PackageProxy;
@@ -16,6 +15,7 @@ use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 use Buddy\Repman\Service\Telemetry\TechnicalEmail;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 

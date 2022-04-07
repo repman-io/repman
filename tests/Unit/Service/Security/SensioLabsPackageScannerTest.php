@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Security;
 
-use DateTimeImmutable;
-use ReflectionObject;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Repository\ScanResultRepository;
@@ -14,9 +12,11 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use DateTimeImmutable;
 use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBus;
 

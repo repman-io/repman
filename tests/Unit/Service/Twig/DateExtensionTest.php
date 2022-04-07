@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Twig;
 
+use Buddy\Repman\Service\Twig\DateExtension;
 use DateTimeImmutable;
 use DateTimeZone;
-use Buddy\Repman\Service\Twig\DateExtension;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Twig\Environment;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Integration\GitHubApi;
 
-use RuntimeException;
 use Buddy\Repman\Service\Integration\GitHubApi\RestGitHubApi;
 use Github\Api\CurrentUser;
 use Github\Api\CurrentUser\Emails;
@@ -14,6 +13,7 @@ use Github\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class RestGitHubApiTest extends TestCase
 {

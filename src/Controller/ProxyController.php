@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
-use DateTime;
-use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\Service\Proxy;
@@ -13,6 +11,8 @@ use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Symfony\ResponseCallback;
+use DateTime;
+use DateTimeImmutable;
 use Munus\Control\Option;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -255,7 +255,7 @@ final class ProxyController extends AbstractController
         }
 
         $this->messageBus->dispatch(new AddDownloads(
-            \array_map(fn(array $data): Package => new Package($data['name'], $data['version']), \array_filter($contents['downloads'], fn(array $row): bool => isset($row['name'], $row['version']))),
+            \array_map(fn (array $data): Package => new Package($data['name'], $data['version']), \array_filter($contents['downloads'], fn (array $row): bool => isset($row['name'], $row['version']))),
             new DateTimeImmutable(),
             $request->getClientIp(),
             $request->headers->get('User-Agent')

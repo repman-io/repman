@@ -163,9 +163,12 @@
         "fix-cs": [
             "php-cs-fixer fix"
         ],
+        "rector": [
+            "rector process"
+        ],
         "phpstan": [
             "bin/console cache:clear --env=test",
-            "phpstan analyse src tests --level=max"
+            "phpstan analyse src tests --level=max --memory-limit=-1"
         ],
         "phpunit": [
             "phpunit --colors=always"
@@ -185,6 +188,7 @@
         "tests": [
             "@check-cs",
             "@phpstan",
+            "@rector",
             "bin/console doctrine:schema:validate",
             "@coverage-ci",
             "bin/console lint:twig templates --show-deprecations",

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Doubles;
 
-use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Query\User\Model\Package\Link as LinkModel;
 use Buddy\Repman\Service\PackageSynchronizer;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
 final class FakePackageSynchronizer implements PackageSynchronizer

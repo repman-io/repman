@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\MotherObject;
 
-use DateTimeImmutable;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
 final class PackageMother

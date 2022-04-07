@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Entity\Organization;
 
-use InvalidArgumentException;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 
 /**

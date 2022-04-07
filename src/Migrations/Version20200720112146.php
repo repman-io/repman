@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Migrations;
 
-use InvalidArgumentException;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use InvalidArgumentException;
 use League\Flysystem\Exception;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;

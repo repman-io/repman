@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Proxy;
 
-use DateTimeImmutable;
 use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package;
 use Buddy\Repman\MessageHandler\Proxy\AddDownloadsHandler;
 use Buddy\Repman\Query\Admin\Proxy\DownloadsQuery\DbalDownloadsQuery;
 use Buddy\Repman\Query\Admin\Proxy\Model\Package as DownloadPackage;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use DateTimeImmutable;
 
 final class AddDownloadsHandlerTest extends IntegrationTestCase
 {

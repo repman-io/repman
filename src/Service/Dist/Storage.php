@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Dist;
 
-use RuntimeException;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Downloader;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
+use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Storage

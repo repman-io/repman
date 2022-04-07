@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Security;
 
-use UnexpectedValueException;
-use RuntimeException;
 use Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use UnexpectedValueException;
 
 final class SensioLabsSecurityCheckerTest extends TestCase
 {

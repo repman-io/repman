@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Integration\MessageHandler\Organization;
 
-use Exception;
 use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use Exception;
 
 final class UpdateHandlerTest extends IntegrationTestCase
 {

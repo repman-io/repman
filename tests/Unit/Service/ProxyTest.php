@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service;
 
-use InvalidArgumentException;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
+use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
