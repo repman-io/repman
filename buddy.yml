@@ -114,6 +114,8 @@
     type: "BUILD"
     working_directory: "/buddy/repman"
     docker_image_name: "library/ubuntu"
+
+
     docker_image_tag: "19.10"
     execute_commands:
     - "ansible-playbook ansible/setup.yml -i ansible/inventories/$REPMAN_ANSIBLE_INVENTORY"
