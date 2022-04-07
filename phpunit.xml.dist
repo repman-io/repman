@@ -13,6 +13,7 @@
   </coverage>
   <php>
     <ini name="error_reporting" value="-1" />
+    <ini name="memory_limit" value="-1" />
     <server name="APP_ENV" value="test" force="true" />
     <server name="SHELL_VERBOSITY" value="-1" />
   </php>
