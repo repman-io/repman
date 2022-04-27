@@ -211,11 +211,6 @@ parameters:
 			path: src/Entity/User/OAuthToken.php
 
 		-
-			message: "#^Parameter \\#6 \\$userAgent of class Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download constructor expects string\\|null, string\\|false\\|null given\\.$#"
-			count: 1
-			path: src/MessageHandler/Organization/AddDownloadHandler.php
-
-		-
 			message: "#^Variable \\$http_response_header in isset\\(\\) always exists and is not nullable\\.$#"
 			count: 1
 			path: src/Service/Downloader/ReactDownloader.php
