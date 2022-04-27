@@ -5,8 +5,8 @@ parameters:
     reportMaybesInPropertyPhpDocTypes: false
     checkExplicitMixed: false
     paths:
-        - src
-        - tests
+        - src/
+        - tests/
     ignoreErrors:
         -
             message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
