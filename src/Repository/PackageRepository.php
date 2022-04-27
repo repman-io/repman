@@ -8,7 +8,6 @@ use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Download;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -29,7 +28,7 @@ class PackageRepository extends ServiceEntityRepository
     {
         $package = $this->find($id);
         if (!$package instanceof Package) {
-            throw new InvalidArgumentException(sprintf('Package %s not found.', $id->toString()));
+            throw new \InvalidArgumentException(sprintf('Package %s not found.', $id->toString()));
         }
 
         return $package;

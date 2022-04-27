@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use Symfony\Component\Security\Core\User\UserInterface;
 use Buddy\Repman\Service\Config;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,7 +57,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator implements A
         $request->getSession()->set(Security::LAST_USERNAME, $username);
 
         return new Passport(
-            new UserBadge($username, [$this->userProvider, 'loadUserByIdentifier']),
+            new UserBadge($username, fn(string $identifier): UserInterface => $this->userProvider->loadUserByIdentifier($identifier)),
             new PasswordCredentials($password),
             [
                 new RememberMeBadge(),

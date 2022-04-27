@@ -8,7 +8,6 @@ use Buddy\Repman\Query\Api\Model\Error;
 use Buddy\Repman\Query\Api\Model\Errors;
 use Buddy\Repman\Query\Api\Model\Links;
 use Buddy\Repman\Security\Model\User;
-use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -40,7 +39,7 @@ abstract class ApiController extends AbstractController
 
         try {
             $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException $th) {
+        } catch (\JsonException $th) {
             throw new BadRequestHttpException();
         }
 

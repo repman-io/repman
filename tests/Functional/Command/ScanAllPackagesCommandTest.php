@@ -7,7 +7,6 @@ namespace Buddy\Repman\Tests\Functional\Command;
 use Buddy\Repman\Command\ScanAllPackagesCommand;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use DateTimeImmutable;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class ScanAllPackagesCommandTest extends FunctionalTestCase
@@ -26,7 +25,7 @@ final class ScanAllPackagesCommandTest extends FunctionalTestCase
     public function testScanSuccess(): void
     {
         $packageId = $this->fixtures->addPackage($this->buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
         $commandTester = new CommandTester($this->container()->get(ScanAllPackagesCommand::class));
         $result = $commandTester->execute([]);

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Twig;
 
 use Buddy\Repman\Service\Twig\DateExtension;
-use DateTimeImmutable;
-use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Twig\Environment;
@@ -45,7 +43,7 @@ final class DateExtensionTest extends TestCase
     /**
      * @dataProvider timeDiffProvider
      */
-    public function testTimeDiff(string $expected, DateTimeImmutable $dateTime, DateTimeImmutable $now): void
+    public function testTimeDiff(string $expected, \DateTimeImmutable $dateTime, \DateTimeImmutable $now): void
     {
         self::assertEquals($expected, $this->extension->diff($this->env, $dateTime, $now));
     }
@@ -53,7 +51,7 @@ final class DateExtensionTest extends TestCase
     /**
      * @dataProvider dateTimeProvider
      */
-    public function testDateTime(string $expected, DateTimeImmutable $dateTime): void
+    public function testDateTime(string $expected, \DateTimeImmutable $dateTime): void
     {
         self::assertEquals($expected, $this->extension->dateTime($this->env, $dateTime));
     }
@@ -61,14 +59,14 @@ final class DateExtensionTest extends TestCase
     /**
      * @dataProvider dateTimeUtcProvider
      */
-    public function testDateTimeUtc(string $expected, DateTimeImmutable $dateTime): void
+    public function testDateTimeUtc(string $expected, \DateTimeImmutable $dateTime): void
     {
         self::assertEquals($expected, $this->extension->dateTimeUtc($this->env, $dateTime));
     }
 
     public function testGmtOffset(): void
     {
-        $dateTime = new DateTimeImmutable('2020-07-10 12:34:56');
+        $dateTime = new \DateTimeImmutable('2020-07-10 12:34:56');
 
         date_default_timezone_set('Europe/Warsaw');
         $this->extension = new DateExtension(new TokenStorage());
@@ -84,7 +82,7 @@ final class DateExtensionTest extends TestCase
      */
     public function timeDiffProvider(): array
     {
-        $dateTime = new DateTimeImmutable();
+        $dateTime = new \DateTimeImmutable();
 
         return [
             ['1 day ago', $dateTime->modify('-1 day'), $dateTime],
@@ -101,7 +99,7 @@ final class DateExtensionTest extends TestCase
      */
     public function dateTimeProvider(): array
     {
-        $dateTime = new DateTimeImmutable('2020-01-02 12:34:56');
+        $dateTime = new \DateTimeImmutable('2020-01-02 12:34:56');
 
         return [
             ['2020-01-02 12:34:51', $dateTime->modify('-5 second')],
@@ -115,9 +113,9 @@ final class DateExtensionTest extends TestCase
      */
     public function dateTimeUtcProvider(): array
     {
-        $dateTime = new DateTimeImmutable(
+        $dateTime = new \DateTimeImmutable(
             '2020-10-10 12:34:56',
-            new DateTimeZone('UTC')
+            new \DateTimeZone('UTC')
         );
 
         // GMT+02:00 (with DST)

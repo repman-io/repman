@@ -7,13 +7,12 @@ namespace Buddy\Repman\Tests\Doubles;
 use Buddy\Repman\Service\Integration\GitLabApi;
 use Buddy\Repman\Service\Integration\GitLabApi\Project;
 use Buddy\Repman\Service\Integration\GitLabApi\Projects;
-use Throwable;
 
 final class FakeGitLabApi implements GitLabApi
 {
-    private ?Throwable $exception = null;
+    private ?\Throwable $exception = null;
 
-    public function setExceptionOnNextCall(?Throwable $exception): void
+    public function setExceptionOnNextCall(?\Throwable $exception): void
     {
         $this->exception = $exception;
     }

@@ -52,7 +52,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
             throw new BadCredentialsException();
         }
 
-        return new SelfValidatingPassport(new UserBadge($organization->getUserIdentifier(), fn (): UserInterface => $organization));
+        return new SelfValidatingPassport(new UserBadge($organization->getUserIdentifier(), fn(): UserInterface => $organization));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

@@ -13,7 +13,6 @@ use Github\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 final class RestGitHubApiTest extends TestCase
 {
@@ -71,7 +70,7 @@ final class RestGitHubApiTest extends TestCase
         $emails->method('all')->willReturn([]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $this->api->primaryEmail('token');
     }
 

@@ -7,12 +7,11 @@ namespace Buddy\Repman\Tests\Doubles;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repositories;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
-use Throwable;
 
 final class FakeBitbucketApi implements BitbucketApi
 {
     private string $primaryEmail = '';
-    private ?Throwable $exception = null;
+    private ?\Throwable $exception = null;
     /**
      * @var string[]
      */
@@ -30,7 +29,7 @@ final class FakeBitbucketApi implements BitbucketApi
         $this->primaryEmail = $primaryEmail;
     }
 
-    public function setExceptionOnNextCall(?Throwable $exception): void
+    public function setExceptionOnNextCall(?\Throwable $exception): void
     {
         $this->exception = $exception;
     }

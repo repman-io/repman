@@ -7,7 +7,6 @@ namespace Buddy\Repman\Repository;
 use Buddy\Repman\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -28,7 +27,7 @@ class OrganizationRepository extends ServiceEntityRepository
     {
         $organization = $this->find($id);
         if (!$organization instanceof Organization) {
-            throw new InvalidArgumentException(sprintf('Organization with id %s not found.', $id->toString()));
+            throw new \InvalidArgumentException(sprintf('Organization with id %s not found.', $id->toString()));
         }
 
         return $organization;
@@ -45,7 +44,7 @@ class OrganizationRepository extends ServiceEntityRepository
         ;
 
         if (!$organization instanceof Organization) {
-            throw new InvalidArgumentException(sprintf('Organization with invitation token %s not found.', $token));
+            throw new \InvalidArgumentException(sprintf('Organization with invitation token %s not found.', $token));
         }
 
         return $organization;

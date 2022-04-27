@@ -6,13 +6,9 @@ namespace Buddy\Repman\Entity\User;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
-use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use LogicException;
 use Ramsey\Uuid\UuidInterface;
-use RuntimeException;
-use Throwable;
 
 /**
  * @ORM\Entity
@@ -42,7 +38,7 @@ class OAuthToken
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     /**
      * @ORM\Column(type="string", length=9)
@@ -62,7 +58,7 @@ class OAuthToken
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?DateTimeImmutable $expiresAt = null;
+    private ?\DateTimeImmutable $expiresAt = null;
 
     public function __construct(
         UuidInterface $id,
@@ -70,7 +66,7 @@ class OAuthToken
         string $type,
         string $accessToken,
         ?string $refreshToken = null,
-        ?DateTimeImmutable $expiresAt = null
+        ?\DateTimeImmutable $expiresAt = null
     ) {
         $this->id = $id;
         $this->user = $user->addOAuthToken($this);
@@ -78,7 +74,7 @@ class OAuthToken
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
         $this->expiresAt = $expiresAt;
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function type(): string
@@ -93,17 +89,17 @@ class OAuthToken
 
     public function accessToken(UserOAuthTokenRefresher $tokenRefresher): string
     {
-        if ($this->expiresAt !== null && (new DateTimeImmutable()) > $this->expiresAt->modify('-1 min')) {
+        if ($this->expiresAt !== null && (new \DateTimeImmutable()) > $this->expiresAt->modify('-1 min')) {
             if ($this->refreshToken === null) {
-                throw new LogicException('Unable to refresh access token without refresh token');
+                throw new \LogicException('Unable to refresh access token without refresh token');
             }
 
             try {
                 $newToken = $tokenRefresher->refresh($this->type, $this->refreshToken);
                 $this->accessToken = $newToken->token();
                 $this->expiresAt = $newToken->expiresAt();
-            } catch (Throwable $exception) {
-                throw new RuntimeException('An error occurred while refreshing the access token: '.$exception->getMessage());
+            } catch (\Throwable $exception) {
+                throw new \RuntimeException('An error occurred while refreshing the access token: '.$exception->getMessage(), $exception->getCode(), $exception);
             }
         }
 

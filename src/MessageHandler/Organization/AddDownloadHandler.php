@@ -27,7 +27,7 @@ final class AddDownloadHandler implements MessageHandlerInterface
             $message->date(),
             $message->version(),
             $message->ip(),
-            $message->userAgent() !== null ? (string) substr($message->userAgent(), 0, 255) : null
+            $message->userAgent() !== null ? substr($message->userAgent(), 0, 255) : null
         ));
     }
 }

@@ -8,7 +8,6 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
-use DateTimeImmutable;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Control\Option;
@@ -29,7 +28,7 @@ class PackageManager
     /**
      * @param PackageName[] $packages
      *
-     * @return array{(DateTimeImmutable | null), mixed[]}
+     * @return array{\DateTimeImmutable|null, mixed[]}
      */
     public function findProviders(string $organizationAlias, array $packages): array
     {
@@ -42,7 +41,7 @@ class PackageManager
                 continue;
             }
 
-            $fileModifyDate = (new DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
+            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
 
             if ($fileModifyDate > $lastModified) {
                 $lastModified = $fileModifyDate;

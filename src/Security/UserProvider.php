@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
+use Buddy\Repman\Security\Model\User\Organization;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
-use Buddy\Repman\Security\Model\User\Organization;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;

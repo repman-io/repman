@@ -9,7 +9,6 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
-use DateTimeImmutable;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -131,7 +130,7 @@ final class RepoController extends AbstractController
                 $this->messageBus->dispatch(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
-                    new DateTimeImmutable(),
+                    new \DateTimeImmutable(),
                     $request->getClientIp(),
                     $request->headers->get('User-Agent')
                 ));

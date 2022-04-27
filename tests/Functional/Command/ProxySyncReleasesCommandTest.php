@@ -11,7 +11,6 @@ use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
-use RuntimeException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Lock\LockFactory;
@@ -51,7 +50,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 
     public function testParsingError(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Unable to parse RSS feed');
 
         $command = $this->prepareCommand('invalid xml');

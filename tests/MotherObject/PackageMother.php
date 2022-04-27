@@ -8,7 +8,6 @@ use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
-use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
 final class PackageMother
@@ -73,7 +72,7 @@ final class PackageMother
             $latestVersion,
             $unencounteredVersions,
             $unencounteredLinks,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         );
 
         return $package;

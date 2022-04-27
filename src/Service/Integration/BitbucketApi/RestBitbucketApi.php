@@ -7,7 +7,6 @@ namespace Buddy\Repman\Service\Integration\BitbucketApi;
 use Bitbucket\Client;
 use Bitbucket\ResultPagerInterface;
 use Buddy\Repman\Service\Integration\BitbucketApi;
-use RuntimeException;
 
 final class RestBitbucketApi implements BitbucketApi
 {
@@ -29,14 +28,14 @@ final class RestBitbucketApi implements BitbucketApi
             }
         }
 
-        throw new RuntimeException('Primary e-mail not found.');
+        throw new \RuntimeException('Primary e-mail not found.');
     }
 
     public function repositories(string $accessToken): Repositories
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
 
-        return new Repositories(array_map(fn (array $repo): Repository => new Repository(
+        return new Repositories(array_map(fn(array $repo): Repository => new Repository(
             $repo['uuid'],
             $repo['full_name'],
             $repo['links']['html']['href'].'.git'

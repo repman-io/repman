@@ -11,8 +11,6 @@ use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Symfony\ResponseCallback;
-use DateTime;
-use DateTimeImmutable;
 use Munus\Control\Option;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -67,7 +65,7 @@ final class ProxyController extends AbstractController
             ->setPublic()
         ;
 
-        $now = new DateTime();
+        $now = new \DateTime();
         $response->setLastModified(
             $metadata->isPresent() ?
             $now->setTimestamp($metadata->get()->timestamp()) :
@@ -102,7 +100,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -133,7 +131,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -166,7 +164,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -197,7 +195,7 @@ final class ProxyController extends AbstractController
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -246,13 +244,7 @@ final class ProxyController extends AbstractController
      */
     public function downloads(Request $request): JsonResponse
     {
-        try {
-            $contents = \json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            // TODO: Throw BAD REQUEST with message saying json is malformed
-            $contents = false;
-        }
-
+        $contents = \json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if (!isset($contents['downloads']) || !\is_array($contents['downloads']) || $contents['downloads'] === []) {
             return new JsonResponse([
                 'status' => 'error',
@@ -261,8 +253,8 @@ final class ProxyController extends AbstractController
         }
 
         $this->messageBus->dispatch(new AddDownloads(
-            \array_map(fn (array $data): Package => new Package($data['name'], $data['version']), \array_filter($contents['downloads'], fn (array $row): bool => isset($row['name'], $row['version']))),
-            new DateTimeImmutable(),
+            \array_map(fn(array $data): Package => new Package($data['name'], $data['version']), \array_filter($contents['downloads'], fn(array $row): bool => isset($row['name'], $row['version']))),
+            new \DateTimeImmutable(),
             $request->getClientIp(),
             $request->headers->get('User-Agent')
         ));

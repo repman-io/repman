@@ -8,7 +8,6 @@ use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
-use InvalidArgumentException;
 use League\Flysystem\Exception;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,7 +19,7 @@ final class Version20200720112146 extends AbstractMigration implements Container
     public function setContainer(ContainerInterface $container = null): void
     {
         if ($container === null) {
-            throw new InvalidArgumentException('Container is required');
+            throw new \InvalidArgumentException('Container is required');
         }
 
         $this->container = $container;
@@ -37,7 +36,7 @@ final class Version20200720112146 extends AbstractMigration implements Container
         $register = $this->container->get(ProxyRegister::class);
 
         $register->all()->forEach(function (Proxy $proxy) use ($filesystem): void {
-            foreach ($filesystem->listContents(sprintf('%s', (string) parse_url($proxy->url(), PHP_URL_HOST)), true) as $file) {
+            foreach ($filesystem->listContents((string) parse_url($proxy->url(), PHP_URL_HOST), true) as $file) {
                 if ($file['type'] !== 'file') {
                     continue;
                 }

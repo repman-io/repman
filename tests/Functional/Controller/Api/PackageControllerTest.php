@@ -11,10 +11,7 @@ use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Integration\GitLabApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use DateTime;
-use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -180,7 +177,7 @@ final class PackageControllerTest extends FunctionalTestCase
     public function testFindPackage(): void
     {
         $packageId = Uuid::uuid4()->toString();
-        $release = new DateTimeImmutable('2020-01-01 12:12:12');
+        $release = new \DateTimeImmutable('2020-01-01 12:12:12');
         $this->fixtures->createPackage($packageId, '', $this->organizationId);
         $this->fixtures
             ->syncPackageWithData(
@@ -193,7 +190,7 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->addScanResult($packageId, 'ok');
 
         $this->loginApiUser($this->apiToken);
-        $now = (new DateTimeImmutable())->format(DateTime::ATOM);
+        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
         $this->client->request('GET', $this->urlTo('api_package_get', [
             'organization' => self::$organization,
             'package' => $packageId,
@@ -210,7 +207,7 @@ final class PackageControllerTest extends FunctionalTestCase
                 "url": "https://github.com/buddy-works/repman",
                 "name": "buddy-works/repman",
                 "latestReleasedVersion": "2.1.1",
-                "latestReleaseDate": "'.$release->format(DateTime::ATOM).'",
+                "latestReleaseDate": "'.$release->format(\DateTime::ATOM).'",
                 "description": "Repository manager",
                 "lastSyncAt": "'.$now.'",
                 "lastSyncError": null,
@@ -266,7 +263,7 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $this->loginApiUser($this->apiToken);
 
-        $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(new RuntimeException('Webhook already removed'));
+        $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(new \RuntimeException('Webhook already removed'));
         $this->client->request('DELETE', $this->urlTo('api_package_remove', [
             'organization' => self::$organization,
             'package' => $packageId,
@@ -295,7 +292,7 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $this->loginApiUser($this->apiToken);
 
-        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new RuntimeException('Webhook already removed'));
+        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new \RuntimeException('Webhook already removed'));
         $this->client->request('DELETE', $this->urlTo('api_package_remove', [
             'organization' => self::$organization,
             'package' => $packageId,
@@ -319,7 +316,7 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $this->loginApiUser($this->apiToken);
 
-        $this->container()->get(GitLabApi::class)->setExceptionOnNextCall(new RuntimeException('Webhook already removed'));
+        $this->container()->get(GitLabApi::class)->setExceptionOnNextCall(new \RuntimeException('Webhook already removed'));
         $this->client->request('DELETE', $this->urlTo('api_package_remove', [
             'organization' => self::$organization,
             'package' => $packageId,
@@ -463,7 +460,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => 'path',
             'repository' => '/path/to/package',
         ]));
-        $now = (new DateTimeImmutable())->format(DateTime::ATOM);
+        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         self::assertJsonStringEqualsJsonString($this->lastResponseBody(),

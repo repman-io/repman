@@ -306,7 +306,9 @@ final class OrganizationController extends AbstractController
     {
         $offset = 0;
         while (($packages = $this->packageQuery->findAll($organization->id(), new PackageQuery\Filter($offset, $limit = 100))) !== []) {
-            array_walk($packages, [$this, 'tryToRemoveWebhook']);
+            array_walk($packages, function (Package $package) : void {
+                $this->tryToRemoveWebhook($package);
+            });
             $offset += $limit;
         }
 

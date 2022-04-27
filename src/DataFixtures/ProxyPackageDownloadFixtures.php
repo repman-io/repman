@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\DataFixtures;
 
+use Buddy\Repman\Service\Proxy\Downloads\Package;
 use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Service\Proxy\Downloads;
-use Buddy\Repman\Service\Proxy\Downloads\Package;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
-use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -57,7 +56,7 @@ final class ProxyPackageDownloadFixtures extends Fixture
             for ($j = 0; $j < $dayDownloads; ++$j) {
                 $this->downloads->save(
                     [new Package($package, $this->faker->randomElement($versions))],
-                    (new DateTimeImmutable())->modify(sprintf('-%s days', $i)),
+                    (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
                     $this->faker->ipv4,
                     $this->faker->userAgent
                 );

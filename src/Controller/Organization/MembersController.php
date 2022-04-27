@@ -62,9 +62,8 @@ final class MembersController extends AbstractController
      */
     public function acceptInvitation(Request $request, string $token): Response
     {
-        /** @var User|null $user */
         $user = $this->getUser();
-        if (null === $user) {
+        if (!$user instanceof User) {
             $request->getSession()->set('organization-token', $token);
 
             $this->addFlash('info', 'You need to sign in or sign up to be able to accept this invitation.');

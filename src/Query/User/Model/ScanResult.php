@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\Model;
 
 use Buddy\Repman\Entity\Organization\Package\ScanResult as ScanResultEntity;
-use DateTimeImmutable;
 
 final class ScanResult
 {
-    private DateTimeImmutable $date;
+    private \DateTimeImmutable $date;
     private string $status = ScanResultEntity::STATUS_PENDING;
     private string $version;
     private string $content;
@@ -19,7 +18,7 @@ final class ScanResult
         return ScanResultEntity::STATUS_PENDING;
     }
 
-    public function __construct(DateTimeImmutable $date, string $status, string $version, string $content)
+    public function __construct(\DateTimeImmutable $date, string $status, string $version, string $content)
     {
         $this->date = $date;
         $this->status = $status;
@@ -37,7 +36,7 @@ final class ScanResult
         return $this->version;
     }
 
-    public function date(): DateTimeImmutable
+    public function date(): \DateTimeImmutable
     {
         return $this->date;
     }

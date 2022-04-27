@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Security;
 
-use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Security\Model\User\Organization;
-use DateTimeImmutable;
+use Buddy\Repman\Security\Model\User;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -100,7 +99,7 @@ final class ApiUserProvider implements UserProviderInterface
         $this->connection->executeQuery(
             'UPDATE user_api_token
             SET last_used_at = :now WHERE value = :value', [
-            'now' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
             'value' => $token,
         ]);
     }

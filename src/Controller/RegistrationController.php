@@ -10,9 +10,7 @@ use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
-use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
-use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -92,7 +90,7 @@ class RegistrationController extends AbstractController
         try {
             $this->messageBus->dispatch(new ConfirmEmail($token));
             $this->addFlash('success', 'E-mail address was confirmed. Enjoy your Repman account.');
-        } catch (RuntimeException | InvalidArgumentException $exception) {
+        } catch (\RuntimeException | \InvalidArgumentException $exception) {
             $this->addFlash('danger', 'Invalid or expired e-mail confirm token');
         }
 

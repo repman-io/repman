@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Doubles;
 
 use Buddy\Repman\Service\Integration\GitHubApi;
-use Throwable;
 
 final class FakeGitHubApi implements GitHubApi
 {
     private string $primaryEmail = '';
-    private ?Throwable $exception = null;
+    private ?\Throwable $exception = null;
     /**
      * @var string[]
      */
@@ -28,7 +27,7 @@ final class FakeGitHubApi implements GitHubApi
         $this->primaryEmail = $primaryEmail;
     }
 
-    public function setExceptionOnNextCall(?Throwable $exception): void
+    public function setExceptionOnNextCall(?\Throwable $exception): void
     {
         $this->exception = $exception;
     }

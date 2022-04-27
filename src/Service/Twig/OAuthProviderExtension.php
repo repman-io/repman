@@ -28,7 +28,7 @@ final class OAuthProviderExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('oauth_enabled', [$this, 'oAuthEnabled']),
+            new TwigFunction('oauth_enabled', fn(?string $provider = null): bool => $this->oAuthEnabled($provider)),
         ];
     }
 
@@ -38,6 +38,6 @@ final class OAuthProviderExtension extends AbstractExtension
             return isset($this->providers[$provider]) && strlen($this->providers[$provider]) > 0;
         }
 
-        return count(array_filter($this->providers, fn ($id) => strlen((string) $id) > 0)) > 0;
+        return array_filter($this->providers, fn ($id) => strlen((string) $id) > 0) !== [];
     }
 }

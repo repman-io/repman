@@ -7,7 +7,6 @@ namespace Buddy\Repman\Controller;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Service\Organization\WebhookRequests;
-use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +33,7 @@ final class WebhookController extends AbstractController
     public function package(Package $package, Request $request): Response
     {
         $this->messageBus->dispatch(new SynchronizePackage($package->id()));
-        $this->webhookRequests->add($package->id(), new DateTimeImmutable(), $request->getClientIp(), $request->headers->get('User-Agent'));
+        $this->webhookRequests->add($package->id(), new \DateTimeImmutable(), $request->getClientIp(), $request->headers->get('User-Agent'));
 
         return new JsonResponse(null, Response::HTTP_ACCEPTED);
     }

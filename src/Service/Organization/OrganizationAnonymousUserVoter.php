@@ -22,9 +22,7 @@ final class OrganizationAnonymousUserVoter extends Voter
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [
-            'ROLE_ORGANIZATION_ANONYMOUS_USER',
-        ], true);
+        return $attribute === 'ROLE_ORGANIZATION_ANONYMOUS_USER';
     }
 
     /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Downloader;
 
 use Buddy\Repman\Service\Downloader\ReactDownloader;
-use LogicException;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
 
@@ -27,9 +26,9 @@ final class ReactDownloaderTest extends TestCase
 
     public function testNotFoundHandler(): void
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(\LogicException::class);
 
-        (new ReactDownloader())->getContents('https://repman.io/not-exist', [], function (): void {throw new LogicException('Not found'); });
+        (new ReactDownloader())->getContents('https://repman.io/not-exist', [], function (): void {throw new \LogicException('Not found'); });
     }
 
     public function testLastModified(): void
@@ -39,7 +38,7 @@ final class ReactDownloaderTest extends TestCase
             self::assertTrue($timestamp > 0);
         });
         $downloader->getLastModified('/tmp/not-exists', function (int $timestamp): void {
-            throw new LogicException('Should not happen');
+            throw new \LogicException('Should not happen');
         });
         $downloader->run();
     }
@@ -52,7 +51,7 @@ final class ReactDownloaderTest extends TestCase
             self::assertTrue($meta['uri'] === 'https://repman.io');
         });
         $downloader->getAsyncContents('/tmp/not-exists', [], function ($stream): void {
-            throw new LogicException('Should not happen');
+            throw new \LogicException('Should not happen');
         });
         $downloader->run();
     }

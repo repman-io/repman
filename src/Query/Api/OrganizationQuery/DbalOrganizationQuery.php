@@ -7,7 +7,6 @@ namespace Buddy\Repman\Query\Api\OrganizationQuery;
 use Buddy\Repman\Query\Api\Model\Organization;
 use Buddy\Repman\Query\Api\Model\Token;
 use Buddy\Repman\Query\Api\OrganizationQuery;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
@@ -39,7 +38,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function getUserOrganizations(string $userId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(fn (array $data): Organization => $this->hydrateOrganization($data), $this->connection->fetchAllAssociative(
+        return array_map(fn(array $data): Organization => $this->hydrateOrganization($data), $this->connection->fetchAllAssociative(
             'SELECT o.id, o.name, o.alias, om.role, o.has_anonymous_access
             FROM organization_member om
             JOIN organization o ON o.id = om.organization_id
@@ -70,7 +69,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(fn (array $data): Token => $this->hydrateToken($data), $this->connection->fetchAllAssociative('
+        return array_map(fn(array $data): Token => $this->hydrateToken($data), $this->connection->fetchAllAssociative('
             SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :id
@@ -151,8 +150,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return new Token(
             $data['name'],
             $data['value'],
-            new DateTimeImmutable($data['created_at']),
-            $data['last_used_at'] !== null ? new DateTimeImmutable($data['last_used_at']) : null
+            new \DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

@@ -14,9 +14,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Twig;
 
 use Buddy\Repman\Security\Model\User;
-use DateTimeImmutable;
-use DateTimeInterface;
-use DateTimeZone;
 use Symfony\Component\Intl\Timezones;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
@@ -63,9 +60,9 @@ class DateExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('time_diff', [$this, 'diff'], ['needs_environment' => true]),
+            new TwigFilter('time_diff', fn(Environment $env, $date, $now = null): string => $this->diff($env, $date, $now), ['needs_environment' => true]),
             new TwigFilter('date_time', [$this, 'dateTime'], ['needs_environment' => true]),
-            new TwigFilter('date_time_utc', [$this, 'dateTimeUtc'], ['needs_environment' => true]),
+            new TwigFilter('date_time_utc', fn(Environment $env, $date): string => $this->dateTimeUtc($env, $date), ['needs_environment' => true]),
         ];
     }
 
@@ -75,15 +72,15 @@ class DateExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('gmt_offset', [$this, 'gmtOffset'], ['needs_environment' => true]),
+            new TwigFunction('gmt_offset', fn(Environment $env, $now = null): string => $this->gmtOffset($env, $now), ['needs_environment' => true]),
         ];
     }
 
     /**
      * Filters for converting dates to a time ago string like Facebook and Twitter has.
      *
-     * @param string|DateTimeInterface $date a string or DateTime object to convert
-     * @param string|DateTimeInterface $now  A string or DateTime object to compare with. If none given, the current time will be used.
+     * @param string|\DateTimeInterface $date a string or DateTime object to convert
+     * @param string|\DateTimeInterface $now  A string or DateTime object to compare with. If none given, the current time will be used.
      *
      * @return string the converted time
      */
@@ -92,7 +89,7 @@ class DateExtension extends AbstractExtension
         $date = twig_date_converter($env, $date);
 
         $now = $now === null
-            ? new DateTimeImmutable(
+            ? new \DateTimeImmutable(
                 twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
             )
             : twig_date_converter($env, $now);
@@ -117,22 +114,22 @@ class DateExtension extends AbstractExtension
     }
 
     /**
-     * @param string|DateTimeInterface $date
+     * @param string|\DateTimeInterface $date
      */
     public function dateTime(Environment $env, $date, ?string $sourceTimezone = null): string
     {
         $date = $sourceTimezone === null
             ? twig_date_converter($env, $date, $this->timezone)
-            : (new DateTimeImmutable(
+            : (new \DateTimeImmutable(
                 (twig_date_converter($env, $date))->format('Y-m-d H:i:s'),
-                new DateTimeZone($sourceTimezone)
-            ))->setTimezone(new DateTimeZone($this->timezone));
+                new \DateTimeZone($sourceTimezone)
+            ))->setTimezone(new \DateTimeZone($this->timezone));
 
         return $date->format('Y-m-d H:i:s');
     }
 
     /**
-     * @param string|DateTimeInterface $date
+     * @param string|\DateTimeInterface $date
      */
     public function dateTimeUtc(Environment $env, $date): string
     {
@@ -140,12 +137,12 @@ class DateExtension extends AbstractExtension
     }
 
     /**
-     * @param string|DateTimeInterface $now A string or DateTime object. If none given, the current time will be used.
+     * @param string|\DateTimeInterface $now A string or DateTime object. If none given, the current time will be used.
      */
     public function gmtOffset(Environment $env, $now = null): string
     {
         $now = $now === null
-            ? new DateTimeImmutable(
+            ? new \DateTimeImmutable(
                 twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
             )
             : twig_date_converter($env, $now);

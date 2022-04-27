@@ -18,7 +18,6 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionObject;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
@@ -271,7 +270,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
      */
     private function getProperty(object $object, string $property)
     {
-        $reflection = new ReflectionObject($object);
+        $reflection = new \ReflectionObject($object);
         $property = $reflection->getProperty($property);
         $property->setAccessible(true);
 

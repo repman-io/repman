@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry;
 
-use RuntimeException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -61,7 +60,7 @@ final class TelemetryEndpoint implements Endpoint
     private function checkResponse(ResponseInterface $response): void
     {
         if ($response->getStatusCode() >= 400) {
-            throw new RuntimeException(sprintf('Error while sending telemetry data. HTTP error: %d', $response->getStatusCode()));
+            throw new \RuntimeException(sprintf('Error while sending telemetry data. HTTP error: %d', $response->getStatusCode()));
         }
     }
 }

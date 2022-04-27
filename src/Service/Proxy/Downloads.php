@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Proxy;
 
 use Buddy\Repman\Service\Proxy\Downloads\Package;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class Downloads
@@ -20,7 +19,7 @@ final class Downloads
     /**
      * @param Package[] $packages
      */
-    public function save(array $packages, DateTimeImmutable $date, ?string $ip, ?string $userAgent): void
+    public function save(array $packages, \DateTimeImmutable $date, ?string $ip, ?string $userAgent): void
     {
         foreach ($packages as $package) {
             $this->connection->insert('proxy_package_download', [

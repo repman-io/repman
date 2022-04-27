@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\Organization;
 
-use DateTimeImmutable;
-
 final class AddDownload
 {
     private string $packageId;
     private string $version;
-    private DateTimeImmutable $date;
+    private \DateTimeImmutable $date;
     private ?string $ip;
     private ?string $userAgent;
 
-    public function __construct(string $packageId, string $version, DateTimeImmutable $date, ?string $ip, ?string $userAgent)
+    public function __construct(string $packageId, string $version, \DateTimeImmutable $date, ?string $ip, ?string $userAgent)
     {
         $this->packageId = $packageId;
         $this->version = $version;
@@ -33,7 +31,7 @@ final class AddDownload
         return $this->version;
     }
 
-    public function date(): DateTimeImmutable
+    public function date(): \DateTimeImmutable
     {
         return $this->date;
     }

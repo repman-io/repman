@@ -7,7 +7,6 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use ReflectionObject;
 
 final class SecurityControllerTest extends FunctionalTestCase
 {
@@ -205,7 +204,7 @@ final class SecurityControllerTest extends FunctionalTestCase
     {
         /** @phpstan-var User $user */
         $user = $this->container()->get(UserRepository::class)->findOneBy(['email' => $email]);
-        $reflection = new ReflectionObject($user);
+        $reflection = new \ReflectionObject($user);
         $property = $reflection->getProperty('resetPasswordToken');
         $property->setAccessible(true);
 

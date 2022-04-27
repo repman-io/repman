@@ -9,7 +9,6 @@ use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Throwable;
 
 final class AddGitHubHookHandler extends AbstractHookHandler
 {
@@ -28,7 +27,7 @@ final class AddGitHubHookHandler extends AbstractHookHandler
             );
 
             $package->webhookWasCreated();
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $package->webhookWasNotCreated($exception->getMessage());
         }
     }

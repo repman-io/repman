@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\OrganizationQuery;
 
+use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
-use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Invitation;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
@@ -67,7 +66,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllTokens(string $organizationId, Filter $filter): array
     {
-        return array_map(fn (array $data): Token => $this->hydrateToken($data), $this->connection->fetchAllAssociative('
+        return array_map(fn(array $data): Token => $this->hydrateToken($data), $this->connection->fetchAllAssociative('
             SELECT name, value, created_at, last_used_at
             FROM organization_token
             WHERE organization_id = :id
@@ -103,8 +102,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         $packagesId = array_column($this->connection->fetchAllAssociative('SELECT id FROM organization_package WHERE organization_id = :id', ['id' => $organizationId]), 'id');
 
         return new Installs(
-            array_map(fn (array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
-                'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            array_map(fn(array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
+                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
                 'packages' => $packagesId,
             ], ['packages' => Connection::PARAM_STR_ARRAY])),
             $lastDays,
@@ -118,7 +117,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function findAllInvitations(string $organizationId, Filter $filter): array
     {
-        return array_map(fn (array $row): Invitation => new Invitation(
+        return array_map(fn(array $row): Invitation => new Invitation(
             $row['email'],
             $row['role'],
             $row['token']
@@ -149,7 +148,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllMembers(string $organizationId, Filter $filter): array
     {
-        return array_map(fn (array $row): Member => new Member(
+        return array_map(fn(array $row): Member => new Member(
             $row['id'],
             $row['email'],
             $row['role']
@@ -245,8 +244,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return new Token(
             $data['name'],
             $data['value'],
-            new DateTimeImmutable($data['created_at']),
-            $data['last_used_at'] !== null ? new DateTimeImmutable($data['last_used_at']) : null
+            new \DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

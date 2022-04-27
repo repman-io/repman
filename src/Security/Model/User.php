@@ -76,7 +76,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
 
     public function belongsToAnyOrganization(): bool
     {
-        return count($this->organizations) > 0;
+        return $this->organizations !== [];
     }
 
     /**
@@ -111,7 +111,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
      */
     public function firstOrganizationAlias(): Option
     {
-        if (count($this->organizations) === 0) {
+        if ($this->organizations === []) {
             return Option::none();
         }
 

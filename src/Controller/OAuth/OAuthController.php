@@ -9,7 +9,6 @@ use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
-use DateTimeImmutable;
 use Http\Client\Exception as HttpException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
@@ -86,7 +85,7 @@ abstract class OAuthController extends AbstractController
                     $type,
                     $token->getToken(),
                     $token->getRefreshToken(),
-                    $token->getExpires() !== null ? (new DateTimeImmutable())->setTimestamp($token->getExpires()) : null
+                    $token->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($token->getExpires()) : null
                 )
             );
 

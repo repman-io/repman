@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
-use DateTimeImmutable;
-
 final class PackageDetails
 {
     use PackageScanResultTrait;
@@ -16,7 +14,7 @@ final class PackageDetails
     private ?string $name;
     private ?string $description;
     private ?string $latestReleasedVersion;
-    private ?DateTimeImmutable $latestReleaseDate;
+    private ?\DateTimeImmutable $latestReleaseDate;
     private ?string $lastSyncError;
     private int $keepLastReleases;
     private ?string $readme;
@@ -28,7 +26,7 @@ final class PackageDetails
         string $url,
         ?string $name = null,
         ?string $latestReleasedVersion = null,
-        ?DateTimeImmutable $latestReleaseDate = null,
+        ?\DateTimeImmutable $latestReleaseDate = null,
         ?string $description = null,
         ?string $lastSyncError = null,
         ?ScanResult $scanResult = null,
@@ -80,7 +78,7 @@ final class PackageDetails
         return $this->latestReleasedVersion;
     }
 
-    public function latestReleaseDate(): ?DateTimeImmutable
+    public function latestReleaseDate(): ?\DateTimeImmutable
     {
         return $this->latestReleaseDate;
     }

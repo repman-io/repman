@@ -6,12 +6,10 @@ namespace Buddy\Repman\Service;
 
 use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
-use InvalidArgumentException;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Munus\Collection\GenericList;
 use Munus\Control\Option;
-use RuntimeException;
 
 final class Proxy
 {
@@ -50,7 +48,7 @@ final class Proxy
             foreach ($this->decodeMetadata($package) as $packageData) {
                 if (($packageData['dist']['reference'] ?? '') === $ref) {
                     $this->filesystem->putStream($path, $this->downloader->getContents($packageData['dist']['url'])
-                        ->getOrElseThrow(new RuntimeException(
+                        ->getOrElseThrow(new \RuntimeException(
                                              \sprintf('Failed to download file from %s', $packageData['dist']['url'])))
                     );
                     break;
@@ -144,7 +142,7 @@ final class Proxy
             $path = $this->distPath($package, $lastDist['reference'], $lastDist['type']);
             if ($version === $packageData['version'] && !$this->filesystem->has($path)) {
                 $this->filesystem->writeStream($path, $this->downloader->getContents($lastDist['url'])
-                    ->getOrElseThrow(new RuntimeException(\sprintf('Failed to download file from %s', $lastDist['url'])))
+                    ->getOrElseThrow(new \RuntimeException(\sprintf('Failed to download file from %s', $lastDist['url'])))
                 );
                 break;
             }
@@ -154,7 +152,7 @@ final class Proxy
     public function removeDist(string $package): void
     {
         if (mb_strlen($package) === 0) {
-            throw new InvalidArgumentException('Empty package name');
+            throw new \InvalidArgumentException('Empty package name');
         }
 
         $this->filesystem->deleteDir(\sprintf('%s/dist/%s', $this->name, $package));

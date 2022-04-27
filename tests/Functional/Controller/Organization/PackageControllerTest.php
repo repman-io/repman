@@ -10,7 +10,6 @@ use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use DateTimeImmutable;
 use Github\Exception\ApiLimitExceedException;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
@@ -229,7 +228,7 @@ final class PackageControllerTest extends FunctionalTestCase
             $this->urlTo('organization_packages', ['organization' => 'buddy'])
         ));
 
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new DateTimeImmutable('2020-01-01 12:12:12'));
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
 
         $this->client->followRedirect();
         self::assertStringContainsString('Package will be synchronized in the background', $this->lastResponseBody());
@@ -241,7 +240,7 @@ final class PackageControllerTest extends FunctionalTestCase
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
         $this->client->request('GET', $this->urlTo('organization_package_edit', ['organization' => 'buddy', 'package' => $packageId]));
 

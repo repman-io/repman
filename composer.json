@@ -163,8 +163,11 @@
         "fix-cs": [
             "php-cs-fixer fix"
         ],
-        "rector": [
-            "rector process"
+        "rector:check": [
+            "rector --dry-run --no-progress-bar"
+        ],
+        "rector:process": [
+            "rector --no-progress-bar"
         ],
         "phpstan": [
             "bin/console cache:clear --env=test",
@@ -188,7 +191,7 @@
         "tests": [
             "@check-cs",
             "@phpstan",
-            "@rector",
+            "@rector:check",
             "bin/console doctrine:schema:validate",
             "@coverage-ci",
             "bin/console lint:twig templates --show-deprecations",

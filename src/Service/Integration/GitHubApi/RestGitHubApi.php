@@ -8,7 +8,6 @@ use Buddy\Repman\Service\Integration\GitHubApi;
 use Github\AuthMethod;
 use Github\Client;
 use Github\ResultPager;
-use RuntimeException;
 
 final class RestGitHubApi implements GitHubApi
 {
@@ -28,7 +27,7 @@ final class RestGitHubApi implements GitHubApi
             }
         }
 
-        throw new RuntimeException('Primary e-mail not found.');
+        throw new \RuntimeException('Primary e-mail not found.');
     }
 
     /**

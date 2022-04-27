@@ -6,7 +6,6 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\Aws;
 
 use Aws\Credentials\Credentials;
 use Buddy\Repman\Service\Integration\Aws\S3AdapterFactory;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 class S3AdapterFactoryTest extends TestCase
@@ -106,7 +105,7 @@ class S3AdapterFactoryTest extends TestCase
         ?string $secret,
         string $expectedMessage
     ): void {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedMessage);
         new S3AdapterFactory('eu-east-1', true, $key, $secret);
     }

@@ -25,11 +25,9 @@ use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\IntegrationRegister;
 use Buddy\Repman\Service\User\UserOAuthTokenProvider;
-use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
-use RuntimeException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -336,12 +334,12 @@ final class PackageController extends ApiController
 
         try {
             $id = $this->handleAddPackage($type, $form, $organization, $json);
-        } catch (InvalidArgumentException $exception) {
+        } catch (\InvalidArgumentException $exception) {
             if (!$form->isSubmitted()) {
                 $form->submit($json);
             }
             $form->get('type')->addError(new FormError($exception->getMessage()));
-        } catch (RuntimeException $exception) {
+        } catch (\RuntimeException $exception) {
             $form->get('repository')->addError(new FormError($exception->getMessage()));
         }
 
@@ -457,7 +455,7 @@ final class PackageController extends ApiController
         $projectId = $byNames[$repo] ?? null;
 
         if ($projectId === null) {
-            throw new RuntimeException("Repository '$repo' not found.");
+            throw new \RuntimeException("Repository '$repo' not found.");
         }
 
         $this->messageBus->dispatch(new AddPackage(
@@ -490,7 +488,7 @@ final class PackageController extends ApiController
         $repoUuid = $byNames[$repo] ?? null;
 
         if ($repoUuid === null) {
-            throw new RuntimeException("Repository '$repo' not found.");
+            throw new \RuntimeException("Repository '$repo' not found.");
         }
 
         $this->messageBus->dispatch(new AddPackage(
@@ -511,7 +509,7 @@ final class PackageController extends ApiController
     {
         $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), $type);
         if ($token === null) {
-            throw new InvalidArgumentException("Missing $type integration.");
+            throw new \InvalidArgumentException("Missing $type integration.");
         }
 
         return $token;

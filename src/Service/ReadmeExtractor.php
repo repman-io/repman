@@ -11,7 +11,6 @@ use League\CommonMark\Environment;
 use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\MarkdownConverterInterface;
-use ZipArchive;
 
 final class ReadmeExtractor
 {
@@ -57,7 +56,7 @@ final class ReadmeExtractor
             return null;
         }
 
-        $zip = new ZipArchive();
+        $zip = new \ZipArchive();
         $result = $zip->open($tmpLocalFilename->get());
         if ($result !== true) {
             return null;

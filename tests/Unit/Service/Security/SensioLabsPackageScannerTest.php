@@ -12,11 +12,9 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
-use DateTimeImmutable;
 use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionObject;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBus;
 
@@ -130,7 +128,7 @@ final class SensioLabsPackageScannerTest extends TestCase
         $packageManager = $this->createMock(PackageManager::class);
         $packageManager->method('findProviders')->willReturn(
             [
-                new DateTimeImmutable(),
+                new \DateTimeImmutable(),
                 [
                     'buddy-works/repman' => [
                         self::VERSION => [
@@ -172,7 +170,7 @@ final class SensioLabsPackageScannerTest extends TestCase
 
     private function assertPackageSecurity(string $expected, Package $package): void
     {
-        $reflection = new ReflectionObject($package);
+        $reflection = new \ReflectionObject($package);
         $property = $reflection->getProperty('lastScanStatus');
         $property->setAccessible(true);
 

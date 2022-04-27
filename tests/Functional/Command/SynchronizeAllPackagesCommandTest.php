@@ -7,8 +7,6 @@ namespace Buddy\Repman\Tests\Functional\Command;
 use Buddy\Repman\Command\SynchronizeAllPackagesCommand;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use DateTimeImmutable;
-use InvalidArgumentException;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
@@ -24,7 +22,7 @@ final class SynchronizeAllPackagesCommandTest extends FunctionalTestCase
         $this->buddyId = $this->fixtures->createOrganization('buddy', $userId);
 
         $packageId = $this->fixtures->addPackage($this->buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
     }
 
     public function testSynchronizeAllSuccess(): void
@@ -60,7 +58,7 @@ final class SynchronizeAllPackagesCommandTest extends FunctionalTestCase
     {
         $alias = 'non-existing-alias';
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage(sprintf('Organization with alias %s not found.', $alias));
 
         /** @var InMemoryTransport $transport */

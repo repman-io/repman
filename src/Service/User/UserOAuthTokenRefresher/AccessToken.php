@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 
-use DateTimeImmutable;
-
 class AccessToken
 {
     private string $token;
 
-    private ?DateTimeImmutable $expiresAt;
+    private ?\DateTimeImmutable $expiresAt;
 
-    public function __construct(string $token, ?DateTimeImmutable $expiresAt = null)
+    public function __construct(string $token, ?\DateTimeImmutable $expiresAt = null)
     {
         $this->token = $token;
         $this->expiresAt = $expiresAt;
@@ -23,7 +21,7 @@ class AccessToken
         return $this->token;
     }
 
-    public function expiresAt(): ?DateTimeImmutable
+    public function expiresAt(): ?\DateTimeImmutable
     {
         return $this->expiresAt;
     }

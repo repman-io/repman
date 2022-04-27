@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry\Entry;
 
-use JsonSerializable;
-
-final class Organization implements JsonSerializable
+final class Organization implements \JsonSerializable
 {
     private string $id;
     private int $tokens;

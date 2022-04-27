@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-use JsonSerializable;
-
-final class Errors implements JsonSerializable
+final class Errors implements \JsonSerializable
 {
     /**
      * @var Error[]

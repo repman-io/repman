@@ -17,12 +17,8 @@ use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use DateInterval;
-use DateTimeImmutable;
-use Generator;
 use Ramsey\Uuid\Uuid;
 use function Ramsey\Uuid\v4;
-use RuntimeException;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
 final class OrganizationControllerTest extends FunctionalTestCase
@@ -129,10 +125,10 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
 
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/testing', '1', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/testing', '1', '1.1.1', new \DateTimeImmutable());
 
         $packageId2 = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new \DateTimeImmutable());
 
         // Check both packages are returned first
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
@@ -174,13 +170,13 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
 
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/testing', '1', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/testing', '1', '1.1.1', new \DateTimeImmutable());
 
         $packageId2 = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $links = [
             new Link('requires', 'buddy-works/testing', '^1.5'),
         ];
-        $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new DateTimeImmutable(), [], $links);
+        $this->fixtures->syncPackageWithData($packageId2, 'buddy-works/example', '2', '1.1.1', new \DateTimeImmutable(), [], $links);
 
         // Search for 'testing' (which is in name)
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'search' => 'depends:buddy-works/testing']));
@@ -237,7 +233,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
 
         for ($i = 1; $i < 6; ++$i) {
-            $submissionTime = (new DateTimeImmutable())->add(new DateInterval("P{$i}D"));
+            $submissionTime = (new \DateTimeImmutable())->add(new \DateInterval("P{$i}D"));
 
             $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
             $this->fixtures->syncPackageWithData($packageId, 'buddy-works/package-'.$i, 'Test', "1.{$i}", $submissionTime);
@@ -297,7 +293,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
 
         $this->client->followRedirects(true);
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
@@ -353,7 +349,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'some/repo']);
         $this->fixtures->setWebhookCreated($packageId);
-        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new RuntimeException('Bad credentials'));
+        $this->container()->get(GitHubApi::class)->setExceptionOnNextCall(new \RuntimeException('Bad credentials'));
 
         $this->client->followRedirects();
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
@@ -484,15 +480,15 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $versions = [
-            new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new DateTimeImmutable(), Version::STABILITY_STABLE),
-            new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1_048_576, new DateTimeImmutable(), Version::STABILITY_STABLE),
-            new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1_073_741_824, new DateTimeImmutable(), Version::STABILITY_STABLE),
+            new Version(Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable(), Version::STABILITY_STABLE),
+            new Version(Uuid::uuid4(), '1.0.1', 'ref2', 1_048_576, new \DateTimeImmutable(), Version::STABILITY_STABLE),
+            new Version(Uuid::uuid4(), '1.1.0', 'lastref', 1_073_741_824, new \DateTimeImmutable(), Version::STABILITY_STABLE),
         ];
         $links = [
             new Link('requires', 'buddy-works/target', '^1.5'),
             new Link('suggests', 'buddy-works/buddy', '^2.0'), // Suggest self to test dependant link
         ];
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable(), $versions, $links, 'This is a readme');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, $links, 'This is a readme');
         $this->fixtures->addScanResult($packageId, 'ok');
 
         $crawler = $this->client->request('GET', $this->urlTo('organization_package_details', [
@@ -537,7 +533,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable(), [], [], null, $replacementPackage);
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), [], [], null, $replacementPackage);
 
         $this->client->request('GET', $this->urlTo('organization_package_details', [
             'organization' => 'buddy',
@@ -549,9 +545,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
     }
 
     /**
-     * @return Generator<array<mixed>>
+     * @return \Generator<array<mixed>>
      */
-    public function getAbandonedReplacements(): Generator
+    public function getAbandonedReplacements(): \Generator
     {
         yield 'Abandoned without replacement package' => [
             '',
@@ -761,10 +757,10 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_GITHUB);
         $this->fixtures->createOauthToken($this->userId, OAuthToken::TYPE_BITBUCKET);
         $packageId = $this->fixtures->addPackage($organizationId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new DateTimeImmutable());
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
         $this->fixtures->setWebhookCreated($this->fixtures->addPackage($organizationId, 'https://buddy.com', 'github-oauth', [Metadata::GITHUB_REPO_NAME => 'org/repo']));
         $this->fixtures->setWebhookCreated($this->fixtures->addPackage($organizationId, 'https://buddy.com', 'bitbucket-oauth', [Metadata::BITBUCKET_REPO_NAME => 'webhook/problem']));
-        $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(new RuntimeException('Repository was archived'));
+        $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(new \RuntimeException('Repository was archived'));
 
         $this->client->request('DELETE', $this->urlTo('organization_remove', [
             'organization' => 'buddy-inc',
@@ -813,8 +809,8 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization($organization, $this->userId);
         $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $package2Id = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new DateTimeImmutable('2020-01-01 12:12:12'));
-        $this->fixtures->syncPackageWithData($package2Id, 'buddy-works/repman2', 'Repository manager', '2.1.1', new DateTimeImmutable('2020-01-01 12:12:12'));
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/repman', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
+        $this->fixtures->syncPackageWithData($package2Id, 'buddy-works/repman2', 'Repository manager', '2.1.1', new \DateTimeImmutable('2020-01-01 12:12:12'));
 
         $this->client->request('POST', $this->urlTo('organization_package_scan', [
             'organization' => $organization,
@@ -833,7 +829,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->fixtures->addScanResult($packageId, 'ok');
         $this->fixtures->addScanResult($package2Id, 'error', [
             'exception' => [
-                RuntimeException::class => 'Some error',
+                \RuntimeException::class => 'Some error',
             ],
         ]);
 
@@ -857,7 +853,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'buddy-works/repman',
             'Repository manager',
             $version,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         );
 
         $this->fixtures->addScanResult($packageId, 'ok');
@@ -884,7 +880,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'buddy-works/repman',
             'Repository manager',
             $version,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         );
 
         $this->fixtures->addScanResult($packageId, 'warning', [
@@ -931,12 +927,12 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'buddy-works/repman',
             'Repository manager',
             $version,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         );
 
         $this->fixtures->addScanResult($packageId, 'error', [
             'exception' => [
-                RuntimeException::class => 'Some error',
+                \RuntimeException::class => 'Some error',
             ],
         ]);
 
@@ -962,7 +958,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'buddy-works/repman',
             'Repository manager',
             $version,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         );
 
         $this->fixtures->addScanResult($packageId, 'n/a', []);

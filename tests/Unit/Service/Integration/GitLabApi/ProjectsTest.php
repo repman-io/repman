@@ -7,7 +7,6 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\GitLabApi;
 use Buddy\Repman\Service\Integration\GitLabApi\Project;
 use Buddy\Repman\Service\Integration\GitLabApi\Projects;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 final class ProjectsTest extends TestCase
 {
@@ -30,7 +29,7 @@ final class ProjectsTest extends TestCase
             $first = new Project(1, 'first', 'url'),
         ]);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
         $projects->get(666);
     }
 }

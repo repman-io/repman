@@ -15,7 +15,6 @@ use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 use Buddy\Repman\Service\Telemetry\TechnicalEmail;
-use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
 
@@ -60,7 +59,7 @@ final class Telemetry
         return (string) \file_get_contents($this->instanceIdFile);
     }
 
-    public function collectAndSend(DateTimeImmutable $date): void
+    public function collectAndSend(\DateTimeImmutable $date): void
     {
         $this->endpoint->send(
             new Entry(
@@ -105,7 +104,7 @@ final class Telemetry
     /**
      * @return Organization[]
      */
-    private function getOrganizations(DateTimeImmutable $date): array
+    private function getOrganizations(\DateTimeImmutable $date): array
     {
         $count = $this->query->organizationsCount();
         $limit = 100;
@@ -122,7 +121,7 @@ final class Telemetry
         return $organizations;
     }
 
-    private function getPackages(Organization $organization, DateTimeImmutable $date): void
+    private function getPackages(Organization $organization, \DateTimeImmutable $date): void
     {
         $count = $this->query->packagesCount($organization->id());
         $limit = 100;

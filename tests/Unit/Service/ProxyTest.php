@@ -7,7 +7,6 @@ namespace Buddy\Repman\Tests\Unit\Service;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
-use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
@@ -59,7 +58,7 @@ final class ProxyTest extends TestCase
 
     public function testPreventRemoveDist(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
 
         $this->proxy->removeDist('');
     }

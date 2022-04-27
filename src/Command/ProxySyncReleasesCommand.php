@@ -7,9 +7,6 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
-use DateTimeImmutable;
-use RuntimeException;
-use SimpleXMLElement;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -70,7 +67,7 @@ final class ProxySyncReleasesCommand extends Command
         return 0;
     }
 
-    private function syncPackages(SimpleXMLElement $feed): void
+    private function syncPackages(\SimpleXMLElement $feed): void
     {
         $proxy = $this
             ->register
@@ -102,10 +99,10 @@ final class ProxySyncReleasesCommand extends Command
 
         $lastPubDate = $lastPubDateCashed->get();
 
-        return new DateTimeImmutable($pubDate) <= new DateTimeImmutable($lastPubDate);
+        return new \DateTimeImmutable($pubDate) <= new \DateTimeImmutable($lastPubDate);
     }
 
-    private function loadFeed(): SimpleXMLElement
+    private function loadFeed(): \SimpleXMLElement
     {
         $stream = $this
             ->downloader
@@ -114,7 +111,7 @@ final class ProxySyncReleasesCommand extends Command
 
         $xml = @simplexml_load_string((string) stream_get_contents($stream));
         if ($xml === false) {
-            throw new RuntimeException('Unable to parse RSS feed');
+            throw new \RuntimeException('Unable to parse RSS feed');
         }
 
         return $xml;

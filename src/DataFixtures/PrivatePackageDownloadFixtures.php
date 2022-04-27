@@ -9,7 +9,6 @@ use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
-use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -62,7 +61,7 @@ final class PrivatePackageDownloadFixtures extends Fixture
                 $this->em->persist(new Download(
                     Uuid::uuid4(),
                     Uuid::fromString($package->id()),
-                    (new DateTimeImmutable())->modify(sprintf('-%s days', $i)),
+                    (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
                     $this->faker->randomElement($versions),
                     $this->faker->ipv4,
                     $this->faker->userAgent

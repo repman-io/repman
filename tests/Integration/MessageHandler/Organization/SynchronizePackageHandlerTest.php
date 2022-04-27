@@ -10,8 +10,6 @@ use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
-use DateTimeImmutable;
-use Exception;
 
 final class SynchronizePackageHandlerTest extends IntegrationTestCase
 {
@@ -23,7 +21,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
             $name = 'buddy-works/repman',
             $description = 'Repman - PHP repository manager',
             $version = '2.0.0',
-            $date = new DateTimeImmutable(),
+            $date = new \DateTimeImmutable(),
             [],
             [$link = new Link('requires', 'buddy-works/target', '^1.5')],
         );
@@ -37,7 +35,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
         self::assertEquals($description, $package->description());
         self::assertEquals($version, $package->latestReleasedVersion());
 
-        /** @var DateTimeImmutable $releaseDate */
+        /** @var \DateTimeImmutable $releaseDate */
         $releaseDate = $package->latestReleaseDate();
         self::assertEquals($date->format('Y-m-d H:i:s'), $releaseDate->format('Y-m-d H:i:s'));
 
@@ -53,7 +51,7 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
         $exception = null;
         try {
             $this->dispatchMessage(new SynchronizePackage('e0ea4d32-4144-4a67-9310-6dae483a6377'));
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
         }
 
         self::assertNull($exception);

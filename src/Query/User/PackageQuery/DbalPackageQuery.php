@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\PackageQuery;
 
+use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Entity\Organization\Package\Version as VersionEntity;
 use Buddy\Repman\Query\Filter as BaseFilter;
 use Buddy\Repman\Query\User\Model\Installs;
-use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Package;
 use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\Model\PackageDetails;
@@ -16,7 +16,6 @@ use Buddy\Repman\Query\User\Model\ScanResult;
 use Buddy\Repman\Query\User\Model\Version;
 use Buddy\Repman\Query\User\Model\WebhookRequest;
 use Buddy\Repman\Query\User\PackageQuery;
-use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
@@ -63,7 +62,7 @@ final class DbalPackageQuery implements PackageQuery
         }
 
         return array_map(
-            fn (array $data): Package => $this->hydratePackage($data),
+            fn(array $data): Package => $this->hydratePackage($data),
             $this->connection->fetchAllAssociative(
                 'SELECT
                 p.id,
@@ -98,7 +97,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getAllNames(string $organizationId): array
     {
-        return array_map(fn (array $data): PackageName => new PackageName($data['id'], $data['name']), $this->connection->fetchAllAssociative(
+        return array_map(fn(array $data): PackageName => new PackageName($data['id'], $data['name']), $this->connection->fetchAllAssociative(
             'SELECT id, name
             FROM "organization_package"
             WHERE organization_id = :organization_id AND name IS NOT NULL',
@@ -261,11 +260,11 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getVersions(string $packageId, BaseFilter $filter): array
     {
-        return array_map(fn (array $data): Version => new Version(
+        return array_map(fn(array $data): Version => new Version(
             $data['version'],
             $data['reference'],
             $data['size'],
-            new DateTimeImmutable($data['date'])
+            new \DateTimeImmutable($data['date'])
         ), $this->connection->fetchAllAssociative(
             'SELECT
                 id,
@@ -286,7 +285,7 @@ final class DbalPackageQuery implements PackageQuery
     public function getInstalls(string $packageId, int $lastDays = 30, ?string $version = null): Installs
     {
         $params = [
-            'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+            'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
             'package' => $packageId,
         ];
         $query = 'SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id = :package ';
@@ -299,7 +298,7 @@ final class DbalPackageQuery implements PackageQuery
         $query .= ' GROUP BY date) AS installs ORDER BY date ASC';
 
         return new Installs(
-            array_map(fn (array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative($query, $params)),
+            array_map(fn(array $row): Day => new Day($row['date'], $row['count']), $this->connection->fetchAllAssociative($query, $params)),
             $lastDays,
             (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download WHERE package_id = :package', ['package' => $packageId])
         );
@@ -319,7 +318,7 @@ final class DbalPackageQuery implements PackageQuery
 
     public function findRecentWebhookRequests(string $packageId): array
     {
-        return array_map(fn (array $row): WebhookRequest => new WebhookRequest($row['date'], $row['ip'], $row['user_agent']), $this->connection->fetchAllAssociative('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', ['package' => $packageId]));
+        return array_map(fn(array $row): WebhookRequest => new WebhookRequest($row['date'], $row['ip'], $row['user_agent']), $this->connection->fetchAllAssociative('SELECT date, ip, user_agent FROM organization_package_webhook_request WHERE package_id = :package ORDER BY date DESC LIMIT 10', ['package' => $packageId]));
     }
 
     /**
@@ -327,8 +326,8 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getScanResults(string $packageId, BaseFilter $filter): array
     {
-        return array_map(fn (array $data): ScanResult => new ScanResult(
-            new DateTimeImmutable($data['date']),
+        return array_map(fn(array $data): ScanResult => new ScanResult(
+            new \DateTimeImmutable($data['date']),
             $data['status'],
             $data['version'],
             $data['content'],
@@ -366,7 +365,7 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function getAllSynchronized(int $limit = 20, int $offset = 0): array
     {
-        return array_map(fn (array $data): PackageName => new PackageName($data['id'], $data['name'], $data['alias']), $this->connection->fetchAllAssociative(
+        return array_map(fn(array $data): PackageName => new PackageName($data['id'], $data['name'], $data['alias']), $this->connection->fetchAllAssociative(
             'SELECT p.id, p.name, o.alias
             FROM organization_package p
             JOIN organization o ON o.id = p.organization_id
@@ -395,7 +394,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         $scanResult = isset($data['last_scan_status']) ?
             new ScanResult(
-                new DateTimeImmutable($data['last_scan_date']),
+                new \DateTimeImmutable($data['last_scan_date']),
                 $data['last_scan_status'],
                 $data['latest_released_version'],
                 $data['last_scan_result'],
@@ -408,11 +407,11 @@ final class DbalPackageQuery implements PackageQuery
             $data['repository_url'],
             $data['name'],
             $data['latest_released_version'],
-            $data['latest_release_date'] !== null ? new DateTimeImmutable($data['latest_release_date']) : null,
+            $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
-            $data['last_sync_at'] !== null ? new DateTimeImmutable($data['last_sync_at']) : null,
+            $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
-            $data['webhook_created_at'] !== null ? new DateTimeImmutable($data['webhook_created_at']) : null,
+            $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
             $data['webhook_created_error'],
             $scanResult,
             $data['keep_last_releases'] ?? 0
@@ -426,7 +425,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         $scanResult = isset($data['last_scan_status']) ?
             new ScanResult(
-                new DateTimeImmutable($data['last_scan_date']),
+                new \DateTimeImmutable($data['last_scan_date']),
                 $data['last_scan_status'],
                 $data['latest_released_version'],
                 $data['last_scan_result'],
@@ -438,7 +437,7 @@ final class DbalPackageQuery implements PackageQuery
             $data['repository_url'],
             $data['name'],
             $data['latest_released_version'],
-            $data['latest_release_date'] !== null ? new DateTimeImmutable($data['latest_release_date']) : null,
+            $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
             $data['last_sync_error'],
             $scanResult,
@@ -453,11 +452,11 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function findNonStableVersions(string $packageId): array
     {
-        return array_map(fn (array $data): Version => new Version(
+        return array_map(fn(array $data): Version => new Version(
             $data['version'],
             $data['reference'],
             0,
-            new DateTimeImmutable()
+            new \DateTimeImmutable()
         ), $this->connection->fetchAllAssociative(
             'SELECT
                 id,

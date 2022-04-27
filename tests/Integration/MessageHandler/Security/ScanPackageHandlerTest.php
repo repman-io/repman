@@ -9,7 +9,6 @@ use Buddy\Repman\MessageHandler\Security\ScanPackageHandler;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\PackageQuery\Filter;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
-use Exception;
 
 final class ScanPackageHandlerTest extends IntegrationTestCase
 {
@@ -44,7 +43,7 @@ final class ScanPackageHandlerTest extends IntegrationTestCase
         try {
             $handler = $this->container()->get(ScanPackageHandler::class);
             $handler->__invoke(new ScanPackage('1a01fc33-5265-43b9-9482-84eddcf0216e'));
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
         }
 
         self::assertNull($exception);
