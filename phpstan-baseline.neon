@@ -1,0 +1,511 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Config\\:\\:\\$key is unused\\.$#"
+			count: 1
+			path: src/Entity/Config.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Config\\:\\:\\$value is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Config.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\:\\:\\$createdAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\:\\:\\$hasAnonymousAccess is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Invitation\\:\\:\\$organization is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Invitation.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Member\\:\\:\\$id is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Member.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$description is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$lastScanDate is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$lastScanResult is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$lastScanStatus is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$lastSyncAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$latestReleaseDate is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$webhookCreatedAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$webhookCreatedError is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download\\:\\:\\$date is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Download.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download\\:\\:\\$id is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Download.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download\\:\\:\\$ip is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Download.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download\\:\\:\\$packageId is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Download.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download\\:\\:\\$userAgent is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Download.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download\\:\\:\\$version is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Download.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Link\\:\\:\\$id is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Link.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Link\\:\\:\\$package is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Link.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\ScanResult\\:\\:\\$content is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/ScanResult.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\ScanResult\\:\\:\\$date is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/ScanResult.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\ScanResult\\:\\:\\$id is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/ScanResult.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\ScanResult\\:\\:\\$status is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/ScanResult.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\ScanResult\\:\\:\\$version is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/ScanResult.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Version\\:\\:\\$stability is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package/Version.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Token\\:\\:\\$createdAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Token.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Token\\:\\:\\$lastUsedAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Token.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Token\\:\\:\\$name is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/Organization/Token.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\:\\:\\$createdAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\:\\:\\$roles is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\:\\:\\$status is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\:\\:\\$timezone is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\ApiToken\\:\\:\\$createdAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/ApiToken.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\ApiToken\\:\\:\\$lastUsedAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/ApiToken.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\ApiToken\\:\\:\\$name is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/ApiToken.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\ApiToken\\:\\:\\$user is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/ApiToken.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\OAuthToken\\:\\:\\$createdAt is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/OAuthToken.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\OAuthToken\\:\\:\\$id is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/OAuthToken.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\User\\\\OAuthToken\\:\\:\\$user is never read, only written\\.$#"
+			count: 1
+			path: src/Entity/User/OAuthToken.php
+
+		-
+			message: "#^Parameter \\#6 \\$userAgent of class Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download constructor expects string\\|null, string\\|false\\|null given\\.$#"
+			count: 1
+			path: src/MessageHandler/Organization/AddDownloadHandler.php
+
+		-
+			message: "#^Variable \\$http_response_header in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 1
+			path: src/Service/Downloader/ReactDownloader.php
+
+		-
+			message: "#^Variable method call on React\\\\Http\\\\Browser\\.$#"
+			count: 1
+			path: src/Service/Downloader/ReactDownloader.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 4
+			path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+		-
+			message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
+			count: 1
+			path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+		-
+			message: "#^Variable method call on Composer\\\\Package\\\\PackageInterface\\.$#"
+			count: 1
+			path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+		-
+			message: "#^Variable property access on DateInterval\\.$#"
+			count: 1
+			path: src/Service/Twig/DateExtension.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/BitbucketOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 3
+			path: tests/Doubles/BitbucketOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BuddyApi\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/BuddyOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/BuddyOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/GitHubOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/GitHubOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 2
+			path: tests/Doubles/GitLabOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\ClearOldPrivateDistsCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/ClearOldPrivateDistsCommandTest.php
+
+		-
+			message: "#^Service \"repo\\.storage\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/ClearOldPrivateDistsCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\CreateAdminCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/CreateAdminCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\CreateUserCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/CreateUserCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\ScanAllPackagesCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/ScanAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Security\\\\PackageScanner\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/ScanAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\SendTelemetryCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SendTelemetryCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Telemetry\\\\TelemetryEndpoint\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SendTelemetryCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\SynchronizeAllPackagesCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SynchronizeAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SynchronizeAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\SynchronizePackageCommand\" is private\\.$#"
+			count: 2
+			path: tests/Functional/Command/SynchronizePackageCommandTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/SynchronizePackageCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\UpdateAdvisoriesDbCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/UpdateAdvisoriesDbCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Security\\\\PackageScanner\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/UpdateAdvisoriesDbCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Telemetry\\\\TelemetryEndpoint\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Controller/Admin/ConfigControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\Admin\\\\UserQuery\\\\DbalUserQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Admin/UserControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\PackageQuery\\\\DbalPackageQuery\" is private\\.$#"
+			count: 11
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitLabApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\Api\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Controller/Api/TokenControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/BitbucketControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/BitbucketControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/BuddyControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/GitHubControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/GitLabControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Organization/PackageControllerTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 5
+			path: tests/Functional/Controller/Organization/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 2
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\PackageQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Repository\\\\OrganizationRepository\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 2
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Organization\\\\TokenGenerator\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/ProxyControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Repository\\\\UserRepository\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/SecurityControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/UserControllerTest.php
+
+		-
+			message: """
+				#^Fetching class constant class of deprecated class Symfony\\\\Component\\\\Security\\\\Core\\\\Exception\\\\UsernameNotFoundException\\:
+				since Symfony 5\\.3 to be removed in 6\\.0, use UserNotFoundException instead\\.$#
+			"""
+			count: 1
+			path: tests/Integration/Security/OrganizationProviderTest.php
+
+		-
+			message: """
+				#^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\Organization\\:
+				since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+			"""
+			count: 1
+			path: tests/Unit/Security/Model/OrganizationTest.php
+
+		-
+			message: """
+				#^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\User\\:
+				since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+			"""
+			count: 1
+			path: tests/Unit/Security/Model/UserTest.php
+
+		-
+			message: "#^Call to method setParameter\\(\\) on an unknown class Symfony\\\\Component\\\\Validator\\\\Test\\\\ConstraintViolationAssertion\\.$#"
+			count: 2
+			path: tests/Unit/Validator/NoOrganizationMemberValidatorTest.php
+
+		-
+			message: "#^Call to method setParameter\\(\\) on an unknown class Symfony\\\\Component\\\\Validator\\\\Test\\\\ConstraintViolationAssertion\\.$#"
+			count: 2
+			path: tests/Unit/Validator/UniqueEmailValidatorTest.php
+
