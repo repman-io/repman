@@ -164,7 +164,7 @@
         ],
         "phpstan": [
             "bin/console cache:clear --env=test",
-            "phpstan analyse src tests --level=max"
+            "phpstan analyse --level=max"
         ],
         "phpunit": [
             "phpunit --colors=always"
