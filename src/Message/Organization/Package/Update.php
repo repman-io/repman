@@ -9,12 +9,14 @@ final class Update
     private string $packageId;
     private string $url;
     private int $keepLastReleases;
+    private bool $enableSecurityScan;
 
-    public function __construct(string $packageId, string $url, int $keepLastReleases)
+    public function __construct(string $packageId, string $url, int $keepLastReleases, bool $enableSecurityScan)
     {
         $this->packageId = $packageId;
         $this->url = $url;
         $this->keepLastReleases = $keepLastReleases;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function packageId(): string
@@ -30,5 +32,10 @@ final class Update
     public function keepLastReleases(): int
     {
         return $this->keepLastReleases;
+    }
+
+    public function isEnabledSecurityScan(): bool
+    {
+        return $this->enableSecurityScan;
     }
 }
