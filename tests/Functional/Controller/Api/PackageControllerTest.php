@@ -107,6 +107,7 @@ final class PackageControllerTest extends FunctionalTestCase
                         "latestReleasedVersion": null,
                         "latestReleaseDate": null,
                         "description": null,
+                        "enableSecurityScan":true,
                         "lastSyncAt": null,
                         "lastSyncError": null,
                         "webhookCreatedAt": null,
@@ -209,6 +210,7 @@ final class PackageControllerTest extends FunctionalTestCase
                 "latestReleasedVersion": "2.1.1",
                 "latestReleaseDate": "'.$release->format(\DateTime::ATOM).'",
                 "description": "Repository manager",
+                "enableSecurityScan": true,
                 "lastSyncAt": "'.$now.'",
                 "lastSyncError": null,
                 "webhookCreatedAt": null,
@@ -380,6 +382,7 @@ final class PackageControllerTest extends FunctionalTestCase
         ]), [], [], [], (string) json_encode([
             'url' => 'new-url',
             'keepLastReleases' => 6,
+            'enableSecurityScan' => true,
         ]));
 
         $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
@@ -473,6 +476,7 @@ final class PackageControllerTest extends FunctionalTestCase
                 "latestReleasedVersion": "1.0.0",
                 "latestReleaseDate": "'.$now.'",
                 "description": "n/a",
+                "enableSecurityScan": true,
                 "lastSyncAt": "'.$now.'",
                 "lastSyncError": null,
                 "webhookCreatedAt": null,

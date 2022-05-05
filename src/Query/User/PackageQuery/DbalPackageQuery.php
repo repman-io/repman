@@ -81,7 +81,8 @@ final class DbalPackageQuery implements PackageQuery
                 p.last_scan_date,
                 p.last_scan_status,
                 p.last_scan_result,
-                p.keep_last_releases
+                p.keep_last_releases,
+                p.enable_security_scan
             FROM organization_package p '.$joinSQL
             .'WHERE p.organization_id = :organization_id
             '.$filterSQL.'
@@ -156,7 +157,8 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_date,
                 last_scan_status,
                 last_scan_result,
-                keep_last_releases
+                keep_last_releases,
+                enable_security_scan
             FROM "organization_package"
             WHERE id = :id', [
             'id' => $id,
@@ -191,7 +193,8 @@ final class DbalPackageQuery implements PackageQuery
                 last_scan_result,
                 keep_last_releases,
                 readme,
-                replacement_package
+                replacement_package,
+                enable_security_scan
             FROM "organization_package"
             WHERE id = :id', [
             'id' => $id,
@@ -427,7 +430,8 @@ final class DbalPackageQuery implements PackageQuery
             $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
             $data['webhook_created_error'],
             $scanResult,
-            $data['keep_last_releases'] ?? 0
+            $data['keep_last_releases'] ?? 0,
+            $data['enable_security_scan'] ?? true
         );
     }
 
@@ -457,6 +461,7 @@ final class DbalPackageQuery implements PackageQuery
             $data['keep_last_releases'] ?? 0,
             $data['readme'] ?? null,
             $data['replacement_package'] ?? null,
+            $data['enable_security_scan'] ?? true
         );
     }
 
