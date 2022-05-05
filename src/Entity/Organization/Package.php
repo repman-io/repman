@@ -133,6 +133,11 @@ class Package
     private int $keepLastReleases = 0;
 
     /**
+     * @ORM\Column(type="boolean", options={"default":"true"})
+     */
+    private bool $enableSecurityScan = true;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private ?string $replacementPackage = null;
@@ -140,13 +145,14 @@ class Package
     /**
      * @param mixed[] $metadata
      */
-    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $keepLastReleases = 0)
+    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $keepLastReleases = 0, bool $enableSecurityScan = true)
     {
         $this->id = $id;
         $this->type = $type;
         $this->repositoryUrl = $url;
         $this->metadata = $metadata;
         $this->keepLastReleases = $keepLastReleases;
+        $this->enableSecurityScan = $enableSecurityScan;
         $this->versions = new ArrayCollection();
         $this->links = new ArrayCollection();
     }
@@ -381,10 +387,11 @@ class Package
         return $this->keepLastReleases;
     }
 
-    public function update(string $url, int $keepLastReleases): void
+    public function update(string $url, int $keepLastReleases, bool $enableSecurityScan): void
     {
         $this->keepLastReleases = $keepLastReleases;
         $this->repositoryUrl = $url;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function getReplacementPackage(): ?string
@@ -395,5 +402,15 @@ class Package
     public function setReplacementPackage(?string $replacementPackage): void
     {
         $this->replacementPackage = $replacementPackage;
+    }
+
+    public function isEnabledSecurityScan(): bool
+    {
+        return $this->enableSecurityScan;
+    }
+
+    public function setEnabledSecurityScan(bool $enableSecurityScan): void
+    {
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 }

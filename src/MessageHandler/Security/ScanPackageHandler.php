@@ -28,6 +28,9 @@ final class ScanPackageHandler implements MessageHandlerInterface
         if (!$package instanceof Package) {
             return;
         }
+        if (!$package->isEnabledSecurityScan()) {
+            return;
+        }
 
         $this->scanner->scan($package);
     }
