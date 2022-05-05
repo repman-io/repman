@@ -280,6 +280,7 @@ final class PackageController extends ApiController
             $package->getId(),
             $form->get('url')->getData(),
             $form->get('keepLastReleases')->getData(),
+            $form->get('enableSecurityScan')->getData(),
         ));
 
         $this->messageBus->dispatch(new SynchronizePackage($package->getId()));

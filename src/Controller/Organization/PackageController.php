@@ -134,6 +134,7 @@ final class PackageController extends AbstractController
         $form = $this->createForm(EditPackageType::class, [
             'url' => $package->url(),
             'keepLastReleases' => $package->keepLastReleases(),
+            'enableSecurityScan' => $package->isEnabledSecurityScan(),
         ]);
 
         $form->handleRequest($request);
@@ -144,6 +145,7 @@ final class PackageController extends AbstractController
                 $package->id(),
                 $data['url'],
                 $data['keepLastReleases'],
+                $data['enableSecurityScan']
             ));
 
             $this->messageBus->dispatch(new SynchronizePackage($package->id()));

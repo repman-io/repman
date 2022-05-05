@@ -20,6 +20,7 @@ final class Package implements \JsonSerializable
     private ?\DateTimeImmutable $webhookCreatedAt;
     private ?ScanResult $scanResult;
     private int $keepLastReleases;
+    private bool $enableSecurityScan;
 
     public function __construct(
         string $id,
@@ -33,7 +34,8 @@ final class Package implements \JsonSerializable
         ?string $lastSyncError = null,
         ?\DateTimeImmutable $webhookCreatedAt = null,
         ?ScanResult $scanResult = null,
-        int $keepLastReleases = 0
+        int $keepLastReleases = 0,
+        bool $enableSecurityScan = true
     ) {
         $this->id = $id;
         $this->type = $type;
@@ -47,6 +49,7 @@ final class Package implements \JsonSerializable
         $this->webhookCreatedAt = $webhookCreatedAt;
         $this->scanResult = $scanResult ?? null;
         $this->keepLastReleases = $keepLastReleases;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function getId(): string
@@ -127,6 +130,11 @@ final class Package implements \JsonSerializable
         return $this->keepLastReleases;
     }
 
+    public function isEnabledSecurityScan(): bool
+    {
+        return $this->enableSecurityScan;
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -148,6 +156,7 @@ final class Package implements \JsonSerializable
             'scanResultStatus' => $this->getScanResultStatus(),
             'lastScanResultContent' => $this->getLastScanResultContent(),
             'keepLastReleases' => $this->getKeepLastReleases(),
+            'enableSecurityScan' => $this->isEnabledSecurityScan(),
         ];
     }
 }
