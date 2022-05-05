@@ -15,7 +15,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "7.4 || ^8.0",
+        "php": "^7.4.1 || ^8.0",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
