@@ -158,6 +158,15 @@ services:
         arguments:
             - '@Gitlab\Client'
 
+    Sentry\Integration\IgnoreErrorsIntegration:
+        arguments:
+            $options:
+                ignore_exceptions:
+                    - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
+                    - 'Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException'
+                    - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
+                    - 'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException'
+
     Buddy\Repman\Service\Integration\GitLabApi\RestGitLabApi:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
