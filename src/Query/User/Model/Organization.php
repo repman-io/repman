@@ -13,6 +13,7 @@ final class Organization
     private string $name;
     private string $alias;
     private bool $hasAnonymousAccess;
+    private bool $enableSecurityScan;
 
     /**
      * @var Member[]
@@ -22,13 +23,14 @@ final class Organization
     /**
      * @param Member[] $members
      */
-    public function __construct(string $id, string $name, string $alias, array $members, bool $hasAnonymousAccess)
+    public function __construct(string $id, string $name, string $alias, array $members, bool $hasAnonymousAccess, bool $enableSecurityScan)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
         $this->members = array_map(fn (Member $member) => $member, $members);
         $this->hasAnonymousAccess = $hasAnonymousAccess;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function id(): string
@@ -92,5 +94,10 @@ final class Organization
     public function hasAnonymousAccess(): bool
     {
         return $this->hasAnonymousAccess;
+    }
+
+    public function isSecurityScanEnabled(): bool
+    {
+        return $this->enableSecurityScan;
     }
 }

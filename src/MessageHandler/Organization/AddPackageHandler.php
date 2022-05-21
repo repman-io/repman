@@ -29,7 +29,8 @@ final class AddPackageHandler implements MessageHandlerInterface
                     $message->type(),
                     $message->url(),
                     $message->metadata(),
-                    $message->keepLastReleases()
+                    $message->keepLastReleases(),
+                    $message->hasSecurityScanEnabled()
                 )
             )
         ;

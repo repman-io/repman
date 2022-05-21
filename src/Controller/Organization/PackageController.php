@@ -209,7 +209,8 @@ final class PackageController extends AbstractController
                 $form->get('url')->getData(),
                 in_array($type, ['git', 'mercurial', 'subversion'], true) ? 'vcs' : $type,
                 [],
-                $form->get('keepLastReleases')->getData()
+                $form->get('keepLastReleases')->getData(),
+                $organization->isSecurityScanEnabled()
             ));
             $this->messageBus->dispatch(new SynchronizePackage($id));
 
@@ -238,7 +239,8 @@ final class PackageController extends AbstractController
                     "https://github.com/{$repo}",
                     'github-oauth',
                     [Metadata::GITHUB_REPO_NAME => $repo],
-                    $form->get('keepLastReleases')->getData()
+                    $form->get('keepLastReleases')->getData(),
+                    $organization->isSecurityScanEnabled()
                 ));
                 $this->messageBus->dispatch(new SynchronizePackage($id));
                 $this->messageBus->dispatch(new AddGitHubHook($id));
@@ -269,7 +271,8 @@ final class PackageController extends AbstractController
                     $projects->get($projectId)->url(),
                     'gitlab-oauth',
                     [Metadata::GITLAB_PROJECT_ID => $projectId],
-                    $form->get('keepLastReleases')->getData()
+                    $form->get('keepLastReleases')->getData(),
+                    $organization->isSecurityScanEnabled()
                 ));
                 $this->messageBus->dispatch(new SynchronizePackage($id));
                 $this->messageBus->dispatch(new AddGitLabHook($id));
@@ -300,7 +303,8 @@ final class PackageController extends AbstractController
                     $repos->get($repoUuid)->url(),
                     'bitbucket-oauth',
                     [Metadata::BITBUCKET_REPO_NAME => $repos->get($repoUuid)->name()],
-                    $form->get('keepLastReleases')->getData()
+                    $form->get('keepLastReleases')->getData(),
+                    $organization->isSecurityScanEnabled()
                 ));
                 $this->messageBus->dispatch(new SynchronizePackage($id));
                 $this->messageBus->dispatch(new AddBitbucketHook($id));

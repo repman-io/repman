@@ -10,13 +10,15 @@ final class Organization implements \JsonSerializable
     private string $name;
     private string $alias;
     private bool $hasAnonymousAccess;
+    private bool $enableSecurityScan;
 
-    public function __construct(string $id, string $name, string $alias, bool $hasAnonymousAccess)
+    public function __construct(string $id, string $name, string $alias, bool $hasAnonymousAccess, bool $enableSecurityScan)
     {
         $this->id = $id;
         $this->name = $name;
         $this->alias = $alias;
         $this->hasAnonymousAccess = $hasAnonymousAccess;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function getId(): string
@@ -39,6 +41,11 @@ final class Organization implements \JsonSerializable
         return $this->hasAnonymousAccess;
     }
 
+    public function getEnabledSecurityScan(): bool
+    {
+        return $this->enableSecurityScan;
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -49,6 +56,7 @@ final class Organization implements \JsonSerializable
             'name' => $this->getName(),
             'alias' => $this->getAlias(),
             'hasAnonymousAccess' => $this->getHasAnonymousAccess(),
+            'enabledSecurityScan' => $this->enableSecurityScan,
         ];
     }
 }
