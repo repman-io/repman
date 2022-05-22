@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\Organization;
 
-final class EnableSecurityScan
+final class ChangeSecurityScanConfiguration
 {
     private string $organizationId;
     private bool $enableSecurityScan;

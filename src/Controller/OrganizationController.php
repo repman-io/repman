@@ -12,7 +12,7 @@ use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
 use Buddy\Repman\Message\Organization\ChangeAlias;
 use Buddy\Repman\Message\Organization\ChangeAnonymousAccess;
 use Buddy\Repman\Message\Organization\ChangeName;
-use Buddy\Repman\Message\Organization\EnableSecurityScan;
+use Buddy\Repman\Message\Organization\ChangeSecurityScanConfiguration;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
@@ -295,7 +295,7 @@ final class OrganizationController extends AbstractController
         $enableSecurityScanForm = $this->createForm(EnableSecurityScanType::class, ['isSecurityScanEnabled' => $organization->isSecurityScanEnabled()]);
         $enableSecurityScanForm->handleRequest($request);
         if ($enableSecurityScanForm->isSubmitted() && $enableSecurityScanForm->isValid()) {
-            $this->messageBus->dispatch(new EnableSecurityScan($organization->id(), $enableSecurityScanForm->get('isSecurityScanEnabled')->getData()));
+            $this->messageBus->dispatch(new ChangeSecurityScanConfiguration($organization->id(), $enableSecurityScanForm->get('isSecurityScanEnabled')->getData()));
             $this->addFlash('success', 'Default package security scans have been successfully changed.');
 
             return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
