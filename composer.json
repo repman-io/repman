@@ -46,6 +46,7 @@
         "munusphp/munus": "^0.4.0",
         "nelmio/api-doc-bundle": "^4.3",
         "nelmio/cors-bundle": "^2.1",
+        "nyholm/psr7": "^1.5",
         "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
         "react/http": "^1.0",
