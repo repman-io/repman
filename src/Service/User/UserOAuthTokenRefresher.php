@@ -24,6 +24,7 @@ class UserOAuthTokenRefresher
 
         return new AccessToken(
             $accessToken->getToken(),
+            $accessToken->getRefreshToken(),
             $accessToken->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($accessToken->getExpires()) : null
         );
     }
