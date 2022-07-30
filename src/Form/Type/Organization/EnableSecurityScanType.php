@@ -9,7 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class EnableSecurityScanType extends AbstractType
+final class EnableSecurityScanType extends AbstractType
 {
     public function getBlockPrefix(): string
     {
