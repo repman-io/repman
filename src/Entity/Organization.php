@@ -73,7 +73,7 @@ class Organization
     /**
      * @ORM\Column(type="boolean", options={"default": true})
      */
-    private bool $enable_security_scan = true;
+    private bool $enableSecurityScan = true;
 
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
@@ -263,7 +263,7 @@ class Organization
 
     public function enableSecurityScan(bool $enableSecurityScan): void
     {
-        $this->enable_security_scan = $enableSecurityScan;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     private function isLastOwner(User $user): bool
