@@ -75,7 +75,7 @@ class S3AdapterFactoryTest extends TestCase
         );
 
         $instance = $factory->create();
-        self::assertSame(true, $instance->getConfig('use_path_style_endpoint'));
+        self::assertTrue($instance->getConfig('use_path_style_endpoint'));
     }
 
     public function testExpectDefaultPathStyleOptionToBeFalse(): void
@@ -89,7 +89,7 @@ class S3AdapterFactoryTest extends TestCase
         );
 
         $instance = $factory->create();
-        self::assertSame(false, $instance->getConfig('use_path_style_endpoint'));
+        self::assertFalse($instance->getConfig('use_path_style_endpoint'));
     }
 
     /**
