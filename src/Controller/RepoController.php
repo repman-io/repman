@@ -49,12 +49,13 @@ final class RepoController extends AbstractController
      */
     public function packages(Request $request, Organization $organization): JsonResponse
     {
+        $lastModified = new \DateTimeImmutable();
+        $composerV1 = true;
+
         try {
             $composerInfo = $this->environmentFactory->fromRequest($request);
             $composerV1 = Comparator::lessThan($composerInfo->getVersion(), '2.0.0');
         } catch (\Throwable $t) {
-            // By default, add V1 data
-            $composerV1 = true;
         }
 
         // Build up basic API V2 response
@@ -88,7 +89,9 @@ final class RepoController extends AbstractController
             $response['warning-versions'] = '<1.99';
         }
 
-        return new JsonResponse($response);
+        return (new JsonResponse($response))
+            ->setLastModified($lastModified)
+            ->setPrivate();
     }
 
     /**
@@ -178,7 +181,7 @@ final class RepoController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        $response = (new JsonResponse(['minified' => 'composer/2.0', 'packages' => $providerData]))
+        $response = (new JsonResponse(['packages' => $providerData]))
             ->setLastModified($lastModified)
             ->setPrivate();
 
