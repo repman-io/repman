@@ -100,7 +100,10 @@ final class RepoControllerTest extends FunctionalTestCase
             ],
             "metadata-url": "/p2/%package%.json",
             "notify-batch": "http://buddy.repo.repman.wip/downloads",
+            "providers-url": "/p2/%package%.json",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
+            "warning": "⚠️ WARNING⚠️: YOU ARE USING COMPOSER V1. You are highly encouraged to update to composer v2. This has significant improvements regarding speed.",
+            "warning-versions": "<1.99",
             "mirrors": [
                 {
                     "dist-url": "http://buddy.repo.repman.wip/dists/%package%/%version%/%reference%.%type%",
@@ -205,16 +208,18 @@ final class RepoControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
 
-        self::assertMatchesPattern('
+        self::assertJsonStringEqualsJsonString('
         {
-            "buddy-works/repman": {
-                "1.2.3": {
-                    "version": "1.2.3",
-                    "version_normalized": "1.2.3.0",
-                    "dist": {
-                        "type": "zip",
-                        "url": "/path/to/reference.zip",
-                        "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+            "packages": {
+                "buddy-works/repman": {
+                    "1.2.3": {
+                        "version": "1.2.3",
+                        "version_normalized": "1.2.3.0",
+                        "dist": {
+                            "type": "zip",
+                            "url": "/path/to/reference.zip",
+                            "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+                        }
                     }
                 }
             }
