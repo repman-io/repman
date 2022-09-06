@@ -11,7 +11,6 @@ use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Composer\ComposerEnvironmentFactory;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Composer\Semver\Comparator;
-use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
