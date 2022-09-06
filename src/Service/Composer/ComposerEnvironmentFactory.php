@@ -12,7 +12,7 @@ final class ComposerEnvironmentFactory
     {
         $userAgent = $request->headers->get('User-Agent');
 
-        return $this->fromUserAgent($userAgent);
+        return $this->fromUserAgent($userAgent ?? '');
     }
 
     public function fromUserAgent(string $userAgent): ComposerEnvironment
