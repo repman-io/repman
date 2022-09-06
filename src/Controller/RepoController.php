@@ -47,7 +47,7 @@ final class RepoController extends AbstractController
      * @Route("/packages.json", host="{organization}{sep1}repo{sep2}{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"}, requirements={"domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
      * @Cache(public=false)
      */
-    public function packages(Request $request, Organization $organization, LoggerInterface $logger): JsonResponse
+    public function packages(Request $request, Organization $organization): JsonResponse
     {
         try {
             $composerInfo = $this->environmentFactory->fromRequest($request);
