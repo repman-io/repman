@@ -222,7 +222,7 @@ final class RepoControllerTest extends FunctionalTestCase
                 }
             }
         }
-        ', $this->client->getResponse()->getContent());
+        ', (string) $this->client->getResponse()->getContent());
     }
 
     public function testProviderV2ActionWithCache(): void
