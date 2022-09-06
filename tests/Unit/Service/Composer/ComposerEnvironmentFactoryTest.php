@@ -20,6 +20,9 @@ final class ComposerEnvironmentFactoryTest extends TestCase
         self::assertEquals($version, $composerInfo->getVersion());
     }
 
+    /**
+     * @return iterable<string, array<string, mixed>>
+     */
     public function composerUserAgentDataProvider(): iterable
     {
         $userAgents = [
