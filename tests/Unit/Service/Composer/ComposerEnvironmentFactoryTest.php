@@ -17,7 +17,7 @@ final class ComposerEnvironmentFactoryTest extends TestCase
         string $version
     ): void {
         $composerInfo = (new ComposerEnvironmentFactory())->fromUserAgent($userAgent);
-        $this->assertEquals($version, $composerInfo->getVersion());
+        self::assertEquals($version, $composerInfo->getVersion());
     }
 
     public function composerUserAgentDataProvider(): iterable
