@@ -84,8 +84,6 @@ final class RepoController extends AbstractController
         if ($composerV1) {
             [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $packageNames);
             $response['packages'] = $packages;
-            $response['warning'] = '⚠️ WARNING⚠️: YOU ARE USING COMPOSER V1. You are highly encouraged to update to composer v2. This has significant improvements regarding speed.';
-            $response['warning-versions'] = '<1.99';
         }
 
         return (new JsonResponse($response))

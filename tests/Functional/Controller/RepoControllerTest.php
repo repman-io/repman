@@ -102,8 +102,6 @@ final class RepoControllerTest extends FunctionalTestCase
             "notify-batch": "http://buddy.repo.repman.wip/downloads",
             "providers-url": "/p2/%package%.json",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
-            "warning": "⚠️ WARNING⚠️: YOU ARE USING COMPOSER V1. You are highly encouraged to update to composer v2. This has significant improvements regarding speed.",
-            "warning-versions": "<1.99",
             "mirrors": [
                 {
                     "dist-url": "http://buddy.repo.repman.wip/dists/%package%/%version%/%reference%.%type%",
