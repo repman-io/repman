@@ -20,6 +20,7 @@ parameters:
     instance_id_file: '%kernel.project_dir%/var/instance-id'
     kernel_version: !php/const Buddy\Repman\Kernel::REPMAN_VERSION
     storage.aws.endpoint: ~ # Default to null
+    storage.aws.pathstyle: ~ # Default to null
     storage.aws.key: ~
     storage.aws.secret: ~
     storage.aws.opaque_auth: false # Default to false
@@ -56,6 +57,7 @@ services:
             - '%env(default:storage.aws.key:STORAGE_AWS_KEY)%'
             - '%env(default:storage.aws.secret:STORAGE_AWS_SECRET)%'
             - '%env(default:storage.aws.endpoint:STORAGE_AWS_ENDPOINT)%'
+            - '%env(default:storage.aws.pathstyle:bool:STORAGE_AWS_PATH_STYLE_ENDPOINT)%'
 
     Aws\S3\S3Client:
         lazy: true
