@@ -11,8 +11,8 @@
     docker_image_name: "library/php"
     docker_image_tag: "8.0.19"
     execute_commands:
-    - "composer validate"
     - "composer install"
+    - "composer validate"
     - "rm -rf var/cache"
     - "composer reset-db"
     - "composer tests"
