@@ -111,6 +111,15 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertContains('suggests-buddy-works/suggests-You really should', $linkStrings);
     }
 
+    public function testWithMostRecentUnstable(): void
+    {
+        $this->downloader->addContent($this->resourcesDir.'artifacts-mixed-sorting', 'foobar');
+        $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts-mixed-sorting', 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        $this->assertEquals('v1.0.0', $this->getProperty($package, 'latestReleasedVersion'));
+    }
+
     public function testSynchronizePackageThatAlreadyExists(): void
     {
         $path = $this->baseDir.'/buddy/p/buddy-works/alpha.json';
