@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
+use Buddy\Repman\Entity\Organization\Package\Abandoned;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
@@ -182,6 +183,13 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     foreach ($latest->getSuggests() as $linkName => $linkDescription) {
                         $package->addLink(new Link(Uuid::uuid4(), $package, 'suggests', $linkName, $linkDescription));
                         $encounteredLinks['suggests-'.$linkName] = true;
+                    }
+
+                    // Is abandoned ?
+                    if ($latest instanceof CompletePackage && $latest->isAbandoned()) {
+                        $package->setReplacementPackage($latest->getReplacementPackage() ?? '');
+                    } else {
+                        $package->setReplacementPackage(null);
                     }
                 }
 

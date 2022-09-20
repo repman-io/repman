@@ -236,6 +236,48 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertEquals(['1.1.1', '1.2.0'], $versionStrings);
     }
 
+    public function testSynchronizePackageAbandonedWithReplacementPackage(): void
+    {
+        // prepare package in path without git
+        $resPath = $this->resourcesDir.'path/abandoned-replacement-package/composer.json';
+        $tmpPath = sys_get_temp_dir().'/repman/path/abandoned-replacement-package/composer.json';
+        if (!is_dir(dirname($tmpPath))) {
+            mkdir(dirname($tmpPath), 0777, true);
+        }
+        copy($resPath, $tmpPath);
+
+        $package = PackageMother::withOrganization('path', dirname($tmpPath), 'buddy');
+
+        /* @phpstan-ignore-next-line */
+        $this->downloader->addContent(dirname($tmpPath), file_get_contents($tmpPath));
+        $this->synchronizer->synchronize($package);
+
+        self::assertEquals('foo/bar', $this->getProperty($package, 'replacementPackage'));
+        @unlink($this->baseDir.'/buddy/p/some/package.json');
+        @unlink($tmpPath);
+    }
+
+    public function testSynchronizePackageAbandonedWithoutReplacementPackage(): void
+    {
+        // prepare package in path without git
+        $resPath = $this->resourcesDir.'path/abandoned-without-replacement-package/composer.json';
+        $tmpPath = sys_get_temp_dir().'/repman/path/abandoned-without-replacement-package/composer.json';
+        if (!is_dir(dirname($tmpPath))) {
+            mkdir(dirname($tmpPath), 0777, true);
+        }
+        copy($resPath, $tmpPath);
+
+        $package = PackageMother::withOrganization('path', dirname($tmpPath), 'buddy');
+
+        /* @phpstan-ignore-next-line */
+        $this->downloader->addContent(dirname($tmpPath), file_get_contents($tmpPath));
+        $this->synchronizer->synchronize($package);
+
+        self::assertEquals('', $this->getProperty($package, 'replacementPackage'));
+        @unlink($this->baseDir.'/buddy/p/some/package.json');
+        @unlink($tmpPath);
+    }
+
     /**
      * @return mixed
      */

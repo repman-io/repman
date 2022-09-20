@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Form\Type\Organization;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -37,6 +38,12 @@ class EditPackageType extends AbstractType
                 'constraints' => [
                     new NotBlank(),
                     new PositiveOrZero(),
+                ],
+            ])
+            ->add('enableSecurityScan', ChoiceType::class, [
+                'choices' => [
+                    'Yes' => true,
+                    'No' => false,
                 ],
             ])
             ->add('Update', SubmitType::class);

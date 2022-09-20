@@ -18,16 +18,20 @@ final class S3AdapterFactory
 
     private ?string $endpoint;
 
+    private ?bool $pathStyleEndpoint;
+
     public function __construct(
         string $region,
         bool $isOpaqueAuth,
         ?string $key = null,
         ?string $secret = null,
-        ?string $endpoint = null
+        ?string $endpoint = null,
+        ?bool $pathStyleEndpoint = false
     ) {
         $this->region = $region;
         $this->isOpaqueAuth = $isOpaqueAuth;
         $this->endpoint = $endpoint;
+        $this->pathStyleEndpoint = $pathStyleEndpoint;
 
         if ($this->isOpaqueAuth) {
             if ($key === null || $key === '') {
@@ -47,6 +51,7 @@ final class S3AdapterFactory
         $args = [
             'region' => $this->region,
             'version' => 'latest',
+            'use_path_style_endpoint' => $this->pathStyleEndpoint,
         ];
 
         if ($this->isOpaqueAuth) {
