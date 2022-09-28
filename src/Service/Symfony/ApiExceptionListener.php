@@ -24,7 +24,7 @@ final class ApiExceptionListener implements EventSubscriberInterface
         }
 
         if ($event->getThrowable() instanceof AccessDeniedException) {
-            $event->setResponse((new JsonResponse(null, Response::HTTP_FORBIDDEN))->setMaxAge(60));
+            $event->setResponse((new JsonResponse(null, Response::HTTP_FORBIDDEN))->setMaxAge(60)->setPublic());
         } elseif ($event->getThrowable() instanceof AuthenticationCredentialsNotFoundException) {
             return;
         } elseif ($event->getThrowable() instanceof HttpException) {
