@@ -59,11 +59,9 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        $data = [
+        return (new JsonResponse([
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ];
-
-        return new JsonResponse($data, Response::HTTP_FORBIDDEN);
+        ], Response::HTTP_FORBIDDEN))->setMaxAge(60);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
