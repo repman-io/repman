@@ -7,26 +7,17 @@ SHELL ["sh", "-eo", "pipefail", "-c"]
 # install composer and extensions: pdo_pgsql, intl, zip
 RUN apk update && \
     apk add --no-cache -q \
-    $PHPIZE_DEPS \
     bash \
     git \
     subversion \
-    zip \
-    unzip \
-    postgresql-dev \
-    icu-dev \
-    libzip-dev \
-    openssh-client \
-    && \
-    curl -sS https://getcomposer.org/installer | \
-    php -- --install-dir=/usr/local/bin --filename=composer && \
-    docker-php-ext-configure pdo_pgsql --with-pdo-pgsql && \
-    docker-php-ext-configure intl && \
-    docker-php-ext-configure zip && \
-    docker-php-ext-install pdo_pgsql && \
-    docker-php-ext-install intl && \
-    docker-php-ext-install zip && \
-    rm -rf /var/cache/apk/*
+    openssh-client
+
+RUN curl -sSLf \
+    -o /usr/local/bin/install-php-extensions \
+    https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
+    chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions opcache pdo_pgsql intl zip @composer && \
+    rm /usr/local/bin/install-php-extensions
 
 # set timezone
 RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
@@ -49,4 +40,5 @@ WORKDIR /app
 COPY . .
 
 ENV APP_ENV=prod
-RUN composer install --optimize-autoloader --no-dev
+
+RUN composer install --optimize-autoloader --no-dev; composer clear-cache
