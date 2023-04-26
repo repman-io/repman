@@ -7,6 +7,7 @@ namespace Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Kernel;
 use Buddy\Repman\Service\Downloader;
 use Clue\React\Mq\Queue;
+use Composer\Util\StreamContextFactory;
 use Munus\Control\Option;
 use Psr\Http\Message\ResponseInterface;
 use React\EventLoop\Loop;
@@ -39,7 +40,7 @@ final class ReactDownloader implements Downloader
     {
         $retries = 3;
         do {
-            $stream = @fopen($url, 'r', false, $this->createContext($headers));
+            $stream = @fopen($url, 'r', false, $this->createContext($url, $headers));
             if ($stream !== false) {
                 return Option::some($stream);
             }
@@ -88,15 +89,18 @@ final class ReactDownloader implements Downloader
      *
      * @return resource
      */
-    private function createContext(array $headers = [])
+    private function createContext(string $url, array $headers = [])
     {
-        return stream_context_create([
-            'http' => [
-                'header' => array_merge([sprintf('User-Agent: %s', $this->userAgent())], $headers),
-                'follow_location' => 1,
-                'max_redirects' => 20,
-            ],
-        ]);
+        return StreamContextFactory::getContext(
+            $url,
+            [
+                'http' => [
+                    'header' => array_merge([sprintf('User-Agent: %s', $this->userAgent())], $headers),
+                    'follow_location' => 1,
+                    'max_redirects' => 20,
+                ],
+            ]
+        );
     }
 
     private function userAgent(): string
