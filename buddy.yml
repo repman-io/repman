@@ -19,7 +19,7 @@
     - "bash <(curl -s https://codecov.io/bash)"
     setup_commands:
     - "apt-get update && apt-get install -y git zip"
-    - "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --1"
+    - "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer"
     - ""
     - "# php ext pdo_pgsql"
     - "apt-get install -y libpq-dev"
