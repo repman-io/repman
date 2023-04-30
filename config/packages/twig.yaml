@@ -5,4 +5,5 @@ twig:
         '%kernel.project_dir%/public': public
     globals:
         ga_tracking: '%env(resolve:GA_TRACKING)%'
+        ga4_tracking: '%env(resolve:GA4_TRACKING)%'
         config: '@Buddy\Repman\Service\Config'
