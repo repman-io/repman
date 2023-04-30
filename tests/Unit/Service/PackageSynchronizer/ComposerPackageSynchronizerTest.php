@@ -117,7 +117,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $package = PackageMother::withOrganization('artifact', $this->resourcesDir.'artifacts-mixed-sorting', 'buddy');
         $this->synchronizer->synchronize($package);
 
-        $this->assertEquals('v1.0.0', $this->getProperty($package, 'latestReleasedVersion'));
+        self::assertEquals('v1.0.0', $this->getProperty($package, 'latestReleasedVersion'));
     }
 
     public function testSynchronizePackageThatAlreadyExists(): void
