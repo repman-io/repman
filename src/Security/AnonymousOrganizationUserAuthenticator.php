@@ -57,9 +57,9 @@ final class AnonymousOrganizationUserAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        return new JsonResponse([
+        return (new JsonResponse([
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ], Response::HTTP_FORBIDDEN);
+        ], Response::HTTP_FORBIDDEN))->setMaxAge(60)->setPublic();
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

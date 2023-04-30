@@ -26,6 +26,6 @@ final class UpdateHandler implements MessageHandlerInterface
             return;
         }
 
-        $package->update($message->url(), $message->keepLastReleases());
+        $package->update($message->url(), $message->keepLastReleases(), $message->isEnabledSecurityScan());
     }
 }

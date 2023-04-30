@@ -60,7 +60,36 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
         $endpoint = $instance->getEndpoint();
 
-        self::assertSame($endpoint->getHost(), 's3.example.com');
+        self::assertSame('s3.example.com', $endpoint->getHost());
+    }
+
+    public function testCreateWithPathStyleEndpoints(): void
+    {
+        $factory = new S3AdapterFactory(
+            'eu-east-1',
+            true,
+            'mykey',
+            'secret',
+            'https://s3.example.com',
+            true
+        );
+
+        $instance = $factory->create();
+        self::assertTrue($instance->getConfig('use_path_style_endpoint'));
+    }
+
+    public function testExpectDefaultPathStyleOptionToBeFalse(): void
+    {
+        $factory = new S3AdapterFactory(
+            'eu-east-1',
+            true,
+            'mykey',
+            'secret',
+            'https://s3.example.com',
+        );
+
+        $instance = $factory->create();
+        self::assertFalse($instance->getConfig('use_path_style_endpoint'));
     }
 
     /**
