@@ -126,24 +126,21 @@ final class SensioLabsPackageScannerTest extends TestCase
     {
         $distFile = \realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
         $packageManager = $this->createMock(PackageManager::class);
-        $packageManager->method('findProviders')->willReturn(
-            [
-                new \DateTimeImmutable(),
-                [
-                    'buddy-works/repman' => [
-                        self::VERSION => [
-                            'version' => self::VERSION,
-                            'dist' => [
-                                'type' => 'zip',
-                                'url' => $distFile,
-                                'reference' => 'ac7dcaf888af2324cd14200769362129c8dd8550',
-                            ],
-                            'version_normalized' => '1.2.3.0',
+        $packageManager->method('findProviders')->willReturn([new \DateTimeImmutable(), function () use ($distFile): array {
+            return [
+                'buddy-works/repman' => [
+                    self::VERSION => [
+                        'version' => self::VERSION,
+                        'dist' => [
+                            'type' => 'zip',
+                            'url' => $distFile,
+                            'reference' => 'ac7dcaf888af2324cd14200769362129c8dd8550',
                         ],
+                        'version_normalized' => '1.2.3.0',
                     ],
                 ],
-            ]
-        );
+            ];
+        }]);
 
         $packageManager->method('distFilename')->willReturn(Option::some($distFile));
 

@@ -22,14 +22,15 @@ class UserOAuthTokenRefresherTest extends TestCase
         $client->method('getOAuth2Provider')->willReturn($provider);
         $oauth->method('getClient')->willReturn($client);
 
+        $expires = (new \DateTimeImmutable())->setTimestamp(time() + 3600);
         $provider->method('getAccessToken')->willReturnOnConsecutiveCalls(
             new LeagueAccessToken(['access_token' => 'new-token']),
-            new LeagueAccessToken(['access_token' => 'new-token', 'expires_in' => 3600])
+            new LeagueAccessToken(['access_token' => 'new-token', 'expires' => $expires->getTimestamp()])
         );
 
         $refresher = new UserOAuthTokenRefresher($oauth);
 
         self::assertEquals(new AccessToken('new-token'), $refresher->refresh('github', 'refresh-token'));
-        self::assertEquals(new AccessToken('new-token', (new \DateTimeImmutable())->setTimestamp(time() + 3600)), $refresher->refresh('github', 'refresh-token'));
+        self::assertEquals(new AccessToken('new-token', $expires), $refresher->refresh('github', 'refresh-token'));
     }
 }

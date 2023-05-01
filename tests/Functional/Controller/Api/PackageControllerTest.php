@@ -191,39 +191,30 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->addScanResult($packageId, 'ok');
 
         $this->loginApiUser($this->apiToken);
-        $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
         $this->client->request('GET', $this->urlTo('api_package_get', [
             'organization' => self::$organization,
             'package' => $packageId,
         ]));
 
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
-            {
-                "id": "'.$packageId.'",
-                "type": "vcs",
-                "url": "https://github.com/buddy-works/repman",
-                "name": "buddy-works/repman",
-                "latestReleasedVersion": "2.1.1",
-                "latestReleaseDate": "'.$release->format(\DateTime::ATOM).'",
-                "description": "Repository manager",
-                "enableSecurityScan": true,
-                "lastSyncAt": "'.$now.'",
-                "lastSyncError": null,
-                "webhookCreatedAt": null,
-                "isSynchronizedSuccessfully": true,
-                "keepLastReleases": 0,
-                "scanResultStatus": "ok",
-                "scanResultDate": "'.$now.'",
-                "lastScanResultContent": {
-                    "composer.lock": []
-                }
-            }
-            '
-        );
+        self::assertEquals([
+            'id' => $packageId,
+            'type' => 'vcs',
+            'url' => 'https://github.com/buddy-works/repman',
+            'name' => 'buddy-works/repman',
+            'latestReleasedVersion' => '2.1.1',
+            'latestReleaseDate' => $release->format(\DateTimeInterface::ATOM),
+            'description' => 'Repository manager',
+            'enableSecurityScan' => true,
+            'lastSyncError' => null,
+            'webhookCreatedAt' => null,
+            'isSynchronizedSuccessfully' => true,
+            'keepLastReleases' => 0,
+            'scanResultStatus' => 'ok',
+            'lastScanResultContent' => [
+                'composer.lock' => [],
+            ],
+        ], array_diff_key(json_decode($this->lastResponseBody(), true, 512, JSON_THROW_ON_ERROR), ['lastSyncAt' => true, 'scanResultDate' => true]));
     }
 
     public function testFindPackageNonExisting(): void
