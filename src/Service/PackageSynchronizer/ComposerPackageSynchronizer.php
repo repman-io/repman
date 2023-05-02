@@ -70,6 +70,14 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                     return $a->getReleaseDate() <=> $b->getReleaseDate();
                 }
 
+                if ($a->getStability() === Version::STABILITY_STABLE && $b->getStability() !== Version::STABILITY_STABLE) {
+                    return -1;
+                }
+
+                if ($a->getStability() !== Version::STABILITY_STABLE && $b->getStability() === Version::STABILITY_STABLE) {
+                    return 1;
+                }
+
                 return Comparator::greaterThan($a->getVersion(), $b->getVersion()) ? 1 : -1;
             });
 
