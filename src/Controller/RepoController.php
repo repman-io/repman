@@ -141,6 +141,24 @@ final class RepoController extends AbstractController
     }
 
     /**
+     * @Route("/p2/{package}~dev.json",
+     *      host="{organization}{sep1}repo{sep2}{domain}",
+     *      name="repo_package_provider_v2_dev",
+     *      methods={"GET"},
+     *      defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
+     *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
+     * @Cache(public=false)
+     */
+    public function providerV2Dev(Request $request, Organization $organization, string $package): JsonResponse
+    {
+        if (($package = preg_replace('/~dev$/', '', $package)) === null) {
+            throw new NotFoundHttpException();
+        }
+
+        return $this->providerV2($request, $organization, $package);
+    }
+
+    /**
      * @Route("/p2/{package}.json",
      *      host="{organization}{sep1}repo{sep2}{domain}",
      *      name="repo_package_provider_v2",
@@ -167,20 +185,6 @@ final class RepoController extends AbstractController
         $response->isNotModified($request);
 
         return $response;
-    }
-
-    /**
-     * @Route("/p2/{package}~dev.json",
-     *      host="{organization}{sep1}repo{sep2}{domain}",
-     *      name="repo_package_provider_v2_dev",
-     *      methods={"GET"},
-     *      defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
-     * @Cache(public=false)
-     */
-    public function providerV2Dev(Request $request, Organization $organization, string $package): JsonResponse
-    {
-        return $this->providerV2($request, $organization, $package);
     }
 
     /**
