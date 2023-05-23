@@ -10,6 +10,7 @@ use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\DBAL\Logging\Middleware;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
@@ -39,7 +40,6 @@ final class PrivatePackageDownloadFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $this->em->getConfiguration()->setSQLLogger(null);
         foreach ($this->organizations->findAll(new Filter(0, 100)) as $organization) {
             foreach ($this->packages->getAllNames($organization->id()) as $package) {
                 $this->loadDownloads($package);

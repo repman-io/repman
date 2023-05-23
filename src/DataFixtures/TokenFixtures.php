@@ -27,13 +27,11 @@ final class TokenFixtures extends Fixture
     private MessageBusInterface $messageBus;
     private OrganizationQuery $organizations;
     private Generator $faker;
-    private EntityManagerInterface $em;
 
-    public function __construct(MessageBusInterface $messageBus, OrganizationQuery $organizations, EntityManagerInterface $em)
+    public function __construct(MessageBusInterface $messageBus, OrganizationQuery $organizations)
     {
         $this->messageBus = $messageBus;
         $this->organizations = $organizations;
-        $this->em = $em;
         $this->faker = Factory::create();
     }
 
@@ -44,7 +42,6 @@ final class TokenFixtures extends Fixture
         $output->writeln('Generating tokens');
         $progress->start();
 
-        $this->em->getConfiguration()->setSQLLogger(null);
         foreach ($this->organizations->findAll(new Filter(0, 100)) as $organization) {
             $this->generateTokens($organization);
             $progress->advance();
