@@ -135,6 +135,11 @@
         <script>{% include 'component/js/ga.js' %}</script>
     {% endif %}
 
+    {% if ga4_tracking is not empty %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga4_tracking }}"></script>
+        <script>{% include 'component/js/ga4.js' %}</script>
+    {% endif %}
+
     <script>{% include 'component/js/base.js' %}</script>
     {% block javascripts %}{% endblock %}
 </body>
