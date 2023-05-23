@@ -36,7 +36,6 @@ final class ProxyPackageDownloadFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $this->em->getConfiguration()->setSQLLogger(null);
         $this->register->getByHost('packagist.org')->syncedPackages()->forEach(function (string $package): void {
             $this->loadDownloads($package);
         });
