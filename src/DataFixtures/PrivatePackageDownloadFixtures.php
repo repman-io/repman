@@ -10,7 +10,6 @@ use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\DBAL\Logging\Middleware;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;

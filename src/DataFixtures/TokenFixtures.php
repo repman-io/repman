@@ -10,7 +10,6 @@ use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Factory;
 use Faker\Generator;
