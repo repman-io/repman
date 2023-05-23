@@ -159,7 +159,7 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         $advisoryFilter = function (\SplFileInfo $file): bool {
             if ($file->isDir()) {
                 $dirName = $file->getFilename();
-                if ($dirName[0] == '.') {
+                if ($dirName[0] === '.') {
                     return false;
                 }
             }
