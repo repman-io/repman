@@ -207,14 +207,16 @@ final class RepoControllerTest extends FunctionalTestCase
 
         self::assertMatchesPattern('
         {
-            "buddy-works/repman": {
-                "1.2.3": {
-                    "version": "1.2.3",
-                    "version_normalized": "1.2.3.0",
-                    "dist": {
-                        "type": "zip",
-                        "url": "/path/to/reference.zip",
-                        "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+            "packages": {
+                "buddy-works/repman": {
+                    "1.2.3": {
+                        "version": "1.2.3",
+                        "version_normalized": "1.2.3.0",
+                        "dist": {
+                            "type": "zip",
+                            "url": "/path/to/reference.zip",
+                            "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+                        }
                     }
                 }
             }
@@ -253,5 +255,37 @@ final class RepoControllerTest extends FunctionalTestCase
         ]);
 
         self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
+    public function testProviderV2DevAction(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $this->client->request('GET', '/p2/buddy-works/repman~dev.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'secret-org-token',
+        ]);
+
+        self::assertTrue($this->client->getResponse()->isOk());
+
+        self::assertMatchesPattern('
+        {
+            "packages": {
+                "buddy-works/repman": {
+                    "1.2.3": {
+                        "version": "1.2.3",
+                        "version_normalized": "1.2.3.0",
+                        "dist": {
+                            "type": "zip",
+                            "url": "/path/to/reference.zip",
+                            "reference": "ac7dcaf888af2324cd14200769362129c8dd8550"
+                        }
+                    }
+                }
+            }
+        }
+        ', $this->client->getResponse()->getContent());
     }
 }
