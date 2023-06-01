@@ -148,7 +148,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     private function createAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->mkdir($this->repoDir);
-        (new Process(['git', 'init'], $this->repoDir))->run();
+        (new Process(['git', 'init', '--initial-branch', 'master'], $this->repoDir))->run();
         $this->filesystem->mirror(
             __DIR__.'/../../../Resources/fixtures/security/security-advisories',
             $this->repoDir
