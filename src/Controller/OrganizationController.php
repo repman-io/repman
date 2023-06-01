@@ -96,7 +96,7 @@ final class OrganizationController extends AbstractController
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
      * @Route("/organization/{organization}/package/{package}", name="organization_package_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function removePackage(Organization $organization, Package $package): Response
+    public function removePackage(Organization $organization, Package $package, Request $request): Response
     {
         $this->tryToRemoveWebhook($package);
 
@@ -106,6 +106,10 @@ final class OrganizationController extends AbstractController
         ));
 
         $this->addFlash('success', 'Package has been successfully removed');
+
+        if ($request->headers->has('referer')) {
+            return $this->redirect($request->headers->get('referer'));
+        }
 
         return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
@@ -333,11 +337,15 @@ final class OrganizationController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/{package}/scan", name="organization_package_scan", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function scanPackage(Organization $organization, Package $package): Response
+    public function scanPackage(Organization $organization, Package $package, Request $request): Response
     {
         $this->messageBus->dispatch(new ScanPackage($package->id()));
 
         $this->addFlash('success', 'Package will be scanned in the background');
+
+        if ($request->headers->has('referer')) {
+            return $this->redirect($request->headers->get('referer'));
+        }
 
         return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }

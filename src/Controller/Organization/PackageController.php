@@ -116,11 +116,15 @@ final class PackageController extends AbstractController
     /**
      * @Route("/organization/{organization}/package/{package}", name="organization_package_update", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
-    public function updatePackage(Organization $organization, Package $package): Response
+    public function updatePackage(Organization $organization, Package $package, Request $request): Response
     {
         $this->messageBus->dispatch(new SynchronizePackage($package->id()));
 
         $this->addFlash('success', 'Package will be synchronized in the background');
+
+        if ($request->headers->has('referer')) {
+            return $this->redirect($request->headers->get('referer'));
+        }
 
         return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
