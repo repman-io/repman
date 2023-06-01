@@ -16,7 +16,8 @@ final class OrganizationMother
             'Repman',
             'repman',
             [new Organization\Member('5c1b8e35-fe7b-4418-b722-ec9cbbf2598a', 'test@repman.io', 'owner')],
-            false
+            false,
+            true
         );
     }
 
@@ -27,7 +28,8 @@ final class OrganizationMother
             'Repman',
             'repman',
             [$member],
-            false
+            false,
+            true
         );
     }
 }

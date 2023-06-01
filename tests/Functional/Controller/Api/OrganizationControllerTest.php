@@ -39,6 +39,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertEquals($json['data'][0]['name'], 'Buddy works');
         self::assertEquals($json['data'][0]['alias'], 'buddy-works');
         self::assertEquals($json['data'][0]['hasAnonymousAccess'], false);
+        self::assertEquals($json['data'][0]['enabledSecurityScan'], true);
         self::assertEquals($json['total'], 1);
         self::assertNotEmpty($json['links']);
     }
@@ -83,6 +84,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertEquals($json['name'], 'New organization');
         self::assertEquals($json['alias'], 'new-organization');
         self::assertEquals($json['hasAnonymousAccess'], false);
+        self::assertEquals($json['enabledSecurityScan'], true);
         self::assertFalse(
             $this->container()
                 ->get(DbalOrganizationQuery::class)

@@ -11,6 +11,7 @@ final class AddPackage
     private string $type;
     private string $organizationId;
     private int $keepLastReleases;
+    private bool $enableSecurityScan;
 
     /**
      * @var mixed[]
@@ -20,7 +21,7 @@ final class AddPackage
     /**
      * @param mixed[] $metadata
      */
-    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs', array $metadata = [], ?int $keepLastReleases = null)
+    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs', array $metadata = [], ?int $keepLastReleases = null, bool $enableSecurityScan = true)
     {
         $this->id = $id;
         $this->organizationId = $organizationId;
@@ -28,6 +29,7 @@ final class AddPackage
         $this->type = $type;
         $this->metadata = $metadata;
         $this->keepLastReleases = $keepLastReleases ?? 0;
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function id(): string
@@ -61,5 +63,10 @@ final class AddPackage
     public function keepLastReleases(): int
     {
         return $this->keepLastReleases;
+    }
+
+    public function hasSecurityScanEnabled(): bool
+    {
+        return $this->enableSecurityScan;
     }
 }

@@ -70,6 +70,11 @@ class Organization
      */
     private bool $hasAnonymousAccess = false;
 
+    /**
+     * @ORM\Column(type="boolean", options={"default": true})
+     */
+    private bool $enableSecurityScan = true;
+
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
         $this->id = $id;
@@ -254,6 +259,11 @@ class Organization
     public function changeAnonymousAccess(bool $hasAnonymousAccess): void
     {
         $this->hasAnonymousAccess = $hasAnonymousAccess;
+    }
+
+    public function enableSecurityScan(bool $enableSecurityScan): void
+    {
+        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     private function isLastOwner(User $user): bool

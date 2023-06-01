@@ -29,7 +29,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssociative(
-            'SELECT id, name, alias, has_anonymous_access
+            'SELECT id, name, alias, has_anonymous_access, enable_security_scan
             FROM "organization" WHERE alias = :alias', [
             'alias' => $alias,
         ]);
@@ -44,7 +44,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByInvitation(string $token, string $email): Option
     {
         $data = $this->connection->fetchAssociative(
-            'SELECT o.id, o.name, o.alias, o.has_anonymous_access
+            'SELECT o.id, o.name, o.alias, o.has_anonymous_access, o.enable_security_scan
             FROM "organization" o
             JOIN organization_invitation i ON o.id = i.organization_id
             WHERE i.token = :token AND i.email = :email
@@ -240,6 +240,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['alias'],
             array_map(fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
             $data['has_anonymous_access'],
+            $data['enable_security_scan'],
         );
     }
 

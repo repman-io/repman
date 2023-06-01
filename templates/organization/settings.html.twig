@@ -47,6 +47,21 @@
         {{ form_end(anonymousAccessForm) }}
     <hr />
 
+    <h4>Package Security scan</h4>
+    <p>
+        Enable or disable the security scan for new packages. Changing this setting will not affect existing packages!
+    </p>
+    {{ form_start(enableSecurityScanForm, {attr:{class:'row'}}) }}
+    <div class="col-4">
+        {{ form_widget(enableSecurityScanForm.isSecurityScanEnabled) }}
+        {{ form_errors(enableSecurityScanForm.isSecurityScanEnabled) }}
+    </div>
+    <div class="col-4 text-right">
+        {{ form_widget(enableSecurityScanForm.enableSecurityScan, {attr:{class:'btn-danger'}}) }}
+    </div>
+    {{ form_end(enableSecurityScanForm) }}
+    <hr />
+
     <h4>Delete this organization</h4>
     <div class="row">
         <div class="col-6">

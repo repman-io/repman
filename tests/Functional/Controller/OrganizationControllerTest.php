@@ -750,6 +750,35 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertStringContainsString('Anonymous access has been successfully changed.', $this->lastResponseBody());
     }
 
+    public function testChangeEnableSecurityScan(): void
+    {
+        $this->fixtures->createOrganization('buddy', $this->userId);
+        $this->client->followRedirects();
+
+        $organization = $this
+            ->container()
+            ->get(DbalOrganizationQuery::class)
+            ->getByAlias('buddy')
+            ->get();
+
+        self::assertTrue($organization->isSecurityScanEnabled());
+
+        $this->client->request('GET', $this->urlTo('organization_settings', ['organization' => 'buddy']));
+        $this->client->submitForm('enableSecurityScan', [
+            'isSecurityScanEnabled' => 0,
+        ]);
+
+        $organization = $this
+            ->container()
+            ->get(DbalOrganizationQuery::class)
+            ->getByAlias('buddy')
+            ->get();
+
+        self::assertFalse($organization->isSecurityScanEnabled());
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('Default package security scans have been successfully changed.', $this->lastResponseBody());
+    }
+
     public function testRemoveOrganization(): void
     {
         $organizationId = $this->fixtures->createOrganization('buddy inc', $this->userId);
