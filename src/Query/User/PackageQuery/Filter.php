@@ -55,11 +55,17 @@ class Filter extends \Buddy\Repman\Query\Filter
 
     public static function fromRequest(Request $request, ?string $defaultSortColumn = null): self
     {
+        $searchTerm = $request->get('search', null);
+
+        if($searchTerm === "") {
+            $searchTerm = null;
+        }
+
         return new self(
             (int) $request->get('offset', 0),
             (int) $request->get('limit', 20),
             $request->get('sort', $defaultSortColumn),
-            $request->get('search', null),
+            $searchTerm,
         );
     }
 }
