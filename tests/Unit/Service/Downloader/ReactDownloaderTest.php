@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\Downloader;
 
+use Buddy\Repman\Kernel;
 use Buddy\Repman\Service\Downloader\ReactDownloader;
 use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
@@ -54,5 +55,90 @@ final class ReactDownloaderTest extends TestCase
             throw new \LogicException('Should not happen');
         });
         $downloader->run();
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testStreamContext(): void
+    {
+        $_SERVER['HTTP_PROXY'] = $_SERVER['http_proxy'] = $_SERVER['HTTPS_PROXY'] = $_SERVER['https_proxy'] = null;
+
+        $downloader = new ReactDownloader();
+        $createContextMethod = new \ReflectionMethod(ReactDownloader::class, 'createContext');
+        $createContextMethod->setAccessible(true);
+
+        $context = $createContextMethod->invoke($downloader, 'https://repman.io');
+        $options = stream_context_get_options($context);
+        self::assertEquals(20, $options['http']['max_redirects']);
+        self::assertEquals(1, $options['http']['follow_location']);
+        self::assertEquals(
+            sprintf(
+            'User-Agent: Repman/%s (%s; %s; %s)',
+            Kernel::REPMAN_VERSION,
+                    php_uname('s'),
+                    php_uname('r'),
+                    'PHP '.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION
+            ),
+            $options['http']['header'][0]
+        );
+        self::assertArrayNotHasKey('proxy', $options['http']);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testStreamContextHttpProxy(): void
+    {
+        $_SERVER['HTTP_PROXY'] = $_SERVER['http_proxy'] = $_SERVER['HTTPS_PROXY'] = $_SERVER['https_proxy'] = 'http://proxy.repman.io';
+
+        $downloader = new ReactDownloader();
+        $createContextMethod = new \ReflectionMethod(ReactDownloader::class, 'createContext');
+        $createContextMethod->setAccessible(true);
+
+        $context = $createContextMethod->invoke($downloader, 'https://repman.io');
+        $options = stream_context_get_options($context);
+        self::assertEquals(20, $options['http']['max_redirects']);
+        self::assertEquals(1, $options['http']['follow_location']);
+        self::assertEquals(
+            sprintf(
+                'User-Agent: Repman/%s (%s; %s; %s)',
+                Kernel::REPMAN_VERSION,
+                php_uname('s'),
+                php_uname('r'),
+                'PHP '.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION
+            ),
+            $options['http']['header'][0]
+        );
+        self::assertEquals('tcp://proxy.repman.io:80', $options['http']['proxy']);
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testStreamContextNoProxy(): void
+    {
+        $_SERVER['HTTP_PROXY'] = $_SERVER['http_proxy'] = $_SERVER['HTTPS_PROXY'] = $_SERVER['https_proxy'] = 'http://proxy.repman.io';
+        $_SERVER['NO_PROXY'] = $_SERVER['no_proxy'] = '.repman.io';
+
+        $downloader = new ReactDownloader();
+        $createContextMethod = new \ReflectionMethod(ReactDownloader::class, 'createContext');
+        $createContextMethod->setAccessible(true);
+
+        $context = $createContextMethod->invoke($downloader, 'https://repman.io');
+        $options = stream_context_get_options($context);
+        self::assertEquals(20, $options['http']['max_redirects']);
+        self::assertEquals(1, $options['http']['follow_location']);
+        self::assertEquals(
+            sprintf(
+                'User-Agent: Repman/%s (%s; %s; %s)',
+                Kernel::REPMAN_VERSION,
+                php_uname('s'),
+                php_uname('r'),
+                'PHP '.PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION.'.'.PHP_RELEASE_VERSION
+            ),
+            $options['http']['header'][0]
+        );
+        self::assertArrayNotHasKey('proxy', $options['http']);
     }
 }
