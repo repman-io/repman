@@ -87,6 +87,29 @@
     "conflict": {
         "symfony/symfony": "*"
     },
+    "require-dev": {
+        "coduo/php-matcher": "^6.0",
+        "dama/doctrine-test-bundle": "^7.1",
+        "doctrine/doctrine-fixtures-bundle": "^3.4",
+        "ekino/phpstan-banned-code": "^1.0",
+        "fakerphp/faker": "^1.20",
+        "friendsofphp/php-cs-fixer": "^3.11",
+        "johnkary/phpunit-speedtrap": "^4.0",
+        "league/flysystem-memory": "^1.0",
+        "phpspec/prophecy-phpunit": "^2.0",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan": "^1.8",
+        "phpstan/phpstan-deprecation-rules": "^1.0",
+        "phpstan/phpstan-doctrine": "^1.3",
+        "phpstan/phpstan-phpunit": "^1.1",
+        "phpstan/phpstan-strict-rules": "^1.4",
+        "phpstan/phpstan-symfony": "^1.2",
+        "phpunit/phpunit": "^9.5",
+        "symfony/browser-kit": "5.4.*",
+        "symfony/maker-bundle": "^1.47",
+        "symfony/stopwatch": "5.4.*",
+        "symfony/web-profiler-bundle": "5.4.*"
+    },
     "config": {
         "preferred-install": {
             "*": "dist"
@@ -171,28 +194,5 @@
             "rm -rf var/cache/prod",
             "bin/console cache:warmup --env=prod"
         ]
-    },
-    "require-dev": {
-        "coduo/php-matcher": "^6.0",
-        "dama/doctrine-test-bundle": "^7.1",
-        "doctrine/doctrine-fixtures-bundle": "^3.4",
-        "ekino/phpstan-banned-code": "^1.0",
-        "fakerphp/faker": "^1.20",
-        "friendsofphp/php-cs-fixer": "^3.11",
-        "johnkary/phpunit-speedtrap": "^4.0",
-        "league/flysystem-memory": "^1.0",
-        "phpspec/prophecy-phpunit": "^2.0",
-        "phpstan/extension-installer": "^1.1",
-        "phpstan/phpstan": "^1.8",
-        "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-doctrine": "^1.3",
-        "phpstan/phpstan-phpunit": "^1.1",
-        "phpstan/phpstan-strict-rules": "^1.4",
-        "phpstan/phpstan-symfony": "^1.2",
-        "phpunit/phpunit": "^9.5",
-        "symfony/browser-kit": "5.4.*",
-        "symfony/maker-bundle": "^1.47",
-        "symfony/stopwatch": "5.4.*",
-        "symfony/web-profiler-bundle": "5.4.*"
     }
 }
