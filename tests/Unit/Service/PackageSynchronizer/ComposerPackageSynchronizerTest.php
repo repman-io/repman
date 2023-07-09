@@ -69,7 +69,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $this->synchronizer->synchronize($package = PackageMother::withOrganization('artifact', '/non/exist/path', 'buddy'));
 
-        self::assertEquals('Error: RecursiveDirectoryIterator::__construct(/non/exist/path): failed to open dir: No such file or directory', $this->getProperty($package, 'lastSyncError'));
+        self::assertMatchesRegularExpression('/Error: RecursiveDirectoryIterator::__construct\(\/non\/exist\/path\): (F|f)ailed to open (dir|directory): No such file or directory/', $this->getProperty($package, 'lastSyncError'));
     }
 
     public function testSynchronizePackageFromArtifacts(): void
