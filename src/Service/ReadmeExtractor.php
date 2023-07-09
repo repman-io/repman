@@ -7,7 +7,7 @@ namespace Buddy\Repman\Service;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Service\Dist\Storage;
 use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment;
+use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\MarkdownConverterInterface;
