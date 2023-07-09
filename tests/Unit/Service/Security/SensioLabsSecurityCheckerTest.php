@@ -156,7 +156,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
         $commands = [
             ['git', 'add', '-A'],
-            ['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo']
+            ['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo'],
         ];
 
         foreach ($commands as $command) {
@@ -169,12 +169,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     {
         ($proc = new Process($command, $this->repoDir))->run();
         if ($proc->getExitCode() !== $expectedCode) {
-            throw new \RuntimeException(sprintf(
-                'Commands \'%s\' failed with exit code %d%s',
-                $proc->getCommandLine(),
-                $proc->getExitCode(),
-                PHP_EOL . $proc->getOutput(),
-            ));
+            throw new \RuntimeException(sprintf('Commands \'%s\' failed with exit code %d%s', $proc->getCommandLine(), $proc->getExitCode(), PHP_EOL.$proc->getOutput()));
         }
     }
 
