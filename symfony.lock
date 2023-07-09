@@ -342,9 +342,6 @@
     "omines/oauth2-gitlab": {
         "version": "3.2.0"
     },
-    "openlss/lib-array2xml": {
-        "version": "1.0.0"
-    },
     "phar-io/manifest": {
         "version": "1.0.3"
     },
@@ -669,9 +666,6 @@
     },
     "symfony/event-dispatcher-contracts": {
         "version": "v2.0.1"
-    },
-    "symfony/expression-language": {
-        "version": "v5.0.2"
     },
     "symfony/filesystem": {
         "version": "v5.0.2"
