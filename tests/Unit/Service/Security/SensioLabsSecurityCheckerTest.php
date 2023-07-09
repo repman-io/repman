@@ -148,13 +148,34 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     private function createAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->mkdir($this->repoDir);
-        (new Process(['git', 'init'], $this->repoDir))->run();
+        $this->runCommand(['git', 'init', '--initial-branch', 'master']);
         $this->filesystem->mirror(
             __DIR__.'/../../../Resources/fixtures/security/security-advisories',
             $this->repoDir
         );
-        (new Process(['git', 'add', '.'], $this->repoDir))->run();
-        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'AD repo'], $this->repoDir))->run();
+
+        $commands = [
+            ['git', 'add', '-A'],
+            ['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo']
+        ];
+
+        foreach ($commands as $command) {
+            $this->runCommand($command);
+        }
+    }
+
+    /** @param string[] $command */
+    private function runCommand(array $command, int $expectedCode = 0): void
+    {
+        ($proc = new Process($command, $this->repoDir))->run();
+        if ($proc->getExitCode() !== $expectedCode) {
+            throw new \RuntimeException(sprintf(
+                'Commands \'%s\' failed with exit code %d%s',
+                $proc->getCommandLine(),
+                $proc->getExitCode(),
+                PHP_EOL . $proc->getOutput(),
+            ));
+        }
     }
 
     private function synchronizeAdvisoriesDatabase(): void
