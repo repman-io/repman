@@ -2,13 +2,13 @@ name: Ci suite
 on: [push, pull_request]
 jobs:
     symfony:
-        name: PHPUnit tests (PHP ${{ matrix.php-version }})
+        name: PHPUnit tests (PHP ${{ matrix.php-version }} - Postgres ${{ matrix.postgres-version }})
         runs-on: ubuntu-latest
 
         # Docs: https://docs.github.com/en/actions/using-containerized-services
         services:
             postgres:
-                image: postgres:latest
+                image: postgres:${{ matrix.postgres-version }}
                 env:
                     POSTGRES_USER: postgres
                     POSTGRES_PASSWORD: postgres
@@ -20,6 +20,7 @@ jobs:
             fail-fast: false
             matrix:
                 php-version: ['7.4', '8.0']
+                postgres-version: ['11.20-alpine', '13.11-alpine', '15.3-alpine']
         steps:
             - name: Checkout
               uses: actions/checkout@v3
