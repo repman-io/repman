@@ -59,9 +59,8 @@ jobs:
 
             - name: Run Migration
               run: |
-                  composer require --dev symfony/orm-pack
-                  php bin/console doctrine:migrations:migrate"
-                  php bin/console messenger:setup-transports"
+                  php bin/console doctrine:migrations:migrate
+                  php bin/console messenger:setup-transports
               env:
                   DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
 
