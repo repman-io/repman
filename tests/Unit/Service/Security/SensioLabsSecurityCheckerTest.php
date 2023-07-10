@@ -6,6 +6,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Security;
 
 use Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -42,7 +43,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
     public function testMissingDatabase(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Advisories database does not exist');
 
         $this->checker = new SensioLabsSecurityChecker(sys_get_temp_dir().'/bogus-security-advisories', '');
@@ -156,7 +157,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
         $commands = [
             ['git', 'add', '-A'],
-            ['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo']
+            ['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo'],
         ];
 
         foreach ($commands as $command) {
@@ -169,12 +170,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     {
         ($proc = new Process($command, $this->repoDir))->run();
         if ($proc->getExitCode() !== $expectedCode) {
-            throw new \RuntimeException(sprintf(
-                'Commands \'%s\' failed with exit code %d%s',
-                $proc->getCommandLine(),
-                $proc->getExitCode(),
-                PHP_EOL . $proc->getOutput(),
-            ));
+            throw new RuntimeException(sprintf('Commands \'%s\' failed with exit code %d%s', $proc->getCommandLine(), $proc->getExitCode(), PHP_EOL.$proc->getOutput()));
         }
     }
 

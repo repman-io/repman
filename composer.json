@@ -193,6 +193,10 @@
             "bin/console lint:twig templates --show-deprecations",
             "rm -rf var/cache/prod",
             "bin/console cache:warmup --env=prod"
-        ]
+        ],
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        }
     }
 }
