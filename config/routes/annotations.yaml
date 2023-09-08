@@ -44,3 +44,7 @@ login_bitbucket_check:
 login_buddy_check:
     path: /auth/buddy/check
     schemes: ['%url_scheme%']
+
+login_google_check:
+    path: /auth/google/check
+    schemes: ['%url_scheme%']
