@@ -102,6 +102,7 @@ services:
                 gitlab: '%env(OAUTH_GITLAB_CLIENT_ID)%'
                 bitbucket: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
                 buddy: '%env(OAUTH_BUDDY_CLIENT_ID)%'
+                google: '%env(OAUTH_GOOGLE_CLIENT_ID)%'
 
     Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker:
         arguments:

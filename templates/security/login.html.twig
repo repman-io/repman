@@ -45,6 +45,12 @@
                         Buddy
                     </a>
                 {% endif %}
+
+                {% if oauth_enabled('google') %}
+                    <a href="{{ url('auth_google_start') }}" class="btn btn-github btn-sm">
+                        {% include 'svg/google-icon.svg' %} Google
+                    </a>
+                {% endif %}
             </div>
 
             <hr />
