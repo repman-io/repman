@@ -1,0 +1,44 @@
+name: 'Name Generator'
+description: 'Generates environment friendly names'
+outputs:
+  BASE:
+    description: "generated"
+    value: ${{ steps.name_generator.outputs.BASE }}
+  REF:
+    description: "generated"
+    value: ${{ steps.name_generator.outputs.REF }}
+  NAMESPACE:
+    description: "generated"
+    value: ${{ steps.name_generator.outputs.NAMESPACE }}
+  URL:
+    description: "generated"
+    value: ${{ steps.name_generator.outputs.URL }}
+  IMAGE_ID:
+    description: "generated"
+    value: ${{ steps.name_generator.outputs.IMAGE_ID }}
+  IMAGE_TAG:
+    description: "generated"
+    value: ${{ steps.name_generator.outputs.IMAGE_TAG }}
+runs:
+  using: "composite"
+  steps:
+    - name: Generate Names
+      shell: bash
+      id: name_generator
+      run: |
+        BASE_NAME=$(echo "${{ github.repository }}" | awk -F / '{print $2}' | sed -e "s/:refs//")
+        REF_NAME=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        NAMESPACE="$BASE_NAME-$REF_NAME"
+        URL=$(echo $REF_NAME | sed -e 's/-*$//' | tr '[A-Z]' '[a-z]')
+        IMAGE_ID="ghcr.io/${{ github.repository_owner }}/$BASE_NAME"
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        IMAGE_TAG=$REF_NAME
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && IMAGE_TAG=$(echo $IMAGE_TAG | sed -e 's/^v//')
+        [ "$IMAGE_TAG" == "master" ] && IMAGE_TAG=latest
+        [ "$IMAGE_TAG" == "main" ] && IMAGE_TAG=latest
+        echo "::set-output name=BASE::$BASE_NAME"
+        echo "::set-output name=REF::$REF_NAME"
+        echo "::set-output name=NAMESPACE::$NAMESPACE"
+        echo "::set-output name=URL::$URL"
+        echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+        echo "::set-output name=IMAGE_ID::$IMAGE_ID"

@@ -1,0 +1,34 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+      - release
+      - 'feature/**'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  build:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Generate names
+        id: name_generator
+        uses: ./.github/actions/name-generator
+
+      - name: Build and Push Dockerfile
+        uses: ./.github/actions/docker
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          image-name: ${{ steps.name_generator.outputs.BASE }}
+          image-id: ${{ steps.name_generator.outputs.IMAGE_ID }}
+          image-tag: ${{ steps.name_generator.outputs.IMAGE_TAG }}

@@ -1,0 +1,46 @@
+name: 'Docker'
+description: 'Builds and Pushes an Image'
+inputs:
+  image-name:
+    description: 'Name of Image'
+    required: true
+    default: 'example'
+  image-id:
+    description: 'Full Path of image'
+    required: true
+  image-tag:
+    description: 'image tag'
+    required: true
+  dockerfile:
+    description: 'Path to Dockerfile'
+    required: false
+    default: 'Dockerfile'
+  github-token:
+    description: 'GitHub Token Secret'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Log in to registry
+      shell: bash
+      run: echo "${{ inputs.github-token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: Build image
+      shell: bash
+      run: |
+        # docker pull ${{ inputs.image-id }}:${{ inputs.image-tag }} > /dev/null && USE_BUILD_CACHE=1 || echo "Not using build cache"
+        # echo "$USE_BUILD_CACHE"
+        # echo $([ -n "USE_BUILD_CACHE" ] && printf "--cache-from %s:%s" "${{ inputs.image-id }}" "${{ inputs.image-tag }}")
+        docker build . --file ${{ inputs.dockerfile }} \
+          --tag ${{ inputs.image-name }} \
+          --label "runnumber=${GITHUB_RUN_ID}"
+
+    - name: Push image
+      shell: bash
+      run: |
+        docker tag ${{ inputs.image-name }} ${{ inputs.image-id }}:${{ inputs.image-tag }}
+        docker tag ${{ inputs.image-name }} ${{ inputs.image-id }}:${{ github.sha }}
+        docker push ${{ inputs.image-id }}:${{ inputs.image-tag }}
+        docker push ${{ inputs.image-id }}:${{ github.sha }}
