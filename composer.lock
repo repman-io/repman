@@ -259,12 +259,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Aws\\": "src/"
-                },
                 "files": [
                     "src/functions.php"
-                ]
+                ],
+                "psr-4": {
+                    "Aws\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -733,12 +733,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Clue\\StreamFilter\\": "src/"
-                },
                 "files": [
                     "src/functions_include.php"
-                ]
+                ],
+                "psr-4": {
+                    "Clue\\StreamFilter\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -3877,12 +3877,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Laminas\\Code\\": "src/"
-                },
                 "files": [
                     "polyfill/ReflectionEnumPolyfill.php"
-                ]
+                ],
+                "psr-4": {
+                    "Laminas\\Code\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -4749,12 +4749,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "JmesPath\\": "src/"
-                },
                 "files": [
                     "src/JmesPath.php"
-                ]
+                ],
+                "psr-4": {
+                    "JmesPath\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -5426,12 +5426,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Http\\Message\\": "src/"
-                },
                 "files": [
                     "src/filters.php"
-                ]
+                ],
+                "psr-4": {
+                    "Http\\Message\\": "src/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -10135,14 +10135,14 @@
             },
             "type": "library",
             "autoload": {
+                "files": [
+                    "Resources/functions.php"
+                ],
                 "psr-4": {
                     "Symfony\\Component\\Intl\\": ""
                 },
                 "classmap": [
                     "Resources/stubs"
-                ],
-                "files": [
-                    "Resources/functions.php"
                 ],
                 "exclude-from-classmap": [
                     "/Tests/"
@@ -11633,12 +11633,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Uuid\\": ""
-                },
                 "files": [
                     "bootstrap.php"
-                ]
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Uuid\\": ""
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -14586,12 +14586,12 @@
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                },
                 "files": [
                     "src/DeepCopy/deep_copy.php"
-                ]
+                ],
+                "psr-4": {
+                    "DeepCopy\\": "src/DeepCopy/"
+                }
             },
             "notification-url": "https://repo.repman.io/downloads",
             "license": [
@@ -14920,6 +14920,7 @@
                 "issues": "https://github.com/PHP-CS-Fixer/diff/issues",
                 "source": "https://github.com/PHP-CS-Fixer/diff/tree/v1.3.1"
             },
+            "abandoned": true,
             "time": "2020-10-14T08:39:05+00:00"
         },
         {
@@ -15915,11 +15916,11 @@
                 }
             },
             "autoload": {
-                "classmap": [
-                    "src/"
-                ],
                 "files": [
                     "src/Framework/Assert/Functions.php"
+                ],
+                "classmap": [
+                    "src/"
                 ]
             },
             "notification-url": "https://repo.repman.io/downloads",
@@ -17497,5 +17498,5 @@
         "ext-zip": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }

@@ -164,10 +164,21 @@
         ],
         "phpstan": [
             "bin/console cache:clear --env=test",
-            "phpstan analyse --level=max"
+            "phpstan analyse --level=max --memory-limit=-1"
         ],
         "phpunit": [
-            "phpunit --colors=always"
+            "@phpunit:unit",
+            "@phpunit:integration",
+            "@phpunit:functional"
+        ],
+        "phpunit:unit": [
+            "phpunit --colors=always --testsuite=unit"
+        ],
+        "phpunit:integration": [
+            "phpunit --colors=always --testsuite=integration"
+        ],
+        "phpunit:functional": [
+            "phpunit --colors=always --testsuite=functional"
         ],
         "proxy-setup": [
             "symfony proxy:start",
