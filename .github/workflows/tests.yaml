@@ -36,6 +36,8 @@ jobs:
         include:
           - php: "7.4"
             php-version: "7.4.1"
+          - php: "8.0"
+            php-version: "8.0.30"
           - postgresql: "11"
             postgresql-version: "11.7"
 
