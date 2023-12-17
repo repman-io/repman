@@ -170,7 +170,7 @@ final class RepoControllerTest extends FunctionalTestCase
                 ],
             ],
             \JSON_THROW_ON_ERROR
-        )
+            )
         );
 
         self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());

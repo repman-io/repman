@@ -38,19 +38,22 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function getUserOrganizations(string $userId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(function (array $data): Organization {
-            return $this->hydrateOrganization($data);
-        }, $this->connection->fetchAllAssociative(
-            'SELECT o.id, o.name, o.alias, om.role, o.has_anonymous_access
-            FROM organization_member om
-            JOIN organization o ON o.id = om.organization_id
-            WHERE om.user_id = :userId
-            ORDER BY UPPER(o.name) ASC
-            LIMIT :limit OFFSET :offset', [
-            'userId' => $userId,
-            'limit' => $limit,
-            'offset' => $offset,
-        ]));
+        return array_map(
+            fn (array $data): Organization => $this->hydrateOrganization($data),
+            $this->connection->fetchAllAssociative(
+                'SELECT o.id, o.name, o.alias, om.role, o.has_anonymous_access
+                FROM organization_member om
+                JOIN organization o ON o.id = om.organization_id
+                WHERE om.user_id = :userId
+                ORDER BY UPPER(o.name) ASC
+                LIMIT :limit OFFSET :offset',
+                [
+                    'userId' => $userId,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ],
+            ),
+        );
     }
 
     public function userOrganizationsCount(string $userId): int
@@ -71,18 +74,21 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllTokens(string $organizationId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(function (array $data): Token {
-            return $this->hydrateToken($data);
-        }, $this->connection->fetchAllAssociative('
-            SELECT name, value, created_at, last_used_at
-            FROM organization_token
-            WHERE organization_id = :id
-            ORDER BY UPPER(name) ASC
-            LIMIT :limit OFFSET :offset', [
-            'id' => $organizationId,
-            'limit' => $limit,
-            'offset' => $offset,
-        ]));
+        return array_map(
+            fn (array $data): Token => $this->hydrateToken($data),
+            $this->connection->fetchAllAssociative('
+                SELECT name, value, created_at, last_used_at
+                FROM organization_token
+                WHERE organization_id = :id
+                ORDER BY UPPER(name) ASC
+                LIMIT :limit OFFSET :offset',
+                [
+                    'id' => $organizationId,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ],
+            ),
+        );
     }
 
     public function tokenCount(string $organizationId): int

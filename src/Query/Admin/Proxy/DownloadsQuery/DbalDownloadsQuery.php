@@ -43,11 +43,12 @@ final class DbalDownloadsQuery implements DownloadsQuery
     public function getInstalls(int $lastDays = 30): Installs
     {
         return new Installs(
-            array_map(function (array $row): Installs\Day {
-                return new Installs\Day(substr($row['date'], 0, 10), $row['count']);
-            }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
-                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
-            ])),
+            array_map(
+                static fn (array $row): Installs\Day => new Installs\Day(substr($row['date'], 0, 10), $row['count']),
+                $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
+                    'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                ]),
+            ),
             $lastDays,
             (int) $this->connection->fetchOne('SELECT COUNT(*) FROM proxy_package_download')
         );

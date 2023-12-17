@@ -49,7 +49,7 @@ final class Proxy
                 if (($packageData['dist']['reference'] ?? '') === $ref) {
                     $this->filesystem->putStream($path, $this->downloader->getContents($packageData['dist']['url'])
                         ->getOrElseThrow(new \RuntimeException(
-                                             \sprintf('Failed to download file from %s', $packageData['dist']['url'])))
+                            \sprintf('Failed to download file from %s', $packageData['dist']['url'])))
                     );
                     break;
                 }
@@ -167,8 +167,8 @@ final class Proxy
 
             $this->syncPackagesMetadata(
                 \array_filter(
-                $this->filesystem->listContents($dir['path'], true),
-                fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && \strpos($file['filename'], '$') === false)
+                    $this->filesystem->listContents($dir['path'], true),
+                    fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && \strpos($file['filename'], '$') === false)
             );
         }
         $this->downloader->run();
@@ -178,8 +178,8 @@ final class Proxy
     {
         $this->updateLatestProvider(
             \array_filter(
-            $this->filesystem->listContents($this->name.'/p', true),
-            fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && \strpos($file['filename'], '$') !== false)
+                $this->filesystem->listContents($this->name.'/p', true),
+                fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && \strpos($file['filename'], '$') !== false)
         );
     }
 

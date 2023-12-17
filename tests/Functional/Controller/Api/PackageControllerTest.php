@@ -187,7 +187,7 @@ final class PackageControllerTest extends FunctionalTestCase
                 'Repository manager',
                 '2.1.1',
                 $release
-        );
+            );
         $this->fixtures->addScanResult($packageId, 'ok');
 
         $this->loginApiUser($this->apiToken);
