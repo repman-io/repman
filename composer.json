@@ -15,7 +15,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4.1 || ^8.0",
+        "php": "^7.4.2 || ^8.0",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -111,6 +111,9 @@
         "symfony/web-profiler-bundle": "*"
     },
     "config": {
+        "platform": {
+            "php": "7.4.2"
+        },
         "preferred-install": {
             "*": "dist"
         },
@@ -120,8 +123,8 @@
             "phpstan/extension-installer": true,
             "symfony/flex": true
         },
-        "platform": {
-            "php": "7.4.4"
+        "audit": {
+            "abandoned": "report"
         }
     },
     "extra": {
@@ -168,10 +171,21 @@
         ],
         "phpstan": [
             "bin/console cache:clear --env=test",
-            "phpstan analyse --level=max"
+            "phpstan analyse --level=max --memory-limit=-1"
         ],
         "phpunit": [
-            "phpunit --colors=always"
+            "@phpunit:unit",
+            "@phpunit:integration",
+            "@phpunit:functional"
+        ],
+        "phpunit:unit": [
+            "phpunit --colors=always --testsuite=unit"
+        ],
+        "phpunit:integration": [
+            "phpunit --colors=always --testsuite=integration"
+        ],
+        "phpunit:functional": [
+            "phpunit --colors=always --testsuite=functional"
         ],
         "proxy-setup": [
             "symfony proxy:start",
