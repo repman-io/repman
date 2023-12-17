@@ -19,9 +19,9 @@ use Ramsey\Uuid\UuidInterface;
  */
 class OAuthToken
 {
-    const TYPE_GITHUB = 'github';
-    const TYPE_GITLAB = 'gitlab';
-    const TYPE_BITBUCKET = 'bitbucket';
+    public const TYPE_GITHUB = 'github';
+    public const TYPE_GITLAB = 'gitlab';
+    public const TYPE_BITBUCKET = 'bitbucket';
 
     /**
      * @ORM\Id

@@ -20,11 +20,11 @@ use Ramsey\Uuid\UuidInterface;
  */
 class ScanResult
 {
-    const STATUS_PENDING = 'pending';
-    const STATUS_OK = 'ok';
-    const STATUS_WARNING = 'warning';
-    const STATUS_ERROR = 'error';
-    const STATUS_NOT_AVAILABLE = 'n/a';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_OK = 'ok';
+    public const STATUS_WARNING = 'warning';
+    public const STATUS_ERROR = 'error';
+    public const STATUS_NOT_AVAILABLE = 'n/a';
 
     /**
      * @ORM\Id

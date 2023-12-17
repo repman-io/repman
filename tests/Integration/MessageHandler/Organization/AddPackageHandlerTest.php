@@ -18,9 +18,9 @@ final class AddPackageHandlerTest extends IntegrationTestCase
         $organizationId = $this->fixtures->createOrganization('Buddy', $this->fixtures->createUser());
 
         $this->dispatchMessage(new AddPackage(
-                $id = Uuid::uuid4()->toString(),
-                $organizationId,
-                $url
+            $id = Uuid::uuid4()->toString(),
+            $organizationId,
+            $url
             )
         );
 
@@ -40,9 +40,9 @@ final class AddPackageHandlerTest extends IntegrationTestCase
         self::expectExceptionMessage('Organization with id c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2 not found.');
 
         $this->dispatchMessage(new AddPackage(
-                Uuid::uuid4()->toString(),
-                'c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2',
-                'test.com'
+            Uuid::uuid4()->toString(),
+            'c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2',
+            'test.com'
             )
         );
     }

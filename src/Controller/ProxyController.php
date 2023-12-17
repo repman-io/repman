@@ -255,9 +255,9 @@ final class ProxyController extends AbstractController
         $this->messageBus->dispatch(new AddDownloads(
             \array_map(function (array $data): Package {
                 return new Package($data['name'], $data['version']);
-            }, \array_filter($contents['downloads'], function (array $row): bool {
-                return isset($row['name'], $row['version']);
-            })),
+                }, \array_filter($contents['downloads'], function (array $row): bool {
+                    return isset($row['name'], $row['version']);
+                })),
             new \DateTimeImmutable(),
             $request->getClientIp(),
             $request->headers->get('User-Agent')

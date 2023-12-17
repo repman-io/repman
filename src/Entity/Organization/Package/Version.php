@@ -21,7 +21,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Version
 {
-    const STABILITY_STABLE = 'stable';
+    public const STABILITY_STABLE = 'stable';
 
     /**
      * @ORM\Id()

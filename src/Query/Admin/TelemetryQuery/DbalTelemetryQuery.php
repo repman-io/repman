@@ -41,8 +41,8 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 $data['members'],
                 $data['owners'],
             );
-        }, $this->connection->fetchAllAssociative(
-            'SELECT
+            }, $this->connection->fetchAllAssociative(
+                'SELECT
                 o.id,
                 COUNT(t.value) tokens,
                 o.has_anonymous_access,
@@ -53,12 +53,12 @@ final class DbalTelemetryQuery implements TelemetryQuery
             LEFT JOIN "organization_member" m ON m.organization_id = o.id
             GROUP BY o.id
             LIMIT :limit OFFSET :offset',
-            [
-                'role_member' => Member::ROLE_MEMBER,
-                'role_owner' => Member::ROLE_OWNER,
-                'limit' => $limit,
-                'offset' => $offset,
-            ])
+                [
+                    'role_member' => Member::ROLE_MEMBER,
+                    'role_owner' => Member::ROLE_OWNER,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ])
         );
     }
 
@@ -88,8 +88,8 @@ final class DbalTelemetryQuery implements TelemetryQuery
                 $data['downloads'],
                 $data['webhooks'],
             );
-        }, $this->connection->fetchAllAssociative(
-            'SELECT
+            }, $this->connection->fetchAllAssociative(
+                'SELECT
                 p.type,
                 p.latest_release_date,
                 p.last_sync_at,
@@ -102,12 +102,12 @@ final class DbalTelemetryQuery implements TelemetryQuery
             FROM "organization_package" p
             WHERE p.organization_id = :organization_id
             LIMIT :limit OFFSET :offset',
-            [
-                'organization_id' => $organizationId,
-                'till' => $till->format('Y-m-d'),
-                'limit' => $limit,
-                'offset' => $offset,
-            ])
+                [
+                    'organization_id' => $organizationId,
+                    'till' => $till->format('Y-m-d'),
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ])
         );
     }
 

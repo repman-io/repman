@@ -190,18 +190,6 @@
     "fakerphp/faker": {
         "version": "v1.13.0"
     },
-    "friendsofphp/php-cs-fixer": {
-        "version": "2.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "2.2",
-            "ref": "cc05ab6abf6894bddb9bbd6a252459010ebe040b"
-        },
-        "files": [
-            ".php_cs.dist"
-        ]
-    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.3"
     },
@@ -389,8 +377,17 @@
     "php": {
         "version": "7.4"
     },
-    "php-cs-fixer/diff": {
-        "version": "v1.3.0"
+    "php-cs-fixer/shim": {
+        "version": "3.9",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "16422bf8eac6c3be42afe07d37e2abc89d2bdf6b"
+        },
+        "files": [
+            ".php-cs-fixer.dist.php"
+        ]
     },
     "php-http/cache-plugin": {
         "version": "1.7.0"
