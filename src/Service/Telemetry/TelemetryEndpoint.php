@@ -9,9 +9,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class TelemetryEndpoint implements Endpoint
 {
-    const URL = 'https://telemetry.repman.io';
+    public const URL = 'https://telemetry.repman.io';
 
-    const HEADERS = ['Content-Type' => 'application/json'];
+    public const HEADERS = ['Content-Type' => 'application/json'];
 
     private HttpClientInterface $client;
 

@@ -17,8 +17,8 @@ use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
-use function Ramsey\Uuid\v4;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use function Ramsey\Uuid\v4;
 
 final class OrganizationControllerTest extends FunctionalTestCase
 {

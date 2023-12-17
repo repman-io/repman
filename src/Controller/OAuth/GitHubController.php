@@ -36,7 +36,7 @@ final class GitHubController extends OAuthController
         return $this->oauth
             ->getClient('github')
             ->redirect(['user:email'], ['redirect_uri' => $this->generateUrl('login_github_check', [], UrlGeneratorInterface::ABSOLUTE_URL)])
-            ;
+        ;
     }
 
     /**

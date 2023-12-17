@@ -64,7 +64,7 @@ abstract class OAuthController extends AbstractController
             return $this->redirectToRoute('organization_create', $params);
         } catch (OAuth2ClientException $exception) {
             $this->addFlash('danger', 'Authentication failed! Did you authorize our app?');
-        } catch (IdentityProviderException | HttpException $e) {
+        } catch (IdentityProviderException|HttpException $e) {
             $this->addFlash('danger', $e->getMessage());
         }
 
@@ -93,7 +93,7 @@ abstract class OAuthController extends AbstractController
                 'organization' => $request->getSession()->get('organization', $user->firstOrganizationAlias()->getOrElseThrow(new NotFoundHttpException())),
                 'type' => $type,
             ]);
-        } catch (OAuth2ClientException | IdentityProviderException $e) {
+        } catch (OAuth2ClientException|IdentityProviderException $e) {
             $this->addFlash('danger', 'Error while getting oauth token: '.$e->getMessage());
 
             return $this->redirectToRoute('organization_package_new', [

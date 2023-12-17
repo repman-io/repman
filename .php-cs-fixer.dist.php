@@ -8,9 +8,10 @@ $finder = PhpCsFixer\Finder::create()
 $config = new PhpCsFixer\Config();
 return $config->setRiskyAllowed(true)
     ->setRules([
-        '@PHP71Migration' => true,
+        '@PHP74Migration' => true,
         '@Symfony' => true,
         'array_syntax' => ['syntax' => 'short'],
+        'blank_line_between_import_groups' => false,
         'no_superfluous_elseif' => true,
         'no_superfluous_phpdoc_tags' => ['allow_mixed' => true],
         'no_unreachable_default_argument_value' => true,
@@ -19,7 +20,7 @@ return $config->setRiskyAllowed(true)
         'no_unused_imports' => true,
         'declare_strict_types' => true,
         'ordered_imports' => [
-            'imports_order' => null,
+            'imports_order' => ['class', 'function', 'const'],
             'sort_algorithm' => 'alpha',
         ],
         'phpdoc_order' => true,

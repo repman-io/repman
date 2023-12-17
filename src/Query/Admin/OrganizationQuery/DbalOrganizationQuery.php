@@ -24,19 +24,20 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAll(Filter $filter): array
     {
-        return array_map(function (array $data): Organization {
-            return $this->hydrateOrganization($data);
-        }, $this->connection->fetchAllAssociative(
-            'SELECT o.id, o.name, o.alias, COUNT(p.id) packages_count
-            FROM "organization" o
-            LEFT JOIN "organization_package" p ON p.organization_id = o.id
-            GROUP BY o.id
-            ORDER BY o.alias
-            LIMIT :limit OFFSET :offset',
-            [
-                'limit' => $filter->getLimit(),
-                'offset' => $filter->getOffset(),
-            ])
+        return array_map(
+            fn (array $data): Organization => $this->hydrateOrganization($data),
+            $this->connection->fetchAllAssociative(
+                'SELECT o.id, o.name, o.alias, COUNT(p.id) packages_count
+                FROM "organization" o
+                LEFT JOIN "organization_package" p ON p.organization_id = o.id
+                GROUP BY o.id
+                ORDER BY o.alias
+                LIMIT :limit OFFSET :offset',
+                [
+                    'limit' => $filter->getLimit(),
+                    'offset' => $filter->getOffset(),
+                ],
+            ),
         );
     }
 
@@ -50,11 +51,12 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getInstalls(int $lastDays = 30): Installs
     {
         return new Installs(
-            array_map(function (array $row): Installs\Day {
-                return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
-                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
-            ])),
+            array_map(
+                static fn (array $row): Installs\Day => new Installs\Day($row['date'], $row['count']),
+                $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
+                    'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                ]),
+            ),
             $lastDays,
             (int) $this->connection->fetchOne('SELECT COUNT(package_id) FROM organization_package_download')
         );

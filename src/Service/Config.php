@@ -9,13 +9,13 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 final class Config
 {
-    const CACHE_KEY = 'values';
+    public const CACHE_KEY = 'values';
 
-    const TELEMETRY = 'telemetry';
-    const TELEMETRY_ENABLED = 'enabled';
-    const TELEMETRY_DISABLED = 'disabled';
+    public const TELEMETRY = 'telemetry';
+    public const TELEMETRY_ENABLED = 'enabled';
+    public const TELEMETRY_DISABLED = 'disabled';
 
-    const TECHNICAL_EMAIL = 'technical_email';
+    public const TECHNICAL_EMAIL = 'technical_email';
 
     private ConfigQuery $configQuery;
     private CacheInterface $cache;
