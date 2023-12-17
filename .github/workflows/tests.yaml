@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: "Install OS dependencies"
-        run: "apk add --no-cache bash git icu-dev libzip-dev unzip zip"
+        run: "apk add --no-cache bash git"
 
       - name: "Adjust allowed PHP memory"
         run: echo 'memory_limit = -1' > $PHP_INI_DIR/conf.d/memory-limit.ini;
