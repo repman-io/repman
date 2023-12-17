@@ -67,6 +67,9 @@ jobs:
       - name: "Validate composer dependencies"
         run: "composer validate"
 
+      - name: "Run composer audit"
+        run: "composer audit --no-dev --locked"
+
       - name: "Check code style"
         run: "composer check-cs"
 
