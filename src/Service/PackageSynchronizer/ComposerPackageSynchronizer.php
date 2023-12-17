@@ -249,7 +249,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
     private function createIO(Package $package): BufferIO
     {
-        $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $io = new BufferIO('', OutputInterface::VERBOSITY_DEBUG);
 
         if ($package->type() === 'github-oauth') {
             $io->setAuthentication('github.com', $this->accessToken($package), 'x-oauth-basic');
