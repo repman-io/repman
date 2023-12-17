@@ -141,20 +141,28 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     private function updateAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->copy($this->repoDir.'/aws/aws-sdk-php/CVE-2015-5723.yaml', $this->repoDir.'/google/google-sdk-php/CVE-2015-5723.yaml');
-        (new Process(['git', 'add', '.'], $this->repoDir))->run();
-        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'New CVE discovered'], $this->repoDir))->run();
+        $this->executeCommandInRepoDir(['git', 'add', '.']);
+        $this->executeCommandInRepoDir(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'New CVE discovered']);
     }
 
     private function createAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->mkdir($this->repoDir);
-        (new Process(['git', 'init'], $this->repoDir))->run();
+        $this->executeCommandInRepoDir(['git', 'init']);
         $this->filesystem->mirror(
             __DIR__.'/../../../Resources/fixtures/security/security-advisories',
             $this->repoDir
         );
-        (new Process(['git', 'add', '.'], $this->repoDir))->run();
-        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'AD repo'], $this->repoDir))->run();
+        $this->executeCommandInRepoDir(['git', 'add', '-A']);
+        $this->executeCommandInRepoDir(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo']);
+    }
+
+    /**
+     * @param list<non-empty-string> $command
+     */
+    private function executeCommandInRepoDir(array $command): void
+    {
+        (new Process($command, $this->repoDir))->mustRun();
     }
 
     private function synchronizeAdvisoriesDatabase(): void
