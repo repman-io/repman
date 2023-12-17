@@ -141,36 +141,28 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     private function updateAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->copy($this->repoDir.'/aws/aws-sdk-php/CVE-2015-5723.yaml', $this->repoDir.'/google/google-sdk-php/CVE-2015-5723.yaml');
-        (new Process(['git', 'add', '.'], $this->repoDir))->run();
-        (new Process(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'New CVE discovered'], $this->repoDir))->run();
+        $this->executeCommandInRepoDir(['git', 'add', '.']);
+        $this->executeCommandInRepoDir(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'New CVE discovered']);
     }
 
     private function createAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->mkdir($this->repoDir);
-        $this->runCommand(['git', 'init', '--initial-branch', 'master']);
+        $this->executeCommandInRepoDir(['git', 'init']);
         $this->filesystem->mirror(
             __DIR__.'/../../../Resources/fixtures/security/security-advisories',
             $this->repoDir
         );
-
-        $commands = [
-            ['git', 'add', '-A'],
-            ['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo'],
-        ];
-
-        foreach ($commands as $command) {
-            $this->runCommand($command);
-        }
+        $this->executeCommandInRepoDir(['git', 'add', '-A']);
+        $this->executeCommandInRepoDir(['git', '-c', 'commit.gpgsign=false', 'commit', '-a', '-m', 'Add repo']);
     }
 
-    /** @param string[] $command */
-    private function runCommand(array $command, int $expectedCode = 0): void
+    /**
+     * @param list<non-empty-string> $command
+     */
+    private function executeCommandInRepoDir(array $command): void
     {
-        ($proc = new Process($command, $this->repoDir))->run();
-        if ($proc->getExitCode() !== $expectedCode) {
-            throw new \RuntimeException(sprintf('Commands \'%s\' failed with exit code %d%s', $proc->getCommandLine(), $proc->getExitCode(), PHP_EOL.$proc->getOutput()));
-        }
+        (new Process($command, $this->repoDir))->mustRun();
     }
 
     private function synchronizeAdvisoriesDatabase(): void
