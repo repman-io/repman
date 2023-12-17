@@ -118,6 +118,9 @@
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
             "symfony/flex": true
+        },
+        "audit": {
+            "abandoned": "report"
         }
     },
     "extra": {
