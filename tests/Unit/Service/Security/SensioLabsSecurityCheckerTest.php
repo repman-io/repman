@@ -162,11 +162,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
      */
     private function executeCommandInRepoDir(array $command): void
     {
-        $process = new Process($command, $this->repoDir);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            throw new \RuntimeException(sprintf('Command \'%s\' failed with exit code %d%s', $process->getCommandLine(), $process->getExitCode(), PHP_EOL.$process->getOutput()));
-        }
+        (new Process($command, $this->repoDir))->mustRun();
     }
 
     private function synchronizeAdvisoriesDatabase(): void
