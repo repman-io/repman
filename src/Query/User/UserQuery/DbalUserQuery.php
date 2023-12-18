@@ -24,18 +24,21 @@ final class DbalUserQuery implements UserQuery
      */
     public function findAllOAuthTokens(string $userId): array
     {
-        return array_map(function (array $data): OAuthToken {
-            return new OAuthToken(
+        return array_map(
+            static fn (array $data): OAuthToken => new OAuthToken(
                 $data['type'],
                 new \DateTimeImmutable($data['created_at'])
-            );
-        }, $this->connection->fetchAllAssociative('
-            SELECT type, created_at
-            FROM user_oauth_token
-            WHERE user_id = :user_id
-            ORDER BY created_at DESC', [
-            'user_id' => $userId,
-        ]));
+            ),
+            $this->connection->fetchAllAssociative('
+                SELECT type, created_at
+                FROM user_oauth_token
+                WHERE user_id = :user_id
+                ORDER BY created_at DESC',
+                [
+                    'user_id' => $userId,
+                ],
+            ),
+        );
     }
 
     public function hasOAuthAccessToken(string $userId, string $type): bool
@@ -51,18 +54,21 @@ final class DbalUserQuery implements UserQuery
      */
     public function getAllApiTokens(string $userId, Filter $filter): array
     {
-        return array_map(function (array $data): ApiToken {
-            return $this->hydrateToken($data);
-        }, $this->connection->fetchAllAssociative('
-            SELECT name, value, created_at, last_used_at
-            FROM user_api_token
-            WHERE user_id = :id
-            ORDER BY UPPER(name) ASC
-            LIMIT :limit OFFSET :offset', [
-            'id' => $userId,
-            'limit' => $filter->getLimit(),
-            'offset' => $filter->getOffset(),
-        ]));
+        return array_map(
+            fn (array $data): ApiToken => $this->hydrateToken($data),
+            $this->connection->fetchAllAssociative('
+                SELECT name, value, created_at, last_used_at
+                FROM user_api_token
+                WHERE user_id = :id
+                ORDER BY UPPER(name) ASC
+                LIMIT :limit OFFSET :offset',
+                [
+                    'id' => $userId,
+                    'limit' => $filter->getLimit(),
+                    'offset' => $filter->getOffset(),
+                ],
+            ),
+        );
     }
 
     public function apiTokenCount(string $userId): int

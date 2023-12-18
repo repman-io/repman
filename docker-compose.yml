@@ -6,7 +6,7 @@ x-restart-policy: &restart_policy
 services:
   database:
     << : *restart_policy
-    image: postgres:11.7-alpine
+    image: postgres:11.20-alpine
     logging:
       driver: none
     environment:

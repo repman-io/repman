@@ -15,7 +15,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4.1",
+        "php": "^7.4.2 || ^8.0",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -25,7 +25,7 @@
         "ext-zip": "*",
         "async-aws/ses": "^1.4",
         "bitbucket/client": "^4.0",
-        "buddy-works/buddy-works-php-api": "1.3.0",
+        "buddy-works/buddy-works-php-api": "^1.3",
         "buddy-works/oauth2-client": "^1.0",
         "cbschuld/browser.php": "^1.9",
         "clue/mq-react": "^1.2",
@@ -46,11 +46,12 @@
         "munusphp/munus": "^0.4.0",
         "nelmio/api-doc-bundle": "^4.3",
         "nelmio/cors-bundle": "^2.1",
+        "nyholm/psr7": "^1.5",
         "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
         "react/http": "^1.0",
         "sensio/framework-extra-bundle": "^5.5",
-        "sentry/sentry-symfony": "^3.4",
+        "sentry/sentry-symfony": "^4.0",
         "stevenmaguire/oauth2-bitbucket": "^3.0",
         "symfony/amazon-mailer": "5.4.*",
         "symfony/asset": "5.4.*",
@@ -87,14 +88,14 @@
         "symfony/symfony": "*"
     },
     "require-dev": {
-        "coduo/php-matcher": "^4.0",
+        "coduo/php-matcher": "^6.0",
         "dama/doctrine-test-bundle": "^6.3",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "ekino/phpstan-banned-code": "^1.0.0",
         "fakerphp/faker": "^1.9",
-        "friendsofphp/php-cs-fixer": "^2.16",
         "johnkary/phpunit-speedtrap": "^4.0",
         "league/flysystem-memory": "^1.0",
+        "php-cs-fixer/shim": "^3.9",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.0",
         "phpstan/phpstan": "^1.3.0",
@@ -110,6 +111,9 @@
         "symfony/web-profiler-bundle": "*"
     },
     "config": {
+        "platform": {
+            "php": "7.4.2"
+        },
         "preferred-install": {
             "*": "dist"
         },
@@ -118,6 +122,9 @@
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
             "symfony/flex": true
+        },
+        "audit": {
+            "abandoned": "report"
         }
     },
     "extra": {
@@ -164,10 +171,21 @@
         ],
         "phpstan": [
             "bin/console cache:clear --env=test",
-            "phpstan analyse --level=max"
+            "phpstan analyse --level=max --memory-limit=-1"
         ],
         "phpunit": [
-            "phpunit --colors=always"
+            "@phpunit:unit",
+            "@phpunit:integration",
+            "@phpunit:functional"
+        ],
+        "phpunit:unit": [
+            "phpunit --colors=always --testsuite=unit"
+        ],
+        "phpunit:integration": [
+            "phpunit --colors=always --testsuite=integration"
+        ],
+        "phpunit:functional": [
+            "phpunit --colors=always --testsuite=functional"
         ],
         "proxy-setup": [
             "symfony proxy:start",

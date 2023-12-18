@@ -44,6 +44,9 @@ final class ReactDownloaderTest extends TestCase
         $downloader->run();
     }
 
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testAsyncContent(): void
     {
         $downloader = new ReactDownloader();

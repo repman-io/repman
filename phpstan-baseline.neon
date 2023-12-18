@@ -1,0 +1,346 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\HelperInterface\\:\\:ask\\(\\)\\.$#"
+			count: 3
+			path: src/Command/CreateAdminCommand.php
+
+		-
+			message: "#^Call to an undefined method Symfony\\\\Component\\\\Console\\\\Helper\\\\HelperInterface\\:\\:ask\\(\\)\\.$#"
+			count: 1
+			path: src/Command/CreateUserCommand.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Config\\:\\:\\$key is never written, only read\\.$#"
+			count: 1
+			path: src/Entity/Config.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\:\\:\\$lastSyncAt type mapping mismatch\\: property can contain DateTimeInterface\\|null but database expects DateTimeImmutable\\|null\\.$#"
+			count: 1
+			path: src/Entity/Organization/Package.php
+
+		-
+			message: "#^Parameter \\#6 \\$userAgent of class Buddy\\\\Repman\\\\Entity\\\\Organization\\\\Package\\\\Download constructor expects string\\|null, string\\|false\\|null given\\.$#"
+			count: 1
+			path: src/MessageHandler/Organization/AddDownloadHandler.php
+
+		-
+			message: "#^Variable \\$http_response_header in isset\\(\\) always exists and is not nullable\\.$#"
+			count: 1
+			path: src/Service/Downloader/ReactDownloader.php
+
+		-
+			message: "#^Variable method call on React\\\\Http\\\\Browser\\.$#"
+			count: 1
+			path: src/Service/Downloader/ReactDownloader.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 4
+			path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+		-
+			message: "#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#"
+			count: 1
+			path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+		-
+			message: "#^Variable method call on Composer\\\\Package\\\\PackageInterface\\.$#"
+			count: 1
+			path: src/Service/PackageSynchronizer/ComposerPackageSynchronizer.php
+
+		-
+			message: "#^Method Sentry\\\\State\\\\Scope\\:\\:setUser\\(\\) invoked with 2 parameters, 1 required\\.$#"
+			count: 1
+			path: src/Service/Symfony/SentryRequestListener.php
+
+		-
+			message: "#^Variable property access on DateInterval\\.$#"
+			count: 1
+			path: src/Service/Twig/DateExtension.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/BitbucketOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 3
+			path: tests/Doubles/BitbucketOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BuddyApi\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/BuddyOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/BuddyOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/GitHubOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Doubles/GitHubOAuth.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 2
+			path: tests/Doubles/GitLabOAuth.php
+
+		-
+			message: "#^PHPDoc tag @var has invalid value \\(ResponseInterface\\[\\];\\)\\: Unexpected token \";\", expected TOKEN_HORIZONTAL_WS at offset 35$#"
+			count: 1
+			path: tests/Doubles/HttpClientStub.php
+
+		-
+			message: "#^Property Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\\:\\:\\$nextResponses type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Doubles/HttpClientStub.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\ClearOldPrivateDistsCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/ClearOldPrivateDistsCommandTest.php
+
+		-
+			message: "#^Service \"repo\\.storage\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/ClearOldPrivateDistsCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\CreateAdminCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/CreateAdminCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\CreateUserCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/CreateUserCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\ScanAllPackagesCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/ScanAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Security\\\\PackageScanner\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/ScanAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\SendTelemetryCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SendTelemetryCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Telemetry\\\\TelemetryEndpoint\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SendTelemetryCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\SynchronizeAllPackagesCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SynchronizeAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/SynchronizeAllPackagesCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\SynchronizePackageCommand\" is private\\.$#"
+			count: 2
+			path: tests/Functional/Command/SynchronizePackageCommandTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/SynchronizePackageCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\UpdateAdvisoriesDbCommand\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/UpdateAdvisoriesDbCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Security\\\\PackageScanner\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/UpdateAdvisoriesDbCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Telemetry\\\\TelemetryEndpoint\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Controller/Admin/ConfigControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\Admin\\\\UserQuery\\\\DbalUserQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Admin/UserControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\PackageQuery\\\\DbalPackageQuery\" is private\\.$#"
+			count: 11
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitLabApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Api/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\Api\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Controller/Api/TokenControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/BitbucketControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/BitbucketControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/BuddyControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/GitHubControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Tests\\\\Doubles\\\\HttpClientStub\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OAuth/GitLabControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/Organization/PackageControllerTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 5
+			path: tests/Functional/Controller/Organization/PackageControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 2
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\PackageQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Repository\\\\OrganizationRepository\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\BitbucketApi\" is private\\.$#"
+			count: 2
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Integration\\\\GitHubApi\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Service\\\\Organization\\\\TokenGenerator\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/OrganizationControllerTest.php
+
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/ProxyControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Repository\\\\UserRepository\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/SecurityControllerTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Query\\\\User\\\\OrganizationQuery\\\\DbalOrganizationQuery\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Controller/UserControllerTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Session\\\\\\\\Session' and Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session will always evaluate to true\\.$#"
+			count: 1
+			path: tests/Integration/Security/BitbucketAuthenticatorTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Session\\\\\\\\Session' and Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session will always evaluate to true\\.$#"
+			count: 1
+			path: tests/Integration/Security/BuddyAuthenticatorTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Session\\\\\\\\Session' and Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session will always evaluate to true\\.$#"
+			count: 1
+			path: tests/Integration/Security/GitHubAuthenticatorTest.php
+
+		-
+			message: "#^Call to static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with 'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Session\\\\\\\\Session' and Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session will always evaluate to true\\.$#"
+			count: 1
+			path: tests/Integration/Security/GitLabAuthenticatorTest.php
+
+		-
+			message: """
+				#^Fetching class constant class of deprecated class Symfony\\\\Component\\\\Security\\\\Core\\\\Exception\\\\UsernameNotFoundException\\:
+				since Symfony 5\\.3 to be removed in 6\\.0, use UserNotFoundException instead\\.$#
+			"""
+			count: 1
+			path: tests/Integration/Security/OrganizationProviderTest.php
+
+		-
+			message: """
+				#^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\Organization\\:
+				since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+			"""
+			count: 1
+			path: tests/Unit/Security/Model/OrganizationTest.php
+
+		-
+			message: """
+				#^Call to deprecated method getUsername\\(\\) of class Buddy\\\\Repman\\\\Security\\\\Model\\\\User\\:
+				since Symfony 5\\.3, use getUserIdentifier\\(\\) instead$#
+			"""
+			count: 1
+			path: tests/Unit/Security/Model/UserTest.php
+

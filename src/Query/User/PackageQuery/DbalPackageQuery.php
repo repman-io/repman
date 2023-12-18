@@ -101,12 +101,12 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): PackageName {
             return new PackageName($data['id'], $data['name']);
-        }, $this->connection->fetchAllAssociative(
-            'SELECT id, name
+            }, $this->connection->fetchAllAssociative(
+                'SELECT id, name
             FROM "organization_package"
             WHERE organization_id = :organization_id AND name IS NOT NULL',
-            [
-            'organization_id' => $organizationId,
+                [
+                'organization_id' => $organizationId,
         ]));
     }
 
@@ -273,8 +273,8 @@ final class DbalPackageQuery implements PackageQuery
                 $data['size'],
                 new \DateTimeImmutable($data['date'])
             );
-        }, $this->connection->fetchAllAssociative(
-            'SELECT
+            }, $this->connection->fetchAllAssociative(
+                'SELECT
                 id,
                 version,
                 reference,
@@ -284,9 +284,9 @@ final class DbalPackageQuery implements PackageQuery
             WHERE package_id = :package_id
             ORDER BY date DESC
             LIMIT :limit OFFSET :offset', [
-            'package_id' => $packageId,
-            'limit' => $filter->getLimit(),
-            'offset' => $filter->getOffset(),
+                'package_id' => $packageId,
+                'limit' => $filter->getLimit(),
+                'offset' => $filter->getOffset(),
         ]));
     }
 
@@ -345,8 +345,8 @@ final class DbalPackageQuery implements PackageQuery
                 $data['version'],
                 $data['content'],
             );
-        }, $this->connection->fetchAllAssociative(
-            'SELECT
+            }, $this->connection->fetchAllAssociative(
+                'SELECT
                 date,
                 status,
                 version,
@@ -355,10 +355,10 @@ final class DbalPackageQuery implements PackageQuery
             WHERE package_id = :package_id
             ORDER BY date DESC
             LIMIT :limit OFFSET :offset', [
-                'package_id' => $packageId,
-                'limit' => $filter->getLimit(),
-                'offset' => $filter->getOffset(),
-            ]));
+                    'package_id' => $packageId,
+                    'limit' => $filter->getLimit(),
+                    'offset' => $filter->getOffset(),
+                ]));
     }
 
     public function getScanResultsCount(string $packageId): int
@@ -381,18 +381,18 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): PackageName {
             return new PackageName($data['id'], $data['name'], $data['alias']);
-        }, $this->connection->fetchAllAssociative(
-            'SELECT p.id, p.name, o.alias
+            }, $this->connection->fetchAllAssociative(
+                'SELECT p.id, p.name, o.alias
             FROM organization_package p
             JOIN organization o ON o.id = p.organization_id
             WHERE p.name IS NOT NULL AND p.last_sync_error IS NULL
             GROUP BY p.id, o.alias
             ORDER BY p.last_sync_at ASC
             LIMIT :limit OFFSET :offset', [
-                'limit' => $limit,
-                'offset' => $offset,
-            ]
-        ));
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ]
+            ));
     }
 
     public function getAllSynchronizedCount(): int
@@ -477,18 +477,18 @@ final class DbalPackageQuery implements PackageQuery
                 0,
                 new \DateTimeImmutable()
             );
-        }, $this->connection->fetchAllAssociative(
-            'SELECT
+            }, $this->connection->fetchAllAssociative(
+                'SELECT
                 id,
                 version,
                 reference
             FROM organization_package_version
             WHERE stability != :stability
             AND package_id = :package_id',
-            [
-                'package_id' => $packageId,
-                'stability' => VersionEntity::STABILITY_STABLE,
-            ]
-        ));
+                [
+                    'package_id' => $packageId,
+                    'stability' => VersionEntity::STABILITY_STABLE,
+                ]
+            ));
     }
 }

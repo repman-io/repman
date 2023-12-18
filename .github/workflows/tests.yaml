@@ -1,0 +1,112 @@
+name: "Tests"
+
+concurrency:
+  group: "tests-${{ github.head_ref || github.run_id }}"
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  tests:
+    name: "PHP ${{ matrix.php }} | PostgreSQL ${{ matrix.postgresql }}"
+    runs-on: "ubuntu-latest"
+    container:
+      image: "php:${{ matrix.php-version }}-cli-alpine"
+      env:
+        DATABASE_URL: "postgresql://main:main@postgresql:5432/main?serverVersion=${{ matrix.postgresql }}&charset=utf8"
+    services:
+      postgresql:
+        image: "postgres:${{ matrix.postgresql-version }}-alpine"
+        env:
+          POSTGRES_USER: main
+          POSTGRES_PASSWORD: main
+          POSTGRES_DB: main
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - "7.4"
+          - "8.0"
+        postgresql:
+          - "11"
+        include:
+          - php: "7.4"
+            php-version: "7.4.2"
+          - php: "8.0"
+            php-version: "8.0.30"
+          - postgresql: "11"
+            postgresql-version: "11.7"
+
+    steps:
+      - name: "Install OS dependencies"
+        run: "apk add --no-cache bash git"
+
+      - name: "Adjust allowed PHP memory"
+        run: echo 'memory_limit = -1' > $PHP_INI_DIR/conf.d/memory-limit.ini;
+
+      - name: "Install PHP extensions"
+        shell: bash
+        run: |
+          wget https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions --quiet -O /usr/local/bin/install-php-extensions
+          chmod +x /usr/local/bin/install-php-extensions
+          install-php-extensions intl pdo_pgsql zip
+
+      - name: "Install composer"
+        run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer --version=2.6.6
+
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+        with:
+          ref: ${{ github.event.pull_request.head.ref || '' }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          show-progress: false
+
+      - name: "Install composer dependencies"
+        uses: "ramsey/composer-install@v2"
+
+      - name: "Validate composer dependencies"
+        run: "composer validate"
+
+      - name: "Run composer audit"
+        run: "composer audit --no-dev --locked"
+
+      - name: "Check code style"
+        run: "composer check-cs"
+
+      - name: "Run PHPStan"
+        run: "composer phpstan"
+
+      - name: "Lint twig"
+        run: "bin/console lint:twig templates --show-deprecations"
+
+      - name: "Run migrations"
+        run: "bin/console doctrine:migrations:migrate --no-interaction"
+
+      - name: "Setup messenger transports"
+        run: "bin/console messenger:setup-transports"
+
+      - name: "Validate database schema"
+        run: "bin/console doctrine:schema:validate"
+
+      - name: "Set git committer info and configure git options"
+        shell: bash
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global --add safe.directory '*'
+
+      - name: "Run unit tests"
+        run: "composer phpunit:unit"
+
+      - name: "Run integration tests"
+        run: "composer phpunit:integration"
+
+      - name: "Run functional tests"
+        run: "composer phpunit:functional"
+
+      - name: "Warmup prod cache"
+        run: "bin/console cache:warmup --env=prod"

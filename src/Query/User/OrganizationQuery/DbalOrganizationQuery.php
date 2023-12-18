@@ -65,18 +65,21 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllTokens(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $data): Token {
-            return $this->hydrateToken($data);
-        }, $this->connection->fetchAllAssociative('
-            SELECT name, value, created_at, last_used_at
-            FROM organization_token
-            WHERE organization_id = :id
-            ORDER BY UPPER(name) ASC
-            LIMIT :limit OFFSET :offset', [
-            'id' => $organizationId,
-            'limit' => $filter->getLimit(),
-            'offset' => $filter->getOffset(),
-        ]));
+        return array_map(
+            fn (array $data): Token => $this->hydrateToken($data),
+            $this->connection->fetchAllAssociative('
+                SELECT name, value, created_at, last_used_at
+                FROM organization_token
+                WHERE organization_id = :id
+                ORDER BY UPPER(name) ASC
+                LIMIT :limit OFFSET :offset',
+                [
+                    'id' => $organizationId,
+                    'limit' => $filter->getLimit(),
+                    'offset' => $filter->getOffset(),
+                ],
+            ),
+        );
     }
 
     public function findAnyToken(string $organizationId): ?string
@@ -103,12 +106,17 @@ final class DbalOrganizationQuery implements OrganizationQuery
         $packagesId = array_column($this->connection->fetchAllAssociative('SELECT id FROM organization_package WHERE organization_id = :id', ['id' => $organizationId]), 'id');
 
         return new Installs(
-            array_map(function (array $row): Installs\Day {
-                return new Installs\Day($row['date'], $row['count']);
-            }, $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC', [
-                'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
-                'packages' => $packagesId,
-            ], ['packages' => Connection::PARAM_STR_ARRAY])),
+            array_map(
+                static fn (array $row): Installs\Day => new Installs\Day($row['date'], $row['count']),
+                $this->connection->fetchAllAssociative(
+                    'SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC',
+                    [
+                        'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                        'packages' => $packagesId,
+                    ],
+                    ['packages' => Connection::PARAM_STR_ARRAY],
+                )
+            ),
             $lastDays,
             (int) $this->connection->fetchOne(
                 'SELECT COUNT(package_id) FROM organization_package_download WHERE package_id IN (:packages)',
@@ -120,22 +128,24 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
     public function findAllInvitations(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $row): Invitation {
-            return new Invitation(
+        return array_map(
+            static fn (array $row): Invitation => new Invitation(
                 $row['email'],
                 $row['role'],
                 $row['token']
-            );
-        }, $this->connection->fetchAllAssociative('
-            SELECT email, role, token
-            FROM organization_invitation
-            WHERE organization_id = :id
-            ORDER BY email ASC
-            LIMIT :limit OFFSET :offset', [
-            'id' => $organizationId,
-            'limit' => $filter->getLimit(),
-            'offset' => $filter->getOffset(),
-        ]));
+            ),
+            $this->connection->fetchAllAssociative('
+                SELECT email, role, token
+                FROM organization_invitation
+                WHERE organization_id = :id
+                ORDER BY email ASC
+                LIMIT :limit OFFSET :offset',
+                [
+                    'id' => $organizationId,
+                    'limit' => $filter->getLimit(),
+                    'offset' => $filter->getOffset(),
+                ]),
+        );
     }
 
     public function invitationsCount(string $organizationId): int
@@ -153,23 +163,26 @@ final class DbalOrganizationQuery implements OrganizationQuery
      */
     public function findAllMembers(string $organizationId, Filter $filter): array
     {
-        return array_map(function (array $row): Member {
-            return new Member(
+        return array_map(
+            static fn (array $row): Member => new Member(
                 $row['id'],
                 $row['email'],
                 $row['role']
-            );
-        }, $this->connection->fetchAllAssociative('
-            SELECT u.id, u.email, m.role
-            FROM organization_member AS m
-            JOIN "user" u ON u.id = m.user_id
-            WHERE m.organization_id = :id
-            ORDER BY u.email ASC
-            LIMIT :limit OFFSET :offset', [
-            'id' => $organizationId,
-            'limit' => $filter->getLimit(),
-            'offset' => $filter->getOffset(),
-        ]));
+            ),
+            $this->connection->fetchAllAssociative('
+                SELECT u.id, u.email, m.role
+                FROM organization_member AS m
+                JOIN "user" u ON u.id = m.user_id
+                WHERE m.organization_id = :id
+                ORDER BY u.email ASC
+                LIMIT :limit OFFSET :offset',
+                [
+                    'id' => $organizationId,
+                    'limit' => $filter->getLimit(),
+                    'offset' => $filter->getOffset(),
+                ],
+            ),
+        );
     }
 
     public function membersCount(string $organizationId): int
@@ -238,7 +251,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['id'],
             $data['name'],
             $data['alias'],
-            array_map(fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
+            array_map(static fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
             $data['has_anonymous_access'],
         );
     }

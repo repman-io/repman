@@ -33,7 +33,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
                 $repoFilesystem
             ),
             new PackageNormalizer(),
-                $this->createMock(PackageRepository::class),
+            $this->createMock(PackageRepository::class),
             $fileStorage,
             $this->createMock(UserOAuthTokenRefresher::class),
             'gitlab.com'
