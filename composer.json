@@ -37,7 +37,7 @@
         "excelwebzone/recaptcha-bundle": "^1.5",
         "knplabs/github-api": "^3.8",
         "knpuniversity/oauth2-client-bundle": "^2.10",
-        "league/commonmark": "^2.3",
+        "league/commonmark": "^2.4",
         "league/flysystem-aws-s3-v3": "^1.0",
         "league/flysystem-bundle": "^1.6",
         "league/flysystem-cached-adapter": "^1.1",
@@ -119,7 +119,8 @@
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         },
         "audit": {
             "abandoned": "report"
@@ -141,15 +142,6 @@
             "Buddy\\Repman\\Tests\\": "tests/"
         }
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://repo.repman.io"
-        },
-        {
-            "packagist": false
-        }
-    ],
     "scripts": {
         "post-install-cmd": [
             "bin/console assets:install --symlink"
