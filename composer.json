@@ -112,9 +112,6 @@
         "symfony/web-profiler-bundle": "5.4.*"
     },
     "config": {
-        "platform": {
-            "php": "7.4.2"
-        },
         "preferred-install": {
             "*": "dist"
         },
