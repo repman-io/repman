@@ -31,7 +31,7 @@ final class BuddyController extends OAuthController
         return $this->oauth
             ->getClient('buddy')
             ->redirect([Buddy::SCOPE_USER_EMAIL], ['redirect_uri' => $this->generateUrl('login_buddy_check', [], UrlGeneratorInterface::ABSOLUTE_URL)])
-            ;
+        ;
     }
 
     /**

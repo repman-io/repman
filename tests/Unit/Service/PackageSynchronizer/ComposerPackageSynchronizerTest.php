@@ -136,8 +136,10 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('gitlab', $this->resourcesDir.'artifacts', 'buddy'));
+        $package = PackageMother::withOrganizationAndToken('gitlab', $this->resourcesDir.'artifacts', 'buddy');
+        $this->synchronizer->synchronize($package);
 
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
@@ -150,8 +152,10 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('github', $this->resourcesDir.'artifacts', 'buddy'));
+        $package = PackageMother::withOrganizationAndToken('github', $this->resourcesDir.'artifacts', 'buddy');
+        $this->synchronizer->synchronize($package);
 
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
@@ -164,8 +168,10 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
 
-        $this->synchronizer->synchronize(PackageMother::withOrganizationAndToken('bitbucket', $this->resourcesDir.'artifacts', 'buddy'));
+        $package = PackageMother::withOrganizationAndToken('bitbucket', $this->resourcesDir.'artifacts', 'buddy');
+        $this->synchronizer->synchronize($package);
 
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));

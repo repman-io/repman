@@ -8,12 +8,6 @@
 !/var/.gitkeep
 /vendor/
 ###< symfony/framework-bundle ###
-
-###> friendsofphp/php-cs-fixer ###
-/.php_cs
-/.php_cs.cache
-###< friendsofphp/php-cs-fixer ###
-
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
@@ -43,3 +37,8 @@ docker-compose.*.yml
 
 composer.phar
 .php-cs-fixer.cache
+
+###> php-cs-fixer/shim ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< php-cs-fixer/shim ###

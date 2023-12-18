@@ -96,6 +96,7 @@
         "friendsofphp/php-cs-fixer": "^3.11",
         "johnkary/phpunit-speedtrap": "^4.0",
         "league/flysystem-memory": "^1.0",
+        "php-cs-fixer/shim": "^3.9",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.8",
@@ -111,6 +112,9 @@
         "symfony/web-profiler-bundle": "5.4.*"
     },
     "config": {
+        "platform": {
+            "php": "7.4.2"
+        },
         "preferred-install": {
             "*": "dist"
         },
@@ -120,8 +124,8 @@
             "phpstan/extension-installer": true,
             "symfony/flex": true
         },
-        "platform": {
-            "php": "8.0.29"
+        "audit": {
+            "abandoned": "report"
         }
     },
     "extra": {
@@ -168,10 +172,21 @@
         ],
         "phpstan": [
             "bin/console cache:clear --env=test",
-            "phpstan analyse --level=max"
+            "phpstan analyse --level=max --memory-limit=-1"
         ],
         "phpunit": [
-            "phpunit --colors=always"
+            "@phpunit:unit",
+            "@phpunit:integration",
+            "@phpunit:functional"
+        ],
+        "phpunit:unit": [
+            "phpunit --colors=always --testsuite=unit"
+        ],
+        "phpunit:integration": [
+            "phpunit --colors=always --testsuite=integration"
+        ],
+        "phpunit:functional": [
+            "phpunit --colors=always --testsuite=functional"
         ],
         "proxy-setup": [
             "symfony proxy:start",

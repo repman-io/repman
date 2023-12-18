@@ -26,8 +26,8 @@ final class DbalPackageQuery implements PackageQuery
     {
         return array_map(function (array $data): Package {
             return $this->hydratePackage($data);
-        }, $this->connection->fetchAllAssociative(
-            'SELECT
+            }, $this->connection->fetchAllAssociative(
+                'SELECT
                 id,
                 type,
                 repository_url,
@@ -48,10 +48,10 @@ final class DbalPackageQuery implements PackageQuery
             GROUP BY id
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
-                'organization_id' => $organizationId,
-                'limit' => $limit,
-                'offset' => $offset,
-            ]));
+                    'organization_id' => $organizationId,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ]));
     }
 
     public function count(string $organizationId): int

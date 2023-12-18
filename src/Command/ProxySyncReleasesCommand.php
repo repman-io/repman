@@ -16,7 +16,7 @@ use Symfony\Component\Lock\LockInterface;
 
 final class ProxySyncReleasesCommand extends Command
 {
-    const LOCK_TTL = 30;
+    public const LOCK_TTL = 30;
 
     protected static $defaultName = 'repman:proxy:sync-releases';
 

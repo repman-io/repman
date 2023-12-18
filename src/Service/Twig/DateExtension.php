@@ -121,7 +121,7 @@ class DateExtension extends AbstractExtension
         $date = $sourceTimezone === null
             ? twig_date_converter($env, $date, $this->timezone)
             : (new \DateTimeImmutable(
-                (twig_date_converter($env, $date))->format('Y-m-d H:i:s'),
+                twig_date_converter($env, $date)->format('Y-m-d H:i:s'),
                 new \DateTimeZone($sourceTimezone)
             ))->setTimezone(new \DateTimeZone($this->timezone));
 

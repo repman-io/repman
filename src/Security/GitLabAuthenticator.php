@@ -38,7 +38,7 @@ final class GitLabAuthenticator extends OAuthAuthenticator
                 $this->clientRegistry->getClient('gitlab'),
                 $request->attributes->get('_route')
             ));
-        } catch (IdentityProviderException | IdentityProviderAuthenticationException $exception) {
+        } catch (IdentityProviderException|IdentityProviderAuthenticationException $exception) {
             throw new CustomUserMessageAuthenticationException($exception->getMessage());
         }
 
