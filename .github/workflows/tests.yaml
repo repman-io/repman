@@ -64,7 +64,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref || '' }}
           repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           show-progress: false
-          fetch-tags: true
 
       - name: "Install composer dependencies"
         uses: "ramsey/composer-install@v2"
