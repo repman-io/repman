@@ -93,11 +93,12 @@ jobs:
       - name: "Validate database schema"
         run: "bin/console doctrine:schema:validate"
 
-      - name: "Set git committer info"
+      - name: "Set git committer info and configure git options"
         shell: bash
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global --add safe.directory '*'
 
       - name: "Run unit tests"
         run: "composer phpunit:unit"
