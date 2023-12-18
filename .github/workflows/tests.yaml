@@ -30,17 +30,20 @@ jobs:
       matrix:
         php:
           - "7.4"
+          - "8.0"
         postgresql:
           - "11"
         include:
           - php: "7.4"
-            php-version: "7.4.1"
+            php-version: "7.4.2"
+          - php: "8.0"
+            php-version: "8.0.30"
           - postgresql: "11"
             postgresql-version: "11.7"
 
     steps:
       - name: "Install OS dependencies"
-        run: "apk add --no-cache bash git icu-dev libzip-dev unzip zip"
+        run: "apk add --no-cache bash git"
 
       - name: "Adjust allowed PHP memory"
         run: echo 'memory_limit = -1' > $PHP_INI_DIR/conf.d/memory-limit.ini;
@@ -59,6 +62,7 @@ jobs:
         uses: "actions/checkout@v4"
         with:
           ref: ${{ github.event.pull_request.head.ref || '' }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           show-progress: false
 
       - name: "Install composer dependencies"
@@ -88,11 +92,12 @@ jobs:
       - name: "Validate database schema"
         run: "bin/console doctrine:schema:validate"
 
-      - name: "Set git committer info"
+      - name: "Set git committer info and configure git options"
         shell: bash
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global --add safe.directory '*'
 
       - name: "Run unit tests"
         run: "composer phpunit:unit"

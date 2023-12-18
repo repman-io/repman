@@ -9,7 +9,7 @@
     type: "BUILD"
     working_directory: "/buddy/repman"
     docker_image_name: "library/php"
-    docker_image_tag: "7.4.1"
+    docker_image_tag: "8.0.19"
     execute_commands:
     - "composer validate"
     - "composer install"
@@ -83,7 +83,7 @@
       type: "BUILD"
       working_directory: "/buddy/repman"
       docker_image_name: "library/php"
-      docker_image_tag: "7.4.1"
+      docker_image_tag: "8.0.19"
       execute_commands:
         - "/local-php-security-checker"
       setup_commands:

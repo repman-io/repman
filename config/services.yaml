@@ -127,9 +127,9 @@ services:
 
     Github\HttpClient\Builder:
         arguments:
-            - '@?Http\Client\HttpClient'
-            - '@?Http\Message\RequestFactory'
-            - '@?Http\Message\StreamFactory'
+            - '@Psr\Http\Client\ClientInterface'
+            - '@Psr\Http\Message\RequestFactoryInterface'
+            - '@Psr\Http\Message\StreamFactoryInterface'
 
     Bitbucket\Client:
         arguments:
@@ -137,9 +137,9 @@ services:
 
     Bitbucket\HttpClient\Builder:
         arguments:
-            - '@?Http\Client\HttpClient'
-            - '@?Http\Message\RequestFactory'
-            - '@?Http\Message\StreamFactory'
+        - '@Psr\Http\Client\ClientInterface'
+        - '@Psr\Http\Message\RequestFactoryInterface'
+        - '@Psr\Http\Message\StreamFactoryInterface'
 
     Bitbucket\ResultPagerInterface:
         class: Bitbucket\ResultPager
@@ -152,13 +152,22 @@ services:
 
     Gitlab\HttpClient\Builder:
         arguments:
-            - '@?Http\Client\HttpClient'
-            - '@?Http\Message\RequestFactory'
-            - '@?Http\Message\StreamFactory'
+        - '@Psr\Http\Client\ClientInterface'
+        - '@Psr\Http\Message\RequestFactoryInterface'
+        - '@Psr\Http\Message\StreamFactoryInterface'
 
     Gitlab\ResultPager:
         arguments:
             - '@Gitlab\Client'
+
+    Sentry\Integration\IgnoreErrorsIntegration:
+        arguments:
+            $options:
+                ignore_exceptions:
+                    - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
+                    - 'Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException'
+                    - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
+                    - 'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException'
 
     Buddy\Repman\Service\Integration\GitLabApi\RestGitLabApi:
         arguments:

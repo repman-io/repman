@@ -39,7 +39,6 @@ final class PrivatePackageDownloadFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $this->em->getConfiguration()->setSQLLogger(null);
         foreach ($this->organizations->findAll(new Filter(0, 100)) as $organization) {
             foreach ($this->packages->getAllNames($organization->id()) as $package) {
                 $this->loadDownloads($package);
