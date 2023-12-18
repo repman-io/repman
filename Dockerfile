@@ -1,4 +1,4 @@
-FROM php:8.2.7-fpm-alpine
+FROM php:8.2.12-fpm-alpine
 
 ARG TIMEZONE="UTC"
 
