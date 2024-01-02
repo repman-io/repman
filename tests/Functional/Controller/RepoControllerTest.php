@@ -150,6 +150,37 @@ final class RepoControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isNotFound());
     }
 
+    public function testOrganizationArtifactPackageDistDownload(): void
+    {
+        $this->fixtures->prepareRepoFiles();
+        $this->fixtures->createToken(
+            $this->fixtures->createOrganization('buddy', $this->fixtures->createUser()),
+            'secret-org-token'
+        );
+
+        $this->contentFromStream(function (): void {
+            $this->client->request('GET', '/dists/buddy-works/artifact/1.0.0.0/zip', [], [], [
+                'HTTP_HOST' => 'buddy.repo.repman.wip',
+                'PHP_AUTH_USER' => 'token',
+                'PHP_AUTH_PW' => 'secret-org-token',
+            ]);
+        });
+
+        $response = $this->client->getResponse();
+        self::assertTrue($response->isOk(), 'Response code was not 200, it was instead '.$response->getStatusCode());
+        self::assertInstanceOf(StreamedResponse::class, $response);
+
+        $this->contentFromStream(function (): void {
+            $this->client->request('GET', '/dists/vendor/artifact/1.0.0.0/zip', [], [], [
+                'HTTP_HOST' => 'buddy.repo.repman.wip',
+                'PHP_AUTH_USER' => 'token',
+                'PHP_AUTH_PW' => 'secret-org-token',
+            ]);
+        });
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
     public function testOrganizationTrackDownloads(): void
     {
         $this->fixtures->createPackage('c75b535f-5817-41a2-9424-e05476e7958f', 'buddy');
