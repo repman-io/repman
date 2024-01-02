@@ -117,7 +117,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                         'packageName' => $p->getPrettyName(),
                         'prettyVersion' => $p->getPrettyVersion(),
                         'version' => $p->getVersion(),
-                        'ref' => $p->getDistReference() ?? $p->getDistSha1Checksum(),
+                        'ref' => $p->getDistReference() ?? '',
                         'distType' => $p->getDistType(),
                         'distUrl' => $p->getDistUrl(),
                         'authHeaders' => $this->getAuthHeaders($package),

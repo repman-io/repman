@@ -105,6 +105,10 @@ final class RepoControllerTest extends FunctionalTestCase
                 {
                     "dist-url": "http://buddy.repo.repman.wip/dists/%package%/%version%/%reference%.%type%",
                     "preferred": true
+                },
+                {
+                    "dist-url": "http://buddy.repo.repman.wip/dists/%package%/%version%/%type%",
+                    "preferred": false
                 }
             ]
         }
