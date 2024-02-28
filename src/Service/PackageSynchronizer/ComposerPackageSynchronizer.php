@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
-use Buddy\Repman\Entity\Organization\Package\Abandoned;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;

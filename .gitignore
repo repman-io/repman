@@ -36,6 +36,7 @@ docker-compose.*.yml
 ###< Docker ###
 
 composer.phar
+.php-cs-fixer.cache
 
 ###> php-cs-fixer/shim ###
 /.php-cs-fixer.php
