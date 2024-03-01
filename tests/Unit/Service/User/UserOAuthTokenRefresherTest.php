@@ -23,13 +23,15 @@ class UserOAuthTokenRefresherTest extends TestCase
         $oauth->method('getClient')->willReturn($client);
 
         $provider->method('getAccessToken')->willReturnOnConsecutiveCalls(
-            new LeagueAccessToken(['access_token' => 'new-token']),
-            new LeagueAccessToken(['access_token' => 'new-token', 'expires_in' => 3600])
+            new LeagueAccessToken(['access_token' => 'new-token-1', 'refresh_token' => 'new-refresh-token-1']),
+            new LeagueAccessToken(['access_token' => 'new-token-2']),
+            new LeagueAccessToken(['access_token' => 'new-token-3', 'refresh_token' => 'new-refresh-token-3', 'expires_in' => 3600])
         );
 
         $refresher = new UserOAuthTokenRefresher($oauth);
 
-        self::assertEquals(new AccessToken('new-token'), $refresher->refresh('github', 'refresh-token'));
-        self::assertEquals(new AccessToken('new-token', (new \DateTimeImmutable())->setTimestamp(time() + 3600)), $refresher->refresh('github', 'refresh-token'));
+        self::assertEquals(new AccessToken('new-token-1', 'new-refresh-token-1'), $refresher->refresh('github', 'refresh-token'));
+        self::assertEquals(new AccessToken('new-token-2'), $refresher->refresh('github', 'refresh-token'));
+        self::assertEquals(new AccessToken('new-token-3', 'new-refresh-token-3', (new \DateTimeImmutable())->setTimestamp(time() + 3600)), $refresher->refresh('github', 'refresh-token'));
     }
 }
