@@ -8,7 +8,9 @@ use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Service\Composer\ComposerEnvironmentFactory;
 use Buddy\Repman\Service\Organization\PackageManager;
+use Composer\Semver\Comparator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,15 +28,18 @@ final class RepoController extends AbstractController
     private PackageQuery $packageQuery;
     private PackageManager $packageManager;
     private MessageBusInterface $messageBus;
+    private ComposerEnvironmentFactory $environmentFactory;
 
     public function __construct(
         PackageQuery $packageQuery,
         PackageManager $packageManager,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        ComposerEnvironmentFactory $environmentFactory
     ) {
         $this->packageQuery = $packageQuery;
         $this->packageManager = $packageManager;
         $this->messageBus = $messageBus;
+        $this->environmentFactory = $environmentFactory;
     }
 
     /**
@@ -43,13 +48,22 @@ final class RepoController extends AbstractController
      */
     public function packages(Request $request, Organization $organization): JsonResponse
     {
-        $packageNames = $this->packageQuery->getAllNames($organization->id());
-        [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $packageNames);
+        $lastModified = new \DateTimeImmutable();
+        $composerV1 = true;
 
-        $response = (new JsonResponse([
-            'packages' => $packages,
+        try {
+            $composerInfo = $this->environmentFactory->fromRequest($request);
+            $composerV1 = Comparator::lessThan($composerInfo->getVersion(), '2.0.0');
+        } catch (\Throwable $t) {
+        }
+
+        // Build up basic API V2 response
+        $packageNames = $this->packageQuery->getAllNames($organization->id());
+        $response = [
+            'packages' => [],
             'available-packages' => array_map(static fn (PackageName $packageName) => $packageName->name(), $packageNames),
             'metadata-url' => '/p2/%package%.json',
+            'providers-url' => '/p2/%package%.json',
             'notify-batch' => $this->generateUrl('repo_package_downloads', [
                 'organization' => $organization->alias(),
             ], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -57,20 +71,24 @@ final class RepoController extends AbstractController
             'mirrors' => [
                 [
                     'dist-url' => $this->generateUrl(
-                        'organization_repo_url',
-                        ['organization' => $organization->alias()],
-                        RouterInterface::ABSOLUTE_URL
-                    ).'dists/%package%/%version%/%reference%.%type%',
+                            'organization_repo_url',
+                            ['organization' => $organization->alias()],
+                            RouterInterface::ABSOLUTE_URL
+                        ).'dists/%package%/%version%/%reference%.%type%',
                     'preferred' => true,
                 ],
             ],
-        ]))
-        ->setPrivate()
-        ->setLastModified($lastModified);
+        ];
 
-        $response->isNotModified($request);
+        // Add API V1 fields
+        if ($composerV1) {
+            [$lastModified, $packages] = $this->packageManager->findProviders($organization->alias(), $packageNames);
+            $response['packages'] = $packages;
+        }
 
-        return $response;
+        return (new JsonResponse($response))
+            ->setLastModified($lastModified)
+            ->setPrivate();
     }
 
     /**
