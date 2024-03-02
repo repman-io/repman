@@ -63,6 +63,14 @@ final class RepoController extends AbstractController
                     ).'dists/%package%/%version%/%reference%.%type%',
                     'preferred' => true,
                 ],
+                [
+                    'dist-url' => $this->generateUrl(
+                        'organization_repo_url',
+                        ['organization' => $organization->alias()],
+                        RouterInterface::ABSOLUTE_URL
+                    ).'dists/%package%/%version%/%type%',
+                    'preferred' => false,
+                ],
             ],
         ]))
         ->setPrivate()
@@ -86,6 +94,35 @@ final class RepoController extends AbstractController
     {
         $filename = $this->packageManager
             ->distFilename($organization->alias(), $package, $version, $ref, $type)
+            ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
+
+        return new StreamedResponse(function () use ($filename): void {
+            $outputStream = \fopen('php://output', 'wb');
+            if (false === $outputStream) {
+                throw new HttpException(500, 'Could not open output stream to send binary file.'); // @codeCoverageIgnore
+            }
+            $fileStream = $this->packageManager->getDistFileReference($filename);
+            \stream_copy_to_stream(
+                $fileStream
+                    ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.')),
+                $outputStream
+            );
+        });
+    }
+
+    /**
+     * @Route("/dists/{package}/{version}/{type}",
+     *     name="repo_artifact_package_dist",
+     *     host="{organization}{sep1}repo{sep2}{domain}",
+     *     defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
+     *     requirements={"package"="%package_name_pattern%","type"="zip|tar","domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
+     *     methods={"GET"})
+     * @Cache(public=false)
+     */
+    public function artifactDistribution(Organization $organization, string $package, string $version, string $type): StreamedResponse
+    {
+        $filename = $this->packageManager
+            ->distFilename($organization->alias(), $package, $version, '', $type)
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
         return new StreamedResponse(function () use ($filename): void {

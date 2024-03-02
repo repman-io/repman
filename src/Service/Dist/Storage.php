@@ -62,14 +62,20 @@ class Storage
 
     public function filename(Dist $dist): string
     {
-        return \sprintf(
-            '%s/dist/%s/%s_%s.%s',
+        $filename = \sprintf(
+            '%s/dist/%s/%s',
             $dist->repo(),
             $dist->package(),
-            $dist->version(),
-            $dist->ref(),
-            $dist->format()
+            $dist->version()
         );
+
+        if ($dist->ref() !== '') {
+            $filename .= '_'.$dist->ref();
+        }
+
+        $filename .= '.'.$dist->format();
+
+        return $filename;
     }
 
     public function size(Dist $dist): int
