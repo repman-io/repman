@@ -17,11 +17,8 @@ WORKDIR /var/www/html
 RUN sudo -E datadog-install
 
 RUN cd /var/www/html \
-	&& mv .env.prod .env.prod.cp \
-	&& cp .env.dev .env.prod \
-	&& php composer.phar install -n --prefer-dist --no-scripts -o --no-dev \
-	&& php composer.phar warmup \
-	&& mv .env.prod.cp .env.prod
+	&& cp .env .env.prod \
+	&& php composer.phar install -n --prefer-dist --no-scripts -o --no-dev
 
 EXPOSE 80
 
