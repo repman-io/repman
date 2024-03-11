@@ -164,7 +164,7 @@
             "bin/console assets:install --symlink"
         ],
         "check-cs": [
-            "php-cs-fixer fix --dry-run --diff"
+            "PHP_CS_FIXER_IGNORE_ENV=1 php-cs-fixer fix --dry-run --diff"
         ],
         "coverage-ci": [
             "phpunit --colors=never --coverage-clover 'clover.xml'",
