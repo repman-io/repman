@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+APPS=$@
+if [ "$APPS" != ""  ]; then
+	CONFIGURED_APPS=`cd /var/www/html/config/app/ && ls -1`
+	CONFIGURED_APPS=${CONFIGURED_APPS//\.yml/}
+	APPS_TO_REMOVE=`echo ${APPS[@]} ${CONFIGURED_APPS[@]} | tr ' ' '\n' | sort | uniq -u`
+	for id in $APPS_TO_REMOVE; do
+		if [ "$id" != "" ]; then
+			rm -rf /var/www/html/config/app/$id
+			rm -rf /var/www/html/config/supervisor/$id.ini
+		fi;
+	done;
+fi;

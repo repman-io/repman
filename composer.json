@@ -153,6 +153,13 @@
         }
     ],
     "scripts": {
+        "pre-deploy": [
+            "bin/console messenger:stop-workers",
+            "bin/console doctrine:migrations:migrate -n",
+            "bin/console messenger:setup-transport -n",
+            "bin/console repman:security:update-db",
+            "bin/console assets:install"
+        ],
         "post-install-cmd": [
             "bin/console assets:install --symlink"
         ],
