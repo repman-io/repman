@@ -1,0 +1,49 @@
+name: Promote commit to master
+
+on:
+  schedule:
+    - cron: '0 7-15/2 * * Mon-Thu'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'If you are sure, type "yes"'
+        required: true
+        default: 'no'
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.confirm == 'yes'
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Retrieve GFM App Key
+        uses: hashicorp/vault-action@v2.4.0
+        id: vault-secret
+        with:
+          url: https://vault.docplanner.io/
+          method: jwt
+          role: gh-action
+          jwtGithubAudience: sigstore
+          path: gha
+          secrets: |
+            gha_secrets/data/github_flow_manager app_key | GFM_APP_KEY ;
+            gha_secrets/data/github_flow_manager app_id | GFM_APP_ID ;
+
+      - name: Generate GFM App Token
+        id: get-app-token
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: ${{ steps.vault-secret.outputs.GFM_APP_ID }}
+          private_key: ${{ steps.vault-secret.outputs.GFM_APP_KEY }}
+
+      - name: Run github-flow-manager
+        run: |
+          docker pull ghcr.io/docplanner/github-flow-manager:1.1.5
+          # github-flow-manager [OWNER] [REPOSITORY] [SOURCE_BRANCH] [DESTINATION_BRANCH] [EXPRESSION] [SPECIFIC_COMMIT_CHECK_NAME - Optional] [flags]
+          # docker run ghcr.io/docplanner/github-flow-manager:1.1.5 DocPlanner repman develop master "PushedDate < 'now-2m' AND StatusSuccess == true" -v -t "${{ steps.get-app-token.outputs.token }}"
+          docker run ghcr.io/docplanner/github-flow-manager:1.1.5 DocPlanner repman develop master "StatusSuccess == true" -c 25 -v -t "${{ steps.get-app-token.outputs.token }}"
+

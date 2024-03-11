@@ -1,0 +1,65 @@
+name: Build & Push
+
+on:
+  push:
+    branches:
+      - 'master'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'If you are sure, type "yes"'
+        required: true
+        default: 'no'
+
+env:
+  HELM_REPO_UPDATER_VERSION: "0.3.0"
+
+jobs:
+  build_push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Configure AWS Credentials - i0
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: eu-north-1
+        role-to-assume: arn:aws:iam::041193065457:role/github_actions
+
+    - name: Login to Amazon ECR - i0
+      id: login-ecr-i0
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: |
+            041193065457.dkr.ecr.eu-north-1.amazonaws.com/repman
+        tags: |
+          type=sha,enable=true,priority=100,prefix=,suffix=,format=long
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        file: .docker/production/Dockerfile
+        context: .
+        push: true
+        no-cache: true
+        platforms: linux/amd64
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          IMAGE=041193065457.dkr.ecr.eu-north-1.amazonaws.com/php:8.2-alpine316-make
+          APP_ENV=prod
