@@ -11,7 +11,7 @@ on:
 
 jobs:
   tests:
-    name: "PHP ${{ matrix.php }} | PostgreSQL ${{ matrix.postgresql }}"
+    name: "PHP ${{ matrix.php }} | PostgreSQL ${{ matrix.postgresql }} | Redis"
     runs-on: "ubuntu-latest"
     container:
       image: "php:${{ matrix.php-version }}-cli-alpine"
@@ -24,6 +24,8 @@ jobs:
           POSTGRES_USER: main
           POSTGRES_PASSWORD: main
           POSTGRES_DB: main
+      redis:
+        image: "redis:alpine"
 
     strategy:
       fail-fast: false

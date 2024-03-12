@@ -30,6 +30,7 @@ services:
       - app-public:/app/public
     depends_on:
       - database
+      - redis
     expose:
       - "80"
 
@@ -43,6 +44,12 @@ services:
       - /app/var/cache
     depends_on:
       - app
+
+  redis:
+    <<: *restart_policy
+    image: redis:6.2-alpine
+    expose:
+      - "6379"
 
 volumes:
   postgres-data:

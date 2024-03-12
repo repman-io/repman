@@ -174,3 +174,12 @@ services:
             $url: '%env(APP_GITLAB_API_URL)%'
 
     Buddy\Buddy:
+
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+      arguments:
+        - '@redis'
+
+    Redis:
+      class: Redis
+      calls:
+        - [connect, ['%env(REDIS_DSN)%']]
