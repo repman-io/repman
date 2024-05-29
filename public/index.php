@@ -14,7 +14,18 @@ if ($_SERVER['APP_DEBUG']) {
 
 if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false) {
     $_SERVER['HTTP_X_FORWARDED_PROTO'] = $_SERVER['HTTP_CLOUDFRONT_FORWARDED_PROTO'] ?? $_ENV['APP_URL_SCHEME'];
-    Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
+    switch ($_ENV['TRUSTED_HEADERSET']){
+        case 'AWS_ELB':
+            $trustedHeaderSet = Request::HEADER_X_FORWARDED_AWS_ELB;
+            break;
+        case 'TRAEFIK':
+            $trustedHeaderSet = Request::HEADER_X_FORWARDED_TRAEFIK;
+            break;
+        case 'ALL':
+        default:
+            $trustedHeaderSet = Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO;
+    }
+    Request::setTrustedProxies(explode(',', $trustedProxies), $trustedHeaderSet);
 }
 
 if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false) {
