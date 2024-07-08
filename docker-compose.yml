@@ -18,7 +18,7 @@ services:
 
   app:
     << : *restart_policy
-    image: buddy/repman:1.3.4
+    image: buddy/repman:1.4.0
     sysctls:
       net.core.somaxconn: 2048
     command: >
@@ -37,7 +37,7 @@ services:
 
   consumer:
     << : *restart_policy
-    image: buddy/repman:1.3.4
+    image: buddy/repman:1.4.0
     command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
     env_file: .env.docker
     volumes:
@@ -48,7 +48,7 @@ services:
 
   cron:
     << : *restart_policy
-    image: buddy/repman:1.3.4
+    image: buddy/repman:1.4.0
     command: ['crond', '-f', '-L', '/app/var/log/cron.log']
     env_file: .env.docker
     volumes:
