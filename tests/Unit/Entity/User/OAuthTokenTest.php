@@ -33,6 +33,27 @@ final class OAuthTokenTest extends TestCase
         self::assertEquals('new-token', $token->accessToken($this->refresher));
     }
 
+    public function testAccessTokenDoesUpdateRefreshToken(): void
+    {
+        $nowMinusOneDay = (new \DateTimeImmutable())->modify('-1 day');
+        $token = OAuthTokenMother::withExpireTime($nowMinusOneDay);
+        $this->refresher->method('refresh')->withConsecutive(
+            ['github', 'refresh'],
+            ['github', 'new-refresh-token1'],
+            ['github', 'new-refresh-token1']
+        )->willReturnOnConsecutiveCalls(
+            // On second call, "new-refresh-token1" should be used to refresh the token
+            new AccessToken('new-token1', 'new-refresh-token1', $nowMinusOneDay),
+            // Do not update the refresh token if its not provided by the oauth refresh endpoint
+            new AccessToken('new-token2', null, $nowMinusOneDay),
+            new AccessToken('new-token3')
+        );
+
+        self::assertEquals('new-token1', $token->accessToken($this->refresher));
+        self::assertEquals('new-token2', $token->accessToken($this->refresher));
+        self::assertEquals('new-token3', $token->accessToken($this->refresher));
+    }
+
     public function testAccessTokenWithFutureExpirationDate(): void
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('61 sec'));

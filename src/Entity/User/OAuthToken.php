@@ -97,6 +97,9 @@ class OAuthToken
             try {
                 $newToken = $tokenRefresher->refresh($this->type, $this->refreshToken);
                 $this->accessToken = $newToken->token();
+                if ($newToken->getRefreshToken() !== null) {
+                    $this->refreshToken = $newToken->getRefreshToken();
+                }
                 $this->expiresAt = $newToken->expiresAt();
             } catch (\Throwable $exception) {
                 throw new \RuntimeException('An error occurred while refreshing the access token: '.$exception->getMessage());
