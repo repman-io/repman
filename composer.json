@@ -71,6 +71,7 @@
         "symfony/security-bundle": "5.4.*",
         "symfony/twig-bundle": "5.4.*",
         "symfony/validator": "5.4.*",
+        "symfony/expression-language": "5.4.*",
         "symfony/yaml": "5.4.*",
         "twig/extra-bundle": "^2.12 || ^3.0",
         "twig/twig": "^2.12 || ^3.0"
@@ -121,7 +122,8 @@
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
             "phpstan/extension-installer": true,
-            "symfony/flex": true
+            "symfony/flex": true,
+            "php-http/discovery": true
         },
         "audit": {
             "abandoned": "report"

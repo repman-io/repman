@@ -8,9 +8,11 @@ use Buddy\Repman\Form\Type\Organization\ChangeAliasType;
 use Buddy\Repman\Form\Type\Organization\ChangeAnonymousAccessType;
 use Buddy\Repman\Form\Type\Organization\ChangeNameType;
 use Buddy\Repman\Form\Type\Organization\GenerateTokenType;
+use Buddy\Repman\Form\Type\Organization\SetOAuthOwnerType;
 use Buddy\Repman\Message\Organization\ChangeAlias;
 use Buddy\Repman\Message\Organization\ChangeAnonymousAccess;
 use Buddy\Repman\Message\Organization\ChangeName;
+use Buddy\Repman\Message\Organization\ChangeOAuthOwner;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Message\Organization\Package\AddBitbucketHook;
 use Buddy\Repman\Message\Organization\Package\AddGitHubHook;
@@ -35,6 +37,8 @@ use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
 use Buddy\Repman\Security\Model\User;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -272,6 +276,28 @@ final class OrganizationController extends AbstractController
             return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
         }
 
+        $oauthOwnerForm = $this->createForm(SetOAuthOwnerType::class,['oauth_owner' => $organization->oauthOwner()]);
+        $members = $this->organizationQuery->findAllMembers($organization->id(), new Filter());
+
+        $choices = ['' => ''];
+
+        foreach($members as $member) {
+            $choices[$member->email()] = (string)$member->userId();
+        }
+
+        $this->addMembersChoiceType($oauthOwnerForm, $choices);
+
+        $oauthOwnerForm->handleRequest($request);
+
+        if ($oauthOwnerForm->isSubmitted() && $oauthOwnerForm->isValid()) {
+            $this->messageBus->dispatch(new ChangeOAuthOwner($organization->id(), (string)$oauthOwnerForm->get('oauth_owner')->getData()));
+
+            $this->addFlash('success', 'OAuth owner has been successfully changed.');
+
+            return $this->redirectToRoute('organization_settings', ['organization' => $organization->alias()]);
+        }
+
+
         $aliasForm = $this->createForm(ChangeAliasType::class, ['alias' => $organization->alias()]);
         $aliasForm->handleRequest($request);
         if ($aliasForm->isSubmitted() && $aliasForm->isValid()) {
@@ -295,6 +321,23 @@ final class OrganizationController extends AbstractController
             'renameForm' => $renameForm->createView(),
             'aliasForm' => $aliasForm->createView(),
             'anonymousAccessForm' => $anonymousAccessForm->createView(),
+            'oauthOwnerForm' => $oauthOwnerForm->createView(),
+        ]);
+    }
+
+    private function addMembersChoiceType(FormInterface $form, array $choices): void
+    {
+        $form->add('oauth_owner', ChoiceType::class, [
+            'choices' => $choices,
+            'label' => false,
+            'expanded' => false,
+            'multiple' => false,
+            'attr' => [
+                'class' => 'form-control selectpicker',
+                'data-live-search' => 'true',
+                'data-style' => 'btn-secondary',
+                'title' => 'select member',
+            ],
         ]);
     }
 

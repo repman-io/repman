@@ -29,7 +29,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     public function getByAlias(string $alias): Option
     {
         $data = $this->connection->fetchAssociative(
-            'SELECT id, name, alias, has_anonymous_access
+            'SELECT id, name, alias, has_anonymous_access, oauth_owner_id
             FROM "organization" WHERE alias = :alias', [
             'alias' => $alias,
         ]);
@@ -253,6 +253,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
             $data['alias'],
             array_map(static fn (array $row) => new Member($row['user_id'], $row['email'], $row['role']), $members),
             $data['has_anonymous_access'],
+            $data['oauth_owner_id'] ?? null
         );
     }
 

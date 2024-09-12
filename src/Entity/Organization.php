@@ -70,6 +70,12 @@ class Organization
      */
     private bool $hasAnonymousAccess = false;
 
+    /**
+     * @var ?User
+     * @ORM\OneToOne(targetEntity="Buddy\Repman\Entity\User")
+     */
+    private ?User $oauthOwner = null;
+
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
     {
         $this->id = $id;
@@ -97,6 +103,11 @@ class Organization
     public function alias(): string
     {
         return $this->alias;
+    }
+
+    public function oauthOwner(): ?User
+    {
+        return $this->oauthOwner;
     }
 
     public function addToken(Token $token): void
@@ -162,6 +173,10 @@ class Organization
     public function changeAlias(string $alias): void
     {
         $this->alias = $alias;
+    }
+
+    public function changeOauthOwner(?User $user) {
+        $this->oauthOwner = $user;
     }
 
     public function inviteUser(string $email, string $role, string $token): bool
@@ -234,6 +249,10 @@ class Organization
 
     public function oauthToken(string $type): ?OAuthToken
     {
+        if($this->oauthOwner !== null) {
+            return $this->oauthOwner->oauthToken($type);
+        }
+
         foreach ($this->members->filter(fn (Member $member) => $member->isOwner()) as $owner) {
             if ($owner->user()->oauthToken($type) !== null) {
                 return $owner->user()->oauthToken($type);
@@ -259,6 +278,11 @@ class Organization
     private function isLastOwner(User $user): bool
     {
         $owners = $this->members->filter(fn (Member $member) => $member->isOwner());
+
+        if($owners->isEmpty()) {
+            return false;
+        }
+
         if ($owners->count() > 1) {
             return false;
         }

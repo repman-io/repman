@@ -18,6 +18,7 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -88,7 +89,7 @@ final class MembersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     * @Security("is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN')")
      * @Route("/organization/{organization}/member/invite", name="organization_invite_member", methods={"GET", "POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function invite(Organization $organization, Request $request): Response
@@ -116,7 +117,7 @@ final class MembersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     * @Security("is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN')")
      * @Route("/organization/{organization}/invitation", name="organization_invitations", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
     public function listInvitations(Organization $organization, Request $request): Response
@@ -132,7 +133,7 @@ final class MembersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     * @Security("is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN')")
      * @Route("/organization/{organization}/invitation/{token}", name="organization_remove_invitation", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
     public function removeInvitation(Organization $organization, string $token): Response
@@ -144,7 +145,7 @@ final class MembersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     * @Security("is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN')")
      * @Route("/organization/{organization}/member/{member}", name="organization_remove_member", methods={"DELETE"}, requirements={"organization"="%organization_pattern%", "member"="%uuid_pattern%"})
      */
     public function removeMember(Organization $organization, Member $member): Response
@@ -160,7 +161,7 @@ final class MembersController extends AbstractController
     }
 
     /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     * @Security("is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN')")
      * @Route("/organization/{organization}/member/{member}/role", name="organization_change_member_role", methods={"GET", "POST"}, requirements={"organization"="%organization_pattern%", "member"="%uuid_pattern%"})
      */
     public function changeRole(Organization $organization, Member $member, Request $request): Response

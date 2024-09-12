@@ -164,6 +164,10 @@ class User
         return $this->id;
     }
 
+    public function roles(): array {
+        return $this->roles;
+    }
+
     public function getEmail(): string
     {
         return $this->email;

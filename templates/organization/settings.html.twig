@@ -17,6 +17,21 @@
         {{ form_end(renameForm) }}
     <hr />
 
+    <h4>Oauth Owner</h4>
+    <p>
+        User selected here will be used for all OAuth authentication requests.
+    </p>
+    {{ form_start(oauthOwnerForm, {attr:{class:'row'}}) }}
+    <div class="col-4">
+        {{ form_widget(oauthOwnerForm.oauth_owner) }}
+        {{ form_errors(oauthOwnerForm.oauth_owner) }}
+    </div>
+    <div class="col-4 text-right">
+        {{ form_widget(oauthOwnerForm.Change) }}
+    </div>
+    {{ form_end(oauthOwnerForm) }}
+    <hr />
+
     <h4>Organization URL</h4>
         <p>
             Once you change the URL, you will have to change your Composer authorization config and composer.json.

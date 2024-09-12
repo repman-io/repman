@@ -11,7 +11,7 @@ knpu_oauth2_client:
             type: gitlab
             client_id: '%env(OAUTH_GITLAB_CLIENT_ID)%'
             client_secret: '%env(OAUTH_GITLAB_CLIENT_SECRET)%'
-            redirect_route: package_gitlab_check
+            redirect_route: register_gitlab_check
             redirect_params: {}
             use_state: true
             domain: '%env(APP_GITLAB_API_URL)%'

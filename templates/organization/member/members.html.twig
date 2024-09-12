@@ -1,7 +1,7 @@
 {% extends "base.html.twig" %}
 
 {% block header_btn %}
-    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN') %}
         {% if invitations > 0 %}
             <a href="{{ path('organization_invitations', {"organization":organization.alias}) }}" class="mr-5">
                 Pending invitations: {{ invitations }}
@@ -22,7 +22,7 @@
             <tr>
                 <th>E-mail</th>
                 <th>Role</th>
-                {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+                {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN') %}
                     <th>Options</th>
                 {% endif %}
             </tr>
@@ -32,7 +32,7 @@
                 <tr>
                     <td>{{ member.email }}</td>
                     <td>{{ member.role }}</td>
-                    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) %}
+                    {% if is_granted('ROLE_ORGANIZATION_OWNER', organization) or is_granted('ROLE_ADMIN') %}
                         <td>
                             <a class="btn btn-warning btn-sm" href="{{ path('organization_change_member_role', {organization: organization.alias, member: member.userId}) }}">
                                 Change role
