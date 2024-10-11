@@ -38,7 +38,7 @@ final class GoogleController extends OAuthController
                 'https://www.googleapis.com/auth/userinfo.email',
                 'https://www.googleapis.com/auth/userinfo.profile',
             ], ['redirect_uri' => $this->generateUrl('login_google_check', [], UrlGeneratorInterface::ABSOLUTE_URL)])
-            ;
+        ;
     }
 
     /**
