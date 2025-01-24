@@ -90,13 +90,24 @@ final class ReactDownloader implements Downloader
      */
     private function createContext(array $headers = [])
     {
+        $proxy = getenv('HTTP_PROXY') ?: null;
+        $proxyContext = [];
+
+        if ($proxy) {
+            $proxyContext = [
+                'proxy' => $proxy,
+                'request_fulluri' => true,
+            ];
+        }
+
         return stream_context_create([
-            'http' => [
-                'header' => array_merge([sprintf('User-Agent: %s', $this->userAgent())], $headers),
-                'follow_location' => 1,
-                'max_redirects' => 20,
-            ],
-        ]);
+             'http' => array_merge([
+                 'header' => array_merge([sprintf('User-Agent: %s', $this->userAgent())], $headers),
+                 'follow_location' => 1,
+                 'max_redirects' => 20,
+             ], $proxyContext),
+            'https' => $proxyContext,
+             ]);
     }
 
     private function userAgent(): string
