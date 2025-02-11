@@ -12,11 +12,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class AddDownloadHandler implements MessageHandlerInterface
 {
-    private PackageRepository $packages;
-
-    public function __construct(PackageRepository $packages)
+    public function __construct(private readonly PackageRepository $packages)
     {
-        $this->packages = $packages;
     }
 
     public function __invoke(AddDownload $message): void

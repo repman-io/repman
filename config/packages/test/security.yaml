@@ -1,5 +1,5 @@
 security:
-    encoders:
+    password_hashers:
         Buddy\Repman\Security\Model\User:
             algorithm: plaintext
     firewalls:

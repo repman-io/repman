@@ -10,11 +10,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class SendScanResultHandler implements MessageHandlerInterface
 {
-    private Mailer $mailer;
-
-    public function __construct(Mailer $mailer)
+    public function __construct(private readonly Mailer $mailer)
     {
-        $this->mailer = $mailer;
     }
 
     public function __invoke(SendScanResult $message): void

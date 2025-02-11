@@ -57,6 +57,7 @@ final class GitLabController extends OAuthController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/package/add-from-gitlab", name="fetch_gitlab_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
     public function packageAddFromGitLab(Request $request, Organization $organization, UserQuery $userQuery): Response
@@ -66,6 +67,7 @@ final class GitLabController extends OAuthController
         if ($userQuery->hasOAuthAccessToken($user->id(), OAuthToken::TYPE_GITLAB)) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_GITLAB]);
         }
+
         $request->getSession()->set('organization', $organization->alias());
 
         return $this->oauth->getClient('gitlab')->redirect(['read_user', 'api'], ['redirect_uri' => $this->generateUrl('package_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
@@ -79,9 +81,7 @@ final class GitLabController extends OAuthController
         return $this->storeRepoToken(
             $request,
             OAuthToken::TYPE_GITLAB,
-            function (): AccessToken {
-                return $this->oauth->getClient('gitlab')->getAccessToken(['redirect_uri' => $this->generateUrl('package_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
-            },
+            fn (): AccessToken => $this->oauth->getClient('gitlab')->getAccessToken(['redirect_uri' => $this->generateUrl('package_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]),
             'organization_package_new'
         );
     }

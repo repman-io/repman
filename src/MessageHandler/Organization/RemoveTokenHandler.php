@@ -11,11 +11,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RemoveTokenHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $organizations;
-
-    public function __construct(OrganizationRepository $organizations)
+    public function __construct(private readonly OrganizationRepository $organizations)
     {
-        $this->organizations = $organizations;
     }
 
     public function __invoke(RemoveToken $message): void

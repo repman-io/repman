@@ -6,13 +6,8 @@ namespace Buddy\Repman\Service\Proxy\Downloads;
 
 final class Package
 {
-    private string $name;
-    private string $version;
-
-    public function __construct(string $name, string $version)
+    public function __construct(private readonly string $name, private readonly string $version)
     {
-        $this->name = $name;
-        $this->version = $version;
     }
 
     public function name(): string

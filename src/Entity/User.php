@@ -7,14 +7,17 @@ namespace Buddy\Repman\Entity;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User\ApiToken;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
+use function mb_strtolower;
 
 /**
  * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\UserRepository")
+ *
  * @ORM\Table(name="`user`")
  */
 class User
@@ -24,12 +27,6 @@ class User
     public const STATUS_DISABLED = 'disabled';
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private UuidInterface $id;
-
-    /**
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private string $email;
@@ -37,16 +34,18 @@ class User
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @var array<string>
+     *
      * @ORM\Column(type="json")
      */
     private array $roles = [];
 
     /**
      * @var string The hashed password
+     *
      * @ORM\Column(type="string")
      */
     private string $password;
@@ -54,12 +53,7 @@ class User
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $emailConfirmedAt = null;
-
-    /**
-     * @ORM\Column(type="string", unique=true)
-     */
-    private string $emailConfirmToken;
+    private ?DateTimeImmutable $emailConfirmedAt = null;
 
     /**
      * @ORM\Column(type="string", nullable=true, unique=true)
@@ -69,10 +63,11 @@ class User
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
+    private ?DateTimeImmutable $resetPasswordTokenCreatedAt = null;
 
     /**
      * @var Collection<int,Member>|Member[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="user", orphanRemoval=true)
      */
     private Collection $memberships;
@@ -84,6 +79,7 @@ class User
 
     /**
      * @var Collection<int,OAuthToken>|OAuthToken[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\User\OAuthToken", mappedBy="user", orphanRemoval=true, cascade={"persist"})
      */
     private Collection $oauthTokens;
@@ -95,6 +91,7 @@ class User
 
     /**
      * @var Collection<int,ApiToken>|ApiToken[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\User\ApiToken", mappedBy="user", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $apiTokens;
@@ -107,14 +104,20 @@ class User
     /**
      * @param array<string> $roles
      */
-    public function __construct(UuidInterface $id, string $email, string $emailConfirmToken, array $roles, ?string $timezone = null)
+    public function __construct(/**
+     * @ORM\Id
+     *
+     * @ORM\Column(type="uuid", unique=true)
+     */
+        private UuidInterface $id, string $email, /**
+     * @ORM\Column(type="string", unique=true)
+     */
+        private string $emailConfirmToken, array $roles, ?string $timezone = null)
     {
-        $this->id = $id;
-        $this->email = \mb_strtolower($email);
-        $this->emailConfirmToken = $emailConfirmToken;
+        $this->email = mb_strtolower($email);
         $this->roles = array_values(array_unique($roles));
         $this->timezone = $timezone ?? date_default_timezone_get();
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->memberships = new ArrayCollection();
         $this->oauthTokens = new ArrayCollection();
         $this->apiTokens = new ArrayCollection();
@@ -123,17 +126,17 @@ class User
     public function setResetPasswordToken(string $token): void
     {
         $this->resetPasswordToken = $token;
-        $this->resetPasswordTokenCreatedAt = new \DateTimeImmutable();
+        $this->resetPasswordTokenCreatedAt = new DateTimeImmutable();
     }
 
     public function resetPassword(string $token, string $password, int $tokenTtl): void
     {
         if ($token !== $this->resetPasswordToken) {
-            throw new \InvalidArgumentException('Invalid reset password token');
+            throw new InvalidArgumentException('Invalid reset password token');
         }
 
-        if ($this->resetPasswordTokenCreatedAt === null || $this->resetPasswordTokenCreatedAt->modify(sprintf('%s sec', $tokenTtl)) < new \DateTimeImmutable()) {
-            throw new \InvalidArgumentException('Token expired');
+        if (!$this->resetPasswordTokenCreatedAt instanceof DateTimeImmutable || $this->resetPasswordTokenCreatedAt->modify(sprintf('%s sec', $tokenTtl)) < new DateTimeImmutable()) {
+            throw new InvalidArgumentException('Token expired');
         }
 
         $this->password = $password;
@@ -143,18 +146,18 @@ class User
 
     public function confirmEmail(string $token): void
     {
-        if ($this->emailConfirmedAt !== null) {
+        if ($this->emailConfirmedAt instanceof DateTimeImmutable) {
             return;
         }
 
         if ($token !== $this->emailConfirmToken) {
-            throw new \InvalidArgumentException('Invalid confirm e-mail token');
+            throw new InvalidArgumentException('Invalid confirm e-mail token');
         }
 
-        $this->emailConfirmedAt = new \DateTimeImmutable();
+        $this->emailConfirmedAt = new DateTimeImmutable();
     }
 
-    public function emailConfirmedAt(): ?\DateTimeImmutable
+    public function emailConfirmedAt(): ?DateTimeImmutable
     {
         return $this->emailConfirmedAt;
     }
@@ -255,7 +258,7 @@ class User
 
     public function hasEmailConfirmed(): bool
     {
-        return $this->emailConfirmedAt !== null;
+        return $this->emailConfirmedAt instanceof DateTimeImmutable;
     }
 
     public function setEmailScanResult(bool $emailScanResult): void

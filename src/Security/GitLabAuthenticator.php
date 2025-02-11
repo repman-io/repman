@@ -44,8 +44,6 @@ final class GitLabAuthenticator extends OAuthAuthenticator
 
         $user = $this->userProvider->loadUserByIdentifier($gitLabUser->getEmail());
 
-        return new SelfValidatingPassport(new UserBadge($gitLabUser->getEmail(), function () use ($user): UserInterface {
-            return $user;
-        }));
+        return new SelfValidatingPassport(new UserBadge($gitLabUser->getEmail(), fn (): UserInterface => $user));
     }
 }

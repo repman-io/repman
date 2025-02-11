@@ -6,15 +6,8 @@ namespace Buddy\Repman\Service\Integration\BitbucketApi;
 
 final class Repository
 {
-    private string $uuid;
-    private string $name;
-    private string $url;
-
-    public function __construct(string $uuid, string $name, string $url)
+    public function __construct(private readonly string $uuid, private readonly string $name, private readonly string $url)
     {
-        $this->uuid = $uuid;
-        $this->name = $name;
-        $this->url = $url;
     }
 
     public function uuid(): string

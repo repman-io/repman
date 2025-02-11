@@ -10,13 +10,8 @@ use Gitlab\ResultPager;
 
 final class RestGitLabApi implements GitLabApi
 {
-    private Client $client;
-    private ResultPager $pager;
-
-    public function __construct(Client $client, ResultPager $pager, string $url)
+    public function __construct(private readonly Client $client, private readonly ResultPager $pager, string $url)
     {
-        $this->client = $client;
-        $this->pager = $pager;
         $this->client->setUrl($url);
     }
 
@@ -69,12 +64,10 @@ final class RestGitLabApi implements GitLabApi
             'order_by' => 'last_activity_at',
         ], $options);
 
-        return array_map(function (array $project): Project {
-            return new Project(
-                $project['id'],
-                $project['path_with_namespace'],
-                $project['web_url']
-            );
-        }, $this->pager->fetchAll($this->client->projects(), 'all', [$fetchOptions]));
+        return array_map(fn (array $project): Project => new Project(
+            $project['id'],
+            $project['path_with_namespace'],
+            $project['web_url']
+        ), $this->pager->fetchAll($this->client->projects(), 'all', [$fetchOptions]));
     }
 }

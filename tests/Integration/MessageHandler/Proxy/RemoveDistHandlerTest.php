@@ -18,7 +18,7 @@ final class RemoveDistHandlerTest extends IntegrationTestCase
             new RemoveDist('packagist.org', 'some-vendor/some-name')
         );
 
-        self::assertTrue(GenericList::ofAll(['buddy-works/repman'])->equals(
+        $this->assertTrue(GenericList::ofAll(['buddy-works/repman'])->equals(
             $this->container()->get(ProxyRegister::class)->getByHost('packagist.org')->syncedPackages()
         ));
     }

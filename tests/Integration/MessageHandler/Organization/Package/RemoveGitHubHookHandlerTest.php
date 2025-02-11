@@ -9,6 +9,7 @@ use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
 use Buddy\Repman\MessageHandler\Organization\Package\RemoveGitHubHookHandler;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use InvalidArgumentException;
 
 final class RemoveGitHubHookHandlerTest extends IntegrationTestCase
 {
@@ -29,12 +30,12 @@ final class RemoveGitHubHookHandlerTest extends IntegrationTestCase
             ->get(PackageQuery::class)
             ->getById($packageId);
 
-        self::assertEquals(null, $package->get()->webhookCreatedAt());
+        $this->assertEquals(null, $package->get()->webhookCreatedAt());
     }
 
     public function testPackageNotFound(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Package 9691e73b-1738-42fe-9d5b-31d0dadf7407 not found.');
 
         $handler = $this->container()->get(RemoveGitHubHookHandler::class);

@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Token implements \JsonSerializable
-{
-    private string $name;
-    private string $value;
-    private \DateTimeImmutable $createdAt;
-    private ?\DateTimeImmutable $lastUsedAt;
+use DateTime;
+use DateTimeImmutable;
+use JsonSerializable;
 
-    public function __construct(string $name, string $value, \DateTimeImmutable $createdAt, ?\DateTimeImmutable $lastUsedAt)
+final class Token implements JsonSerializable
+{
+    public function __construct(private readonly string $name, private readonly string $value, private readonly DateTimeImmutable $createdAt, private readonly ?DateTimeImmutable $lastUsedAt)
     {
-        $this->name = $name;
-        $this->value = $value;
-        $this->createdAt = $createdAt;
-        $this->lastUsedAt = $lastUsedAt;
     }
 
     public function getName(): string
@@ -29,12 +24,12 @@ final class Token implements \JsonSerializable
         return $this->value;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getLastUsedAt(): ?\DateTimeImmutable
+    public function getLastUsedAt(): ?DateTimeImmutable
     {
         return $this->lastUsedAt;
     }
@@ -45,10 +40,10 @@ final class Token implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'name' => $this->getName(),
-            'value' => $this->getValue(),
-            'createdAt' => $this->getCreatedAt()->format(\DateTime::ATOM),
-            'lastUsedAt' => $this->getLastUsedAt() === null ? null : $this->getLastUsedAt()->format(\DateTime::ATOM),
+            'name' => $this->name,
+            'value' => $this->value,
+            'createdAt' => $this->createdAt->format(DateTime::ATOM),
+            'lastUsedAt' => $this->lastUsedAt instanceof DateTimeImmutable ? $this->lastUsedAt->format(DateTime::ATOM) : null,
         ];
     }
 }

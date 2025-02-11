@@ -11,20 +11,20 @@ final class OAuthProviderExtensionTest extends TestCase
 {
     public function testGetFilters(): void
     {
-        self::assertEquals('oauth_enabled', (new OAuthProviderExtension([]))->getFunctions()[0]->getName());
+        $this->assertSame('oauth_enabled', (new OAuthProviderExtension([]))->getFunctions()[0]->getName());
     }
 
     public function testAnyOauthProviderEnabled(): void
     {
-        self::assertFalse((new OAuthProviderExtension([]))->oAuthEnabled());
-        self::assertTrue((new OAuthProviderExtension(['github' => 'code']))->oAuthEnabled());
+        $this->assertFalse((new OAuthProviderExtension([]))->oAuthEnabled());
+        $this->assertTrue((new OAuthProviderExtension(['github' => 'code']))->oAuthEnabled());
     }
 
     public function testGivenOauthProviderEnabled(): void
     {
-        self::assertFalse((new OAuthProviderExtension([]))->oAuthEnabled('github'));
-        self::assertFalse((new OAuthProviderExtension(['github' => '']))->oAuthEnabled('github'));
-        self::assertFalse((new OAuthProviderExtension(['github' => null]))->oAuthEnabled('github'));
-        self::assertTrue((new OAuthProviderExtension(['github' => 'code']))->oAuthEnabled('github'));
+        $this->assertFalse((new OAuthProviderExtension([]))->oAuthEnabled('github'));
+        $this->assertFalse((new OAuthProviderExtension(['github' => '']))->oAuthEnabled('github'));
+        $this->assertFalse((new OAuthProviderExtension(['github' => null]))->oAuthEnabled('github'));
+        $this->assertTrue((new OAuthProviderExtension(['github' => 'code']))->oAuthEnabled('github'));
     }
 }

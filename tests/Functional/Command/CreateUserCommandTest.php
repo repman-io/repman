@@ -18,6 +18,6 @@ final class CreateUserCommandTest extends FunctionalTestCase
             'password' => 'password',
         ]);
 
-        self::assertStringContainsString('Created user with id:', $commandTester->getDisplay());
+        $this->assertStringContainsString('Created user with id:', $commandTester->getDisplay());
     }
 }

@@ -7,14 +7,12 @@ namespace Buddy\Repman\Validator;
 use Buddy\Repman\Query\Admin\UserQuery;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use function mb_strtolower;
 
 class UniqueEmailValidator extends ConstraintValidator
 {
-    private UserQuery $usersQuery;
-
-    public function __construct(UserQuery $usersQuery)
+    public function __construct(private readonly UserQuery $usersQuery)
     {
-        $this->usersQuery = $usersQuery;
     }
 
     /**
@@ -27,7 +25,7 @@ class UniqueEmailValidator extends ConstraintValidator
             return;
         }
 
-        $value = \mb_strtolower($value);
+        $value = mb_strtolower((string) $value);
 
         if (!$this->usersQuery->getByEmail($value)->isEmpty()) {
             $this->context->buildViolation($constraint->message)

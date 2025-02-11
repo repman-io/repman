@@ -6,17 +6,8 @@ namespace Buddy\Repman\Query\User\Model\Package;
 
 final class Link
 {
-    private string $type;
-    private string $target;
-    private string $constraint;
-    private ?string $targetPackageId;
-
-    public function __construct(string $type, string $target, string $constraint, ?string $targetPackageId = null)
+    public function __construct(private readonly string $type, private readonly string $target, private readonly string $constraint, private readonly ?string $targetPackageId = null)
     {
-        $this->type = $type;
-        $this->target = $target;
-        $this->constraint = $constraint;
-        $this->targetPackageId = $targetPackageId;
     }
 
     public function type(): string

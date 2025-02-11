@@ -6,13 +6,8 @@ namespace Buddy\Repman\Query\User\Model\Installs;
 
 final class Day
 {
-    private string $date;
-    private int $installs;
-
-    public function __construct(string $date, int $installs)
+    public function __construct(private readonly string $date, private readonly int $installs)
     {
-        $this->date = $date;
-        $this->installs = $installs;
     }
 
     public function date(): string

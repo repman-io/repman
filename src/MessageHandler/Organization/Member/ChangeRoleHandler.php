@@ -12,13 +12,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class ChangeRoleHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $organizations;
-    private UserRepository $users;
-
-    public function __construct(OrganizationRepository $organizations, UserRepository $users)
+    public function __construct(private readonly OrganizationRepository $organizations, private readonly UserRepository $users)
     {
-        $this->organizations = $organizations;
-        $this->users = $users;
     }
 
     public function __invoke(ChangeRole $message): void

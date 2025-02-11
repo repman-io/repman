@@ -107,6 +107,7 @@
         "phpstan/phpstan-strict-rules": "^1.1.0",
         "phpstan/phpstan-symfony": "^1.0.4",
         "phpunit/phpunit": "^9",
+        "rector/rector": "^1.2",
         "symfony/browser-kit": "*",
         "symfony/maker-bundle": "^1.14",
         "symfony/stopwatch": "*",

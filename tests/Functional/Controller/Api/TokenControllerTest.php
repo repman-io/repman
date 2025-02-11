@@ -6,13 +6,16 @@ namespace Buddy\Repman\Tests\Functional\Controller\Api;
 
 use Buddy\Repman\Query\Api\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class TokenControllerTest extends FunctionalTestCase
 {
     private string $apiToken;
+
     private string $organizationId;
+
     private static string $organization = 'buddy';
 
     protected function setUp(): void
@@ -32,72 +35,72 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->organizationId, 'test-list-value', 'test-list-name');
 
         $this->loginApiUser($this->apiToken);
-        $this->client->request('GET', $this->urlTo('api_tokens', ['organization' => self::$organization]));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('api_tokens', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
 
         $json = $this->jsonResponse();
-        self::assertCount(1, $json['data']);
-        self::assertEquals($json['data'][0]['name'], 'test-list-name');
-        self::assertEquals($json['data'][0]['value'], 'test-list-value');
-        self::assertNotEmpty($json['data'][0]['createdAt']);
-        self::assertEquals($json['data'][0]['lastUsedAt'], null);
-        self::assertEquals($json['total'], 1);
-        self::assertNotEmpty($json['links']);
+        $this->assertCount(1, $json['data']);
+        $this->assertSame('test-list-name', $json['data'][0]['name']);
+        $this->assertSame('test-list-value', $json['data'][0]['value']);
+        $this->assertNotEmpty($json['data'][0]['createdAt']);
+        $this->assertEquals($json['data'][0]['lastUsedAt'], null);
+        $this->assertSame(1, $json['total']);
+        $this->assertNotEmpty($json['links']);
     }
 
     public function testTokensListPagination(): void
     {
         for ($i = 1; $i <= 41; ++$i) {
-            $this->fixtures->createToken($this->organizationId, "test-list-value#$i", "test-list-name#$i");
+            $this->fixtures->createToken($this->organizationId, 'test-list-value#'.$i, 'test-list-name#'.$i);
         }
 
         $this->loginApiUser($this->apiToken);
-        $this->client->request('GET', $this->urlTo('api_tokens', [
+        $this->client->request(Request::METHOD_GET, $this->urlTo('api_tokens', [
             'organization' => self::$organization,
             'page' => 2,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
 
         $json = $this->jsonResponse();
 
-        self::assertCount(20, $json['data']);
-        self::assertEquals($json['data'][0]['name'], 'test-list-name#28');
-        self::assertEquals($json['data'][19]['name'], 'test-list-name#8');
+        $this->assertCount(20, $json['data']);
+        $this->assertSame('test-list-name#28', $json['data'][0]['name']);
+        $this->assertSame('test-list-name#8', $json['data'][19]['name']);
 
-        self::assertEquals($json['total'], 41);
+        $this->assertSame(41, $json['total']);
 
         $baseUrl = $this->urlTo('api_tokens', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
-        self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
-        self::assertEquals($baseUrl.'?page=1', $json['links']['prev']);
-        self::assertEquals($baseUrl.'?page=3', $json['links']['next']);
-        self::assertEquals($baseUrl.'?page=3', $json['links']['last']);
+        $this->assertSame($baseUrl.'?page=1', $json['links']['first']);
+        $this->assertSame($baseUrl.'?page=1', $json['links']['prev']);
+        $this->assertSame($baseUrl.'?page=3', $json['links']['next']);
+        $this->assertSame($baseUrl.'?page=3', $json['links']['last']);
     }
 
     public function testEmptyTokensList(): void
     {
         $this->loginApiUser($this->apiToken);
-        $this->client->request('GET', $this->urlTo('api_tokens', ['organization' => self::$organization]));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('api_tokens', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
 
         $json = $this->jsonResponse();
-        self::assertEquals($json['data'], []);
-        self::assertEquals($json['total'], 0);
+        $this->assertEquals($json['data'], []);
+        $this->assertSame(0, $json['total']);
 
         $baseUrl = $this->urlTo('api_tokens', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
-        self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
-        self::assertEquals(null, $json['links']['prev']);
-        self::assertEquals(null, $json['links']['next']);
-        self::assertEquals($baseUrl.'?page=1', $json['links']['last']);
+        $this->assertSame($baseUrl.'?page=1', $json['links']['first']);
+        $this->assertEquals(null, $json['links']['prev']);
+        $this->assertEquals(null, $json['links']['next']);
+        $this->assertSame($baseUrl.'?page=1', $json['links']['last']);
     }
 
     public function testGenerateToken(): void
     {
         $this->loginApiUser($this->apiToken);
 
-        $this->client->request('POST', $this->urlTo('api_token_generate', [
+        $this->client->request(Request::METHOD_POST, $this->urlTo('api_token_generate', [
             'organization' => self::$organization,
         ]), [], [], [], (string) json_encode([
             'name' => 'new-token',
@@ -105,41 +108,37 @@ final class TokenControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        self::assertEquals($json['name'], 'new-token');
-        self::assertNotEmpty($json['createdAt']);
-        self::assertNotEmpty($json['value']);
-        self::assertEquals($json['lastUsedAt'], null);
-        self::assertFalse(
-            $this->container()
-                ->get(DbalOrganizationQuery::class)
-                ->findToken($this->organizationId, $json['value'])
-                ->isEmpty()
-        );
+        $this->assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
+        $this->assertSame('new-token', $json['name']);
+        $this->assertNotEmpty($json['createdAt']);
+        $this->assertNotEmpty($json['value']);
+        $this->assertEquals($json['lastUsedAt'], null);
+        $this->assertFalse($this->container()
+            ->get(DbalOrganizationQuery::class)
+            ->findToken($this->organizationId, $json['value'])
+            ->isEmpty());
     }
 
     public function testInvalidJson(): void
     {
         $this->loginApiUser($this->apiToken);
 
-        $this->client->request('POST', $this->urlTo('api_token_generate', [
+        $this->client->request(Request::METHOD_POST, $this->urlTo('api_token_generate', [
             'organization' => self::$organization,
         ]), [], [], [], 'invalid');
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
     }
 
     public function testGenerateTokenBadRequest(): void
     {
         $this->loginApiUser($this->apiToken);
-        $this->client->request('POST', $this->urlTo('api_token_generate', [
+        $this->client->request(Request::METHOD_POST, $this->urlTo('api_token_generate', [
             'organization' => self::$organization,
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        $this->assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
+        $this->assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -148,8 +147,7 @@ final class TokenControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testRemoveToken(): void
@@ -157,18 +155,16 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->organizationId, 'test-remove-value', 'test-remove-name');
         $this->loginApiUser($this->apiToken);
 
-        $this->client->request('DELETE', $this->urlTo('api_token_remove', [
+        $this->client->request(Request::METHOD_DELETE, $this->urlTo('api_token_remove', [
             'organization' => self::$organization,
             'token' => 'test-remove-value',
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertTrue(
-            $this->container()
-                ->get(DbalOrganizationQuery::class)
-                ->findToken($this->organizationId, 'test-remove-value')
-                ->isEmpty()
-        );
+        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
+        $this->assertTrue($this->container()
+            ->get(DbalOrganizationQuery::class)
+            ->findToken($this->organizationId, 'test-remove-value')
+            ->isEmpty());
     }
 
     public function testRemoveTokenNonExisting(): void
@@ -176,12 +172,12 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->organizationId, 'test-remove-value', 'test-remove-name');
         $this->loginApiUser($this->apiToken);
 
-        $this->client->request('DELETE', $this->urlTo('api_token_remove', [
+        $this->client->request(Request::METHOD_DELETE, $this->urlTo('api_token_remove', [
             'organization' => self::$organization,
             'token' => 'not exists',
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
     }
 
     public function testRegenerateToken(): void
@@ -189,25 +185,22 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->organizationId, 'test-regenerate-value', 'test-regenerate-name');
         $this->loginApiUser($this->apiToken);
 
-        $this->client->request('PUT', $this->urlTo('api_token_regenerate', [
+        $this->client->request(Request::METHOD_PUT, $this->urlTo('api_token_regenerate', [
             'organization' => self::$organization,
             'token' => 'test-regenerate-value',
         ]));
 
         $json = $this->jsonResponse();
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertNotEquals(
-            $this->container()
-                ->get(DbalOrganizationQuery::class)
-                ->findTokenByName($this->organizationId, 'test-regenerate-name')
-                ->get()
-                ->getValue(),
-            'test-regenerate-value'
-        );
-        self::assertEquals($json['name'], 'test-regenerate-name');
-        self::assertNotEmpty($json['createdAt']);
-        self::assertNotEmpty($json['value']);
-        self::assertEquals($json['lastUsedAt'], null);
+        $this->assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
+        $this->assertNotEquals($this->container()
+            ->get(DbalOrganizationQuery::class)
+            ->findTokenByName($this->organizationId, 'test-regenerate-name')
+            ->get()
+            ->getValue(), 'test-regenerate-value');
+        $this->assertSame('test-regenerate-name', $json['name']);
+        $this->assertNotEmpty($json['createdAt']);
+        $this->assertNotEmpty($json['value']);
+        $this->assertEquals($json['lastUsedAt'], null);
     }
 
     public function testRegenerateTokenNonExisting(): void
@@ -215,12 +208,12 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->organizationId, 'test-regenerate-value', 'test-regenerate-name');
         $this->loginApiUser($this->apiToken);
 
-        $this->client->request('PUT', $this->urlTo('api_token_regenerate', [
+        $this->client->request(Request::METHOD_PUT, $this->urlTo('api_token_regenerate', [
             'organization' => self::$organization,
             'token' => 'not exists',
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        $this->assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode(), $this->client->getResponse()->getContent());
     }
 
     /**

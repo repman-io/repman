@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Proxy;
 
 final class RemoveDist
 {
-    private string $proxy;
-    private string $packageName;
-
-    public function __construct(string $proxy, string $packageName)
+    public function __construct(private readonly string $proxy, private readonly string $packageName)
     {
-        $this->proxy = $proxy;
-        $this->packageName = $packageName;
     }
 
     public function proxy(): string

@@ -18,18 +18,8 @@ final class ScanAllPackagesCommand extends Command
 {
     protected static $defaultName = 'repman:security:scan-all';
 
-    private PackageScanner $scanner;
-    private PackageQuery $packageQuery;
-    private PackageRepository $packageRepository;
-    private EntityManagerInterface $em;
-
-    public function __construct(PackageScanner $scanner, PackageQuery $packageQuery, PackageRepository $packageRepository, EntityManagerInterface $em)
+    public function __construct(private readonly PackageScanner $scanner, private readonly PackageQuery $packageQuery, private readonly PackageRepository $packageRepository, private readonly EntityManagerInterface $em)
     {
-        $this->scanner = $scanner;
-        $this->packageQuery = $packageQuery;
-        $this->packageRepository = $packageRepository;
-        $this->em = $em;
-
         parent::__construct();
     }
 
@@ -58,6 +48,7 @@ final class ScanAllPackagesCommand extends Command
                 );
                 $progressBar->advance();
             }
+
             $this->em->clear();
         }
 

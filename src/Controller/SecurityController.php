@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller;
 
+use Browser;
 use Buddy\Repman\Form\Type\User\ResetPasswordType;
 use Buddy\Repman\Form\Type\User\SendResetPasswordLinkType;
 use Buddy\Repman\Message\User\ResetPassword;
@@ -15,22 +16,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    private AuthenticationUtils $authenticationUtils;
-    private Config $config;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        AuthenticationUtils $authenticationUtils,
-        Config $config,
-        MessageBusInterface $messageBus
-    ) {
-        $this->authenticationUtils = $authenticationUtils;
-        $this->config = $config;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly AuthenticationUtils $authenticationUtils, private readonly Config $config, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -38,7 +30,7 @@ class SecurityController extends AbstractController
      */
     public function login(): Response
     {
-        if ($this->getUser() !== null) {
+        if ($this->getUser() instanceof UserInterface) {
             return $this->redirectToRoute('index');
         }
 
@@ -57,7 +49,7 @@ class SecurityController extends AbstractController
         $form = $this->createForm(SendResetPasswordLinkType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $browser = new \Browser();
+            $browser = new Browser();
             $this->messageBus->dispatch(new SendPasswordResetLink(
                 $form->get('email')->getData(),
                 $browser->getPlatform(),
@@ -85,7 +77,7 @@ class SecurityController extends AbstractController
                     $form->get('password')->getData()
                 ));
                 $this->addFlash('success', 'Your password has been changed, you can now log in');
-            } catch (HandlerFailedException $exception) {
+            } catch (HandlerFailedException) {
                 $this->addFlash('danger', 'Invalid or expired password reset token');
             }
 

@@ -10,7 +10,9 @@ use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Message\User\SendConfirmToken;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,18 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RegistrationController extends AbstractController
 {
-    private UserGuardHelper $guard;
-    private Config $config;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        UserGuardHelper $guard,
-        Config $config,
-        MessageBusInterface $messageBus
-    ) {
-        $this->guard = $guard;
-        $this->config = $config;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly UserGuardHelper $guard, private readonly Config $config, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -58,7 +50,7 @@ class RegistrationController extends AbstractController
                 $confirmToken
             ));
 
-            $this->addFlash('warning', "Please click the activation link for {$email} to verify your email.");
+            $this->addFlash('warning', sprintf('Please click the activation link for %s to verify your email.', $email));
 
             $this->guard->authenticateUser($email, $request);
 
@@ -90,7 +82,7 @@ class RegistrationController extends AbstractController
         try {
             $this->messageBus->dispatch(new ConfirmEmail($token));
             $this->addFlash('success', 'E-mail address was confirmed. Enjoy your Repman account.');
-        } catch (\RuntimeException|\InvalidArgumentException $exception) {
+        } catch (RuntimeException|InvalidArgumentException) {
             $this->addFlash('danger', 'Invalid or expired e-mail confirm token');
         }
 

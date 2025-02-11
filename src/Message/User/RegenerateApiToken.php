@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\User;
 
 final class RegenerateApiToken
 {
-    private string $userId;
-    private string $token;
-
-    public function __construct(string $userId, string $token)
+    public function __construct(private readonly string $userId, private readonly string $token)
     {
-        $this->userId = $userId;
-        $this->token = $token;
     }
 
     public function userId(): string

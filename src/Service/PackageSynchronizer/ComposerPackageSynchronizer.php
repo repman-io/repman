@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\PackageSynchronizer;
 
 use Buddy\Repman\Entity\Organization\Package;
-use Buddy\Repman\Entity\Organization\Package\Abandoned;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Repository\PackageRepository;
@@ -26,33 +25,28 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\RepositoryInterface;
 use Composer\Semver\Comparator;
+use DateTime;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
+use function parse_url;
+use const PHP_URL_HOST;
+use const PHP_URL_PORT;
 
 final class ComposerPackageSynchronizer implements PackageSynchronizer
 {
-    private PackageManager $packageManager;
-    private PackageNormalizer $packageNormalizer;
-    private PackageRepository $packageRepository;
-    private Storage $distStorage;
-    private ReadmeExtractor $readmeExtractor;
-    private UserOAuthTokenRefresher $tokenRefresher;
-    private string $gitlabUrl;
+    private readonly ReadmeExtractor $readmeExtractor;
 
     public function __construct(
-        PackageManager $packageManager,
-        PackageNormalizer $packageNormalizer,
-        PackageRepository $packageRepository,
-        Storage $distStorage,
-        UserOAuthTokenRefresher $tokenRefresher,
-        string $gitlabUrl
+        private readonly PackageManager $packageManager,
+        private readonly PackageNormalizer $packageNormalizer,
+        private readonly PackageRepository $packageRepository,
+        private readonly Storage $distStorage,
+        private readonly UserOAuthTokenRefresher $tokenRefresher,
+        private readonly string $gitlabUrl,
     ) {
-        $this->packageManager = $packageManager;
-        $this->packageNormalizer = $packageNormalizer;
-        $this->packageRepository = $packageRepository;
-        $this->distStorage = $distStorage;
-        $this->tokenRefresher = $tokenRefresher;
-        $this->gitlabUrl = $gitlabUrl;
         $this->readmeExtractor = new ReadmeExtractor($this->distStorage);
     }
 
@@ -82,7 +76,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             });
 
             if ($packages === []) {
-                throw new \RuntimeException('Package not found');
+                throw new RuntimeException('Package not found');
             }
 
             $latest = current($packages);
@@ -98,15 +92,15 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
             $name = $latest->getPrettyName();
 
             if ($name === null) {
-                throw new \RuntimeException('Missing package name in latest version. Revision: '.$latest->getDistReference());
+                throw new RuntimeException('Missing package name in latest version. Revision: '.$latest->getDistReference());
             }
 
             if (preg_match(Package::NAME_PATTERN, $name, $matches) !== 1) {
-                throw new \RuntimeException("Package name {$name} is invalid");
+                throw new RuntimeException(sprintf('Package name %s is invalid', $name));
             }
 
             if (!$package->isSynchronized() && $this->packageRepository->packageExist($name, $package->organizationId())) {
-                throw new \RuntimeException("Package {$name} already exists. Package name must be unique within organization.");
+                throw new RuntimeException(sprintf('Package %s already exists. Package name must be unique within organization.', $name));
             }
 
             $versions = [];
@@ -121,7 +115,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                         'distType' => $p->getDistType(),
                         'distUrl' => $p->getDistUrl(),
                         'authHeaders' => $this->getAuthHeaders($package),
-                        'releaseDate' => \DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new \DateTime()),
+                        'releaseDate' => DateTimeImmutable::createFromMutable($p->getReleaseDate() ?? new DateTime()),
                         'stability' => $p->getStability(),
                     ];
                 }
@@ -213,13 +207,13 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
                 $latest->getStability() === Version::STABILITY_STABLE ? $latest->getPrettyVersion() : 'no stable release',
                 $encounteredVersions,
                 $encounteredLinks,
-                \DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new \DateTime()),
+                DateTimeImmutable::createFromMutable($latest->getReleaseDate() ?? new DateTime()),
             );
 
             $this->packageManager->saveProvider($json, $package->organizationAlias(), $name);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $throwable) {
             $package->syncFailure(sprintf('Error: %s%s',
-                $exception->getMessage(),
+                $throwable->getMessage(),
                 isset($io) && strlen($io->getOutput()) > 1 ? "\nLogs:\n".$io->getOutput() : ''
             ));
         }
@@ -239,12 +233,12 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
 
     private function getGitlabUrl(): string
     {
-        $port = (string) \parse_url($this->gitlabUrl, \PHP_URL_PORT);
+        $port = (string) parse_url($this->gitlabUrl, PHP_URL_PORT);
         if ($port !== '') {
             $port = ':'.$port;
         }
 
-        return \parse_url($this->gitlabUrl, \PHP_URL_HOST).$port;
+        return parse_url($this->gitlabUrl, PHP_URL_HOST).$port;
     }
 
     private function createIO(Package $package): BufferIO
@@ -278,7 +272,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         $config->merge([
             'repositories' => [
                 [
-                    'type' => strpos($package->type(), '-oauth') !== false ? 'vcs' : $package->type(),
+                    'type' => str_contains($package->type(), '-oauth') ? 'vcs' : $package->type(),
                     'url' => $package->repositoryUrl(),
                 ],
             ],

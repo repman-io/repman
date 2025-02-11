@@ -6,24 +6,11 @@ namespace Buddy\Repman\Query\Admin\Model;
 
 final class User
 {
-    private string $id;
-    private string $email;
-    private string $status;
-
-    /**
-     * @var string[]
-     */
-    private array $roles;
-
     /**
      * @param string[] $roles
      */
-    public function __construct(string $id, string $email, string $status, array $roles)
+    public function __construct(private readonly string $id, private readonly string $email, private readonly string $status, private readonly array $roles)
     {
-        $this->id = $id;
-        $this->email = $email;
-        $this->status = $status;
-        $this->roles = $roles;
     }
 
     public function id(): string

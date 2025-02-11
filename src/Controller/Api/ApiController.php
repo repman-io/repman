@@ -8,6 +8,7 @@ use Buddy\Repman\Query\Api\Model\Error;
 use Buddy\Repman\Query\Api\Model\Errors;
 use Buddy\Repman\Query\Api\Model\Links;
 use Buddy\Repman\Security\Model\User;
+use JsonException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -39,7 +40,7 @@ abstract class ApiController extends AbstractController
 
         try {
             $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $th) {
+        } catch (JsonException) {
             throw new BadRequestHttpException();
         }
 
@@ -68,29 +69,25 @@ abstract class ApiController extends AbstractController
         if ($pages === 0) {
             $pages = 1;
         }
+
         $page = $page <= 0 ? $page = 1 : $page;
         $page = $page > $pages ? $pages : $page;
+
         $offset = ($perPage * $page) - $perPage;
 
         return [
-            $listFunction($perPage, $offset < 0 ? 0 : $offset),
+            $listFunction($perPage, max(0, $offset)),
             $total,
             new Links($baseUrl, $page, $pages),
         ];
     }
 
-    /**
-     * @param mixed $data
-     */
-    protected function created($data = []): JsonResponse
+    protected function created(mixed $data = []): JsonResponse
     {
         return $this->json($data, Response::HTTP_CREATED);
     }
 
-    /**
-     * @param mixed $data
-     */
-    protected function badRequest($data = []): JsonResponse
+    protected function badRequest(mixed $data = []): JsonResponse
     {
         return $this->json($data, Response::HTTP_BAD_REQUEST);
     }

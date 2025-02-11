@@ -11,13 +11,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class UniqueOrganizationValidator extends ConstraintValidator
 {
-    private AliasGenerator $aliasGenerator;
-    private OrganizationQuery $organizationQuery;
-
-    public function __construct(AliasGenerator $aliasGenerator, OrganizationQuery $organizationQuery)
+    public function __construct(private readonly AliasGenerator $aliasGenerator, private readonly OrganizationQuery $organizationQuery)
     {
-        $this->aliasGenerator = $aliasGenerator;
-        $this->organizationQuery = $organizationQuery;
     }
 
     /**

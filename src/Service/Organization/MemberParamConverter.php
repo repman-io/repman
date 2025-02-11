@@ -24,6 +24,7 @@ final class MemberParamConverter implements ParamConverterInterface
         if (null === $userId = $request->attributes->get($configuration->getName())) {
             throw new BadRequestHttpException('Missing member parameter in request');
         }
+
         $organization = $request->attributes->get('organization');
         if (!$organization instanceof Organization) {
             throw new BadRequestHttpException('Missing organization parameter in request');

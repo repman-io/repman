@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Organization\Member;
 
 final class AcceptInvitation
 {
-    private string $token;
-    private string $userId;
-
-    public function __construct(string $token, string $userId)
+    public function __construct(private readonly string $token, private readonly string $userId)
     {
-        $this->token = $token;
-        $this->userId = $userId;
     }
 
     public function token(): string

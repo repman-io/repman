@@ -15,7 +15,7 @@ interface Downloader
      *
      * @return Option<resource>
      */
-    public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option;
+    public function getContents(string $url, array $headers = [], ?callable $notFoundHandler = null): Option;
 
     /**
      * @param string[]                $headers

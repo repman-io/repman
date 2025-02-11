@@ -18,14 +18,8 @@ final class SynchronizePackageCommand extends Command
 {
     protected static $defaultName = 'repman:package:synchronize';
 
-    private MessageBusInterface $bus;
-    private PackageRepository $packages;
-
-    public function __construct(MessageBusInterface $bus, PackageRepository $packages)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly PackageRepository $packages)
     {
-        $this->bus = $bus;
-        $this->packages = $packages;
-
         parent::__construct();
     }
 

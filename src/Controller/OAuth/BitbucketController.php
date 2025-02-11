@@ -52,6 +52,7 @@ final class BitbucketController extends OAuthController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/package/add-from-bitbucket", name="fetch_bitbucket_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
     public function packageAddFromBitbucket(Request $request, Organization $organization, UserQuery $userQuery): Response
@@ -61,6 +62,7 @@ final class BitbucketController extends OAuthController
         if ($userQuery->hasOAuthAccessToken($user->id(), OAuthToken::TYPE_BITBUCKET)) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_BITBUCKET]);
         }
+
         $request->getSession()->set('organization', $organization->alias());
 
         return $this->oauth->getClient('bitbucket')->redirect(['repository', 'webhook'], ['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
@@ -74,9 +76,7 @@ final class BitbucketController extends OAuthController
         return $this->storeRepoToken(
             $request,
             OAuthToken::TYPE_BITBUCKET,
-            function (): AccessToken {
-                return $this->oauth->getClient('bitbucket')->getAccessToken(['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
-            },
+            fn (): AccessToken => $this->oauth->getClient('bitbucket')->getAccessToken(['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]),
             'organization_package_new'
         );
     }

@@ -4,57 +4,30 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use DateTimeImmutable;
+
 final class Package
 {
     use PackageScanResultTrait;
 
-    private string $id;
-    private string $organizationId;
-    private string $type;
-    private string $url;
-    private ?string $name;
-    private ?string $latestReleasedVersion;
-    private ?\DateTimeImmutable $latestReleaseDate;
-    private ?string $description;
-    private ?\DateTimeImmutable $lastSyncAt;
-    private ?string $lastSyncError;
-    private ?\DateTimeImmutable $webhookCreatedAt;
-    private ?string $webhookCreatedError;
-    private int $keepLastReleases;
-    private bool $enableSecurityScan;
-
     public function __construct(
-        string $id,
-        string $organizationId,
-        string $type,
-        string $url,
-        ?string $name = null,
-        ?string $latestReleasedVersion = null,
-        ?\DateTimeImmutable $latestReleaseDate = null,
-        ?string $description = null,
-        ?\DateTimeImmutable $lastSyncAt = null,
-        ?string $lastSyncError = null,
-        ?\DateTimeImmutable $webhookCreatedAt = null,
-        ?string $webhookCreatedError = null,
+        private string $id,
+        private string $organizationId,
+        private string $type,
+        private string $url,
+        private ?string $name = null,
+        private ?string $latestReleasedVersion = null,
+        private ?DateTimeImmutable $latestReleaseDate = null,
+        private ?string $description = null,
+        private ?DateTimeImmutable $lastSyncAt = null,
+        private ?string $lastSyncError = null,
+        private ?DateTimeImmutable $webhookCreatedAt = null,
+        private ?string $webhookCreatedError = null,
         ?ScanResult $scanResult = null,
-        int $keepLastReleases = 0,
-        bool $enableSecurityScan = true
+        private int $keepLastReleases = 0,
+        private bool $enableSecurityScan = true,
     ) {
-        $this->id = $id;
-        $this->organizationId = $organizationId;
-        $this->type = $type;
-        $this->url = $url;
-        $this->name = $name;
-        $this->latestReleasedVersion = $latestReleasedVersion;
-        $this->latestReleaseDate = $latestReleaseDate;
-        $this->description = $description;
-        $this->lastSyncAt = $lastSyncAt;
-        $this->lastSyncError = $lastSyncError;
-        $this->webhookCreatedAt = $webhookCreatedAt;
-        $this->webhookCreatedError = $webhookCreatedError;
         $this->scanResult = $scanResult ?? null;
-        $this->keepLastReleases = $keepLastReleases;
-        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function id(): string
@@ -87,7 +60,7 @@ final class Package
         return $this->latestReleasedVersion;
     }
 
-    public function latestReleaseDate(): ?\DateTimeImmutable
+    public function latestReleaseDate(): ?DateTimeImmutable
     {
         return $this->latestReleaseDate;
     }
@@ -97,7 +70,7 @@ final class Package
         return $this->description;
     }
 
-    public function lastSyncAt(): ?\DateTimeImmutable
+    public function lastSyncAt(): ?DateTimeImmutable
     {
         return $this->lastSyncAt;
     }
@@ -107,7 +80,7 @@ final class Package
         return $this->lastSyncError;
     }
 
-    public function webhookCreatedAt(): ?\DateTimeImmutable
+    public function webhookCreatedAt(): ?DateTimeImmutable
     {
         return $this->webhookCreatedAt;
     }
@@ -124,7 +97,7 @@ final class Package
 
     public function isSynchronizedSuccessfully(): bool
     {
-        return $this->name() !== null && $this->lastSyncError() === null;
+        return $this->name !== null && $this->lastSyncError === null;
     }
 
     public function keepLastReleases(): int

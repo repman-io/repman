@@ -11,6 +11,7 @@ use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
+use RuntimeException;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Lock\LockFactory;
@@ -20,8 +21,11 @@ use Symfony\Component\Lock\Store\DoctrineDbalStore;
 final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 {
     private string $basePath = __DIR__.'/../../Resources';
+
     private FilesystemAdapter $cache;
+
     private string $newDistPath = '/packagist.org/dist/buddy-works/repman/61e39aa8197cf1bc7fcb16a6f727b0c291bc9b76.zip';
+
     private string $feedPath = '/packagist.org/feed/releases.rss';
 
     public function testSyncReleases(): void
@@ -35,8 +39,8 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         $result = $commandTester->execute([]);
 
-        self::assertFileExists($newDist);
-        self::assertEquals($result, 0);
+        $this->assertFileExists($newDist);
+        $this->assertSame(0, $result);
         @unlink($newDist);
 
         // cache hit (pubDate is set)
@@ -44,13 +48,13 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         $result = $commandTester->execute([]);
 
-        self::assertFileDoesNotExist($newDist);
-        self::assertEquals($result, 0);
+        $this->assertFileDoesNotExist($newDist);
+        $this->assertSame(0, $result);
     }
 
     public function testParsingError(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unable to parse RSS feed');
 
         $command = $this->prepareCommand('invalid xml');
@@ -68,8 +72,8 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($command);
         $result = $commandTester->execute([]);
 
-        self::assertFileDoesNotExist($newDist);
-        self::assertEquals($result, 0);
+        $this->assertFileDoesNotExist($newDist);
+        $this->assertSame(0, $result);
     }
 
     private function prepareCommand(string $feed, bool $fromCache = false, bool $lockCreated = false): ProxySyncReleasesCommand
@@ -93,7 +97,7 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 
     private function cache(): FilesystemAdapter
     {
-        return $this->cache = $this->cache ?? new FilesystemAdapter('test', 0, self::$kernel->getCacheDir());
+        return $this->cache ??= new FilesystemAdapter('test', 0, self::$kernel->getCacheDir());
     }
 
     private function fakeLockFactory(): LockFactory

@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Telemetry;
 
-final class TechnicalEmail implements \JsonSerializable
-{
-    private string $email;
-    private string $instanceId;
+use JsonSerializable;
 
-    public function __construct(string $email, string $instanceId)
+final class TechnicalEmail implements JsonSerializable
+{
+    public function __construct(private readonly string $email, private readonly string $instanceId)
     {
-        $this->email = $email;
-        $this->instanceId = $instanceId;
     }
 
     public function instanceId(): string

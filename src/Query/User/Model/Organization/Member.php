@@ -6,15 +6,8 @@ namespace Buddy\Repman\Query\User\Model\Organization;
 
 final class Member
 {
-    private string $userId;
-    private string $email;
-    private string $role;
-
-    public function __construct(string $userId, string $email, string $role)
+    public function __construct(private readonly string $userId, private readonly string $email, private readonly string $role)
     {
-        $this->userId = $userId;
-        $this->email = $email;
-        $this->role = $role;
     }
 
     public function userId(): string

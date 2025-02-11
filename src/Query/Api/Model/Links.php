@@ -4,17 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Links implements \JsonSerializable
-{
-    private string $baseUrl;
-    private int $page;
-    private int $pages;
+use JsonSerializable;
 
-    public function __construct(string $baseUrl, int $page, int $pages)
+final class Links implements JsonSerializable
+{
+    public function __construct(private readonly string $baseUrl, private readonly int $page, private readonly int $pages)
     {
-        $this->baseUrl = $baseUrl;
-        $this->page = $page;
-        $this->pages = $pages;
     }
 
     public function getFirst(): string
@@ -39,7 +34,7 @@ final class Links implements \JsonSerializable
 
     private function generateUrl(int $page): string
     {
-        return $this->baseUrl."?page=$page";
+        return $this->baseUrl.('?page='.$page);
     }
 
     /**

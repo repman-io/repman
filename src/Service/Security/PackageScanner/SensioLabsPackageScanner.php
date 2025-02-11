@@ -14,31 +14,30 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Composer\Semver\VersionParser;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Throwable;
+use ZipArchive;
+use function array_shift;
+use function explode;
+use function implode;
+use function preg_match;
+use function unlink;
 
 final class SensioLabsPackageScanner implements PackageScanner
 {
-    private SecurityChecker $checker;
-    private VersionParser $versionParser;
-    private PackageManager $packageManager;
-    private ScanResultRepository $results;
-    private MessageBusInterface $messageBus;
-    private Storage $distStorage;
+    private readonly VersionParser $versionParser;
 
     public function __construct(
-        SecurityChecker $checker,
-        PackageManager $packageManager,
-        ScanResultRepository $results,
-        MessageBusInterface $messageBus,
-        Storage $distStorage
+        private readonly SecurityChecker $checker,
+        private readonly PackageManager $packageManager,
+        private readonly ScanResultRepository $results,
+        private readonly MessageBusInterface $messageBus,
+        private readonly Storage $distStorage,
     ) {
-        $this->checker = $checker;
-        $this->packageManager = $packageManager;
-        $this->results = $results;
-        $this->messageBus = $messageBus;
         $this->versionParser = new VersionParser();
-        $this->distStorage = $distStorage;
     }
 
     public function scan(Package $package): void
@@ -65,13 +64,13 @@ final class SensioLabsPackageScanner implements PackageScanner
 
                 $result[$lockFileName] = $scanResults;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $throwable) {
             $this->saveResult(
                 $package,
                 ScanResult::STATUS_ERROR,
                 [
                     'exception' => [
-                        \get_class($exception) => $exception->getMessage(),
+                        $throwable::class => $throwable->getMessage(),
                     ],
                 ],
             );
@@ -87,7 +86,7 @@ final class SensioLabsPackageScanner implements PackageScanner
      */
     private function saveResult(Package $package, string $status, array $result): void
     {
-        $date = new \DateTimeImmutable();
+        $date = new DateTimeImmutable();
         $package->setScanResult($status, $date, $result);
         $this->results->add(new ScanResult(Uuid::uuid4(), $package, $date, $status, $result));
 
@@ -135,12 +134,12 @@ final class SensioLabsPackageScanner implements PackageScanner
                 );
 
                 return $filename->getOrElseThrow(
-                    new \RuntimeException("Distribution file for version $packageVersion not found")
+                    new RuntimeException(sprintf('Distribution file for version %s not found', $packageVersion))
                 );
             }
         }
 
-        throw new \RuntimeException("Version $normalizedVersion for package $packageName not found");
+        throw new RuntimeException(sprintf('Version %s for package %s not found', $normalizedVersion, $packageName));
     }
 
     /**
@@ -149,26 +148,26 @@ final class SensioLabsPackageScanner implements PackageScanner
     private function extractLockFiles(string $distFilename): array
     {
         $tmpZipFile = $this->distStorage->getLocalFileForDistUrl($distFilename);
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $result = $zip->open($tmpZipFile->get());
         if ($result !== true) {
-            throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
+            throw new RuntimeException(sprintf("Error while opening ZIP file '%s', code: %s", $distFilename, $result));
         }
 
         $lockFiles = [];
         for ($i = 0; $i < $zip->numFiles; ++$i) {
             $filename = (string) $zip->getNameIndex($i);
-            if (\preg_match('/\/composer.lock$/', $filename) === 1) {
+            if (preg_match('/\/composer.lock$/', $filename) === 1) {
                 $lockFileContent = $zip->getFromIndex($i);
-                $trimmed = \explode('/', $filename);
-                \array_shift($trimmed);
-                $lockFiles['/'.\implode('/', $trimmed)] = (string) $lockFileContent;
+                $trimmed = explode('/', $filename);
+                array_shift($trimmed);
+                $lockFiles['/'.implode('/', $trimmed)] = (string) $lockFileContent;
             }
         }
 
         $zip->close();
 
-        @\unlink($tmpZipFile->get());
+        @unlink($tmpZipFile->get());
 
         return $lockFiles;
     }

@@ -6,15 +6,8 @@ namespace Buddy\Repman\Service\Integration\GitLabApi;
 
 final class Project
 {
-    private int $id;
-    private string $name;
-    private string $url;
-
-    public function __construct(int $id, string $name, string $url)
+    public function __construct(private readonly int $id, private readonly string $name, private readonly string $url)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->url = $url;
     }
 
     public function id(): int

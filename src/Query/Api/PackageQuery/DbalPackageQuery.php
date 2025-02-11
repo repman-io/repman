@@ -7,16 +7,14 @@ namespace Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\Api\Model\Package;
 use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\ScanResult;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
 final class DbalPackageQuery implements PackageQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -24,10 +22,8 @@ final class DbalPackageQuery implements PackageQuery
      */
     public function findAll(string $organizationId, int $limit = 20, int $offset = 0): array
     {
-        return array_map(function (array $data): Package {
-            return $this->hydratePackage($data);
-            }, $this->connection->fetchAllAssociative(
-                'SELECT
+        return array_map(fn (array $data): Package => $this->hydratePackage($data), $this->connection->fetchAllAssociative(
+            'SELECT
                 id,
                 type,
                 repository_url,
@@ -48,10 +44,10 @@ final class DbalPackageQuery implements PackageQuery
             GROUP BY id
             ORDER BY name ASC
             LIMIT :limit OFFSET :offset', [
-                    'organization_id' => $organizationId,
-                    'limit' => $limit,
-                    'offset' => $offset,
-                ]));
+                'organization_id' => $organizationId,
+                'limit' => $limit,
+                'offset' => $offset,
+            ]));
     }
 
     public function count(string $organizationId): int
@@ -91,9 +87,9 @@ final class DbalPackageQuery implements PackageQuery
                 enable_security_scan
             FROM "organization_package"
             WHERE organization_id = :organization_id AND id = :id', [
-            'organization_id' => $organizationId,
-            'id' => $id,
-        ]);
+                'organization_id' => $organizationId,
+                'id' => $id,
+            ]);
         if ($data === false) {
             return Option::none();
         }
@@ -108,7 +104,7 @@ final class DbalPackageQuery implements PackageQuery
     {
         $scanResult = isset($data['last_scan_status']) ?
             new ScanResult(
-                new \DateTimeImmutable($data['last_scan_date']),
+                new DateTimeImmutable($data['last_scan_date']),
                 $data['last_scan_status'],
                 $data['latest_released_version'],
                 $data['last_scan_result'],
@@ -120,11 +116,11 @@ final class DbalPackageQuery implements PackageQuery
             $data['repository_url'],
             $data['name'],
             $data['latest_released_version'],
-            $data['latest_release_date'] !== null ? new \DateTimeImmutable($data['latest_release_date']) : null,
+            $data['latest_release_date'] !== null ? new DateTimeImmutable($data['latest_release_date']) : null,
             $data['description'],
-            $data['last_sync_at'] !== null ? new \DateTimeImmutable($data['last_sync_at']) : null,
+            $data['last_sync_at'] !== null ? new DateTimeImmutable($data['last_sync_at']) : null,
             $data['last_sync_error'],
-            $data['webhook_created_at'] !== null ? new \DateTimeImmutable($data['webhook_created_at']) : null,
+            $data['webhook_created_at'] !== null ? new DateTimeImmutable($data['webhook_created_at']) : null,
             $scanResult,
             $data['keep_last_releases'],
             $data['enable_security_scan']

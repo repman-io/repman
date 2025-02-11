@@ -8,34 +8,17 @@ use Buddy\Repman\Service\Telemetry\Entry\Downloads;
 use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
+use DateTimeImmutable;
+use JsonSerializable;
+use function sprintf;
 
-final class Entry implements \JsonSerializable
+final class Entry implements JsonSerializable
 {
-    private \DateTimeImmutable $date;
-    private Instance $instance;
-    private Downloads $downloads;
-    private Proxy $proxy;
-
-    /**
-     * @var Organization[]
-     */
-    private array $organizations;
-
     /**
      * @param Organization[] $organizations
      */
-    public function __construct(
-        \DateTimeImmutable $date,
-        Instance $instance,
-        array $organizations,
-        Downloads $downloads,
-        Proxy $proxy
-    ) {
-        $this->date = $date;
-        $this->instance = $instance;
-        $this->organizations = $organizations;
-        $this->downloads = $downloads;
-        $this->proxy = $proxy;
+    public function __construct(private readonly DateTimeImmutable $date, private readonly Instance $instance, private readonly array $organizations, private readonly Downloads $downloads, private readonly Proxy $proxy)
+    {
     }
 
     public function instance(): Instance
@@ -49,7 +32,7 @@ final class Entry implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'id' => \sprintf('%s_%s', $this->date->format('Ymd'), $this->instance->id()),
+            'id' => sprintf('%s_%s', $this->date->format('Ymd'), $this->instance->id()),
             'date' => $this->date->format('Y-m-d'),
             'instance' => $this->instance,
             'organizations' => $this->organizations,

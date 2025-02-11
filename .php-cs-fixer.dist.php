@@ -1,14 +1,17 @@
 <?php
 
 $finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__.'/bin')
+    ->in(__DIR__.'/config')
     ->in(__DIR__.'/src')
+    ->in(__DIR__.'/public')
     ->in(__DIR__.'/tests')
 ;
 
 $config = new PhpCsFixer\Config();
 return $config->setRiskyAllowed(true)
     ->setRules([
-        '@PHP74Migration' => true,
+        '@PHP81Migration' => true,
         '@Symfony' => true,
         'array_syntax' => ['syntax' => 'short'],
         'blank_line_between_import_groups' => false,
@@ -19,6 +22,7 @@ return $config->setRiskyAllowed(true)
         'no_useless_return' => true,
         'no_unused_imports' => true,
         'declare_strict_types' => true,
+        'native_function_invocation' => false,
         'ordered_imports' => [
             'imports_order' => ['class', 'function', 'const'],
             'sort_algorithm' => 'alpha',
@@ -30,12 +34,11 @@ return $config->setRiskyAllowed(true)
         'increment_style' => true,
         'single_quote' => true,
         'trim_array_spaces' => true,
-        'single_blank_line_before_namespace' => true,
         'yoda_style' => false,
         'global_namespace_import' => [
-            'import_classes' => false,
-            'import_constants' => false,
-            'import_functions' => false,
+            'import_classes' => true,
+            'import_constants' => true,
+            'import_functions' => true,
         ],
         // risky -->
         'strict_param' => true,

@@ -13,18 +13,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 final class OrganizationAnonymousUserVoter extends Voter
 {
-    private OrganizationQuery $organizations;
-
-    public function __construct(OrganizationQuery $organizations)
+    public function __construct(private readonly OrganizationQuery $organizations)
     {
-        $this->organizations = $organizations;
     }
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [
-            'ROLE_ORGANIZATION_ANONYMOUS_USER',
-        ], true);
+        return $attribute === 'ROLE_ORGANIZATION_ANONYMOUS_USER';
     }
 
     /**

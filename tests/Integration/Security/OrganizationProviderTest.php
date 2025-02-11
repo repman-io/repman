@@ -21,18 +21,18 @@ final class OrganizationProviderTest extends IntegrationTestCase
         $this->fixtures->createToken($org2Id, 'org2-token');
 
         $provider = $this->container()->get(OrganizationProvider::class);
-        self::assertTrue($provider->supportsClass(Organization::class));
+        $this->assertTrue($provider->supportsClass(Organization::class));
 
         /** @var Organization $organization */
         $organization = $this->container()->get(OrganizationProvider::class)->loadUserByIdentifier('org1-token');
 
-        self::assertEquals('buddy', $organization->name());
-        self::assertEquals($org1Id, $organization->id());
-        self::assertEquals('org1-token', $organization->getPassword());
-        self::assertEquals('', $organization->getSalt());
-        self::assertEquals('buddy', $organization->getUserIdentifier());
+        $this->assertSame('buddy', $organization->name());
+        $this->assertSame($org1Id, $organization->id());
+        $this->assertSame('org1-token', $organization->getPassword());
+        $this->assertSame('', $organization->getSalt());
+        $this->assertSame('buddy', $organization->getUserIdentifier());
 
-        self::assertEquals($organization, $provider->refreshUser($organization));
+        $this->assertEquals($organization, $provider->refreshUser($organization));
 
         $this->expectException(UsernameNotFoundException::class);
         $provider->refreshUser(new Organization(Uuid::uuid4()->toString(), 'evil', 'evil', 'not-exist'));

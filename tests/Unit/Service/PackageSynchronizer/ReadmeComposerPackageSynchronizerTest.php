@@ -15,16 +15,22 @@ use Buddy\Repman\Tests\MotherObject\PackageMother;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use function file_get_contents;
+use function sys_get_temp_dir;
+use function unlink;
+use function unserialize;
 
 final class ReadmeComposerPackageSynchronizerTest extends TestCase
 {
     private ComposerPackageSynchronizer $synchronizer;
+
     private string $resourcesDir;
+
     private string $path;
 
     protected function setUp(): void
     {
-        $baseDir = \sys_get_temp_dir().'/repman';
+        $baseDir = sys_get_temp_dir().'/repman';
         $repoFilesystem = new Filesystem(new Local($baseDir));
         $fileStorage = new Storage(new FakeDownloader(''), $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
@@ -41,12 +47,12 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';
 
         $this->path = $baseDir.'/buddy/p/buddy-works/alpha.json';
-        @\unlink($this->path);
+        @unlink($this->path);
     }
 
     protected function tearDown(): void
     {
-        @\unlink($this->path);
+        @unlink($this->path);
     }
 
     public function testNoReadme(): void
@@ -58,14 +64,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         );
         $this->synchronizer->synchronize($package);
 
-        self::assertFileExists($this->path);
+        $this->assertFileExists($this->path);
 
-        $json = \unserialize((string) \file_get_contents($this->path));
-        self::assertCount(1, $json['packages']['buddy-works/alpha']);
+        $json = unserialize((string) file_get_contents($this->path));
+        $this->assertCount(1, $json['packages']['buddy-works/alpha']);
 
-        self::assertCount(1, $package->versions());
-        self::assertEquals('1.2.0', $package->latestReleasedVersion());
-        self::assertNull($package->readme());
+        $this->assertCount(1, $package->versions());
+        $this->assertSame('1.2.0', $package->latestReleasedVersion());
+        $this->assertNull($package->readme());
     }
 
     public function testReadme(): void
@@ -77,17 +83,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         );
         $this->synchronizer->synchronize($package);
 
-        self::assertFileExists($this->path);
+        $this->assertFileExists($this->path);
 
-        $json = \unserialize((string) \file_get_contents($this->path));
-        self::assertCount(3, $json['packages']['buddy-works/alpha']);
+        $json = unserialize((string) file_get_contents($this->path));
+        $this->assertCount(3, $json['packages']['buddy-works/alpha']);
 
-        self::assertCount(3, $package->versions());
-        self::assertEquals('1.3.0', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        $this->assertCount(3, $package->versions());
+        $this->assertSame('1.3.0', $package->latestReleasedVersion());
+        $this->assertSame("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 
     public function testCaseInsensitiveReadme(): void
@@ -99,17 +102,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         );
         $this->synchronizer->synchronize($package);
 
-        self::assertFileExists($this->path);
+        $this->assertFileExists($this->path);
 
-        $json = \unserialize((string) \file_get_contents($this->path));
-        self::assertCount(1, $json['packages']['buddy-works/alpha']);
+        $json = unserialize((string) file_get_contents($this->path));
+        $this->assertCount(1, $json['packages']['buddy-works/alpha']);
 
-        self::assertCount(1, $package->versions());
-        self::assertEquals('1.3.0', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        $this->assertCount(1, $package->versions());
+        $this->assertSame('1.3.0', $package->latestReleasedVersion());
+        $this->assertSame("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 
     /**
@@ -127,17 +127,14 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         );
         $this->synchronizer->synchronize($package);
 
-        self::assertFileExists($this->path);
+        $this->assertFileExists($this->path);
 
-        $json = \unserialize((string) \file_get_contents($this->path));
-        self::assertCount(1, $json['packages']['buddy-works/alpha']);
+        $json = unserialize((string) file_get_contents($this->path));
+        $this->assertCount(1, $json['packages']['buddy-works/alpha']);
 
-        self::assertCount(1, $package->versions());
-        self::assertEquals('1.3.0', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        $this->assertCount(1, $package->versions());
+        $this->assertSame('1.3.0', $package->latestReleasedVersion());
+        $this->assertSame("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 
     public function testUnstableVersion(): void
@@ -149,16 +146,13 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         );
         $this->synchronizer->synchronize($package);
 
-        self::assertFileExists($this->path);
+        $this->assertFileExists($this->path);
 
-        $json = \unserialize((string) \file_get_contents($this->path));
-        self::assertCount(1, $json['packages']['buddy-works/alpha']);
+        $json = unserialize((string) file_get_contents($this->path));
+        $this->assertCount(1, $json['packages']['buddy-works/alpha']);
 
-        self::assertCount(1, $package->versions());
-        self::assertEquals('no stable release', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        $this->assertCount(1, $package->versions());
+        $this->assertSame('no stable release', $package->latestReleasedVersion());
+        $this->assertSame("<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 }

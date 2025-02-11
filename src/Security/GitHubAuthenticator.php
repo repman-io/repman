@@ -17,12 +17,9 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class GitHubAuthenticator extends OAuthAuthenticator
 {
-    private GitHubApi $gitHubApi;
-
-    public function __construct(ClientRegistry $clientRegistry, GitHubApi $gitHubApi, RouterInterface $router, UserProvider $userProvider)
+    public function __construct(ClientRegistry $clientRegistry, private readonly GitHubApi $gitHubApi, RouterInterface $router, UserProvider $userProvider)
     {
         $this->clientRegistry = $clientRegistry;
-        $this->gitHubApi = $gitHubApi;
         $this->userProvider = $userProvider;
         $this->router = $router;
     }
@@ -45,8 +42,6 @@ final class GitHubAuthenticator extends OAuthAuthenticator
 
         $user = $this->userProvider->loadUserByIdentifier($email);
 
-        return new SelfValidatingPassport(new UserBadge($email, function () use ($user): UserInterface {
-            return $user;
-        }));
+        return new SelfValidatingPassport(new UserBadge($email, fn (): UserInterface => $user));
     }
 }

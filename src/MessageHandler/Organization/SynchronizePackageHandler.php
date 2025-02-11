@@ -17,15 +17,8 @@ use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
 final class SynchronizePackageHandler implements MessageHandlerInterface
 {
-    private PackageSynchronizer $synchronizer;
-    private PackageRepository $packages;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(PackageSynchronizer $synchronizer, PackageRepository $packages, MessageBusInterface $messageBus)
+    public function __construct(private readonly PackageSynchronizer $synchronizer, private readonly PackageRepository $packages, private readonly MessageBusInterface $messageBus)
     {
-        $this->synchronizer = $synchronizer;
-        $this->packages = $packages;
-        $this->messageBus = $messageBus;
     }
 
     public function __invoke(SynchronizePackage $message): void

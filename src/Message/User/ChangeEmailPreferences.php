@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\User;
 
 final class ChangeEmailPreferences
 {
-    private string $userId;
-    private bool $emailScanResult;
-
-    public function __construct(string $userId, bool $emailScanResult)
+    public function __construct(private readonly string $userId, private readonly bool $emailScanResult)
     {
-        $this->userId = $userId;
-        $this->emailScanResult = $emailScanResult;
     }
 
     public function userId(): string

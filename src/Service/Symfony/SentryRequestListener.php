@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Symfony;
 
 use Buddy\Repman\Entity\User;
+use Sentry\ClientInterface;
 use Sentry\SentrySdk;
 use Sentry\State\Scope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @codeCoverageIgnore
  */
 final class SentryRequestListener implements EventSubscriberInterface
 {
-    private TokenStorageInterface $tokenStorage;
-
-    public function __construct(TokenStorageInterface $tokenStorage)
+    public function __construct(private readonly TokenStorageInterface $tokenStorage)
     {
-        $this->tokenStorage = $tokenStorage;
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -30,15 +30,15 @@ final class SentryRequestListener implements EventSubscriberInterface
             return;
         }
 
-        if (null === SentrySdk::getCurrentHub()->getClient()) {
+        if (!SentrySdk::getCurrentHub()->getClient() instanceof ClientInterface) {
             return;
         }
 
         $token = $this->tokenStorage->getToken();
         $userData = [];
 
-        if (null !== $token && $token->getUser() instanceof User) {
-            /** @var User $user */
+        if ($token instanceof TokenInterface && $token->getUser() instanceof User) {
+            /** @var UserInterface $user */
             $user = $token->getUser();
             $userData['id'] = $user->id();
         }
@@ -47,14 +47,14 @@ final class SentryRequestListener implements EventSubscriberInterface
 
         SentrySdk::getCurrentHub()
             ->configureScope(function (Scope $scope) use ($userData): void {
-                $scope->setUser($userData, true);
+                $scope->setUser($userData);
             });
     }
 
     /**
      * @return array<string,array<int,string|int>>
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [KernelEvents::REQUEST => ['onKernelRequest', 1]];
     }

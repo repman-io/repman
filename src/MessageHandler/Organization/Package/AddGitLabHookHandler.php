@@ -9,6 +9,7 @@ use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Throwable;
 
 final class AddGitLabHookHandler extends AbstractHookHandler
 {
@@ -26,8 +27,8 @@ final class AddGitLabHookHandler extends AbstractHookHandler
                 $this->router->generate('package_webhook', ['package' => $package->id()->toString()], UrlGeneratorInterface::ABSOLUTE_URL)
             );
             $package->webhookWasCreated();
-        } catch (\Throwable $exception) {
-            $package->webhookWasNotCreated($exception->getMessage());
+        } catch (Throwable $throwable) {
+            $package->webhookWasNotCreated($throwable->getMessage());
         }
     }
 }

@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\User;
 
 final class SendConfirmToken
 {
-    private string $email;
-    private string $token;
-
-    public function __construct(string $email, string $token)
+    public function __construct(private readonly string $email, private readonly string $token)
     {
-        $this->email = $email;
-        $this->token = $token;
     }
 
     public function email(): string

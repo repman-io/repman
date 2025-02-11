@@ -15,26 +15,17 @@ use Buddy\Repman\Service\Telemetry\Entry\Instance;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 use Buddy\Repman\Service\Telemetry\TechnicalEmail;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\Transport\Receiver\MessageCountAwareInterface;
+use function file_exists;
+use function file_get_contents;
+use function file_put_contents;
 
 final class Telemetry
 {
-    private string $instanceIdFile;
-    private TelemetryQuery $query;
-    private Endpoint $endpoint;
-    private Config $config;
-    private MessageCountAwareInterface $failedTransport;
-    private ProxyRegister $proxies;
-
-    public function __construct(string $instanceIdFile, TelemetryQuery $query, Endpoint $endpoint, Config $config, MessageCountAwareInterface $failedTransport, ProxyRegister $proxies)
+    public function __construct(private readonly string $instanceIdFile, private readonly TelemetryQuery $query, private readonly Endpoint $endpoint, private readonly Config $config, private readonly MessageCountAwareInterface $failedTransport, private readonly ProxyRegister $proxies)
     {
-        $this->instanceIdFile = $instanceIdFile;
-        $this->query = $query;
-        $this->endpoint = $endpoint;
-        $this->config = $config;
-        $this->failedTransport = $failedTransport;
-        $this->proxies = $proxies;
     }
 
     public function docsUrl(): string
@@ -45,21 +36,21 @@ final class Telemetry
     public function generateInstanceId(): void
     {
         if (!$this->isInstanceIdPresent()) {
-            \file_put_contents($this->instanceIdFile, Uuid::uuid4());
+            file_put_contents($this->instanceIdFile, Uuid::uuid4());
         }
     }
 
     public function isInstanceIdPresent(): bool
     {
-        return \file_exists($this->instanceIdFile);
+        return file_exists($this->instanceIdFile);
     }
 
     public function instanceId(): string
     {
-        return (string) \file_get_contents($this->instanceIdFile);
+        return (string) file_get_contents($this->instanceIdFile);
     }
 
-    public function collectAndSend(\DateTimeImmutable $date): void
+    public function collectAndSend(DateTimeImmutable $date): void
     {
         $this->endpoint->send(
             new Entry(
@@ -104,7 +95,7 @@ final class Telemetry
     /**
      * @return Organization[]
      */
-    private function getOrganizations(\DateTimeImmutable $date): array
+    private function getOrganizations(DateTimeImmutable $date): array
     {
         $count = $this->query->organizationsCount();
         $limit = 100;
@@ -121,7 +112,7 @@ final class Telemetry
         return $organizations;
     }
 
-    private function getPackages(Organization $organization, \DateTimeImmutable $date): void
+    private function getPackages(Organization $organization, DateTimeImmutable $date): void
     {
         $count = $this->query->packagesCount($organization->id());
         $limit = 100;

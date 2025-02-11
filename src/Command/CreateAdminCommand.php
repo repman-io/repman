@@ -22,16 +22,8 @@ final class CreateAdminCommand extends Command
 {
     protected static $defaultName = 'repman:create:admin';
 
-    private MessageBusInterface $bus;
-    private Telemetry $telemetry;
-    private Config $config;
-
-    public function __construct(MessageBusInterface $bus, Telemetry $telemetry, Config $config)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly Telemetry $telemetry, private readonly Config $config)
     {
-        $this->bus = $bus;
-        $this->telemetry = $telemetry;
-        $this->config = $config;
-
         parent::__construct();
     }
 
@@ -43,7 +35,7 @@ final class CreateAdminCommand extends Command
         $this
             ->setDescription('Create admin user')
             ->addArgument('email', InputArgument::REQUIRED, 'e-mail used to log in')
-            ->addArgument('password', InputArgument::OPTIONAL, 'plain password, if you don\'t provide it, you\'ll be asked for it')
+            ->addArgument('password', InputArgument::OPTIONAL, "plain password, if you don't provide it, you'll be asked for it")
         ;
     }
 
@@ -80,7 +72,7 @@ final class CreateAdminCommand extends Command
     private function askForTelemetry(InputInterface $input, OutputInterface $output): void
     {
         $question = new ConfirmationQuestion(
-            "Allow for sending anonymous usage statistic? [{$this->telemetry->docsUrl()}] (y/n)",
+            sprintf('Allow for sending anonymous usage statistic? [%s] (y/n)', $this->telemetry->docsUrl()),
             true
         );
 

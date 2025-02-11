@@ -10,6 +10,7 @@ use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
+use function file_put_contents;
 
 final class SendTelemetryCommandTest extends FunctionalTestCase
 {
@@ -21,8 +22,8 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
             $this->container()->get(SendTelemetryCommand::class)
         );
 
-        self::assertEquals(0, $commandTester->execute([]));
-        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->entryWasNotSent());
+        $this->assertSame(0, $commandTester->execute([]));
+        $this->assertTrue($this->container()->get(TelemetryEndpoint::class)->entryWasNotSent());
     }
 
     public function testSendTelemetryWithTelemetryDisabled(): void
@@ -34,8 +35,8 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
             $this->container()->get(SendTelemetryCommand::class)
         );
 
-        self::assertEquals(0, $commandTester->execute([]));
-        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->entryWasNotSent());
+        $this->assertSame(0, $commandTester->execute([]));
+        $this->assertTrue($this->container()->get(TelemetryEndpoint::class)->entryWasNotSent());
     }
 
     public function testSendTelemetry(): void
@@ -49,14 +50,14 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
             $this->container()->get(SendTelemetryCommand::class)
         );
 
-        self::assertEquals(0, $commandTester->execute([]));
-        self::assertTrue($this->container()->get(TelemetryEndpoint::class)->wasEntrySent($instanceId));
+        $this->assertSame(0, $commandTester->execute([]));
+        $this->assertTrue($this->container()->get(TelemetryEndpoint::class)->wasEntrySent($instanceId));
     }
 
     private function generateInstanceIdFile(): string
     {
         $instanceId = Uuid::uuid4()->toString();
-        \file_put_contents($this->instanceIdFile(), $instanceId);
+        file_put_contents($this->instanceIdFile(), $instanceId);
 
         return $instanceId;
     }

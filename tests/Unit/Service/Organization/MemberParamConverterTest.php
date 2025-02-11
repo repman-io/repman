@@ -43,7 +43,7 @@ final class MemberParamConverterTest extends TestCase
             'member' => $member,
         ]), new ParamConverter(['name' => 'member']));
 
-        self::assertEquals($member, $request->attributes->get('member'));
+        $this->assertEquals($member, $request->attributes->get('member'));
     }
 
     public function testConvertMember(): void
@@ -55,7 +55,7 @@ final class MemberParamConverterTest extends TestCase
         $converter = new MemberParamConverter();
         $converter->apply($request = new Request([], [], ['organization' => $organization, 'member' => $memberId]), new ParamConverter(['name' => 'member']));
 
-        self::assertEquals($member, $request->attributes->get('member'));
+        $this->assertEquals($member, $request->attributes->get('member'));
     }
 
     public function testThrowNotFoundExceptionWhenNoMember(): void

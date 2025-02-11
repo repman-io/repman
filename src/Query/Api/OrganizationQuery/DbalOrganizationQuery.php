@@ -7,16 +7,14 @@ namespace Buddy\Repman\Query\Api\OrganizationQuery;
 use Buddy\Repman\Query\Api\Model\Organization;
 use Buddy\Repman\Query\Api\Model\Token;
 use Buddy\Repman\Query\Api\OrganizationQuery;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
 final class DbalOrganizationQuery implements OrganizationQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -27,8 +25,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         $data = $this->connection->fetchAssociative(
             'SELECT id, name, alias, has_anonymous_access
             FROM "organization" WHERE id = :id', [
-            'id' => $id,
-        ]);
+                'id' => $id,
+            ]);
 
         return $data === false ? Option::none() : Option::some($this->hydrateOrganization($data));
     }
@@ -111,9 +109,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             FROM organization_token
             WHERE organization_id = :organization_id AND value = :value
             LIMIT 1', [
-            'organization_id' => $organizationId,
-            'value' => $value,
-        ]);
+                'organization_id' => $organizationId,
+                'value' => $value,
+            ]);
 
         if ($data === false) {
             return Option::none();
@@ -132,9 +130,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             FROM organization_token
             WHERE organization_id = :organization_id AND name = :name
             ORDER BY created_at DESC', [
-            'organization_id' => $organizationId,
-            'name' => $name,
-        ]);
+                'organization_id' => $organizationId,
+                'name' => $name,
+            ]);
 
         return $data === false ? Option::none() : Option::some($this->hydrateToken($data));
     }
@@ -160,8 +158,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return new Token(
             $data['name'],
             $data['value'],
-            new \DateTimeImmutable($data['created_at']),
-            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
+            new DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

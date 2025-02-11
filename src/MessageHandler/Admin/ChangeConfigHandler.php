@@ -16,15 +16,8 @@ use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
 final class ChangeConfigHandler implements MessageHandlerInterface
 {
-    private ConfigRepository $configRepository;
-    private Config $config;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(ConfigRepository $configRepository, Config $config, MessageBusInterface $messageBus)
+    public function __construct(private readonly ConfigRepository $configRepository, private readonly Config $config, private readonly MessageBusInterface $messageBus)
     {
-        $this->configRepository = $configRepository;
-        $this->config = $config;
-        $this->messageBus = $messageBus;
     }
 
     public function __invoke(ChangeConfig $message): void

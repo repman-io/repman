@@ -6,20 +6,11 @@ namespace Buddy\Repman\Message\User;
 
 final class ChangeRoles
 {
-    private string $userId;
-
-    /**
-     * @var string[]
-     */
-    private array $roles;
-
     /**
      * @param string[] $roles
      */
-    public function __construct(string $userId, array $roles)
+    public function __construct(private readonly string $userId, private readonly array $roles)
     {
-        $this->userId = $userId;
-        $this->roles = $roles;
     }
 
     public function userId(): string

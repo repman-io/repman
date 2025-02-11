@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\DataFixtures;
 
-use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
@@ -23,14 +22,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 final class TokenFixtures extends Fixture
 {
-    private MessageBusInterface $messageBus;
-    private OrganizationQuery $organizations;
-    private Generator $faker;
+    private readonly Generator $faker;
 
-    public function __construct(MessageBusInterface $messageBus, OrganizationQuery $organizations)
+    public function __construct(private readonly MessageBusInterface $messageBus, private readonly OrganizationQuery $organizations)
     {
-        $this->messageBus = $messageBus;
-        $this->organizations = $organizations;
         $this->faker = Factory::create();
     }
 
@@ -45,6 +40,7 @@ final class TokenFixtures extends Fixture
             $this->generateTokens($organization);
             $progress->advance();
         }
+
         $output->writeln('');
     }
 

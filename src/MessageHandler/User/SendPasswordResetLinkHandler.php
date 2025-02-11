@@ -12,15 +12,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class SendPasswordResetLinkHandler implements MessageHandlerInterface
 {
-    private UserRepository $users;
-    private Mailer $mailer;
-    private ResetPasswordTokenGenerator $generator;
-
-    public function __construct(UserRepository $users, Mailer $mailer, ResetPasswordTokenGenerator $generator)
+    public function __construct(private readonly UserRepository $users, private readonly Mailer $mailer, private readonly ResetPasswordTokenGenerator $generator)
     {
-        $this->users = $users;
-        $this->mailer = $mailer;
-        $this->generator = $generator;
     }
 
     public function __invoke(SendPasswordResetLink $message): void

@@ -11,11 +11,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class DisableUserHandler implements MessageHandlerInterface
 {
-    private UserRepository $users;
-
-    public function __construct(UserRepository $users)
+    public function __construct(private readonly UserRepository $users)
     {
-        $this->users = $users;
     }
 
     public function __invoke(DisableUser $message): void

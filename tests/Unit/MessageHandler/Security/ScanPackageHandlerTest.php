@@ -19,6 +19,7 @@ final class ScanPackageHandlerTest extends TestCase
      * @var MockObject&PackageScanner
      */
     private PackageScanner $packageScanner;
+
     /**
      * @var MockObject&PackageRepository
      */

@@ -9,9 +9,12 @@ use Symfony\Component\HttpFoundation\Request;
 class Filter
 {
     private int $offset = 0;
+
     private int $limit = 20;
+
     private ?string $sortColumn = null;
-    private string $sortOrder;
+
+    private readonly string $sortOrder;
 
     public function __construct(int $offset = 0, int $limit = 20, ?string $sort = null)
     {

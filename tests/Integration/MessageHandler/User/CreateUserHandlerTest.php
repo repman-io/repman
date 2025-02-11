@@ -21,6 +21,6 @@ final class CreateUserHandlerTest extends IntegrationTestCase
         ));
 
         $user = $this->container()->get(DbalUserQuery::class)->getByEmail('test@buddy.works');
-        self::assertFalse($user->isEmpty());
+        $this->assertFalse($user->isEmpty());
     }
 }

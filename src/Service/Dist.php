@@ -6,19 +6,8 @@ namespace Buddy\Repman\Service;
 
 final class Dist
 {
-    private string $repo;
-    private string $package;
-    private string $version;
-    private string $ref;
-    private string $format;
-
-    public function __construct(string $repo, string $package, string $version, string $ref, string $format)
+    public function __construct(private readonly string $repo, private readonly string $package, private readonly string $version, private readonly string $ref, private readonly string $format)
     {
-        $this->repo = $repo;
-        $this->package = $package;
-        $this->version = $version;
-        $this->ref = $ref;
-        $this->format = $format;
     }
 
     public function repo(): string
@@ -33,7 +22,7 @@ final class Dist
 
     public function version(): string
     {
-        if (strpos($this->version, '/') !== false) {
+        if (str_contains($this->version, '/')) {
             return md5($this->version);
         }
 

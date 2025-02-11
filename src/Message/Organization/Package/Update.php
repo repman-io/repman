@@ -6,17 +6,8 @@ namespace Buddy\Repman\Message\Organization\Package;
 
 final class Update
 {
-    private string $packageId;
-    private string $url;
-    private int $keepLastReleases;
-    private bool $enableSecurityScan;
-
-    public function __construct(string $packageId, string $url, int $keepLastReleases, bool $enableSecurityScan)
+    public function __construct(private readonly string $packageId, private readonly string $url, private readonly int $keepLastReleases, private readonly bool $enableSecurityScan)
     {
-        $this->packageId = $packageId;
-        $this->url = $url;
-        $this->keepLastReleases = $keepLastReleases;
-        $this->enableSecurityScan = $enableSecurityScan;
     }
 
     public function packageId(): string

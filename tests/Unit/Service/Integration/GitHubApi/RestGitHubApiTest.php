@@ -13,6 +13,7 @@ use Github\Client;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class RestGitHubApiTest extends TestCase
 {
@@ -58,7 +59,7 @@ final class RestGitHubApiTest extends TestCase
         ]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        self::assertEquals('test@buddy.works', $this->api->primaryEmail('token'));
+        $this->assertSame('test@buddy.works', $this->api->primaryEmail('token'));
     }
 
     public function testThrowExceptionWhenPrimaryEmailNotFound(): void
@@ -70,7 +71,7 @@ final class RestGitHubApiTest extends TestCase
         $emails->method('all')->willReturn([]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->api->primaryEmail('token');
     }
 
@@ -101,7 +102,7 @@ final class RestGitHubApiTest extends TestCase
         $this->clientMock->method('currentUser')->willReturn($currentUser);
         $this->clientMock->method('organization')->willReturn($organization);
 
-        self::assertEquals([
+        $this->assertSame([
             'private/repman',
             'buddy/repman',
             'buddy/left-pad',

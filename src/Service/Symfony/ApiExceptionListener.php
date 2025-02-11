@@ -19,7 +19,7 @@ final class ApiExceptionListener implements EventSubscriberInterface
 {
     public function onKernelException(ExceptionEvent $event): void
     {
-        if (strpos($event->getRequest()->getPathInfo(), '/api') !== 0) {
+        if (!str_starts_with($event->getRequest()->getPathInfo(), '/api')) {
             return;
         }
 
@@ -33,7 +33,7 @@ final class ApiExceptionListener implements EventSubscriberInterface
             $event->setResponse(new JsonResponse(
                 new Errors([
                     new Error(
-                        get_class($event->getThrowable()),
+                        $event->getThrowable()::class,
                         $event->getThrowable()->getMessage()
                     ),
                 ]),

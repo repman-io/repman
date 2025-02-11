@@ -29,7 +29,9 @@ abstract class OAuthAuthenticator extends AbstractAuthenticator
     use TargetPathTrait;
 
     protected ClientRegistry $clientRegistry;
+
     protected UserProvider $userProvider;
+
     protected RouterInterface $router;
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): Response
@@ -60,7 +62,7 @@ abstract class OAuthAuthenticator extends AbstractAuthenticator
             return $client->getAccessToken([
                 'redirect_uri' => $this->router->generate($route, [], UrlGeneratorInterface::ABSOLUTE_URL),
             ]);
-        } catch (MissingAuthorizationCodeException $e) {
+        } catch (MissingAuthorizationCodeException) {
             throw new NoAuthCodeAuthenticationException();
         } catch (IdentityProviderException $e) {
             throw new IdentityProviderAuthenticationException($e);

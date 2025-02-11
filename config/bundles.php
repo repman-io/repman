@@ -1,22 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
+use DAMA\DoctrineTestBundle\DAMADoctrineTestBundle;
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle;
+use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
+use EWZ\Bundle\RecaptchaBundle\EWZRecaptchaBundle;
+use KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle;
+use League\FlysystemBundle\FlysystemBundle;
+use Nelmio\ApiDocBundle\NelmioApiDocBundle;
+use Nelmio\CorsBundle\NelmioCorsBundle;
+use Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle;
+use Sentry\SentryBundle\SentryBundle;
+use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
+use Symfony\Bundle\MakerBundle\MakerBundle;
+use Symfony\Bundle\MonologBundle\MonologBundle;
+use Symfony\Bundle\SecurityBundle\SecurityBundle;
+use Symfony\Bundle\TwigBundle\TwigBundle;
+use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
+use Twig\Extra\TwigExtraBundle\TwigExtraBundle;
+
 return [
-    Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
-    Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class => ['all' => true],
-    Symfony\Bundle\TwigBundle\TwigBundle::class => ['all' => true],
-    Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
-    Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
-    Doctrine\Bundle\DoctrineBundle\DoctrineBundle::class => ['all' => true],
-    Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class => ['all' => true],
-    Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
-    Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
-    Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
-    Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true],
-    DAMA\DoctrineTestBundle\DAMADoctrineTestBundle::class => ['test' => true],
-    Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
-    KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle::class => ['all' => true],
-    League\FlysystemBundle\FlysystemBundle::class => ['all' => true],
-    Nelmio\ApiDocBundle\NelmioApiDocBundle::class => ['all' => true],
-    Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
-    EWZ\Bundle\RecaptchaBundle\EWZRecaptchaBundle::class => ['all' => true],
+    FrameworkBundle::class => ['all' => true],
+    SensioFrameworkExtraBundle::class => ['all' => true],
+    TwigBundle::class => ['all' => true],
+    TwigExtraBundle::class => ['all' => true],
+    MonologBundle::class => ['all' => true],
+    DoctrineBundle::class => ['all' => true],
+    DoctrineMigrationsBundle::class => ['all' => true],
+    SecurityBundle::class => ['all' => true],
+    SentryBundle::class => ['prod' => true],
+    MakerBundle::class => ['dev' => true],
+    WebProfilerBundle::class => ['dev' => true, 'test' => true],
+    DAMADoctrineTestBundle::class => ['test' => true],
+    DoctrineFixturesBundle::class => ['dev' => true, 'test' => true],
+    KnpUOAuth2ClientBundle::class => ['all' => true],
+    FlysystemBundle::class => ['all' => true],
+    NelmioApiDocBundle::class => ['all' => true],
+    NelmioCorsBundle::class => ['all' => true],
+    EWZRecaptchaBundle::class => ['all' => true],
 ];

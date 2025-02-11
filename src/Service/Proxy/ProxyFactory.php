@@ -10,13 +10,8 @@ use League\Flysystem\Filesystem;
 
 final class ProxyFactory
 {
-    private Downloader $downloader;
-    private Filesystem $filesystem;
-
-    public function __construct(Downloader $downloader, Filesystem $proxyFilesystem)
+    public function __construct(private readonly Downloader $downloader, private readonly Filesystem $filesystem)
     {
-        $this->downloader = $downloader;
-        $this->filesystem = $proxyFilesystem;
     }
 
     public function create(string $url): Proxy

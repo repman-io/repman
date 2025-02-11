@@ -14,18 +14,13 @@ use Symfony\Component\Lock\LockFactory;
 final class ProxySyncMetadataCommand extends Command
 {
     public const LOCK_TTL = 60;
+
     public const LOCK_NAME = 'proxy_metadata';
 
     protected static $defaultName = 'repman:proxy:sync-metadata';
 
-    private ProxyRegister $register;
-    private LockFactory $lockFactory;
-
-    public function __construct(ProxyRegister $register, LockFactory $lockFactory)
+    public function __construct(private readonly ProxyRegister $register, private readonly LockFactory $lockFactory)
     {
-        $this->register = $register;
-        $this->lockFactory = $lockFactory;
-
         parent::__construct();
     }
 

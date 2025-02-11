@@ -9,14 +9,12 @@ use Buddy\Repman\Query\Admin\UserQuery;
 use Buddy\Repman\Query\Filter;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
+use function mb_strtolower;
 
 final class DbalUserQuery implements UserQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function findAll(Filter $filter): array
@@ -36,7 +34,7 @@ final class DbalUserQuery implements UserQuery
     public function getByEmail(string $email): Option
     {
         $data = $this->connection->fetchAssociative('SELECT id, email, status, roles FROM "user" WHERE email = :email', [
-            'email' => \mb_strtolower($email),
+            'email' => mb_strtolower($email),
         ]);
         if ($data === false) {
             return Option::none();
@@ -74,7 +72,7 @@ final class DbalUserQuery implements UserQuery
             $data['id'],
             $data['email'],
             $data['status'],
-            json_decode($data['roles'])
+            json_decode((string) $data['roles'])
         );
     }
 }

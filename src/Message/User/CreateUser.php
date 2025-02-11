@@ -6,26 +6,11 @@ namespace Buddy\Repman\Message\User;
 
 final class CreateUser
 {
-    private string $id;
-    private string $email;
-    private string $plainPassword;
-    private string $confirmToken;
-
-    /**
-     * @var array<string>
-     */
-    private array $roles;
-
     /**
      * @param array<string> $roles
      */
-    public function __construct(string $id, string $email, string $plainPassword, string $confirmToken, array $roles = [])
+    public function __construct(private readonly string $id, private readonly string $email, private readonly string $plainPassword, private readonly string $confirmToken, private readonly array $roles = [])
     {
-        $this->id = $id;
-        $this->email = $email;
-        $this->plainPassword = $plainPassword;
-        $this->confirmToken = $confirmToken;
-        $this->roles = $roles;
     }
 
     public function id(): string

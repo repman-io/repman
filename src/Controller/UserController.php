@@ -30,18 +30,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use function ucfirst;
 
 final class UserController extends AbstractController
 {
-    private UserQuery $userQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        UserQuery $userQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->userQuery = $userQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly UserQuery $userQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -150,7 +144,7 @@ final class UserController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $this->messageBus->dispatch(new RemoveOAuthToken($this->getUser()->id(), $type));
-        $this->addFlash('success', sprintf('%s has been successfully unlinked.', \ucfirst($type)));
+        $this->addFlash('success', sprintf('%s has been successfully unlinked.', ucfirst($type)));
 
         return $this->redirectToRoute('user_profile');
     }

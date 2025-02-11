@@ -33,6 +33,7 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
 use Buddy\Repman\Security\Model\User;
+use DateTimeImmutable;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,18 +45,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
-    private PackageQuery $packageQuery;
-    private OrganizationQuery $organizationQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        PackageQuery $packageQuery,
-        OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->packageQuery = $packageQuery;
-        $this->organizationQuery = $organizationQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly PackageQuery $packageQuery, private readonly OrganizationQuery $organizationQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -94,6 +85,7 @@ final class OrganizationController extends AbstractController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/package/{package}", name="organization_package_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
     public function removePackage(Organization $organization, Package $package): Response
@@ -175,6 +167,7 @@ final class OrganizationController extends AbstractController
                     $this->messageBus->dispatch(new AddBitbucketHook($package->id()));
                     break;
             }
+
             $this->addFlash('success', sprintf('Webhook for "%s" will be synchronized in background.', $package->name()));
 
             return $this->redirectToRoute('organization_package_webhook', ['organization' => $organization->alias(), 'package' => $package->id()]);
@@ -259,6 +252,7 @@ final class OrganizationController extends AbstractController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/settings", name="organization_settings", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function settings(Organization $organization, Request $request): Response
@@ -300,12 +294,13 @@ final class OrganizationController extends AbstractController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}", name="organization_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
      */
     public function removeOrganization(Organization $organization): Response
     {
         $offset = 0;
-        while (($packages = $this->packageQuery->findAll($organization->id(), new PackageQuery\Filter($offset, $limit = 100))) !== []) {
+        while (($packages = $this->packageQuery->findAll($organization->id(), new PackageFilter($offset, $limit = 100))) !== []) {
             array_walk($packages, [$this, 'tryToRemoveWebhook']);
             $offset += $limit;
         }
@@ -360,7 +355,7 @@ final class OrganizationController extends AbstractController
 
     private function tryToRemoveWebhook(Package $package): void
     {
-        if ($package->webhookCreatedAt() !== null) {
+        if ($package->webhookCreatedAt() instanceof DateTimeImmutable) {
             try {
                 switch ($package->type()) {
                     case 'github-oauth':
@@ -387,8 +382,8 @@ final class OrganizationController extends AbstractController
     {
         $user = parent::getUser();
 
-        return $user instanceof User &&
-            $organization->isOwner($user->id()) &&
-            $this->packageQuery->count($organization->id(), new PackageFilter()) === 0;
+        return $user instanceof User
+            && $organization->isOwner($user->id())
+            && $this->packageQuery->count($organization->id(), new PackageFilter()) === 0;
     }
 }

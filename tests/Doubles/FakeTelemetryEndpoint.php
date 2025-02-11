@@ -11,7 +11,9 @@ use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 final class FakeTelemetryEndpoint implements Endpoint
 {
     private string $sent = '';
+
     private string $emailAdded = '';
+
     private string $emailRemoved = '';
 
     public function send(Entry $entry): void

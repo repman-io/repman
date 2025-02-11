@@ -37,7 +37,7 @@ services:
     volumes:
       - app-var:/app/var
       - /app/var/cache
-      - app-public:/app
+      - app-public:/app/public
     depends_on:
       - database
 
@@ -69,7 +69,7 @@ services:
     depends_on:
       - app
     volumes:
-      - app-public:/app
+      - app-public:/app/public
       - docker-logs-nginx:/var/log/nginx
       - docker-nginx-scripts:/nginx
       - docker-nginx-ssl-certs:/etc/ssl/certs
@@ -87,7 +87,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: $PWD
+      device: $PWD/public
       o: bind
   docker-logs-nginx:
     driver: local

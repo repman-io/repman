@@ -8,17 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class Organization implements UserInterface
 {
-    private string $id;
-    private string $name;
-    private string $alias;
-    private string $token;
-
-    public function __construct(string $id, string $name, string $alias, string $token)
+    public function __construct(private readonly string $id, private readonly string $name, private readonly string $alias, private readonly string $token)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->alias = $alias;
-        $this->token = $token;
     }
 
     public function id(): string
@@ -36,17 +27,17 @@ final class Organization implements UserInterface
         return ['ROLE_ORGANIZATION'];
     }
 
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->token;
     }
 
-    public function getSalt()
+    public function getSalt(): string
     {
         return '';
     }
 
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->alias;
     }

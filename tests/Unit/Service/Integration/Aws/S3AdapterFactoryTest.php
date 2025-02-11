@@ -6,6 +6,8 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\Aws;
 
 use Aws\Credentials\Credentials;
 use Buddy\Repman\Service\Integration\Aws\S3AdapterFactory;
+use InvalidArgumentException;
+use Iterator;
 use PHPUnit\Framework\TestCase;
 
 class S3AdapterFactoryTest extends TestCase
@@ -17,8 +19,8 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
         $cfg = $instance->getConfig();
 
-        self::assertSame('eu-east-1', $cfg['signing_region']);
-        self::assertSame('s3v4', $cfg['signature_version']);
+        $this->assertSame('eu-east-1', $cfg['signing_region']);
+        $this->assertSame('s3v4', $cfg['signature_version']);
     }
 
     public function testCreateWithOpaqueCredentials(): void
@@ -28,13 +30,13 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
         $cfg = $instance->getConfig();
 
-        self::assertSame('eu-east-1', $cfg['signing_region']);
-        self::assertSame('s3v4', $cfg['signature_version']);
+        $this->assertSame('eu-east-1', $cfg['signing_region']);
+        $this->assertSame('s3v4', $cfg['signature_version']);
 
         /** @var Credentials $creds */
         $creds = $instance->getCredentials()->wait();
-        self::assertSame('mykey', $creds->getAccessKeyId());
-        self::assertSame('secret', $creds->getSecretKey());
+        $this->assertSame('mykey', $creds->getAccessKeyId());
+        $this->assertSame('secret', $creds->getSecretKey());
     }
 
     public function testCreateWithoutEndpoint(): void
@@ -44,7 +46,7 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
         $endpoint = $instance->getEndpoint();
 
-        self::assertSame($endpoint->getHost(), 's3.eu-east-1.amazonaws.com');
+        $this->assertSame('s3.eu-east-1.amazonaws.com', $endpoint->getHost());
     }
 
     public function testCreateWithEndpoint(): void
@@ -60,7 +62,7 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
         $endpoint = $instance->getEndpoint();
 
-        self::assertSame('s3.example.com', $endpoint->getHost());
+        $this->assertSame('s3.example.com', $endpoint->getHost());
     }
 
     public function testCreateWithPathStyleEndpoints(): void
@@ -75,7 +77,7 @@ class S3AdapterFactoryTest extends TestCase
         );
 
         $instance = $factory->create();
-        self::assertTrue($instance->getConfig('use_path_style_endpoint'));
+        $this->assertTrue($instance->getConfig('use_path_style_endpoint'));
     }
 
     public function testExpectDefaultPathStyleOptionToBeFalse(): void
@@ -89,40 +91,38 @@ class S3AdapterFactoryTest extends TestCase
         );
 
         $instance = $factory->create();
-        self::assertFalse($instance->getConfig('use_path_style_endpoint'));
+        $this->assertFalse($instance->getConfig('use_path_style_endpoint'));
     }
 
     /**
      * @return array<string, array<string, ?string>>
      */
-    public function providesInvalidValueCombinationOfKeyAndSecret(): array
+    public function providesInvalidValueCombinationOfKeyAndSecret(): Iterator
     {
-        return [
-            'when key is empty' => [
-                '$key' => '',
-                '$secret' => 'my_secret',
-                '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
-            ],
-            'when key is null' => [
-                '$key' => null,
-                '$secret' => 'my_secret',
-                '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
-            ],
-            'when secret is empty' => [
-                '$key' => 'mykey',
-                '$secret' => '',
-                '$expectedMessage' => 'Must pass AWS secret when authentication is opaque',
-            ],
-            'when secret is null' => [
-                '$key' => 'mykey',
-                '$secret' => null,
-                '$expectedMessage' => 'Must pass AWS secret when authentication is opaque',
-            ],
-            'when both are invalid' => [
-                '$key' => '',
-                '$secret' => '',
-                '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
-            ],
+        yield 'when key is empty' => [
+            '$key' => '',
+            '$secret' => 'my_secret',
+            '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
+        ];
+        yield 'when key is null' => [
+            '$key' => null,
+            '$secret' => 'my_secret',
+            '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
+        ];
+        yield 'when secret is empty' => [
+            '$key' => 'mykey',
+            '$secret' => '',
+            '$expectedMessage' => 'Must pass AWS secret when authentication is opaque',
+        ];
+        yield 'when secret is null' => [
+            '$key' => 'mykey',
+            '$secret' => null,
+            '$expectedMessage' => 'Must pass AWS secret when authentication is opaque',
+        ];
+        yield 'when both are invalid' => [
+            '$key' => '',
+            '$secret' => '',
+            '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
         ];
     }
 
@@ -132,9 +132,9 @@ class S3AdapterFactoryTest extends TestCase
     public function testOpaqueWithoutCredentialsWillThrowError(
         ?string $key,
         ?string $secret,
-        string $expectedMessage
+        string $expectedMessage,
     ): void {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedMessage);
         new S3AdapterFactory('eu-east-1', true, $key, $secret);
     }

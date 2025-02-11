@@ -6,15 +6,8 @@ namespace Buddy\Repman\Message\Organization\Member;
 
 final class ChangeRole
 {
-    private string $organizationId;
-    private string $userId;
-    private string $role;
-
-    public function __construct(string $organizationId, string $userId, string $role)
+    public function __construct(private readonly string $organizationId, private readonly string $userId, private readonly string $role)
     {
-        $this->organizationId = $organizationId;
-        $this->userId = $userId;
-        $this->role = $role;
     }
 
     public function organizationId(): string

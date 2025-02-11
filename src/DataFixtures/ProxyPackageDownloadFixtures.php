@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\DataFixtures;
 
-use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Service\Proxy\Downloads;
+use Buddy\Repman\Service\Proxy\Downloads\Package;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -21,16 +22,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 final class ProxyPackageDownloadFixtures extends Fixture
 {
-    private Downloads $downloads;
-    private ProxyRegister $register;
-    private Generator $faker;
-    private EntityManagerInterface $em;
+    private readonly Generator $faker;
 
-    public function __construct(Downloads $downloads, ProxyRegister $register, EntityManagerInterface $em)
+    public function __construct(private readonly Downloads $downloads, private readonly ProxyRegister $register, private readonly EntityManagerInterface $em)
     {
-        $this->downloads = $downloads;
-        $this->register = $register;
-        $this->em = $em;
         $this->faker = Factory::create();
     }
 
@@ -53,16 +48,19 @@ final class ProxyPackageDownloadFixtures extends Fixture
             $dayDownloads = random_int(0, 100);
             for ($j = 0; $j < $dayDownloads; ++$j) {
                 $this->downloads->save(
-                    [new Downloads\Package($package, $this->faker->randomElement($versions))],
-                    (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
+                    [new Package($package, $this->faker->randomElement($versions))],
+                    (new DateTimeImmutable())->modify(sprintf('-%s days', $i)),
                     $this->faker->ipv4,
                     $this->faker->userAgent
                 );
             }
+
             $progress->advance();
         }
+
         $this->em->commit();
         $this->em->beginTransaction();
+
         $output->writeln('');
     }
 }

@@ -6,27 +6,13 @@ namespace Buddy\Repman\Message\Organization;
 
 final class AddPackage
 {
-    private string $id;
-    private string $url;
-    private string $type;
-    private string $organizationId;
-    private int $keepLastReleases;
-
-    /**
-     * @var mixed[]
-     */
-    private array $metadata;
+    private readonly int $keepLastReleases;
 
     /**
      * @param mixed[] $metadata
      */
-    public function __construct(string $id, string $organizationId, string $url, string $type = 'vcs', array $metadata = [], ?int $keepLastReleases = null)
+    public function __construct(private readonly string $id, private readonly string $organizationId, private readonly string $url, private readonly string $type = 'vcs', private readonly array $metadata = [], ?int $keepLastReleases = null)
     {
-        $this->id = $id;
-        $this->organizationId = $organizationId;
-        $this->url = $url;
-        $this->type = $type;
-        $this->metadata = $metadata;
         $this->keepLastReleases = $keepLastReleases ?? 0;
     }
 

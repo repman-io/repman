@@ -57,7 +57,7 @@ final class RestGitLabApiTest extends TestCase
         ]);
         $this->clientMock->method('projects')->willReturn($projects);
 
-        self::assertEquals(new Projects([
+        $this->assertEquals(new Projects([
             new Project(17275574, 'repman/left-pad', 'https://gitlab.com/repman/left-pad'),
             new Project(17275573, 'repman/right-pad', 'https://gitlab.com/repman/right-pad'),
         ]), $this->api->projects('gitlab-token'));

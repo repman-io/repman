@@ -6,21 +6,20 @@ namespace Buddy\Repman\Query\User\OrganizationQuery;
 
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
+use Buddy\Repman\Query\User\Model\Installs\Day;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\Organization\Invitation;
 use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\Model\Organization\Token;
 use Buddy\Repman\Query\User\OrganizationQuery;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 
 final class DbalOrganizationQuery implements OrganizationQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -31,8 +30,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         $data = $this->connection->fetchAssociative(
             'SELECT id, name, alias, has_anonymous_access
             FROM "organization" WHERE alias = :alias', [
-            'alias' => $alias,
-        ]);
+                'alias' => $alias,
+            ]);
 
         if ($data === false) {
             return Option::none();
@@ -49,9 +48,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             JOIN organization_invitation i ON o.id = i.organization_id
             WHERE i.token = :token AND i.email = :email
         ', [
-            'token' => $token,
-            'email' => $email,
-        ]);
+                'token' => $token,
+                'email' => $email,
+            ]);
 
         if ($data === false) {
             return Option::none();
@@ -107,11 +106,11 @@ final class DbalOrganizationQuery implements OrganizationQuery
 
         return new Installs(
             array_map(
-                static fn (array $row): Installs\Day => new Installs\Day($row['date'], $row['count']),
+                static fn (array $row): Day => new Day($row['date'], $row['count']),
                 $this->connection->fetchAllAssociative(
                     'SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date AND package_id IN (:packages) GROUP BY date) AS installs ORDER BY date ASC',
                     [
-                        'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                        'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
                         'packages' => $packagesId,
                     ],
                     ['packages' => Connection::PARAM_STR_ARRAY],
@@ -231,9 +230,9 @@ final class DbalOrganizationQuery implements OrganizationQuery
             FROM organization_token
             WHERE organization_id = :organization_id AND value = :value
             LIMIT 1', [
-            'organization_id' => $organizationId,
-            'value' => $value,
-        ]);
+                'organization_id' => $organizationId,
+                'value' => $value,
+            ]);
 
         return $data === false ? Option::none() : Option::some($this->hydrateToken($data));
     }
@@ -264,8 +263,8 @@ final class DbalOrganizationQuery implements OrganizationQuery
         return new Token(
             $data['name'],
             $data['value'],
-            new \DateTimeImmutable($data['created_at']),
-            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
+            new DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

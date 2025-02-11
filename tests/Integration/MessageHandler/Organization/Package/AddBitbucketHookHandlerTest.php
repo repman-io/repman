@@ -10,6 +10,9 @@ use Buddy\Repman\MessageHandler\Organization\Package\AddBitbucketHookHandler;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
+use DateTimeImmutable;
+use Exception;
+use RuntimeException;
 
 final class AddBitbucketHookHandlerTest extends IntegrationTestCase
 {
@@ -26,17 +29,17 @@ final class AddBitbucketHookHandlerTest extends IntegrationTestCase
 
         $package = $this->container()->get(PackageQuery::class)->getById($packageId);
 
-        self::assertInstanceOf(\DateTimeImmutable::class, $package->get()->webhookCreatedAt());
+        $this->assertInstanceOf(DateTimeImmutable::class, $package->get()->webhookCreatedAt());
 
         $this->container()->get(BitbucketApi::class)->setExceptionOnNextCall(
-            new \RuntimeException($error = 'Repository was archived so is read-only.')
+            new RuntimeException($error = 'Repository was archived so is read-only.')
         );
         $handler->__invoke(new AddBitbucketHook($packageId));
         $this->container()->get('doctrine.orm.entity_manager')->flush();
 
         $package = $this->container()->get(PackageQuery::class)->getById($packageId);
 
-        self::assertStringContainsString($error, (string) $package->get()->webhookCreatedError());
+        $this->assertStringContainsString($error, (string) $package->get()->webhookCreatedError());
     }
 
     public function testHandlePackageNotFoundWithoutError(): void
@@ -45,9 +48,9 @@ final class AddBitbucketHookHandlerTest extends IntegrationTestCase
         try {
             $handler = $this->container()->get(AddBitbucketHookHandler::class);
             $handler->__invoke(new AddBitbucketHook('e0ea4d32-4144-4a67-9310-6dae483a6377'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
         }
 
-        self::assertNull($exception);
+        $this->assertNull($exception);
     }
 }

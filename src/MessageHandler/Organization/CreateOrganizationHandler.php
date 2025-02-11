@@ -14,15 +14,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class CreateOrganizationHandler implements MessageHandlerInterface
 {
-    private UserRepository $users;
-    private OrganizationRepository $organizations;
-    private AliasGenerator $aliasGenerator;
-
-    public function __construct(UserRepository $users, OrganizationRepository $organizations, AliasGenerator $aliasGenerator)
+    public function __construct(private readonly UserRepository $users, private readonly OrganizationRepository $organizations, private readonly AliasGenerator $aliasGenerator)
     {
-        $this->users = $users;
-        $this->organizations = $organizations;
-        $this->aliasGenerator = $aliasGenerator;
     }
 
     public function __invoke(CreateOrganization $message): void

@@ -7,20 +7,19 @@ namespace Buddy\Repman\Service;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Service\Dist\Storage;
 use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment;
+use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\ExternalLink\ExternalLinkExtension;
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use League\CommonMark\MarkdownConverterInterface;
+use League\CommonMark\Output\RenderedContentInterface;
+use ZipArchive;
 
 final class ReadmeExtractor
 {
-    private Storage $distStorage;
-    private MarkdownConverterInterface $markdownConverter;
+    private readonly MarkdownConverterInterface $markdownConverter;
 
-    public function __construct(Storage $distStorage)
+    public function __construct(private readonly Storage $distStorage)
     {
-        $this->distStorage = $distStorage;
-
         $environment = Environment::createGFMEnvironment();
         $environment->addExtension(new ExternalLinkExtension());
         $environment->addExtension(new HeadingPermalinkExtension());
@@ -49,14 +48,14 @@ final class ReadmeExtractor
         $package->setReadme($this->loadREADME($dist));
     }
 
-    private function loadREADME(Dist $dist): ?string
+    private function loadREADME(Dist $dist): ?RenderedContentInterface
     {
         $tmpLocalFilename = $this->distStorage->getLocalFileForDist($dist);
         if (null === $tmpLocalFilename->getOrNull()) {
             return null;
         }
 
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $result = $zip->open($tmpLocalFilename->get());
         if ($result !== true) {
             return null;

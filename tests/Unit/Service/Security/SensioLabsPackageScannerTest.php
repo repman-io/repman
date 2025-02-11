@@ -12,11 +12,18 @@ use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Service\Security\PackageScanner\SensioLabsPackageScanner;
 use Buddy\Repman\Service\Security\SecurityChecker;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
+use DateTimeImmutable;
 use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBus;
+use function file_get_contents;
+use function file_put_contents;
+use function realpath;
+use function sys_get_temp_dir;
+use function tempnam;
 
 final class SensioLabsPackageScannerTest extends TestCase
 {
@@ -24,7 +31,9 @@ final class SensioLabsPackageScannerTest extends TestCase
     private const VERSION = '1.2.3';
 
     private SensioLabsPackageScanner $scanner;
+
     private SecurityChecker $checkerMock;
+
     /** @var ScanResultRepository|MockObject */
     private $repoMock;
 
@@ -124,11 +133,11 @@ final class SensioLabsPackageScannerTest extends TestCase
 
     private function prepareScanner(string $fixtureType = 'repman'): SensioLabsPackageScanner
     {
-        $distFile = \realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
+        $distFile = realpath(__DIR__.'/../../../Resources/fixtures/buddy/dist/buddy-works/'.$fixtureType.'/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip');
         $packageManager = $this->createMock(PackageManager::class);
         $packageManager->method('findProviders')->willReturn(
             [
-                new \DateTimeImmutable(),
+                new DateTimeImmutable(),
                 [
                     'buddy-works/repman' => [
                         self::VERSION => [
@@ -153,10 +162,10 @@ final class SensioLabsPackageScannerTest extends TestCase
             ->willReturn(new Envelope(new SendScanResult(['test@example.com'], 'buddy', 'test/test', 'test', [])));
 
         $distStorage = $this->createMock(Storage::class);
-        $tempFilename = \tempnam(\sys_get_temp_dir(), 'repman-test');
-        self::assertNotFalse($tempFilename, 'Error while creating temp file for testing');
-        self::assertNotFalse($distFile, 'Could not determined the path to dist file.');
-        \file_put_contents($tempFilename, \file_get_contents($distFile));
+        $tempFilename = tempnam(sys_get_temp_dir(), 'repman-test');
+        $this->assertNotFalse($tempFilename, 'Error while creating temp file for testing');
+        $this->assertNotFalse($distFile, 'Could not determined the path to dist file.');
+        file_put_contents($tempFilename, file_get_contents($distFile));
         $distStorage->method('getLocalFileForDistUrl')->willReturn(Option::of($tempFilename));
 
         return new SensioLabsPackageScanner(
@@ -170,10 +179,10 @@ final class SensioLabsPackageScannerTest extends TestCase
 
     private function assertPackageSecurity(string $expected, Package $package): void
     {
-        $reflection = new \ReflectionObject($package);
+        $reflection = new ReflectionObject($package);
         $property = $reflection->getProperty('lastScanStatus');
         $property->setAccessible(true);
 
-        self::assertEquals($expected, $property->getValue($package));
+        $this->assertSame($expected, $property->getValue($package));
     }
 }

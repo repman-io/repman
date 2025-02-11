@@ -15,11 +15,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class PackageParamConverter implements ParamConverterInterface
 {
-    private PackageQuery $packageQuery;
-
-    public function __construct(PackageQuery $packageQuery)
+    public function __construct(private readonly PackageQuery $packageQuery)
     {
-        $this->packageQuery = $packageQuery;
     }
 
     public function supports(ParamConverter $configuration)

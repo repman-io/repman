@@ -9,44 +9,16 @@ use Munus\Control\Option;
 use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use function count;
 
 final class User implements UserInterface, EquatableInterface, PasswordAuthenticatedUserInterface
 {
-    private string $id;
-    private string $email;
-    private string $password;
-    private string $status;
-    private bool $emailConfirmed;
-    private string $emailConfirmToken;
-    private bool $emailScanResult;
-    private string $timezone;
-
-    /**
-     * @var string[]
-     */
-    private array $roles;
-
-    /**
-     * @var Organization[]
-     */
-    private array $organizations;
-
     /**
      * @param string[]       $roles
      * @param Organization[] $organizations
      */
-    public function __construct(string $id, string $email, string $password, string $status, bool $emailConfirmed, string $emailConfirmToken, $roles, $organizations, bool $emailScanResult, string $timezone)
+    public function __construct(private readonly string $id, private readonly string $email, private readonly string $password, private readonly string $status, private readonly bool $emailConfirmed, private readonly string $emailConfirmToken, private readonly array $roles, private array $organizations, private readonly bool $emailScanResult, private readonly string $timezone)
     {
-        $this->id = $id;
-        $this->email = $email;
-        $this->password = $password;
-        $this->status = $status;
-        $this->emailConfirmed = $emailConfirmed;
-        $this->emailConfirmToken = $emailConfirmToken;
-        $this->roles = $roles;
-        $this->organizations = $organizations;
-        $this->emailScanResult = $emailScanResult;
-        $this->timezone = $timezone;
     }
 
     public function id(): string
@@ -76,7 +48,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
 
     public function belongsToAnyOrganization(): bool
     {
-        return count($this->organizations) > 0;
+        return $this->organizations !== [];
     }
 
     /**
@@ -111,17 +83,11 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
      */
     public function firstOrganizationAlias(): Option
     {
-        if (count($this->organizations) === 0) {
+        if ($this->organizations === []) {
             return Option::none();
         }
 
         return Option::some($this->organizations[0]->alias());
-    }
-
-    public function getSalt()
-    {
-        // not needed when using the "bcrypt" algorithm in security.yaml
-        return null;
     }
 
     public function getUsername(): string
@@ -146,11 +112,11 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
             return false;
         }
 
-        if ($this->getUserIdentifier() !== $user->getUserIdentifier()) {
+        if ($this->email !== $user->getUserIdentifier()) {
             return false;
         }
 
-        if (\count($user->getRoles()) !== \count($this->getRoles()) || \count($user->getRoles()) !== \count(array_intersect($user->getRoles(), $this->getRoles()))) {
+        if (count($user->getRoles()) !== count($this->getRoles()) || count($user->getRoles()) !== count(array_intersect($user->getRoles(), $this->getRoles()))) {
             return false;
         }
 

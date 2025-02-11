@@ -11,6 +11,8 @@ use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Symfony\ResponseCallback;
+use DateTime;
+use DateTimeImmutable;
 use Munus\Control\Option;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,18 +23,15 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
+use function array_filter;
+use function array_map;
+use function is_array;
+use function json_decode;
 
 final class ProxyController extends AbstractController
 {
-    private ProxyRegister $register;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        ProxyRegister $register,
-        MessageBusInterface $messageBus
-    ) {
-        $this->register = $register;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly ProxyRegister $register, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -65,7 +64,7 @@ final class ProxyController extends AbstractController
             ->setPublic()
         ;
 
-        $now = new \DateTime();
+        $now = new DateTime();
         $response->setLastModified(
             $metadata->isPresent() ?
             $now->setTimestamp($metadata->get()->timestamp()) :
@@ -94,13 +93,13 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('Provider not found'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), Response::HTTP_OK, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -125,13 +124,13 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElse(Metadata::fromString('{"packages": {}}'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), Response::HTTP_OK, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -158,13 +157,13 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('Provider not found'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), Response::HTTP_OK, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -189,13 +188,13 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('Metadata not found'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($metadata->stream()), Response::HTTP_OK, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/json',
             'Content-Length' => $metadata->contentSize(),
         ]))
             ->setPublic()
-            ->setLastModified((new \DateTime())->setTimestamp($metadata->timestamp()))
+            ->setLastModified((new DateTime())->setTimestamp($metadata->timestamp()))
         ;
 
         $response->isNotModified($request);
@@ -220,7 +219,7 @@ final class ProxyController extends AbstractController
             ->map(fn (Option $option) => $option->get())
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
-        $response = (new StreamedResponse(ResponseCallback::fromStream($distFile->stream()), 200, [
+        $response = (new StreamedResponse(ResponseCallback::fromStream($distFile->stream()), Response::HTTP_OK, [
             'Accept-Ranges' => 'bytes',
             'Content-Type' => 'application/zip',
             'Content-Length' => $distFile->fileSize(),
@@ -244,8 +243,8 @@ final class ProxyController extends AbstractController
      */
     public function downloads(Request $request): JsonResponse
     {
-        $contents = \json_decode($request->getContent(), true);
-        if (!isset($contents['downloads']) || !\is_array($contents['downloads']) || $contents['downloads'] === []) {
+        $contents = json_decode($request->getContent(), true);
+        if (!isset($contents['downloads']) || !is_array($contents['downloads']) || $contents['downloads'] === []) {
             return new JsonResponse([
                 'status' => 'error',
                 'message' => 'Invalid request format, must be a json object containing a downloads key filled with an array of name/version objects',
@@ -253,12 +252,8 @@ final class ProxyController extends AbstractController
         }
 
         $this->messageBus->dispatch(new AddDownloads(
-            \array_map(function (array $data): Package {
-                return new Package($data['name'], $data['version']);
-                }, \array_filter($contents['downloads'], function (array $row): bool {
-                    return isset($row['name'], $row['version']);
-                })),
-            new \DateTimeImmutable(),
+            array_map(fn (array $data): Package => new Package($data['name'], $data['version']), array_filter($contents['downloads'], fn (array $row): bool => isset($row['name'], $row['version']))),
+            new DateTimeImmutable(),
             $request->getClientIp(),
             $request->headers->get('User-Agent')
         ));

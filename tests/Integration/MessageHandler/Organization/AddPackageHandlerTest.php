@@ -8,6 +8,7 @@ use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Query\User\PackageQuery\DbalPackageQuery;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 
 final class AddPackageHandlerTest extends IntegrationTestCase
 {
@@ -21,7 +22,7 @@ final class AddPackageHandlerTest extends IntegrationTestCase
             $id = Uuid::uuid4()->toString(),
             $organizationId,
             $url
-            )
+        )
         );
 
         $package = $this
@@ -30,20 +31,20 @@ final class AddPackageHandlerTest extends IntegrationTestCase
             ->getById($id)
             ->get();
 
-        self::assertEquals($id, $package->id());
-        self::assertEquals($url, $package->url());
+        $this->assertSame($id, $package->id());
+        $this->assertSame($url, $package->url());
     }
 
     public function testMissingOrganization(): void
     {
-        self::expectException('Symfony\Component\Messenger\Exception\HandlerFailedException');
+        self::expectException(HandlerFailedException::class);
         self::expectExceptionMessage('Organization with id c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2 not found.');
 
         $this->dispatchMessage(new AddPackage(
             Uuid::uuid4()->toString(),
             'c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2',
             'test.com'
-            )
+        )
         );
     }
 }

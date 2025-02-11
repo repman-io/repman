@@ -19,6 +19,6 @@ final class UserProviderTest extends IntegrationTestCase
 
         $user = $provider->loadUserByIdentifier($email);
 
-        self::assertEquals('new-encoded', $user->getPassword());
+        $this->assertSame('new-encoded', $user->getPassword());
     }
 }

@@ -13,6 +13,7 @@ class Config
 {
     /**
      * @ORM\Id
+     *
      * @ORM\Column(type="string", unique=true, length=255)
      */
     private string $key;

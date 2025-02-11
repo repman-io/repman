@@ -15,15 +15,9 @@ final class UpdateAdvisoriesDbCommand extends Command
 {
     protected static $defaultName = 'repman:security:update-db';
 
-    private SecurityChecker $checker;
-    private ScanAllPackagesCommand $scanCommand;
-
-    public function __construct(SecurityChecker $checker, ScanAllPackagesCommand $scanCommand)
+    public function __construct(private readonly SecurityChecker $checker, private readonly ScanAllPackagesCommand $scanCommand)
     {
         parent::__construct();
-
-        $this->checker = $checker;
-        $this->scanCommand = $scanCommand;
     }
 
     /**

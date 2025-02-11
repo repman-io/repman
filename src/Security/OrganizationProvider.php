@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Security;
 
 use Buddy\Repman\Security\Model\Organization;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -13,11 +14,8 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 final class OrganizationProvider implements UserProviderInterface
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function loadUserByUsername(string $username)
@@ -69,7 +67,7 @@ final class OrganizationProvider implements UserProviderInterface
     private function updateLastUsed(string $token): void
     {
         $this->connection->executeQuery('UPDATE organization_token SET last_used_at = :now WHERE value = :value', [
-            'now' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'now' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
             'value' => $token,
         ]);
     }

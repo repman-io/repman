@@ -6,15 +6,8 @@ namespace Buddy\Repman\Message\Organization;
 
 final class CreateOrganization
 {
-    private string $id;
-    private string $name;
-    private string $ownerId;
-
-    public function __construct(string $id, string $ownerId, string $name)
+    public function __construct(private readonly string $id, private readonly string $ownerId, private readonly string $name)
     {
-        $this->id = $id;
-        $this->ownerId = $ownerId;
-        $this->name = $name;
     }
 
     public function id(): string

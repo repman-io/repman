@@ -7,15 +7,13 @@ namespace Buddy\Repman\MessageHandler\User;
 use Buddy\Repman\Message\User\ChangeTimezone;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ChangeTimezoneHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ChangeTimezoneHandler
 {
-    private UserRepository $users;
-
-    public function __construct(UserRepository $users)
+    public function __construct(private readonly UserRepository $users)
     {
-        $this->users = $users;
     }
 
     public function __invoke(ChangeTimezone $message): void

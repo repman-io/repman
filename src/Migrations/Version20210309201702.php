@@ -25,9 +25,9 @@ final class Version20210309201702 extends AbstractMigration
         $this->addSql('CREATE INDEX link_package_id_idx ON organization_package_link (package_id)');
         $this->addSql('CREATE INDEX IDX_4A06082932C8A3DE ON organization_package_link (organization_id)');
         $this->addSql('CREATE INDEX link_target_idx ON organization_package_link (target)');
-        $this->addSql('COMMENT ON COLUMN organization_package_link.id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN organization_package_link.package_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN organization_package_link.organization_id IS \'(DC2Type:uuid)\'');
+        $this->addSql("COMMENT ON COLUMN organization_package_link.id IS '(DC2Type:uuid)'");
+        $this->addSql("COMMENT ON COLUMN organization_package_link.package_id IS '(DC2Type:uuid)'");
+        $this->addSql("COMMENT ON COLUMN organization_package_link.organization_id IS '(DC2Type:uuid)'");
         $this->addSql('ALTER TABLE organization_package_link ADD CONSTRAINT FK_CAKE4LIFE FOREIGN KEY (package_id) REFERENCES organization_package (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE organization_package_link ADD CONSTRAINT FK_4A06082932C8A3DE FOREIGN KEY (organization_id) REFERENCES organization (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }

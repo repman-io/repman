@@ -9,6 +9,7 @@ use Buddy\Repman\Message\User\CreateOAuthUser;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Security\UserGuardHelper;
 use Buddy\Repman\Service\Config;
+use DateTimeImmutable;
 use Http\Client\Exception as HttpException;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Exception\OAuth2ClientException;
@@ -20,24 +21,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class OAuthController extends AbstractController
 {
-    protected UserGuardHelper $guard;
-    protected ClientRegistry $oauth;
-    private Config $config;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        UserGuardHelper $guard,
-        ClientRegistry $oauth,
-        Config $config,
-        MessageBusInterface $messageBus
-    ) {
-        $this->guard = $guard;
-        $this->oauth = $oauth;
-        $this->config = $config;
-        $this->messageBus = $messageBus;
+    public function __construct(protected UserGuardHelper $guard, protected ClientRegistry $oauth, private readonly Config $config, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -45,7 +34,7 @@ abstract class OAuthController extends AbstractController
      */
     protected function createAndAuthenticateUser(string $type, callable $emailProvider, Request $request): Response
     {
-        if ($this->getUser() !== null) {
+        if ($this->getUser() instanceof UserInterface) {
             return $this->redirectToRoute('index');
         }
 
@@ -59,10 +48,11 @@ abstract class OAuthController extends AbstractController
             } else {
                 $this->addFlash('success', 'Your account already exists. You have been logged in automatically');
             }
+
             $this->guard->authenticateUser($email, $request);
 
             return $this->redirectToRoute('organization_create', $params);
-        } catch (OAuth2ClientException $exception) {
+        } catch (OAuth2ClientException) {
             $this->addFlash('danger', 'Authentication failed! Did you authorize our app?');
         } catch (IdentityProviderException|HttpException $e) {
             $this->addFlash('danger', $e->getMessage());
@@ -85,7 +75,7 @@ abstract class OAuthController extends AbstractController
                     $type,
                     $token->getToken(),
                     $token->getRefreshToken(),
-                    $token->getExpires() !== null ? (new \DateTimeImmutable())->setTimestamp($token->getExpires()) : null
+                    $token->getExpires() !== null ? (new DateTimeImmutable())->setTimestamp($token->getExpires()) : null
                 )
             );
 

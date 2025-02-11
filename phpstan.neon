@@ -7,7 +7,6 @@ parameters:
     checkExplicitMixed: false
     paths:
         - src/
-        - tests/
     bootstrapFiles:
         - vendor/twig/twig/src/Extension/CoreExtension.php # twig global functions
     symfony:

@@ -9,11 +9,8 @@ use Buddy\Repman\Service\Integration\BuddyApi;
 
 final class RestBuddyApi implements BuddyApi
 {
-    private Buddy $client;
-
-    public function __construct(Buddy $client)
+    public function __construct(private readonly Buddy $client)
     {
-        $this->client = $client;
     }
 
     public function primaryEmail(string $accessToken): string

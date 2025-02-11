@@ -4,19 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Errors implements \JsonSerializable
-{
-    /**
-     * @var Error[]
-     */
-    private array $errors;
+use JsonSerializable;
 
+final class Errors implements JsonSerializable
+{
     /**
      * @param Error[] $errors
      */
-    public function __construct(array $errors)
+    public function __construct(private readonly array $errors)
     {
-        $this->errors = $errors;
     }
 
     /**
@@ -33,7 +29,7 @@ final class Errors implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'errors' => $this->getErrors(),
+            'errors' => $this->errors,
         ];
     }
 }

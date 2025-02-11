@@ -23,15 +23,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class TokenController extends ApiController
 {
-    private OrganizationQuery $organizationQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->organizationQuery = $organizationQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly OrganizationQuery $organizationQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -51,6 +44,7 @@ final class TokenController extends ApiController
      * @OA\Response(
      *     response=200,
      *     description="Returns list of organization's tokens",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Tokens::class)
      *     )
@@ -88,12 +82,14 @@ final class TokenController extends ApiController
      * )
      *
      * @OA\RequestBody(
+     *
      *     @Model(type=GenerateTokenType::class)
      * )
      *
      * @OA\Response(
      *     response=201,
      *     description="Returns generated token",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Token::class)
      *     )
@@ -102,6 +98,7 @@ final class TokenController extends ApiController
      * @OA\Response(
      *     response=400,
      *     description="Bad request",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Errors::class)
      *     )
@@ -148,12 +145,10 @@ final class TokenController extends ApiController
      *     response=200,
      *     description="Token deleted"
      * )
-     *
      * @OA\Response(
      *     response=404,
      *     description="Token not found"
      * )
-     *
      * @OA\Response(
      *     response=403,
      *     description="Forbidden"
@@ -181,12 +176,10 @@ final class TokenController extends ApiController
      *     response=200,
      *     description="Token regenerated"
      * )
-     *
      * @OA\Response(
      *     response=404,
      *     description="Token not found"
      * )
-     *
      * @OA\Response(
      *     response=403,
      *     description="Forbidden"

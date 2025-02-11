@@ -7,22 +7,20 @@ namespace Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy;
 use Munus\Collection\GenericList;
 use Munus\Collection\Set;
+use RuntimeException;
 
 final class ProxyRegister
 {
-    private ProxyFactory $factory;
-
     /**
      * @var Set<string>
      */
-    private Set $urls;
+    private readonly Set $urls;
 
     /**
      * @param string[] $urls
      */
-    public function __construct(ProxyFactory $factory, array $urls = [])
+    public function __construct(private readonly ProxyFactory $factory, array $urls = [])
     {
-        $this->factory = $factory;
         $this->urls = Set::ofAll($urls);
     }
 
@@ -42,7 +40,7 @@ final class ProxyRegister
         return $this->factory->create($this->urls
             ->add('https://packagist.org')
             ->find(fn ($url) => (string) parse_url($url, PHP_URL_HOST) === $host)
-            ->getOrElseThrow(new \RuntimeException(sprintf('Proxy for %s not found', $host)))
+            ->getOrElseThrow(new RuntimeException(sprintf('Proxy for %s not found', $host)))
         );
     }
 }

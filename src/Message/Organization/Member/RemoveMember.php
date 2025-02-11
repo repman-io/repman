@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Organization\Member;
 
 final class RemoveMember
 {
-    private string $organizationId;
-    private string $userId;
-
-    public function __construct(string $organizationId, string $userId)
+    public function __construct(private readonly string $organizationId, private readonly string $userId)
     {
-        $this->organizationId = $organizationId;
-        $this->userId = $userId;
     }
 
     public function organizationId(): string

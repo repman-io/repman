@@ -16,18 +16,23 @@ use League\Flysystem\Memory\MemoryAdapter;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
+use function dirname;
+use function mkdir;
+use function sys_get_temp_dir;
 
 final class PackageManagerTest extends TestCase
 {
     use ProphecyTrait;
 
     private PackageManager $manager;
+
     private string $baseDir;
+
     private FilesystemInterface $filesystem;
 
     protected function setUp(): void
     {
-        $basePath = \dirname(__DIR__, 3);
+        $basePath = dirname(__DIR__, 3);
         $this->filesystem = new Filesystem(new Local($basePath.'/Resources/fixtures/'));
         $this->manager = new PackageManager(
             new Storage(
@@ -35,7 +40,7 @@ final class PackageManagerTest extends TestCase
             ),
             $this->filesystem
         );
-        $this->baseDir = \sys_get_temp_dir().'/repman';
+        $this->baseDir = sys_get_temp_dir().'/repman';
     }
 
     public function testFindProvidersForPackage(): void
@@ -45,7 +50,7 @@ final class PackageManagerTest extends TestCase
             new PackageName('id', 'not-exist/missing'),
         ]);
 
-        self::assertEquals(['buddy-works/repman' => ['1.2.3' => [
+        $this->assertSame(['buddy-works/repman' => ['1.2.3' => [
             'version' => '1.2.3',
             'dist' => [
                 'type' => 'zip',
@@ -68,10 +73,7 @@ final class PackageManagerTest extends TestCase
 
         $manager = new PackageManager($storage->reveal(), $this->filesystem);
 
-        self::assertStringContainsString(
-            '1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip',
-            $manager->distFilename('buddy', 'buddy-works/repman', '1.2.3.0', 'ac7dcaf888af2324cd14200769362129c8dd8550', 'zip')->get()
-        );
+        $this->assertStringContainsString('1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip', $manager->distFilename('buddy', 'buddy-works/repman', '1.2.3.0', 'ac7dcaf888af2324cd14200769362129c8dd8550', 'zip')->get());
     }
 
     public function testRemoveProvider(): void
@@ -85,15 +87,15 @@ final class PackageManagerTest extends TestCase
         $manager->saveProvider([], $org, $package1);
         $manager->saveProvider([], $org, $package2);
 
-        self::assertFileExists($this->baseDir.'/buddy/p/'.$package1.'.json');
-        self::assertFileExists($this->baseDir.'/buddy/p/'.$package2.'.json');
+        $this->assertFileExists($this->baseDir.'/buddy/p/'.$package1.'.json');
+        $this->assertFileExists($this->baseDir.'/buddy/p/'.$package2.'.json');
 
         $manager->removeProvider($org, $package1);
 
-        self::assertDirectoryExists($this->baseDir.'/buddy');
-        self::assertDirectoryExists(\dirname($this->baseDir.'/buddy/p/'.$package1));
-        self::assertFileDoesNotExist($this->baseDir.'/buddy/p/'.$package1.'.json');
-        self::assertFileExists($this->baseDir.'/buddy/p/'.$package2.'.json');
+        $this->assertDirectoryExists($this->baseDir.'/buddy');
+        $this->assertDirectoryExists(dirname($this->baseDir.'/buddy/p/'.$package1));
+        $this->assertFileDoesNotExist($this->baseDir.'/buddy/p/'.$package1.'.json');
+        $this->assertFileExists($this->baseDir.'/buddy/p/'.$package2.'.json');
     }
 
     public function testRemoveDist(): void
@@ -104,15 +106,15 @@ final class PackageManagerTest extends TestCase
         $package1 = 'vendor/package1';
         $package2 = 'vendor/package2';
 
-        @\mkdir($this->baseDir.'/buddy/dist/'.$package1, 0777, true);
-        @\mkdir($this->baseDir.'/buddy/dist/'.$package2, 0777, true);
+        @mkdir($this->baseDir.'/buddy/dist/'.$package1, 0o777, true);
+        @mkdir($this->baseDir.'/buddy/dist/'.$package2, 0o777, true);
 
         $manager->removeDist($org, $package1);
 
-        self::assertDirectoryExists($this->baseDir.'/buddy');
-        self::assertDirectoryExists($this->baseDir.'/buddy/dist/vendor');
-        self::assertDirectoryDoesNotExist($this->baseDir.'/buddy/dist/'.$package1);
-        self::assertDirectoryExists($this->baseDir.'/buddy/dist/'.$package2);
+        $this->assertDirectoryExists($this->baseDir.'/buddy');
+        $this->assertDirectoryExists($this->baseDir.'/buddy/dist/vendor');
+        $this->assertDirectoryDoesNotExist($this->baseDir.'/buddy/dist/'.$package1);
+        $this->assertDirectoryExists($this->baseDir.'/buddy/dist/'.$package2);
     }
 
     public function testRemoveOrganizationDir(): void
@@ -124,12 +126,12 @@ final class PackageManagerTest extends TestCase
 
         $manager->saveProvider([], $org, $package);
 
-        self::assertDirectoryExists($this->baseDir.'/buddy/p/hello');
+        $this->assertDirectoryExists($this->baseDir.'/buddy/p/hello');
 
         $manager->removeProvider($org, $package)
             ->removeOrganizationDir($org);
 
-        self::assertDirectoryDoesNotExist($this->baseDir.'/buddy');
+        $this->assertDirectoryDoesNotExist($this->baseDir.'/buddy');
     }
 
     private function getManagerWithLocalStorage(): PackageManager

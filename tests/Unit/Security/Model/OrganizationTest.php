@@ -13,6 +13,6 @@ final class OrganizationTest extends TestCase
     {
         $organization = new Organization('foo', 'bar', 'baz', 'quz');
 
-        self::assertSame('baz', $organization->getUsername());
+        $this->assertSame('baz', $organization->getUsername());
     }
 }

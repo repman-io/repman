@@ -9,11 +9,13 @@ use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use RuntimeException;
 
 /**
  * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\OrganizationRepository")
@@ -21,46 +23,34 @@ use Ramsey\Uuid\UuidInterface;
 class Organization
 {
     /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private UuidInterface $id;
-
-    /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private \DateTimeImmutable $createdAt;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $name;
-
-    /**
-     * @ORM\Column(type="string", unique=true, length=255)
-     */
-    private string $alias;
+    private DateTimeImmutable $createdAt;
 
     /**
      * @var Collection<int,Package>|Package[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $packages;
 
     /**
      * @var Collection<int,Token>|Token[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $tokens;
 
     /**
      * @var Collection<int,Invitation>|Invitation[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Invitation", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $invitations;
 
     /**
      * @var Collection<int,Member>|Member[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $members;
@@ -70,17 +60,26 @@ class Organization
      */
     private bool $hasAnonymousAccess = false;
 
-    public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
+    public function __construct(/**
+     * @ORM\Id
+     *
+     * @ORM\Column(type="uuid", unique=true)
+     */
+        private UuidInterface $id, User $owner, /**
+     * @ORM\Column(type="string", length=255)
+     */
+        private string $name, /**
+     * @ORM\Column(type="string", unique=true, length=255)
+     */
+        private string $alias)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->alias = $alias;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->packages = new ArrayCollection();
         $this->tokens = new ArrayCollection();
         $this->invitations = new ArrayCollection();
         $this->members = new ArrayCollection();
         $this->members->add($member = new Member(Uuid::uuid4(), $owner, $this, Member::ROLE_OWNER));
+
         $owner->addMembership($member);
     }
 
@@ -207,7 +206,7 @@ class Organization
     public function removeMember(User $user): void
     {
         if ($this->isLastOwner($user)) {
-            throw new \RuntimeException('Organisation must have at least one owner.');
+            throw new RuntimeException('Organisation must have at least one owner.');
         }
 
         foreach ($this->members as $member) {
@@ -221,7 +220,7 @@ class Organization
     public function changeRole(User $user, string $role): void
     {
         if ($this->isLastOwner($user) && $role === Member::ROLE_MEMBER) {
-            throw new \RuntimeException('Organisation must have at least one owner.');
+            throw new RuntimeException('Organisation must have at least one owner.');
         }
 
         foreach ($this->members as $member) {
@@ -262,6 +261,7 @@ class Organization
         if ($owners->count() > 1) {
             return false;
         }
+
         /** @var Member $lastOwner */
         $lastOwner = $owners->first();
 

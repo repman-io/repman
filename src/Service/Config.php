@@ -12,23 +12,20 @@ final class Config
     public const CACHE_KEY = 'values';
 
     public const TELEMETRY = 'telemetry';
+
     public const TELEMETRY_ENABLED = 'enabled';
+
     public const TELEMETRY_DISABLED = 'disabled';
 
     public const TECHNICAL_EMAIL = 'technical_email';
-
-    private ConfigQuery $configQuery;
-    private CacheInterface $cache;
 
     /**
      * @var array<string,string>
      */
     private array $values = [];
 
-    public function __construct(ConfigQuery $configQuery, CacheInterface $configCache)
+    public function __construct(private readonly ConfigQuery $configQuery, private readonly CacheInterface $cache)
     {
-        $this->configQuery = $configQuery;
-        $this->cache = $configCache;
     }
 
     public function get(string $key): ?string
@@ -55,7 +52,11 @@ final class Config
 
     public function userRegistrationEnabled(): bool
     {
-        return $this->localRegistrationEnabled() || $this->oauthRegistrationEnabled();
+        if ($this->localRegistrationEnabled()) {
+            return true;
+        }
+
+        return $this->oauthRegistrationEnabled();
     }
 
     public function telemetryEnabled(): bool

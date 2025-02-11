@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\User;
 
 final class ResetPassword
 {
-    private string $token;
-    private string $password;
-
-    public function __construct(string $token, string $password)
+    public function __construct(private readonly string $token, private readonly string $password)
     {
-        $this->token = $token;
-        $this->password = $password;
     }
 
     public function token(): string

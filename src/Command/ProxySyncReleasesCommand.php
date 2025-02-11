@@ -7,8 +7,10 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
+use DateTimeImmutable;
 use Psr\Cache\CacheItemPoolInterface;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
+use RuntimeException;
+use SimpleXMLElement;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,19 +23,10 @@ final class ProxySyncReleasesCommand extends Command
 
     protected static $defaultName = 'repman:proxy:sync-releases';
 
-    private ProxyRegister $register;
-    private Downloader $downloader;
-    private CacheItemPoolInterface $cache;
     private LockInterface $lock;
-    private LockFactory $lockFactory;
 
-    public function __construct(ProxyRegister $register, Downloader $downloader, CacheItemPoolInterface $packagistReleasesFeedCache, LockFactory $lockFactory)
+    public function __construct(private readonly ProxyRegister $register, private readonly Downloader $downloader, private readonly CacheItemPoolInterface $cache, private readonly LockFactory $lockFactory)
     {
-        $this->register = $register;
-        $this->downloader = $downloader;
-        $this->cache = $packagistReleasesFeedCache;
-        $this->lockFactory = $lockFactory;
-
         parent::__construct();
     }
 
@@ -68,7 +61,7 @@ final class ProxySyncReleasesCommand extends Command
         return 0;
     }
 
-    private function syncPackages(\SimpleXMLElement $feed): void
+    private function syncPackages(SimpleXMLElement $feed): void
     {
         $proxy = $this
             ->register
@@ -100,10 +93,10 @@ final class ProxySyncReleasesCommand extends Command
 
         $lastPubDate = $lastPubDateCashed->get();
 
-        return new \DateTimeImmutable($pubDate) <= new \DateTimeImmutable($lastPubDate);
+        return new DateTimeImmutable($pubDate) <= new DateTimeImmutable($lastPubDate);
     }
 
-    private function loadFeed(): \SimpleXMLElement
+    private function loadFeed(): SimpleXMLElement
     {
         $stream = $this
             ->downloader
@@ -112,7 +105,7 @@ final class ProxySyncReleasesCommand extends Command
 
         $xml = @simplexml_load_string((string) stream_get_contents($stream));
         if ($xml === false) {
-            throw new \RuntimeException('Unable to parse RSS feed');
+            throw new RuntimeException('Unable to parse RSS feed');
         }
 
         return $xml;

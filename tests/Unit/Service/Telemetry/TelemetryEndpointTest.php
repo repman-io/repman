@@ -12,7 +12,9 @@ use Buddy\Repman\Service\Telemetry\Entry\Package;
 use Buddy\Repman\Service\Telemetry\Entry\Proxy;
 use Buddy\Repman\Service\Telemetry\TechnicalEmail;
 use Buddy\Repman\Service\Telemetry\TelemetryEndpoint;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
@@ -31,10 +33,8 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint($client);
         $endpoint->send($this->entry());
 
-        self::assertEquals(1, $called);
-        self::assertJsonStringEqualsJsonString(
-            $response,
-            '
+        $this->assertSame(1, $called);
+        $this->assertJsonStringEqualsJsonString($response, '
             {
                 "id": "20200721_8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
                 "date": "2020-07-21",
@@ -80,13 +80,12 @@ final class TelemetryEndpointTest extends TestCase
                     "packages": 1
                 }
             }
-            '
-        );
+            ');
     }
 
     public function testFailedSend(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error while sending telemetry data. HTTP error: 500');
 
         $endpoint = new TelemetryEndpoint(
@@ -108,21 +107,18 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint($client);
         $endpoint->addTechnicalEmail($this->email());
 
-        self::assertEquals(1, $called);
-        self::assertJsonStringEqualsJsonString(
-            $response,
-            '
+        $this->assertSame(1, $called);
+        $this->assertJsonStringEqualsJsonString($response, '
             {
                 "instanceId": "8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
                 "email": "john.doe@example.com"
             }
-            '
-        );
+            ');
     }
 
     public function testFailedAddTechnicalEmailAddress(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error while sending telemetry data. HTTP error: 403');
 
         $endpoint = new TelemetryEndpoint(
@@ -144,21 +140,18 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint($client);
         $endpoint->removeTechnicalEmail($this->email());
 
-        self::assertEquals(1, $called);
-        self::assertJsonStringEqualsJsonString(
-            $response,
-            '
+        $this->assertSame(1, $called);
+        $this->assertJsonStringEqualsJsonString($response, '
             {
                 "instanceId": "8f43446b-52a3-4bd9-9a8a-ecc955ac754d",
                 "email": "john.doe@example.com"
             }
-            '
-        );
+            ');
     }
 
     public function testFailedRemoveTechnicalEmailAddress(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Error while sending telemetry data. HTTP error: 403');
 
         $endpoint = new TelemetryEndpoint(
@@ -179,9 +172,9 @@ final class TelemetryEndpointTest extends TestCase
         $organization->addPackages([
             new Package(
                 'github-oauth',
-                new \DateTimeImmutable('2018-01-23 21:31:10'),
-                new \DateTimeImmutable('2020-07-22 13:37:56'),
-                new \DateTimeImmutable('2020-07-22 13:37:56'),
+                new DateTimeImmutable('2018-01-23 21:31:10'),
+                new DateTimeImmutable('2020-07-22 13:37:56'),
+                new DateTimeImmutable('2020-07-22 13:37:56'),
                 false,
                 true,
                 'ok',
@@ -191,7 +184,7 @@ final class TelemetryEndpointTest extends TestCase
         ]);
 
         return new Entry(
-            new \DateTimeImmutable('2020-07-21 12:13:13'),
+            new DateTimeImmutable('2020-07-21 12:13:13'),
             new Instance(
                 '8f43446b-52a3-4bd9-9a8a-ecc955ac754d',
                 '0.5.0',

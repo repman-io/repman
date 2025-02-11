@@ -12,16 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractHookHandler implements MessageHandlerInterface
 {
-    protected PackageRepository $packages;
-    protected IntegrationRegister $integrations;
-    protected UrlGeneratorInterface $router;
-    protected UserOAuthTokenRefresher $tokenRefresher;
-
-    public function __construct(PackageRepository $packages, IntegrationRegister $integrations, UrlGeneratorInterface $router, UserOAuthTokenRefresher $tokenRefresher)
+    public function __construct(protected PackageRepository $packages, protected IntegrationRegister $integrations, protected UrlGeneratorInterface $router, protected UserOAuthTokenRefresher $tokenRefresher)
     {
-        $this->packages = $packages;
-        $this->integrations = $integrations;
-        $this->router = $router;
-        $this->tokenRefresher = $tokenRefresher;
     }
 }

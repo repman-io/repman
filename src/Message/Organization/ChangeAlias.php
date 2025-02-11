@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Organization;
 
 final class ChangeAlias
 {
-    private string $organizationId;
-    private string $alias;
-
-    public function __construct(string $organizationId, string $alias)
+    public function __construct(private readonly string $organizationId, private readonly string $alias)
     {
-        $this->organizationId = $organizationId;
-        $this->alias = $alias;
     }
 
     public function organizationId(): string

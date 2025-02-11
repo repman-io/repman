@@ -23,10 +23,10 @@ final class CreateOrganizationHandlerTest extends IntegrationTestCase
         /** @var Organization $organization */
         $organization = $this->container()->get(DbalOrganizationQuery::class)->getByAlias('acme-inc')->get();
 
-        self::assertEquals('Acme Inc.', $organization->name());
-        self::assertEquals('acme-inc', $organization->alias());
-        self::assertEquals($id, $organization->id());
-        self::assertTrue($organization->isOwner($ownerId));
-        self::assertTrue($organization->isMember($ownerId));
+        $this->assertSame('Acme Inc.', $organization->name());
+        $this->assertSame('acme-inc', $organization->alias());
+        $this->assertSame($id, $organization->id());
+        $this->assertTrue($organization->isOwner($ownerId));
+        $this->assertTrue($organization->isMember($ownerId));
     }
 }

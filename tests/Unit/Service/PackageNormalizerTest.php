@@ -17,6 +17,6 @@ final class PackageNormalizerTest extends TestCase
 
         $data = $normalizer->normalize($package);
 
-        self::assertTrue(isset($data['uid']));
+        $this->assertArrayHasKey('uid', $data);
     }
 }

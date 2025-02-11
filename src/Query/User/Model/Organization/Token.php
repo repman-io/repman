@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model\Organization;
 
+use DateTimeImmutable;
+
 final class Token
 {
-    private string $name;
-    private string $value;
-    private \DateTimeImmutable $createdAt;
-    private ?\DateTimeImmutable $lastUsedAt;
-
-    public function __construct(string $name, string $value, \DateTimeImmutable $createdAt, ?\DateTimeImmutable $lastUsedAt)
+    public function __construct(private readonly string $name, private readonly string $value, private readonly DateTimeImmutable $createdAt, private readonly ?DateTimeImmutable $lastUsedAt)
     {
-        $this->name = $name;
-        $this->value = $value;
-        $this->createdAt = $createdAt;
-        $this->lastUsedAt = $lastUsedAt;
     }
 
     public function name(): string
@@ -29,12 +22,12 @@ final class Token
         return $this->value;
     }
 
-    public function createdAt(): \DateTimeImmutable
+    public function createdAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function lastUsedAt(): ?\DateTimeImmutable
+    public function lastUsedAt(): ?DateTimeImmutable
     {
         return $this->lastUsedAt;
     }

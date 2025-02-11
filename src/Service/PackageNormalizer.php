@@ -9,7 +9,7 @@ use Composer\Package\PackageInterface;
 
 final class PackageNormalizer
 {
-    private ArrayDumper $dumper;
+    private readonly ArrayDumper $dumper;
 
     public function __construct()
     {

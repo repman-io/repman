@@ -10,17 +10,21 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToReadFile;
 use Munus\Control\Option;
+use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
+use function fclose;
+use function fopen;
+use function sprintf;
+use function stream_copy_to_stream;
+use function sys_get_temp_dir;
+use function uniqid;
+use const DIRECTORY_SEPARATOR;
 
 class Storage
 {
-    private Downloader $downloader;
-    private FilesystemOperator $repoFilesystem;
-
-    public function __construct(Downloader $downloader, FilesystemOperator $repoFilesystem)
+    public function __construct(private readonly Downloader $downloader, private readonly FilesystemOperator $repoFilesystem)
     {
-        $this->downloader = $downloader;
-        $this->repoFilesystem = $repoFilesystem;
     }
 
     public function has(Dist $dist): bool
@@ -30,7 +34,8 @@ class Storage
 
     /**
      * @param string[] $headers
-     * @throws FilesystemException|\Throwable
+     *
+     * @throws FilesystemException|Throwable
      */
     public function download(string $url, Dist $dist, array $headers = []): void
     {
@@ -46,10 +51,10 @@ class Storage
                 $url,
                 $headers,
                 function () use ($url): void {
-                    throw new NotFoundHttpException(\sprintf('File not found at %s', $url));
+                    throw new NotFoundHttpException(sprintf('File not found at %s', $url));
                 }
             )->getOrElseThrow(
-                new \RuntimeException(\sprintf('Failed to download %s from %s', $dist->package(), $url))
+                new RuntimeException(sprintf('Failed to download %s from %s', $dist->package(), $url))
             )
         );
     }
@@ -67,7 +72,7 @@ class Storage
 
     public function filename(Dist $dist): string
     {
-        return \sprintf(
+        return sprintf(
             '%s/dist/%s/%s_%s.%s',
             $dist->repo(),
             $dist->package(),
@@ -105,27 +110,28 @@ class Storage
     public function getLocalFileForDistUrl(string $distFilename): Option
     {
         $tmpLocalFilename = $this->getTempFileName();
-        $tmpLocalFileHandle = \fopen(
+        $tmpLocalFileHandle = fopen(
             $tmpLocalFilename,
             'wb'
         );
         if (false === $tmpLocalFileHandle) {
-            throw new \RuntimeException('Could not open temporary file for writing zip file for dist.');
+            throw new RuntimeException('Could not open temporary file for writing zip file for dist.');
         }
 
         $distReadStream = $this->readStream($distFilename)->getOrNull();
         if (null === $distReadStream) {
             return Option::none();
         }
-        \stream_copy_to_stream($distReadStream, $tmpLocalFileHandle);
-        \fclose($tmpLocalFileHandle);
+
+        stream_copy_to_stream($distReadStream, $tmpLocalFileHandle);
+        fclose($tmpLocalFileHandle);
 
         return Option::of($tmpLocalFilename);
     }
 
     private function getTempFileName(): string
     {
-        return \sys_get_temp_dir().\DIRECTORY_SEPARATOR.\uniqid('repman-dist-', true);
+        return sys_get_temp_dir().DIRECTORY_SEPARATOR.uniqid('repman-dist-', true);
     }
 
     /**

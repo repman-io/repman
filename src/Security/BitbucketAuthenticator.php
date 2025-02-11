@@ -17,12 +17,9 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class BitbucketAuthenticator extends OAuthAuthenticator
 {
-    private BitbucketApi $bitbucketApi;
-
-    public function __construct(ClientRegistry $clientRegistry, BitbucketApi $bitbucketApi, RouterInterface $router, UserProvider $userProvider)
+    public function __construct(ClientRegistry $clientRegistry, private readonly BitbucketApi $bitbucketApi, RouterInterface $router, UserProvider $userProvider)
     {
         $this->clientRegistry = $clientRegistry;
-        $this->bitbucketApi = $bitbucketApi;
         $this->userProvider = $userProvider;
         $this->router = $router;
     }
@@ -45,8 +42,6 @@ final class BitbucketAuthenticator extends OAuthAuthenticator
 
         $user = $this->userProvider->loadUserByIdentifier($email);
 
-        return new SelfValidatingPassport(new UserBadge($email, function () use ($user): UserInterface {
-            return $user;
-        }));
+        return new SelfValidatingPassport(new UserBadge($email, fn (): UserInterface => $user));
     }
 }

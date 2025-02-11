@@ -8,98 +8,99 @@ use Buddy\Repman\Tests\Doubles\BuddyOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use GuzzleHttp\Psr7\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 final class BuddyControllerTest extends FunctionalTestCase
 {
     public function testStartRegisterWithBuddy(): void
     {
-        $this->client->request('GET', $this->urlTo('register_buddy_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_buddy_start'));
         $response = $this->client->getResponse();
 
-        self::assertStringContainsString('buddy.works', (string) $response->headers->get('location'));
+        $this->assertStringContainsString('buddy.works', (string) $response->headers->get('location'));
     }
 
     public function testStartAuthWithBuddy(): void
     {
-        $this->client->request('GET', $this->urlTo('auth_buddy_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_buddy_start'));
         $response = $this->client->getResponse();
 
-        self::assertStringContainsString('buddy.works', (string) $response->headers->get('location'));
+        $this->assertStringContainsString('buddy.works', (string) $response->headers->get('location'));
     }
 
     public function testRedirectToIndexWhenAlreadyLogged(): void
     {
         $this->createAndLoginAdmin();
-        $this->client->request('GET', $this->urlTo('register_buddy_check'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_buddy_check'));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
     }
 
     public function testLoginUserIfAlreadyExist(): void
     {
         $this->fixtures->createUser($email = 'test@buddy.works');
 
-        $this->client->request('GET', $this->urlTo('auth_buddy_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_buddy_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         BuddyOAuth::mockAccessTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('register_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('Your account already exists', $this->lastResponseBody());
+        $this->assertStringContainsString('Your account already exists', $this->lastResponseBody());
     }
 
     public function testCreateUserIfNotExists(): void
     {
         $email = 'test@buddy.works';
-        $this->client->request('GET', $this->urlTo('auth_buddy_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_buddy_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         BuddyOAuth::mockAccessTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('register_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'buddy'])));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'buddy'])));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('Your account has been created', $this->lastResponseBody());
+        $this->assertStringContainsString('Your account has been created', $this->lastResponseBody());
     }
 
     public function testSuccessfulLoginWithBuddy(): void
     {
         $this->fixtures->createOAuthUser($email = 'test@buddy.works');
-        $this->client->request('GET', $this->urlTo('auth_buddy_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_buddy_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         BuddyOAuth::mockAccessTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('login_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('login_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
         $this->client->followRedirect();
-        self::assertStringContainsString('test@buddy.works', $this->lastResponseBody());
+        $this->assertStringContainsString('test@buddy.works', $this->lastResponseBody());
     }
 
     public function testDisplayErrorIfSomethingGoesWrongDuringRegister(): void
     {
-        $this->client->request('GET', $this->urlTo('register_buddy_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_buddy_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         $this->container()->get(HttpClientStub::class)->setNextResponses([new Response(200, [], '{"errors":[{"message":"invalid scope provided"}]}')]);
 
-        $this->client->request('GET', $this->urlTo('register_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_buddy_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_register')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_register')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('invalid scope provided', $this->lastResponseBody());
+        $this->assertStringContainsString('invalid scope provided', $this->lastResponseBody());
     }
 
     /**

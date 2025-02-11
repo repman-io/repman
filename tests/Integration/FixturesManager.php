@@ -29,19 +29,18 @@ use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class FixturesManager
 {
-    private TestContainer $container;
-
-    public function __construct(TestContainer $container)
+    public function __construct(private readonly TestContainer $container)
     {
-        $this->container = $container;
     }
 
     /**
@@ -116,9 +115,9 @@ final class FixturesManager
         return $userId;
     }
 
-    public function createPackage(string $id, string $organization = 'buddy', string $organizationId = null): void
+    public function createPackage(string $id, string $organization = 'buddy', ?string $organizationId = null): void
     {
-        $organization = $organizationId !== null ? $organizationId : $this->createOrganization($organization, $this->createUser());
+        $organization = $organizationId ?? $this->createOrganization($organization, $this->createUser());
         $this->dispatchMessage(
             new AddPackage(
                 $id,
@@ -161,13 +160,13 @@ final class FixturesManager
         $this->container->get('doctrine.orm.entity_manager')->flush($package);
     }
 
-    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0', ?\DateTimeImmutable $date = null): void
+    public function addPackageDownload(int $count, string $packageId, string $version = '1.0.0', ?DateTimeImmutable $date = null): void
     {
         Stream::range(1, $count)->forEach(function (int $index) use ($packageId, $version, $date): void {
             $this->dispatchMessage(new AddDownload(
                 $packageId,
                 $version,
-                $date ?? new \DateTimeImmutable(),
+                $date ?? new DateTimeImmutable(),
                 '192.168.0.1',
                 'Composer 19.10'
             ));
@@ -177,7 +176,7 @@ final class FixturesManager
     /**
      * @param AddDownloads\Package[] $packages
      */
-    public function addProxyPackageDownload(array $packages, \DateTimeImmutable $date): void
+    public function addProxyPackageDownload(array $packages, DateTimeImmutable $date): void
     {
         $this->container->get(AddDownloadsHandler::class)->__invoke(new AddDownloads(
             $packages,
@@ -203,7 +202,7 @@ final class FixturesManager
      * @param Version[] $versions
      * @param Link[]    $links
      */
-    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, \DateTimeImmutable $latestReleaseDate, array $versions = [], array $links = [], ?string $readme = null, ?string $replacementPackage = null): void
+    public function syncPackageWithData(string $packageId, string $name, string $description, string $latestReleasedVersion, DateTimeImmutable $latestReleaseDate, array $versions = [], array $links = [], ?string $readme = null, ?string $replacementPackage = null): void
     {
         $this->container->get(PackageSynchronizer::class)->setData($name, $description, $latestReleasedVersion, $latestReleaseDate, $versions, $links, $readme, $replacementPackage);
         $this->dispatchMessage(new SynchronizePackage($packageId));
@@ -215,7 +214,7 @@ final class FixturesManager
         string $type,
         string $accessToken = 'secret',
         ?string $refreshToken = null,
-        ?\DateTimeImmutable $expiresAt = null
+        ?DateTimeImmutable $expiresAt = null,
     ): string {
         $this->dispatchMessage(
             new AddOAuthToken(
@@ -233,7 +232,7 @@ final class FixturesManager
 
     public function prepareRepoFiles(): void
     {
-        $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+        $filesystem = new Filesystem();
         $filesystem->mirror(
             __DIR__.'/../Resources/fixtures/buddy/dist/buddy-works/repman',
             __DIR__.'/../Resources/buddy/dist/buddy-works/repman',
@@ -247,7 +246,7 @@ final class FixturesManager
      */
     public function addScanResult(string $packageId, string $status, array $content = ['composer.lock' => []]): void
     {
-        $date = new \DateTimeImmutable();
+        $date = new DateTimeImmutable();
         $package = $this->container
             ->get(PackageRepository::class)
             ->getById(Uuid::fromString($packageId));

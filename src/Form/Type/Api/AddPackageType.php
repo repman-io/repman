@@ -15,16 +15,10 @@ use Symfony\Component\Validator\Constraints\PositiveOrZero;
 class AddPackageType extends AbstractType
 {
     /**
-     * @var string[]
-     */
-    private array $allowedTypes;
-
-    /**
      * @param string[] $allowedTypes
      */
-    public function __construct(array $allowedTypes = [])
+    public function __construct(private readonly array $allowedTypes = [])
     {
-        $this->allowedTypes = $allowedTypes;
     }
 
     public function getBlockPrefix(): string

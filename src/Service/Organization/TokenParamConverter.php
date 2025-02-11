@@ -13,11 +13,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class TokenParamConverter implements ParamConverterInterface
 {
-    private OrganizationQuery $organizationQuery;
-
-    public function __construct(OrganizationQuery $organizationQuery)
+    public function __construct(private readonly OrganizationQuery $organizationQuery)
     {
-        $this->organizationQuery = $organizationQuery;
     }
 
     public function supports(ParamConverter $configuration)

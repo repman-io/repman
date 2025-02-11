@@ -13,13 +13,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class GenerateTokenHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $organizations;
-    private TokenGenerator $tokenGenerator;
-
-    public function __construct(OrganizationRepository $organizations, TokenGenerator $tokenGenerator)
+    public function __construct(private readonly OrganizationRepository $organizations, private readonly TokenGenerator $tokenGenerator)
     {
-        $this->organizations = $organizations;
-        $this->tokenGenerator = $tokenGenerator;
     }
 
     public function __invoke(GenerateToken $message): void

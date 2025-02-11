@@ -9,6 +9,7 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
+use DateTimeImmutable;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,25 +21,18 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
+use function fopen;
+use function stream_copy_to_stream;
 
 final class RepoController extends AbstractController
 {
-    private PackageQuery $packageQuery;
-    private PackageManager $packageManager;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        PackageQuery $packageQuery,
-        PackageManager $packageManager,
-        MessageBusInterface $messageBus
-    ) {
-        $this->packageQuery = $packageQuery;
-        $this->packageManager = $packageManager;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly PackageQuery $packageQuery, private readonly PackageManager $packageManager, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
      * @Route("/packages.json", host="{organization}{sep1}repo{sep2}{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"}, requirements={"domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
+     *
      * @Cache(public=false)
      */
     public function packages(Request $request, Organization $organization): JsonResponse
@@ -80,6 +74,7 @@ final class RepoController extends AbstractController
      *     defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
      *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
      *     methods={"GET"})
+     *
      * @Cache(public=false)
      */
     public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): StreamedResponse
@@ -89,12 +84,13 @@ final class RepoController extends AbstractController
             ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.'));
 
         return new StreamedResponse(function () use ($filename): void {
-            $outputStream = \fopen('php://output', 'wb');
+            $outputStream = fopen('php://output', 'wb');
             if (false === $outputStream) {
                 throw new HttpException(500, 'Could not open output stream to send binary file.'); // @codeCoverageIgnore
             }
+
             $fileStream = $this->packageManager->getDistFileReference($filename);
-            \stream_copy_to_stream(
+            stream_copy_to_stream(
                 $fileStream
                     ->getOrElseThrow(new NotFoundHttpException('This distribution file can not be found or downloaded from origin url.')),
                 $outputStream
@@ -122,7 +118,11 @@ final class RepoController extends AbstractController
 
         $packageMap = $this->getPackageNameMap($organization->id());
         foreach ($contents['downloads'] as $package) {
-            if (!isset($package['name']) || !isset($package['version'])) {
+            if (!isset($package['name'])) {
+                continue;
+            }
+
+            if (!isset($package['version'])) {
                 continue;
             }
 
@@ -130,7 +130,7 @@ final class RepoController extends AbstractController
                 $this->messageBus->dispatch(new AddDownload(
                     $packageMap[$package['name']],
                     $package['version'],
-                    new \DateTimeImmutable(),
+                    new DateTimeImmutable(),
                     $request->getClientIp(),
                     $request->headers->get('User-Agent')
                 ));
@@ -147,6 +147,7 @@ final class RepoController extends AbstractController
      *      methods={"GET"},
      *      defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
      *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
+     *
      * @Cache(public=false)
      */
     public function providerV2Dev(Request $request, Organization $organization, string $package): JsonResponse
@@ -165,6 +166,7 @@ final class RepoController extends AbstractController
      *      methods={"GET"},
      *      defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
      *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
+     *
      * @Cache(public=false)
      */
     public function providerV2(Request $request, Organization $organization, string $package): JsonResponse

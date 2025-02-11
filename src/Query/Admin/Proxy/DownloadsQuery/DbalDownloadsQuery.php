@@ -7,15 +7,14 @@ namespace Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 use Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 use Buddy\Repman\Query\Admin\Proxy\Model\Package;
 use Buddy\Repman\Query\User\Model\Installs;
+use Buddy\Repman\Query\User\Model\Installs\Day;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class DbalDownloadsQuery implements DownloadsQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -33,7 +32,7 @@ final class DbalDownloadsQuery implements DownloadsQuery
         ]) as $row) {
             $packages[$row['package']] = new Package(
                 $row['downloads'],
-                new \DateTimeImmutable($row['date'])
+                new DateTimeImmutable($row['date'])
             );
         }
 
@@ -44,9 +43,9 @@ final class DbalDownloadsQuery implements DownloadsQuery
     {
         return new Installs(
             array_map(
-                static fn (array $row): Installs\Day => new Installs\Day(substr($row['date'], 0, 10), $row['count']),
-                $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(*), DATE_TRUNC(\'day\', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC(\'day\', date)) AS installs ORDER BY date ASC', [
-                    'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
+                static fn (array $row): Day => new Day(substr((string) $row['date'], 0, 10), $row['count']),
+                $this->connection->fetchAllAssociative("SELECT * FROM (SELECT COUNT(*), DATE_TRUNC('day', date) AS date FROM proxy_package_download WHERE date > :date GROUP BY DATE_TRUNC('day', date)) AS installs ORDER BY date ASC", [
+                    'date' => (new DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
                 ]),
             ),
             $lastDays,
