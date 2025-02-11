@@ -815,9 +815,6 @@
     "symfony/polyfill-php81": {
         "version": "v1.23.0"
     },
-    "symfony/polyfill-uuid": {
-        "version": "v1.14.0"
-    },
     "symfony/process": {
         "version": "v5.0.2"
     },

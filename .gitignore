@@ -27,12 +27,12 @@
 
 ###> Docker ###
 docker-compose.*.yml
-/docker/logs/nginx/*
-!/docker/logs/nginx/.gitkeep
-/docker/nginx/ssl/certs/*
-!/docker/nginx/ssl/certs/.gitkeep
-/docker/nginx/ssl/private/*
-!/docker/nginx/ssl/private/.gitkeep
+/.docker/logs/nginx/*
+!/.docker/logs/nginx/.gitkeep
+/.docker/nginx/ssl/certs/*
+!/.docker/nginx/ssl/certs/.gitkeep
+/.docker/nginx/ssl/private/*
+!/.docker/nginx/ssl/private/.gitkeep
 ###< Docker ###
 
 composer.phar

@@ -2,7 +2,7 @@
 
 /ansible                export-ignore
 /bin/coverage-checker   export-ignore
-/docker                 export-ignore
+/.docker                 export-ignore
 /tests                  export-ignore
 /.codecov.yml           export-ignore
 /.dockerignore          export-ignore

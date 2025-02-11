@@ -9,7 +9,7 @@
     type: "BUILD"
     working_directory: "/buddy/repman"
     docker_image_name: "library/php"
-    docker_image_tag: "8.0.19"
+    docker_image_tag: "8.0"
     execute_commands:
     - "composer validate"
     - "composer install"
@@ -44,7 +44,7 @@
       "git config --global user.name \"buddy.works\""
     services:
     - type: "POSTGRE_SQL"
-      version: "11.6-alpine"
+      version: "17-alpine"
       connection:
         host: "postgres"
         port: 5432
@@ -66,7 +66,7 @@
     next_pipeline_name: "deploy"
   variables:
   - key: "DATABASE_URL"
-    value: "postgresql://main:main@postgres:5432/main?serverVersion=11&charset=utf8"
+    value: "postgresql://main:main@postgres:5432/main?serverVersion=17&charset=utf8"
     id: 352921
     description: ""
 - pipeline: "security"
@@ -83,7 +83,7 @@
       type: "BUILD"
       working_directory: "/buddy/repman"
       docker_image_name: "library/php"
-      docker_image_tag: "8.0.19"
+      docker_image_tag: "8.0"
       execute_commands:
         - "/local-php-security-checker"
       setup_commands:
@@ -102,7 +102,7 @@
       integration_hash: "5f4f3794fd5a7366872df494"
   variables:
     - key: "DATABASE_URL"
-      value: "postgresql://main:main@postgres:5432/main?serverVersion=11&charset=utf8"
+      value: "postgresql://main:main@postgres:5432/main?serverVersion=17&charset=utf8"
 - pipeline: "setup"
   trigger_mode: "MANUAL"
   ref_name: "refs/heads/*"

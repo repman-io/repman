@@ -15,7 +15,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4.2 || ^8.0",
+        "php": "^8.0",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -112,7 +112,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.2"
+            "php": "8.0"
         },
         "preferred-install": {
             "*": "dist"

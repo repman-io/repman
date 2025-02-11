@@ -2,10 +2,15 @@
 /.gitignore
 /buddy.yml
 /ansible
-/docker
-!/docker/nginx/cert
+/.docker
+!/.docker/nginx/cert
 /tests
 /var/*
+/phpstan*
+/docker-compose.yml
+/Dockerfile
+/*.md
+/.codecov.yml
 
 ###> php-cs-fixer/shim ###
 /.php-cs-fixer.cache
