@@ -8,17 +8,18 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\UnableToReadFile;
 use Munus\Control\Option;
 
 class PackageManager
 {
     private Storage $distStorage;
-    private FilesystemInterface $repoFilesystem;
+    private Filesystem $repoFilesystem;
     private VersionParser $versionParser;
 
-    public function __construct(Storage $distStorage, FilesystemInterface $repoFilesystem)
+    public function __construct(Storage $distStorage, Filesystem $repoFilesystem)
     {
         $this->distStorage = $distStorage;
         $this->repoFilesystem = $repoFilesystem;
@@ -29,6 +30,7 @@ class PackageManager
      * @param PackageName[] $packages
      *
      * @return array{\DateTimeImmutable|null, mixed[]}
+     * @throws FilesystemException
      */
     public function findProviders(string $organizationAlias, array $packages): array
     {
@@ -37,11 +39,11 @@ class PackageManager
 
         foreach ($packages as $package) {
             $filepath = $this->filepath($organizationAlias, $package->name());
-            if (!$this->repoFilesystem->has($filepath)) {
+            if (!$this->repoFilesystem->fileExists($filepath)) {
                 continue;
             }
 
-            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
+            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->lastModified($filepath));
 
             if ($fileModifyDate > $lastModified) {
                 $lastModified = $fileModifyDate;
@@ -64,7 +66,7 @@ class PackageManager
      */
     public function saveProvider(array $json, string $organizationAlias, string $packageName): void
     {
-        $this->repoFilesystem->put($this->filepath($organizationAlias, $packageName), \serialize($json));
+        $this->repoFilesystem->write($this->filepath($organizationAlias, $packageName), \serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
@@ -78,7 +80,7 @@ class PackageManager
     public function removeDist(string $organizationAlias, string $packageName): self
     {
         $distDir = $organizationAlias.'/dist/'.$packageName;
-        $this->repoFilesystem->deleteDir($distDir);
+        $this->repoFilesystem->deleteDirectory($distDir);
 
         return $this;
     }
@@ -104,7 +106,7 @@ class PackageManager
 
     public function removeOrganizationDir(string $organizationAlias): self
     {
-        $this->repoFilesystem->deleteDir($organizationAlias);
+        $this->repoFilesystem->deleteDirectory($organizationAlias);
 
         return $this;
     }
@@ -124,6 +126,7 @@ class PackageManager
 
     /**
      * @return Option<resource> Handle for a file
+     * @throws FilesystemException
      */
     public function getDistFileReference(
         string $fileName
@@ -145,7 +148,6 @@ class PackageManager
     {
         try {
             $this->repoFilesystem->delete($fileName);
-        } catch (FileNotFoundException $ignored) {
-        }
+        } catch (UnableToReadFile) {}
     }
 }

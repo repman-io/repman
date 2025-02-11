@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
@@ -45,7 +45,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
         return $request->headers->has('PHP_AUTH_USER') && $request->headers->has('PHP_AUTH_PW');
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         $organization = $this->organizationProvider->loadUserByIdentifier($request->headers->get('PHP_AUTH_PW', ''));
         if ($organization->getUserIdentifier() !== $request->get('organization')) {

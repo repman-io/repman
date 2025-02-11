@@ -6,17 +6,18 @@ namespace Buddy\Repman\Service\Dist;
 
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Downloader;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToReadFile;
 use Munus\Control\Option;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Storage
 {
     private Downloader $downloader;
-    private FilesystemInterface $repoFilesystem;
+    private FilesystemOperator $repoFilesystem;
 
-    public function __construct(Downloader $downloader, FilesystemInterface $repoFilesystem)
+    public function __construct(Downloader $downloader, FilesystemOperator $repoFilesystem)
     {
         $this->downloader = $downloader;
         $this->repoFilesystem = $repoFilesystem;
@@ -24,11 +25,12 @@ class Storage
 
     public function has(Dist $dist): bool
     {
-        return $this->repoFilesystem->has($this->filename($dist));
+        return $this->repoFilesystem->fileExists($this->filename($dist));
     }
 
     /**
      * @param string[] $headers
+     * @throws FilesystemException|\Throwable
      */
     public function download(string $url, Dist $dist, array $headers = []): void
     {
@@ -52,10 +54,13 @@ class Storage
         );
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function remove(Dist $dist): void
     {
         $filename = $this->filename($dist);
-        if ($this->repoFilesystem->has($filename)) {
+        if ($this->repoFilesystem->fileExists($filename)) {
             $this->repoFilesystem->delete($filename);
         }
     }
@@ -72,12 +77,15 @@ class Storage
         );
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function size(Dist $dist): int
     {
         $filename = $this->filename($dist);
-        if ($this->repoFilesystem->has($filename)) {
+        if ($this->repoFilesystem->fileExists($filename)) {
             /* @phpstan-ignore-next-line - will always return int because file exists */
-            return $this->repoFilesystem->getSize($filename);
+            return $this->repoFilesystem->fileSize($filename);
         }
 
         return 0;
@@ -130,7 +138,7 @@ class Storage
             if (false === $resource) {
                 return Option::none();
             }
-        } catch (FileNotFoundException $e) {
+        } catch (UnableToReadFile|FilesystemException) {
             return Option::none();
         }
 

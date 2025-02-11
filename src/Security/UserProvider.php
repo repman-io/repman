@@ -8,6 +8,7 @@ use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -49,9 +50,9 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
         return $class === User::class;
     }
 
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
-        $this->userRepository->upgradePassword($user, $newEncodedPassword);
+        $this->userRepository->upgradePassword($user, $newHashedPassword);
     }
 
     public function emailExist(string $email): bool

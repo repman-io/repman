@@ -7,6 +7,7 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,11 +23,11 @@ final class ProxySyncReleasesCommand extends Command
 
     private ProxyRegister $register;
     private Downloader $downloader;
-    private AdapterInterface $cache;
+    private CacheItemPoolInterface $cache;
     private LockInterface $lock;
     private LockFactory $lockFactory;
 
-    public function __construct(ProxyRegister $register, Downloader $downloader, AdapterInterface $packagistReleasesFeedCache, LockFactory $lockFactory)
+    public function __construct(ProxyRegister $register, Downloader $downloader, CacheItemPoolInterface $packagistReleasesFeedCache, LockFactory $lockFactory)
     {
         $this->register = $register;
         $this->downloader = $downloader;

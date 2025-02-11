@@ -31,7 +31,7 @@ final class Organization implements UserInterface
         return $this->name;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return ['ROLE_ORGANIZATION'];
     }
