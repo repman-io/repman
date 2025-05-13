@@ -6,7 +6,8 @@ namespace Buddy\Repman\Command;
 
 use ArrayIterator;
 use Buddy\Repman\Service\Dist\FilePatternFilterIterator;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,7 +22,7 @@ final class ClearMetadataCacheCommand extends Command
         '.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr', '.git', '.hg',
     ];
 
-    public function __construct(private readonly Filesystem $repoFilesystem)
+    public function __construct(private readonly FilesystemOperator $repoFilesystem)
     {
         parent::__construct();
     }
@@ -36,6 +37,9 @@ final class ClearMetadataCacheCommand extends Command
         ;
     }
 
+    /**
+     * @throws FilesystemException
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $files = $this->repoFilesystem->listContents('/', true);

@@ -65,7 +65,7 @@ services:
     image: nginx:1.27-alpine
     command: ['/nginx/start.sh']
     ports:
-      - 443:443
+      - "443:443"
     depends_on:
       - app
     volumes:

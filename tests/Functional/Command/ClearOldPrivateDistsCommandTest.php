@@ -10,7 +10,7 @@ use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Composer\Semver\VersionParser;
 use DateTime;
 use DateTimeImmutable;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 use function sprintf;
@@ -23,7 +23,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
 
     private string $version = '1.2.3';
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     protected function setUp(): void
     {

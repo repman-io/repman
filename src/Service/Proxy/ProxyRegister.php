@@ -8,6 +8,7 @@ use Buddy\Repman\Service\Proxy;
 use Munus\Collection\GenericList;
 use Munus\Collection\Set;
 use RuntimeException;
+use Throwable;
 
 final class ProxyRegister
 {
@@ -30,15 +31,18 @@ final class ProxyRegister
     public function all(): GenericList
     {
         $proxies = $this->urls->map(fn ($url) => $this->factory->create($url))->iterator()->toArray();
-        $proxies[] = $this->factory->create('https://packagist.org');
+        $proxies[] = $this->factory->create('https://repo.packagist.org');
 
         return GenericList::ofAll($proxies);
     }
 
+    /**
+     * @throws Throwable
+     */
     public function getByHost(string $host): Proxy
     {
         return $this->factory->create($this->urls
-            ->add('https://packagist.org')
+            ->add('https://repo.packagist.org')
             ->find(fn ($url) => (string) parse_url($url, PHP_URL_HOST) === $host)
             ->getOrElseThrow(new RuntimeException(sprintf('Proxy for %s not found', $host)))
         );

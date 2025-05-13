@@ -9,8 +9,8 @@ use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
 use DateTimeImmutable;
-use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToReadFile;
 use Munus\Control\Option;
 use function array_filter;
@@ -23,7 +23,7 @@ class PackageManager
 {
     private readonly VersionParser $versionParser;
 
-    public function __construct(private readonly Storage $distStorage, private readonly Filesystem $repoFilesystem)
+    public function __construct(private readonly Storage $distStorage, private readonly FilesystemOperator $repoFilesystem)
     {
         $this->versionParser = new VersionParser();
     }
@@ -65,7 +65,10 @@ class PackageManager
     }
 
     /**
-     * @param mixed[] $json
+     * @param array $json
+     * @param string $organizationAlias
+     * @param string $packageName
+     * @throws FilesystemException
      */
     public function saveProvider(array $json, string $organizationAlias, string $packageName): void
     {
@@ -80,6 +83,9 @@ class PackageManager
         return $this;
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function removeDist(string $organizationAlias, string $packageName): self
     {
         $distDir = $organizationAlias.'/dist/'.$packageName;
@@ -108,6 +114,9 @@ class PackageManager
         return $this;
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function removeOrganizationDir(string $organizationAlias): self
     {
         $this->repoFilesystem->deleteDirectory($organizationAlias);

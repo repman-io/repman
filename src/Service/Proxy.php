@@ -8,7 +8,7 @@ use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use InvalidArgumentException;
 use JsonException;
-use League\Flysystem\Filesystem;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToReadFile;
 use Munus\Collection\GenericList;
@@ -45,7 +45,7 @@ final class Proxy
     public function __construct(
         private readonly string $name,
         string $url,
-        private readonly Filesystem $filesystem,
+        private readonly FilesystemOperator $filesystem,
         private readonly Downloader $downloader,
     ) {
         $this->url = rtrim($url, '/');
@@ -179,7 +179,7 @@ final class Proxy
             }
 
             $path = $this->distPath($package, $lastDist['reference'], $lastDist['type']);
-            if ($version === $packageData['version'] && !$this->filesystem->has($path)) {
+            if ($version === $packageData['version'] && !$this->filesystem->fileExists($path)) {
                 $this->filesystem->writeStream($path, $this->downloader->getContents($lastDist['url'])
                     ->getOrElseThrow(new RuntimeException(sprintf('Failed to download file from %s', $lastDist['url'])))
                 );
@@ -188,6 +188,9 @@ final class Proxy
         }
     }
 
+    /**
+     * @throws FilesystemException
+     */
     public function removeDist(string $package): void
     {
         if (mb_strlen($package) === 0) {
