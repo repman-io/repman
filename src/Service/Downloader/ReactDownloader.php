@@ -113,7 +113,8 @@ final class ReactDownloader implements Downloader
     }
 
     /**
-     * @param mixed[] $headers
+     * @param array $headers
+     * @return int
      */
     private function getStatusCode(array $headers): int
     {

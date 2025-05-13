@@ -42,6 +42,7 @@ final class ProxyRegister
     public function getByHost(string $host): Proxy
     {
         return $this->factory->create($this->urls
+            ->add('https://packagist.org')
             ->add('https://repo.packagist.org')
             ->find(fn ($url) => (string) parse_url($url, PHP_URL_HOST) === $host)
             ->getOrElseThrow(new RuntimeException(sprintf('Proxy for %s not found', $host)))

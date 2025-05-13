@@ -23,7 +23,7 @@ final class SendTelemetryCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Send telemetry data');

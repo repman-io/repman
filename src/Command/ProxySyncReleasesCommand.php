@@ -7,8 +7,11 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
+use DateMalformedStringException;
 use DateTimeImmutable;
+use League\Flysystem\FilesystemException;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 use RuntimeException;
 use SimpleXMLElement;
 use Symfony\Component\Console\Command\Command;
@@ -16,6 +19,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
+use Throwable;
 
 final class ProxySyncReleasesCommand extends Command
 {
@@ -33,7 +37,7 @@ final class ProxySyncReleasesCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Sync proxy releases with packagist.org')
@@ -54,6 +58,8 @@ final class ProxySyncReleasesCommand extends Command
             if (!$this->alreadySynced((string) $feed->channel->pubDate)) {
                 $this->syncPackages($feed);
             }
+        } catch (FilesystemException|Throwable) {
+            return 1;
         } finally {
             $this->lock->release();
         }
@@ -61,6 +67,10 @@ final class ProxySyncReleasesCommand extends Command
         return 0;
     }
 
+    /**
+     * @throws FilesystemException
+     * @throws Throwable
+     */
     private function syncPackages(SimpleXMLElement $feed): void
     {
         $proxy = $this
@@ -81,6 +91,10 @@ final class ProxySyncReleasesCommand extends Command
         }
     }
 
+    /**
+     * @throws DateMalformedStringException
+     * @throws InvalidArgumentException
+     */
     private function alreadySynced(string $pubDate): bool
     {
         $lastPubDateCashed = $this->cache->getItem('pub_date');

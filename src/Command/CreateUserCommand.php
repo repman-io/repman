@@ -25,7 +25,7 @@ final class CreateUserCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create normal user')

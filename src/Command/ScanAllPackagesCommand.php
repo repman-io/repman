@@ -26,7 +26,7 @@ final class ScanAllPackagesCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Scan all synchronized packages')

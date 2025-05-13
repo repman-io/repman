@@ -30,7 +30,7 @@ final class ClearMetadataCacheCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Clear packages metadata cache (json files)')

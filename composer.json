@@ -75,7 +75,8 @@
         "symfony/validator": "6.4.*",
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^3.0",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+        "ext-libxml": "*"
     },
     "replace": {
         "paragonie/random_compat": "2.*",

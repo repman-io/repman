@@ -26,7 +26,7 @@ final class SynchronizeAllPackagesCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Synchronize all packages')

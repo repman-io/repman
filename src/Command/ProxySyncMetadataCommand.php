@@ -6,6 +6,8 @@ namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
+use JsonException;
+use League\Flysystem\FilesystemException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,7 +29,7 @@ final class ProxySyncMetadataCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Sync proxy metadata with origins')
@@ -48,6 +50,8 @@ final class ProxySyncMetadataCommand extends Command
                 $proxy->updateLatestProviders();
                 $lock->refresh();
             });
+        } catch (FilesystemException|JsonException) {
+            return 1;
         } finally {
             $lock->release();
         }

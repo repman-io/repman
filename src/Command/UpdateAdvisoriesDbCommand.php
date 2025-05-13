@@ -23,7 +23,7 @@ final class UpdateAdvisoriesDbCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Update security advisories database, scan all packages if updated.')

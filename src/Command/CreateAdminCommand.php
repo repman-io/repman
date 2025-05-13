@@ -30,7 +30,7 @@ final class CreateAdminCommand extends Command
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create admin user')

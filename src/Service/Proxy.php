@@ -8,8 +8,8 @@ use Buddy\Repman\Service\Proxy\DistFile;
 use Buddy\Repman\Service\Proxy\Metadata;
 use InvalidArgumentException;
 use JsonException;
-use League\Flysystem\FilesystemOperator;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToReadFile;
 use Munus\Collection\GenericList;
 use Munus\Control\Option;
@@ -18,6 +18,8 @@ use Throwable;
 use function array_filter;
 use function array_pop;
 use function array_shift;
+use function basename;
+use function dirname;
 use function hash;
 use function in_array;
 use function is_array;
@@ -27,6 +29,7 @@ use function krsort;
 use function ksort;
 use function ltrim;
 use function parse_url;
+use function pathinfo;
 use function preg_match;
 use function preg_replace;
 use function rtrim;
@@ -117,9 +120,16 @@ final class Proxy
     public function latestProvider(): Option
     {
         $providers = [];
-        foreach ($this->filesystem->listContents($this->name.'/provider') as $file) {
-            if ($file['type'] === 'file' && $file['extension'] === 'json' && str_contains((string) $file['filename'], '$')) {
-                $providers[$file['timestamp']] = $file;
+        foreach (iterator_to_array($this->filesystem->listContents($this->name.'/provider')) as $file) {
+            $path = $file->path();
+            $filename = basename($path);
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+            if ($file->isFile() && $extension === 'json' && str_contains($filename, '$')) {
+                $providers[$file->lastModified()] = [
+                    'path' => $path,
+                    'filename' => $filename,
+                ];
             }
         }
 
@@ -130,7 +140,7 @@ final class Proxy
         ksort($providers);
         $provider = array_pop($providers);
 
-        preg_match('/\$(?<hash>.+)$/', (string) $provider['filename'], $matches);
+        preg_match('/\$(?<hash>.+)$/', $provider['filename'], $matches);
         $hash = $matches['hash'];
 
         return $this->fetchMetadata(
@@ -147,9 +157,13 @@ final class Proxy
     public function syncedPackages(): GenericList
     {
         $packages = GenericList::empty();
-        foreach ($this->filesystem->listContents(sprintf('%s/dist', $this->name)) as $vendor) {
-            foreach ($this->filesystem->listContents($vendor['path']) as $package) {
-                $packages = $packages->append($vendor['basename'].'/'.$package['basename']);
+        foreach (iterator_to_array($this->filesystem->listContents(sprintf('%s/dist', $this->name))) as $vendor) {
+            $vendorPath = $vendor->path();
+            $vendorBaseName = basename($vendorPath);
+            foreach (iterator_to_array($this->filesystem->listContents($vendorPath)) as $package) {
+                $packagePath = $package->path();
+                $packageBaseName = basename($packagePath);
+                $packages = $packages->append($vendorBaseName.'/'.$packageBaseName);
             }
         }
 
@@ -206,14 +220,27 @@ final class Proxy
     public function syncMetadata(): void
     {
         foreach ($this->filesystem->listContents($this->name) as $dir) {
-            if (!in_array($dir['basename'], ['p', 'p2'], true)) {
+            $dirPath = $dir->path();
+            $dirBaseName = basename($dirPath);
+            if (!in_array($dirBaseName, ['p', 'p2'], true)) {
                 continue;
             }
 
             $this->syncPackagesMetadata(
                 array_filter(
-                    (array) $this->filesystem->listContents($dir['path'], true),
-                    fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && !str_contains((string) $file['filename'], '$'))
+                    iterator_to_array($this->filesystem->listContents($dirPath, true)),
+                    function ($file) {
+                        if (!$file->isFile()) {
+                            return false;
+                        }
+
+                        $path = $file->path();
+                        $filename = basename($path);
+                        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+                        return $extension === 'json' && !str_contains($filename, '$');
+                    }
+                )
             );
         }
 
@@ -228,8 +255,19 @@ final class Proxy
     {
         $this->updateLatestProvider(
             array_filter(
-                (array) $this->filesystem->listContents($this->name.'/p', true),
-                fn (array $file) => $file['type'] === 'file' && $file['extension'] === 'json' && str_contains((string) $file['filename'], '$'))
+                iterator_to_array($this->filesystem->listContents($this->name.'/p', true)),
+                function ($file) {
+                    if (!$file->isFile()) {
+                        return false;
+                    }
+
+                    $path = $file->path();
+                    $filename = basename($path);
+                    $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+                    return $extension === 'json' && str_contains($filename, '$');
+                }
+            )
         );
     }
 
@@ -241,18 +279,18 @@ final class Proxy
     private function syncPackagesMetadata(array $files): void
     {
         foreach ($files as $file) {
-            $url = sprintf('%s://%s', parse_url($this->url, PHP_URL_SCHEME), $file['path']);
-            $this->downloader->getAsyncContents($url, [], function ($stream) use ($file): void {
-                $path = $file['path'];
+            $path = $file->path();
+            $url = sprintf('%s://%s', parse_url($this->url, PHP_URL_SCHEME), $path);
+            $this->downloader->getAsyncContents($url, [], function ($stream) use ($path): void {
                 $contents = (string) stream_get_contents($stream);
 
                 $this->filesystem->write($path, $contents);
-                if (!str_contains($path, $this->name.'/p2')) {
+                if (!str_contains((string) $path, $this->name.'/p2')) {
                     $this->filesystem->write(
                         (string) preg_replace(
                             '/(.+?)(\$\w+|)(\.json)$/',
                             '${1}\$'.hash('sha256', $contents).'.json',
-                            $path,
+                            (string) $path,
                             1
                         ),
                         $contents
@@ -270,26 +308,36 @@ final class Proxy
     {
         $latest = [];
         foreach ($files as $file) {
-            preg_match('/(?<name>.+)\$/', (string) $file['filename'], $matches);
-            $key = $file['dirname'].'/'.$matches['name'];
+            $path = $file->path();
+            $filename = basename((string) $path);
+            $dirname = dirname((string) $path);
+
+            preg_match('/(?<n>.+)\$/', $filename, $matches);
+            $key = $dirname.'/'.$matches['name'];
             if (!isset($latest[$key])) {
-                $latest[$key] = $file;
+                $latest[$key] = [
+                    'path' => $path,
+                    'timestamp' => $file->lastModified(),
+                ];
                 continue;
             }
 
-            if ($file['timestamp'] >= $latest[$key]['timestamp']) {
+            if ($file->lastModified() >= $latest[$key]['timestamp']) {
                 $this->filesystem->delete($latest[$key]['path']);
-                $latest[$key] = $file;
+                $latest[$key] = [
+                    'path' => $path,
+                    'timestamp' => $file->lastModified(),
+                ];
                 continue;
             }
 
-            $this->filesystem->delete($file['path']);
+            $this->filesystem->delete($path);
         }
 
         $providers = [];
-        foreach ($latest as $file) {
-            $path = $file['path'];
-            preg_match('/'.$this->name.'\/p\/(?<name>.+)\$/', (string) $path, $matches);
+        foreach ($latest as $fileData) {
+            $path = $fileData['path'];
+            preg_match('/'.$this->name.'\/p\/(?<n>.+)\$/', (string) $path, $matches);
             $providers[$matches['name']] = [
                 'sha256' => hash('sha256', (string) $this->filesystem->read($path)),
             ];
@@ -301,16 +349,22 @@ final class Proxy
         $basePath = sprintf('%s/provider', $this->name);
 
         $oldProviders = [];
-        foreach ($this->filesystem->listContents($basePath) as $file) {
-            if ($file['type'] !== 'file') {
+        foreach (iterator_to_array($this->filesystem->listContents($basePath)) as $file) {
+            $path = $file->path();
+            $filename = basename($path);
+            $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
+            if (!$file->isFile()) {
                 continue;
             }
 
-            if ($file['extension'] !== 'json') {
+            if ($extension !== 'json') {
                 continue;
             }
 
-            $oldProviders[$file['timestamp']] = $file;
+            $oldProviders[$file->lastModified()] = [
+                'path' => $path,
+            ];
         }
 
         krsort($oldProviders);
