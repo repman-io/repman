@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-final class Error implements \JsonSerializable
+use JsonSerializable;
+
+final class Error implements JsonSerializable
 {
-    private string $field;
-
-    private string $message;
-
-    public function __construct(string $field, string $message)
+    public function __construct(private readonly string $field, private readonly string $message)
     {
-        $this->field = $field;
-        $this->message = $message;
     }
 
     public function getField(): string
@@ -32,8 +28,8 @@ final class Error implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            'field' => $this->getField(),
-            'message' => $this->getMessage(),
+            'field' => $this->field,
+            'message' => $this->message,
         ];
     }
 }

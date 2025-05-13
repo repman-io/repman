@@ -12,13 +12,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RegenerateApiTokenHandler implements MessageHandlerInterface
 {
-    private UserRepository $users;
-    private TokenGenerator $tokenGenerator;
-
-    public function __construct(UserRepository $users, TokenGenerator $tokenGenerator)
+    public function __construct(private readonly UserRepository $users, private readonly TokenGenerator $tokenGenerator)
     {
-        $this->users = $users;
-        $this->tokenGenerator = $tokenGenerator;
     }
 
     public function __invoke(RegenerateApiToken $message): void

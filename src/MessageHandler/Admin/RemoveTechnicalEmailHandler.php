@@ -10,11 +10,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RemoveTechnicalEmailHandler implements MessageHandlerInterface
 {
-    private Telemetry $telemetry;
-
-    public function __construct(Telemetry $telemetry)
+    public function __construct(private readonly Telemetry $telemetry)
     {
-        $this->telemetry = $telemetry;
     }
 
     public function __invoke(RemoveTechnicalEmail $message): void

@@ -56,6 +56,6 @@ final class RestBuddyApiTest extends TestCase
         ])));
         $this->client->method('getApiEmails')->willReturn($emails);
 
-        self::assertEquals('admin@buddy.works', $this->api->primaryEmail('some-token'));
+        $this->assertSame('admin@buddy.works', $this->api->primaryEmail('some-token'));
     }
 }

@@ -12,17 +12,14 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 final class GitHubAuthenticator extends OAuthAuthenticator
 {
-    private GitHubApi $gitHubApi;
-
-    public function __construct(ClientRegistry $clientRegistry, GitHubApi $gitHubApi, RouterInterface $router, UserProvider $userProvider)
+    public function __construct(ClientRegistry $clientRegistry, private readonly GitHubApi $gitHubApi, RouterInterface $router, UserProvider $userProvider)
     {
         $this->clientRegistry = $clientRegistry;
-        $this->gitHubApi = $gitHubApi;
         $this->userProvider = $userProvider;
         $this->router = $router;
     }
@@ -32,7 +29,7 @@ final class GitHubAuthenticator extends OAuthAuthenticator
         return $request->attributes->get('_route') === 'login_github_check';
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         try {
             $email = $this->gitHubApi->primaryEmail($this->fetchAccessToken(
@@ -45,8 +42,6 @@ final class GitHubAuthenticator extends OAuthAuthenticator
 
         $user = $this->userProvider->loadUserByIdentifier($email);
 
-        return new SelfValidatingPassport(new UserBadge($email, function () use ($user): UserInterface {
-            return $user;
-        }));
+        return new SelfValidatingPassport(new UserBadge($email, fn (): UserInterface => $user));
     }
 }

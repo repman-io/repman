@@ -6,15 +6,20 @@ namespace Buddy\Repman\Tests\Unit\Service\Security;
 
 use Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
+use UnexpectedValueException;
 
 final class SensioLabsSecurityCheckerTest extends TestCase
 {
     private SensioLabsSecurityChecker $checker;
+
     private string $dbDir;
+
     private string $repoDir;
+
     private Filesystem $filesystem;
 
     protected function setUp(): void
@@ -34,7 +39,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
     public function testInvalidLockFile(): void
     {
-        $this->expectException(\UnexpectedValueException::class);
+        $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Invalid composer.lock');
 
         $this->checker->check('invalid');
@@ -42,7 +47,7 @@ final class SensioLabsSecurityCheckerTest extends TestCase
 
     public function testMissingDatabase(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Advisories database does not exist');
 
         $this->checker = new SensioLabsSecurityChecker(sys_get_temp_dir().'/bogus-security-advisories', '');
@@ -52,13 +57,13 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     public function testEmptyLockFile(): void
     {
         $this->synchronizeAdvisoriesDatabase();
-        self::assertEquals($this->checker->check('{}'), []);
+        $this->assertEquals($this->checker->check('{}'), []);
     }
 
     public function testSuccessfulScanWithAlerts(): void
     {
         $this->synchronizeAdvisoriesDatabase();
-        self::assertEqualsCanonicalizing($this->checker->check($this->insecureLock()), [
+        $this->assertEqualsCanonicalizing($this->checker->check($this->insecureLock()), [
             'aws/aws-sdk-php' => [
                 'version' => '3.2.0',
                 'advisories' => [
@@ -110,21 +115,21 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     public function testSuccessfulScanWithoutAlerts(): void
     {
         $this->synchronizeAdvisoriesDatabase();
-        self::assertEquals($this->checker->check($this->safeLock()), []);
+        $this->assertEquals($this->checker->check($this->safeLock()), []);
     }
 
     public function testUpdateWhenRepoDontExist(): void
     {
         $this->createAdvisoriesDatabaseRepo();
-        self::assertTrue($this->checker->update());
+        $this->assertTrue($this->checker->update());
         // second update should return false because nothing has changed
-        self::assertFalse($this->checker->update());
+        $this->assertFalse($this->checker->update());
     }
 
     public function testThrowErrorWhenUpdateFails(): void
     {
         $this->expectException(ProcessFailedException::class);
-        $this->expectExceptionMessage("'{$this->repoDir}' does not appear to be a git repository");
+        $this->expectExceptionMessage(sprintf("'%s' does not appear to be a git repository", $this->repoDir));
         $this->checker->update();
     }
 
@@ -133,9 +138,9 @@ final class SensioLabsSecurityCheckerTest extends TestCase
         $this->createAdvisoriesDatabaseRepo();
         $this->checker->update();
         $this->updateAdvisoriesDatabaseRepo();
-        self::assertTrue($this->checker->update());
+        $this->assertTrue($this->checker->update());
         // second update should return false because nothing has changed
-        self::assertFalse($this->checker->update());
+        $this->assertFalse($this->checker->update());
     }
 
     private function updateAdvisoriesDatabaseRepo(): void

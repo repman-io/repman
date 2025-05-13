@@ -6,11 +6,8 @@ namespace Buddy\Repman\Message\Admin;
 
 final class RemoveTechnicalEmail
 {
-    private string $email;
-
-    public function __construct(string $email)
+    public function __construct(private readonly string $email)
     {
-        $this->email = $email;
     }
 
     public function email(): string

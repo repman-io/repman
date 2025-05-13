@@ -10,16 +10,10 @@ use Twig\TwigFunction;
 final class OAuthProviderExtension extends AbstractExtension
 {
     /**
-     * @var array<string,?string>
-     */
-    private array $providers;
-
-    /**
      * @param array<string,?string> $providers
      */
-    public function __construct(array $providers)
+    public function __construct(private array $providers)
     {
-        $this->providers = $providers;
     }
 
     /**
@@ -28,7 +22,7 @@ final class OAuthProviderExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('oauth_enabled', [$this, 'oAuthEnabled']),
+            new TwigFunction('oauth_enabled', $this->oAuthEnabled(...)),
         ];
     }
 
@@ -38,6 +32,6 @@ final class OAuthProviderExtension extends AbstractExtension
             return isset($this->providers[$provider]) && strlen($this->providers[$provider]) > 0;
         }
 
-        return count(array_filter($this->providers, fn ($id) => strlen((string) $id) > 0)) > 0;
+        return array_filter($this->providers, fn ($id) => strlen((string) $id) > 0) !== [];
     }
 }

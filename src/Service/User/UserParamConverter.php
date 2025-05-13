@@ -14,11 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class UserParamConverter implements ParamConverterInterface
 {
-    private UserQuery $userQuery;
-
-    public function __construct(UserQuery $userQuery)
+    public function __construct(private readonly UserQuery $userQuery)
     {
-        $this->userQuery = $userQuery;
     }
 
     public function supports(ParamConverter $configuration)

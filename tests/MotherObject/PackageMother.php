@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
 final class PackageMother
@@ -34,7 +35,7 @@ final class PackageMother
     {
         $package = new Package(
             Uuid::uuid4(),
-            "$type-oauth",
+            $type.'-oauth',
             $url
         );
         $package->setOrganization(new Organization(
@@ -72,7 +73,7 @@ final class PackageMother
             $latestVersion,
             $unencounteredVersions,
             $unencounteredLinks,
-            new \DateTimeImmutable()
+            new DateTimeImmutable()
         );
 
         return $package;

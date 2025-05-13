@@ -8,6 +8,7 @@ use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Download;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -15,6 +16,7 @@ use Ramsey\Uuid\UuidInterface;
  * @method Package|null findOneBy(array $criteria, array $orderBy = null)
  * @method Package[]    findAll()
  * @method Package[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
  * @extends ServiceEntityRepository<Package>
  */
 class PackageRepository extends ServiceEntityRepository
@@ -28,7 +30,7 @@ class PackageRepository extends ServiceEntityRepository
     {
         $package = $this->find($id);
         if (!$package instanceof Package) {
-            throw new \InvalidArgumentException(sprintf('Package %s not found.', $id->toString()));
+            throw new InvalidArgumentException(sprintf('Package %s not found.', $id->toString()));
         }
 
         return $package;

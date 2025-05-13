@@ -34,7 +34,7 @@ final class PackageParamConverterTest extends TestCase
         $converter = new PackageParamConverter($queryMock);
         $converter->apply($request = new Request([], [], ['package' => $id]), new ParamConverter(['name' => 'package']));
 
-        self::assertEquals($package, $request->attributes->get('package'));
+        $this->assertEquals($package, $request->attributes->get('package'));
     }
 
     public function testCheckIfPackageBelongsToOrganization(): void

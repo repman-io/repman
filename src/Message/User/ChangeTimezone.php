@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\User;
 
 final class ChangeTimezone
 {
-    private string $userId;
-    private string $timezone;
-
-    public function __construct(string $userId, string $timezone)
+    public function __construct(private readonly string $userId, private readonly string $timezone)
     {
-        $this->userId = $userId;
-        $this->timezone = $timezone;
     }
 
     public function userId(): string

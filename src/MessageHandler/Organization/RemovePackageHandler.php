@@ -13,15 +13,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RemovePackageHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $organizations;
-    private PackageManager $packageManager;
-    private PackageRepository $packages;
-
-    public function __construct(OrganizationRepository $organizations, PackageManager $packageManager, PackageRepository $packages)
+    public function __construct(private readonly OrganizationRepository $organizations, private readonly PackageManager $packageManager, private readonly PackageRepository $packages)
     {
-        $this->organizations = $organizations;
-        $this->packageManager = $packageManager;
-        $this->packages = $packages;
     }
 
     public function __invoke(RemovePackage $message): void

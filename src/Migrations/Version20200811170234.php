@@ -22,7 +22,7 @@ final class Version20200811170234 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, "Migration can only be executed safely on 'postgresql'.");
 
         $this->addSql('ALTER TABLE organization_package_version ADD stability VARCHAR(255)');
 
@@ -42,7 +42,7 @@ final class Version20200811170234 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, "Migration can only be executed safely on 'postgresql'.");
 
         $this->addSql('ALTER TABLE organization_package_version DROP stability');
     }

@@ -12,11 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class IndexController extends AbstractController
 {
-    private Telemetry $telemetry;
-
-    public function __construct(Telemetry $telemetry)
+    public function __construct(private readonly Telemetry $telemetry)
     {
-        $this->telemetry = $telemetry;
     }
 
     /**

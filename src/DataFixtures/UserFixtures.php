@@ -12,11 +12,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class UserFixtures extends Fixture
 {
-    private MessageBusInterface $messageBus;
-
-    public function __construct(MessageBusInterface $messageBus)
+    public function __construct(private readonly MessageBusInterface $messageBus)
     {
-        $this->messageBus = $messageBus;
     }
 
     public function load(ObjectManager $manager): void

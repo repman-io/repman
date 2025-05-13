@@ -8,131 +8,132 @@ use Buddy\Repman\Tests\Doubles\GitHubOAuth;
 use Buddy\Repman\Tests\Doubles\HttpClientStub;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use GuzzleHttp\Psr7\Response;
+use Symfony\Component\HttpFoundation\Request;
 
 final class GitHubControllerTest extends FunctionalTestCase
 {
     public function testStartRegisterWithGitHub(): void
     {
-        $this->client->request('GET', $this->urlTo('register_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_github_start'));
         $response = $this->client->getResponse();
 
-        self::assertStringContainsString('github.com', (string) $response->headers->get('location'));
+        $this->assertStringContainsString('github.com', (string) $response->headers->get('location'));
     }
 
     public function testStartAuthWithGitHub(): void
     {
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_github_start'));
         $response = $this->client->getResponse();
 
-        self::assertStringContainsString('github.com', (string) $response->headers->get('location'));
+        $this->assertStringContainsString('github.com', (string) $response->headers->get('location'));
     }
 
     public function testRedirectToIndexWhenAlreadyLogged(): void
     {
         $this->createAndLoginAdmin();
-        $this->client->request('GET', $this->urlTo('register_github_check'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_github_check'));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
     }
 
     public function testLoginUserIfAlreadyExist(): void
     {
         $this->fixtures->createUser($email = 'test@buddy.works');
 
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_github_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         GitHubOAuth::mockTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('Your account already exists', $this->lastResponseBody());
+        $this->assertStringContainsString('Your account already exists', $this->lastResponseBody());
     }
 
     public function testCreateUserIfNotExistsExist(): void
     {
         $email = 'test@buddy.works';
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_github_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         GitHubOAuth::mockTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'github'])));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_create', ['origin' => 'github'])));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('Your account has been created', $this->lastResponseBody());
+        $this->assertStringContainsString('Your account has been created', $this->lastResponseBody());
     }
 
     public function testSuccessfulLoginWithGithub(): void
     {
         $this->fixtures->createOAuthUser($email = 'test@buddy.works');
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_github_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         GitHubOAuth::mockTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('login_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('login_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));
         $this->client->followRedirect();
-        self::assertStringContainsString('test@buddy.works', $this->lastResponseBody());
+        $this->assertStringContainsString('test@buddy.works', $this->lastResponseBody());
     }
 
     public function testRedirectToRequestedPathOnSuccessfulLoginWithGitHub(): void
     {
         $this->fixtures->createOAuthUser($email = 'test@buddy.works');
-        $this->client->request('GET', $this->urlTo('auth_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('auth_github_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         GitHubOAuth::mockTokenResponse($email, $this->container());
-        $this->client->request('GET', $this->urlTo('user_profile'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('user_profile'));
 
-        $this->client->request('GET', $this->urlTo('login_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('login_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
         // authenticator user $targetPath, so in test env localhost will be added to url
-        self::assertTrue($this->client->getResponse()->isRedirect('http://localhost/user'));
+        $this->assertTrue($this->client->getResponse()->isRedirect('http://localhost/user'));
     }
 
     public function testDisplayErrorIfSomethingGoesWrongDuringRegister(): void
     {
-        $this->client->request('GET', $this->urlTo('register_github_start'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_github_start'));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         $this->container()->get(HttpClientStub::class)->setNextResponses([new Response(200, [], '{"error":"invalid scope provided"}')]);
 
-        $this->client->request('GET', $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('register_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_register')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('app_register')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('invalid scope provided', $this->lastResponseBody());
+        $this->assertStringContainsString('invalid scope provided', $this->lastResponseBody());
     }
 
     public function testAddOAuthTokenToUser(): void
     {
         $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
         $this->fixtures->createOrganization('buddy', $userId);
-        $this->client->request('GET', $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
         $params = $this->getQueryParamsFromLastResponse();
 
         $this->client->disableReboot();
         GitHubOAuth::mockTokenResponse($email, $this->container());
 
-        $this->client->request('GET', $this->urlTo('package_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('package_github_check', ['state' => $params['state'], 'code' => 'secret-token']));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github'])));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github'])));
         $this->client->followRedirect();
 
-        self::assertTrue($this->client->getResponse()->isOk());
+        $this->assertTrue($this->client->getResponse()->isOk());
     }
 
     public function testAddPackageFromGithubWithoutToken(): void
@@ -140,12 +141,9 @@ final class GitHubControllerTest extends FunctionalTestCase
         $userId = $this->createAndLoginAdmin();
         $this->fixtures->createOrganization('buddy', $userId);
 
-        $this->client->request('GET', $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
 
-        self::assertStringContainsString(
-            'https://github.com/login/oauth/authorize?redirect_uri',
-            (string) $this->client->getResponse()->headers->get('Location')
-        );
+        $this->assertStringContainsString('https://github.com/login/oauth/authorize?redirect_uri', (string) $this->client->getResponse()->headers->get('Location'));
     }
 
     public function testAddPackageFromGithubWithToken(): void
@@ -154,13 +152,11 @@ final class GitHubControllerTest extends FunctionalTestCase
         $this->fixtures->createOrganization('buddy', $userId);
         $this->fixtures->createOauthToken($userId, 'github');
 
-        $this->client->request('GET', $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('fetch_github_package_token', ['organization' => 'buddy']));
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github']))
-        );
+        $this->assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github'])));
     }
 
     /**

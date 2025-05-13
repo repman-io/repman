@@ -16,18 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ConfigController extends AbstractController
 {
-    private Config $config;
-    private Telemetry $telemetry;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        Config $config,
-        Telemetry $telemetry,
-        MessageBusInterface $messageBus
-    ) {
-        $this->config = $config;
-        $this->telemetry = $telemetry;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly Config $config, private readonly Telemetry $telemetry, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**

@@ -5,40 +5,29 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Integration\Aws;
 
 use Aws\S3\S3Client;
+use InvalidArgumentException;
 
 final class S3AdapterFactory
 {
-    private string $region;
-
-    private bool $isOpaqueAuth;
-
     private string $key;
 
     private string $secret;
 
-    private ?string $endpoint;
-
-    private ?bool $pathStyleEndpoint;
-
     public function __construct(
-        string $region,
-        bool $isOpaqueAuth,
+        private readonly string $region,
+        private readonly bool $isOpaqueAuth,
         ?string $key = null,
         ?string $secret = null,
-        ?string $endpoint = null,
-        ?bool $pathStyleEndpoint = false
+        private readonly ?string $endpoint = null,
+        private readonly ?bool $pathStyleEndpoint = false,
     ) {
-        $this->region = $region;
-        $this->isOpaqueAuth = $isOpaqueAuth;
-        $this->endpoint = $endpoint;
-        $this->pathStyleEndpoint = $pathStyleEndpoint;
-
         if ($this->isOpaqueAuth) {
             if ($key === null || $key === '') {
-                throw new \InvalidArgumentException('Must pass AWS key when authentication is opaque');
+                throw new InvalidArgumentException('Must pass AWS key when authentication is opaque');
             }
+
             if ($secret === null || $secret === '') {
-                throw new \InvalidArgumentException('Must pass AWS secret when authentication is opaque');
+                throw new InvalidArgumentException('Must pass AWS secret when authentication is opaque');
             }
 
             $this->key = $key;

@@ -13,6 +13,7 @@ use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 use Buddy\Repman\Service\Integration\BitbucketApi\RestBitbucketApi;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class RestBitbucketApiTest extends TestCase
 {
@@ -41,29 +42,29 @@ final class RestBitbucketApiTest extends TestCase
     {
         $currentUser = $this->createMock(CurrentUser::class);
         $currentUser->method('listEmails')->willReturn([
-          'pagelen' => 10,
-          'values' => [
-            [
-                'is_primary' => false,
-                'is_confirmed' => false,
-                'type' => 'email',
-                'email' => 'admin.of@the.world',
-                'links' => [],
+            'pagelen' => 10,
+            'values' => [
+                [
+                    'is_primary' => false,
+                    'is_confirmed' => false,
+                    'type' => 'email',
+                    'email' => 'admin.of@the.world',
+                    'links' => [],
+                ],
+                [
+                    'is_primary' => true,
+                    'is_confirmed' => true,
+                    'type' => 'email',
+                    'email' => 'test@buddy.works',
+                    'links' => [],
+                ],
             ],
-            [
-                'is_primary' => true,
-                'is_confirmed' => true,
-                'type' => 'email',
-                'email' => 'test@buddy.works',
-                'links' => [],
-            ],
-          ],
-          'page' => 1,
-          'size' => 2,
+            'page' => 1,
+            'size' => 2,
         ]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        self::assertEquals('test@buddy.works', $this->api->primaryEmail('token'));
+        $this->assertSame('test@buddy.works', $this->api->primaryEmail('token'));
     }
 
     public function testThrowExceptionWhenPrimaryEmailNotFound(): void
@@ -72,7 +73,7 @@ final class RestBitbucketApiTest extends TestCase
         $currentUser->method('listEmails')->willReturn([]);
         $this->clientMock->method('currentUser')->willReturn($currentUser);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->api->primaryEmail('token');
     }
 
@@ -92,7 +93,7 @@ final class RestBitbucketApiTest extends TestCase
         ]);
         $this->clientMock->method('repositories')->willReturn($this->createMock(RepositoriesApi::class));
 
-        self::assertEquals(new Repositories([
+        $this->assertEquals(new Repositories([
             new Repository('099acebd-5158-459e-b05c-30e51b49a1a8', 'repman/left-pad', 'https://gitlab.com/repman/left-pad.git'),
             new Repository('74fb57b9-0820-4165-bba0-892eef8f69b8', 'repman/right-pad', 'https://gitlab.com/repman/right-pad.git'),
         ]), $this->api->repositories('token'));

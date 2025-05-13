@@ -10,11 +10,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 class AliasNotBlankValidator extends ConstraintValidator
 {
-    private AliasGenerator $aliasGenerator;
-
-    public function __construct(AliasGenerator $aliasGenerator)
+    public function __construct(private readonly AliasGenerator $aliasGenerator)
     {
-        $this->aliasGenerator = $aliasGenerator;
     }
 
     /**

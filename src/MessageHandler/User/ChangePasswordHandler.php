@@ -13,13 +13,8 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 final class ChangePasswordHandler implements MessageHandlerInterface
 {
-    private UserRepository $users;
-    private PasswordHasherFactoryInterface $hasherFactory;
-
-    public function __construct(UserRepository $users, PasswordHasherFactoryInterface $hasherFactory)
+    public function __construct(private readonly UserRepository $users, private readonly PasswordHasherFactoryInterface $hasherFactory)
     {
-        $this->users = $users;
-        $this->hasherFactory = $hasherFactory;
     }
 
     public function __invoke(ChangePassword $message): void

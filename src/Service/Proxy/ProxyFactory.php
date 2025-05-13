@@ -6,17 +6,12 @@ namespace Buddy\Repman\Service\Proxy;
 
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 
 final class ProxyFactory
 {
-    private Downloader $downloader;
-    private FilesystemInterface $filesystem;
-
-    public function __construct(Downloader $downloader, FilesystemInterface $proxyFilesystem)
+    public function __construct(private readonly Downloader $downloader, private readonly FilesystemOperator $filesystem)
     {
-        $this->downloader = $downloader;
-        $this->filesystem = $proxyFilesystem;
     }
 
     public function create(string $url): Proxy

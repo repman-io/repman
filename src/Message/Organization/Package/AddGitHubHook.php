@@ -6,11 +6,8 @@ namespace Buddy\Repman\Message\Organization\Package;
 
 final class AddGitHubHook
 {
-    private string $packageId;
-
-    public function __construct(string $packageId)
+    public function __construct(private readonly string $packageId)
     {
-        $this->packageId = $packageId;
     }
 
     public function packageId(): string

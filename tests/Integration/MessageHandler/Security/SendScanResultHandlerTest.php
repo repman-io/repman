@@ -13,6 +13,7 @@ use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 final class SendScanResultHandlerTest extends IntegrationTestCase
 {
     private string $organizationId;
+
     private string $packageId;
 
     protected function setUp(): void
@@ -40,6 +41,6 @@ final class SendScanResultHandlerTest extends IntegrationTestCase
             ->get(PackageQuery::class)
             ->findAll($this->organizationId, new Filter())[0];
 
-        self::assertEquals($package->scanResultStatus(), 'pending');
+        $this->assertSame('pending', $package->scanResultStatus());
     }
 }

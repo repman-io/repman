@@ -17,17 +17,17 @@ use React\Socket\Connector;
 
 final class ReactDownloader implements Downloader
 {
-    private LoopInterface $loop;
-    private Browser $browser;
-    private Queue $queue;
+    private readonly LoopInterface $loop;
+
+    private readonly Browser $browser;
+
+    private readonly Queue $queue;
 
     public function __construct()
     {
         $this->loop = Loop::get();
         $this->browser = new Browser($this->loop, new Connector($this->loop, ['timeout' => 10]));
-        $this->queue = new Queue(100, null, function (string $type, string $url, array $headers = []): PromiseInterface {
-            return $this->browser->{$type}($url, array_merge($headers, ['User-Agent' => $this->userAgent()]));
-        });
+        $this->queue = new Queue(100, null, fn (string $type, string $url, array $headers = []): PromiseInterface => $this->browser->{$type}($url, array_merge($headers, ['User-Agent' => $this->userAgent()])));
     }
 
     /**
@@ -35,7 +35,7 @@ final class ReactDownloader implements Downloader
      *
      * @return Option<resource>
      */
-    public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option
+    public function getContents(string $url, array $headers = [], ?callable $notFoundHandler = null): Option
     {
         $retries = 3;
         do {
@@ -47,6 +47,7 @@ final class ReactDownloader implements Downloader
             if (isset($http_response_header) && $this->getStatusCode($http_response_header) === 404 && $notFoundHandler !== null) {
                 $notFoundHandler();
             }
+
             --$retries;
         } while ($retries > 0);
 
@@ -61,6 +62,7 @@ final class ReactDownloader implements Downloader
                 if (!is_resource($stream)) {
                     return;
                 }
+
                 $onFulfilled($stream);
             });
     }
@@ -111,11 +113,12 @@ final class ReactDownloader implements Downloader
     }
 
     /**
-     * @param mixed[] $headers
+     * @param array $headers
+     * @return int
      */
     private function getStatusCode(array $headers): int
     {
-        preg_match('{HTTP\/\S*\s(\d{3})}', $headers[0], $match);
+        preg_match('{HTTP\/\S*\s(\d{3})}', (string) $headers[0], $match);
 
         return (int) $match[1];
     }

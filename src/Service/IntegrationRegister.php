@@ -10,15 +10,8 @@ use Buddy\Repman\Service\Integration\GitLabApi;
 
 class IntegrationRegister
 {
-    private GitHubApi $gitHubApi;
-    private GitLabApi $gitLabApi;
-    private BitbucketApi $bitbucketApi;
-
-    public function __construct(GitHubApi $gitHubApi, GitLabApi $gitLabApi, BitbucketApi $bitbucketApi)
+    public function __construct(private readonly GitHubApi $gitHubApi, private readonly GitLabApi $gitLabApi, private readonly BitbucketApi $bitbucketApi)
     {
-        $this->gitHubApi = $gitHubApi;
-        $this->gitLabApi = $gitLabApi;
-        $this->bitbucketApi = $bitbucketApi;
     }
 
     public function gitHubApi(): GitHubApi

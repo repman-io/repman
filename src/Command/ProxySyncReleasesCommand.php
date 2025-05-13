@@ -7,12 +7,19 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
-use Symfony\Component\Cache\Adapter\AdapterInterface;
+use DateMalformedStringException;
+use DateTimeImmutable;
+use League\Flysystem\FilesystemException;
+use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
+use RuntimeException;
+use SimpleXMLElement;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
+use Throwable;
 
 final class ProxySyncReleasesCommand extends Command
 {
@@ -20,26 +27,17 @@ final class ProxySyncReleasesCommand extends Command
 
     protected static $defaultName = 'repman:proxy:sync-releases';
 
-    private ProxyRegister $register;
-    private Downloader $downloader;
-    private AdapterInterface $cache;
     private LockInterface $lock;
-    private LockFactory $lockFactory;
 
-    public function __construct(ProxyRegister $register, Downloader $downloader, AdapterInterface $packagistReleasesFeedCache, LockFactory $lockFactory)
+    public function __construct(private readonly ProxyRegister $register, private readonly Downloader $downloader, private readonly CacheItemPoolInterface $cache, private readonly LockFactory $lockFactory)
     {
-        $this->register = $register;
-        $this->downloader = $downloader;
-        $this->cache = $packagistReleasesFeedCache;
-        $this->lockFactory = $lockFactory;
-
         parent::__construct();
     }
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Sync proxy releases with packagist.org')
@@ -60,6 +58,8 @@ final class ProxySyncReleasesCommand extends Command
             if (!$this->alreadySynced((string) $feed->channel->pubDate)) {
                 $this->syncPackages($feed);
             }
+        } catch (FilesystemException|Throwable) {
+            return 1;
         } finally {
             $this->lock->release();
         }
@@ -67,7 +67,11 @@ final class ProxySyncReleasesCommand extends Command
         return 0;
     }
 
-    private function syncPackages(\SimpleXMLElement $feed): void
+    /**
+     * @throws FilesystemException
+     * @throws Throwable
+     */
+    private function syncPackages(SimpleXMLElement $feed): void
     {
         $proxy = $this
             ->register
@@ -87,6 +91,10 @@ final class ProxySyncReleasesCommand extends Command
         }
     }
 
+    /**
+     * @throws DateMalformedStringException
+     * @throws InvalidArgumentException
+     */
     private function alreadySynced(string $pubDate): bool
     {
         $lastPubDateCashed = $this->cache->getItem('pub_date');
@@ -99,10 +107,10 @@ final class ProxySyncReleasesCommand extends Command
 
         $lastPubDate = $lastPubDateCashed->get();
 
-        return new \DateTimeImmutable($pubDate) <= new \DateTimeImmutable($lastPubDate);
+        return new DateTimeImmutable($pubDate) <= new DateTimeImmutable($lastPubDate);
     }
 
-    private function loadFeed(): \SimpleXMLElement
+    private function loadFeed(): SimpleXMLElement
     {
         $stream = $this
             ->downloader
@@ -111,7 +119,7 @@ final class ProxySyncReleasesCommand extends Command
 
         $xml = @simplexml_load_string((string) stream_get_contents($stream));
         if ($xml === false) {
-            throw new \RuntimeException('Unable to parse RSS feed');
+            throw new RuntimeException('Unable to parse RSS feed');
         }
 
         return $xml;

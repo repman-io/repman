@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Organization;
 
 final class ChangeAnonymousAccess
 {
-    private string $organizationId;
-    private bool $hasAnonymousAccess;
-
-    public function __construct(string $organizationId, bool $hasAnonymousAccess)
+    public function __construct(private readonly string $organizationId, private readonly bool $hasAnonymousAccess)
     {
-        $this->organizationId = $organizationId;
-        $this->hasAnonymousAccess = $hasAnonymousAccess;
     }
 
     public function organizationId(): string

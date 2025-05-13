@@ -5,34 +5,21 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Proxy;
 
 use Buddy\Repman\Service\Stream;
+use function strlen;
+use function time;
 
 final class Metadata
 {
-    private int $timestamp;
-
-    /**
-     * @var resource
-     */
-    private $stream;
-
-    private int $contentSize;
-
-    private ?string $hash;
-
     /**
      * @param resource $stream
      */
-    public function __construct(int $timestamp, $stream, int $contentSize, ?string $hash = null)
+    public function __construct(private readonly int $timestamp, private $stream, private readonly int $contentSize, private readonly ?string $hash = null)
     {
-        $this->timestamp = $timestamp;
-        $this->stream = $stream;
-        $this->contentSize = $contentSize;
-        $this->hash = $hash;
     }
 
     public static function fromString(string $string): self
     {
-        return new self(\time(), Stream::fromString($string), \strlen($string));
+        return new self(time(), Stream::fromString($string), strlen($string));
     }
 
     public function timestamp(): int

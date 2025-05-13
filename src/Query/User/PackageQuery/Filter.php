@@ -8,13 +8,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Filter extends \Buddy\Repman\Query\Filter
 {
-    private ?string $searchTerm;
-
-    public function __construct(int $offset = 0, int $limit = 20, ?string $sort = null, ?string $searchTerm = null)
+    public function __construct(int $offset = 0, int $limit = 20, ?string $sort = null, private readonly ?string $searchTerm = null)
     {
         parent::__construct($offset, $limit, $sort);
-
-        $this->searchTerm = $searchTerm;
     }
 
     public function getSearchTerm(): ?string

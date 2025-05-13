@@ -269,9 +269,6 @@
     "league/flysystem-cached-adapter": {
         "version": "1.1.0"
     },
-    "league/flysystem-memory": {
-        "version": "1.0.2"
-    },
     "league/mime-type-detection": {
         "version": "1.4.0"
     },
@@ -814,9 +811,6 @@
     },
     "symfony/polyfill-php81": {
         "version": "v1.23.0"
-    },
-    "symfony/polyfill-uuid": {
-        "version": "v1.14.0"
     },
     "symfony/process": {
         "version": "v5.0.2"

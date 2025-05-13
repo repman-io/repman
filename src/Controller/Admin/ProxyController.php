@@ -7,7 +7,6 @@ namespace Buddy\Repman\Controller\Admin;
 use Buddy\Repman\Message\Proxy\RemoveDist;
 use Buddy\Repman\Query\Admin\Proxy\DownloadsQuery;
 use Buddy\Repman\Query\Filter;
-use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -18,18 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class ProxyController extends AbstractController
 {
-    private ProxyRegister $register;
-    private DownloadsQuery $downloadsQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        ProxyRegister $register,
-        DownloadsQuery $downloadsQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->register = $register;
-        $this->downloadsQuery = $downloadsQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly ProxyRegister $register, private readonly DownloadsQuery $downloadsQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**

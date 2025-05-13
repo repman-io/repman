@@ -17,16 +17,13 @@ use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 class ApiTokenAuthenticator extends AbstractAuthenticator
 {
-    private ApiUserProvider $provider;
-
-    public function __construct(ApiUserProvider $provider)
+    public function __construct(private readonly ApiUserProvider $provider)
     {
-        $this->provider = $provider;
     }
 
     public function supports(Request $request): bool
@@ -34,7 +31,7 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
         return true;
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         if (!$request->headers->has('X-API-TOKEN') || $request->headers->get('X-API-TOKEN') === '') {
             throw new CustomUserMessageAuthenticationException('Authentication required.');
@@ -43,10 +40,8 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
         try {
             $user = $this->provider->loadUserByIdentifier($request->headers->get('X-API-TOKEN', ''));
 
-            return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), function () use ($user): UserInterface {
-                return $user;
-            }));
-        } catch (UserNotFoundException $exception) {
+            return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), fn (): UserInterface => $user));
+        } catch (UserNotFoundException) {
             throw new BadCredentialsException();
         }
     }

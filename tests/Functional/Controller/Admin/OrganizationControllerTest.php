@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller\Admin;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 final class OrganizationControllerTest extends FunctionalTestCase
 {
@@ -20,35 +21,35 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
     public function testList(): void
     {
-        $this->client->request('GET', $this->urlTo('admin_organization_list'));
+        $this->client->request(Request::METHOD_GET, $this->urlTo('admin_organization_list'));
 
-        self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Organizations', $this->lastResponseBody());
-        self::assertStringContainsString('Acme', $this->lastResponseBody());
+        $this->assertTrue($this->client->getResponse()->isOk());
+        $this->assertStringContainsString('Organizations', $this->lastResponseBody());
+        $this->assertStringContainsString('Acme', $this->lastResponseBody());
     }
 
     public function testRemoveOrganization(): void
     {
-        $this->client->request('DELETE', $this->urlTo('admin_organization_remove', [
+        $this->client->request(Request::METHOD_DELETE, $this->urlTo('admin_organization_remove', [
             'organization' => 'acme',
         ]));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_organization_list')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_organization_list')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('Organization Acme has been successfully removed', $this->lastResponseBody());
+        $this->assertStringContainsString('Organization Acme has been successfully removed', $this->lastResponseBody());
     }
 
     public function testAddAdmin(): void
     {
-        $this->client->request('POST', $this->urlTo('admin_organization_add_admin', [
+        $this->client->request(Request::METHOD_POST, $this->urlTo('admin_organization_add_admin', [
             'organization' => 'acme',
         ]));
 
-        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_organization_list')));
+        $this->assertTrue($this->client->getResponse()->isRedirect($this->urlTo('admin_organization_list')));
         $this->client->followRedirect();
 
-        self::assertStringContainsString('The user test@buddy.works has been successfully invited for Acme', $this->lastResponseBody());
+        $this->assertStringContainsString('The user test@buddy.works has been successfully invited for Acme', $this->lastResponseBody());
     }
 
     public function testStats(): void
@@ -56,9 +57,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $orgId = $this->fixtures->createOrganization('buddy', $this->userId);
         $packageId = $this->fixtures->addPackage($orgId, 'https://some.url');
         $this->fixtures->addPackageDownload(1, $packageId);
-        $crawler = $this->client->request('GET', $this->urlTo('admin_stats'));
+        $crawler = $this->client->request(Request::METHOD_GET, $this->urlTo('admin_stats'));
 
-        self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString('Total installs: 1', $crawler->text(null, true));
+        $this->assertTrue($this->client->getResponse()->isOk());
+        $this->assertStringContainsString('Total installs: 1', $crawler->text(null, true));
     }
 }

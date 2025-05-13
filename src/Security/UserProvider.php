@@ -6,21 +6,19 @@ namespace Buddy\Repman\Security;
 
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
+use Buddy\Repman\Security\Model\User\Organization;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use function mb_strtolower;
 
 final class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
-    private Connection $connection;
-    private UserRepository $userRepository;
-
-    public function __construct(Connection $connection, UserRepository $userRepository)
+    public function __construct(private readonly Connection $connection, private readonly UserRepository $userRepository)
     {
-        $this->connection = $connection;
-        $this->userRepository = $userRepository;
     }
 
     public function loadUserByUsername(string $username): UserInterface
@@ -49,15 +47,15 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
         return $class === User::class;
     }
 
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
-        $this->userRepository->upgradePassword($user, $newEncodedPassword);
+        $this->userRepository->upgradePassword($user, $newHashedPassword);
     }
 
     public function emailExist(string $email): bool
     {
         return false !== $this->connection->fetchOne('SELECT id FROM "user" WHERE email = :email', [
-                'email' => \mb_strtolower($email),
+            'email' => mb_strtolower($email),
         ]);
     }
 
@@ -79,7 +77,7 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
                 timezone
             FROM "user"
             WHERE email = :email',
-            ['email' => \mb_strtolower($email)]
+            ['email' => mb_strtolower($email)]
         );
     }
 
@@ -101,8 +99,8 @@ final class UserProvider implements UserProviderInterface, PasswordUpgraderInter
             $data['status'],
             $data['email_confirmed_at'] !== null,
             $data['email_confirm_token'],
-            json_decode($data['roles'], true),
-            array_map(fn (array $data) => new User\Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
+            json_decode((string) $data['roles'], true),
+            array_map(fn (array $data) => new Organization($data['alias'], $data['name'], $data['role'], $data['has_anonymous_access']), $organizations),
             (bool) $data['email_scan_result'],
             $data['timezone'],
         );

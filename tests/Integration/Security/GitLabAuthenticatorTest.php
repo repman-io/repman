@@ -23,11 +23,11 @@ final class GitLabAuthenticatorTest extends IntegrationTestCase
             new UserNotFoundException()
         );
 
-        self::assertTrue($response->isRedirection());
+        $this->assertTrue($response->isRedirection());
 
         $session = $request->getSession();
-        self::assertInstanceOf(Session::class, $session);
-        self::assertTrue($session->getFlashBag()->has('danger'));
+        $this->assertInstanceOf(Session::class, $session);
+        $this->assertTrue($session->getFlashBag()->has('danger'));
     }
 
     public function testThrowExceptionIfUserWasNotFound(): void

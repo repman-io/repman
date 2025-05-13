@@ -13,13 +13,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class ScanPackageHandler implements MessageHandlerInterface
 {
-    private PackageScanner $scanner;
-    private PackageRepository $packages;
-
-    public function __construct(PackageScanner $scanner, PackageRepository $packages)
+    public function __construct(private readonly PackageScanner $scanner, private readonly PackageRepository $packages)
     {
-        $this->scanner = $scanner;
-        $this->packages = $packages;
     }
 
     public function __invoke(ScanPackage $message): void
@@ -28,6 +23,7 @@ final class ScanPackageHandler implements MessageHandlerInterface
         if (!$package instanceof Package) {
             return;
         }
+
         if (!$package->isEnabledSecurityScan()) {
             return;
         }

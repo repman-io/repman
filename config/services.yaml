@@ -173,4 +173,8 @@ services:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
 
+    Buddy\Repman\Service\Proxy\ProxyFactory:
+        arguments:
+            $filesystem: '@proxy.storage'
+
     Buddy\Buddy:

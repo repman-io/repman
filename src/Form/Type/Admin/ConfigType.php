@@ -15,11 +15,8 @@ use Symfony\Component\Validator\Constraints\Email;
 
 class ConfigType extends AbstractType
 {
-    private Telemetry $telemetry;
-
-    public function __construct(Telemetry $telemetry)
+    public function __construct(private readonly Telemetry $telemetry)
     {
-        $this->telemetry = $telemetry;
     }
 
     public function getBlockPrefix(): string
@@ -61,7 +58,7 @@ class ConfigType extends AbstractType
                     Config::TELEMETRY_ENABLED => Config::TELEMETRY_ENABLED,
                     Config::TELEMETRY_DISABLED => Config::TELEMETRY_DISABLED,
                 ],
-                'help' => "Enable collecting and sending anonymous usage data (<a href=\"{$this->telemetry->docsUrl()}\" target=\"_blank\" rel=\"noopener noreferrer\">more info</a>)",
+                'help' => sprintf('Enable collecting and sending anonymous usage data (<a href="%s" target="_blank" rel="noopener noreferrer">more info</a>)', $this->telemetry->docsUrl()),
                 'attr' => [
                     'class' => 'form-control selectpicker',
                     'data-style' => 'btn-secondary',

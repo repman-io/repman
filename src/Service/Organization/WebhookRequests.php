@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Organization;
 
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class WebhookRequests
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
-    public function add(string $packageId, \DateTimeImmutable $date, ?string $ip, ?string $userAgent): void
+    public function add(string $packageId, DateTimeImmutable $date, ?string $ip, ?string $userAgent): void
     {
         $this->connection->insert('organization_package_webhook_request', [
             'package_id' => $packageId,

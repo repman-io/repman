@@ -13,11 +13,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 final class OrganizationVoter extends Voter
 {
-    private OrganizationQuery $organizations;
-
-    public function __construct(OrganizationQuery $organizations)
+    public function __construct(private readonly OrganizationQuery $organizations)
     {
-        $this->organizations = $organizations;
     }
 
     protected function supports(string $attribute, $subject): bool

@@ -10,11 +10,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RemoveDistHandler implements MessageHandlerInterface
 {
-    private ProxyRegister $register;
-
-    public function __construct(ProxyRegister $register)
+    public function __construct(private readonly ProxyRegister $register)
     {
-        $this->register = $register;
     }
 
     public function __invoke(RemoveDist $message): void

@@ -8,6 +8,7 @@ use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use InvalidArgumentException;
 use League\Flysystem\Exception;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,10 +17,10 @@ final class Version20200720112146 extends AbstractMigration implements Container
 {
     private ContainerInterface $container;
 
-    public function setContainer(ContainerInterface $container = null): void
+    public function setContainer(?ContainerInterface $container = null): void
     {
-        if ($container === null) {
-            throw new \InvalidArgumentException('Container is required');
+        if (!$container instanceof ContainerInterface) {
+            throw new InvalidArgumentException('Container is required');
         }
 
         $this->container = $container;
@@ -36,7 +37,7 @@ final class Version20200720112146 extends AbstractMigration implements Container
         $register = $this->container->get(ProxyRegister::class);
 
         $register->all()->forEach(function (Proxy $proxy) use ($filesystem): void {
-            foreach ($filesystem->listContents(sprintf('%s', (string) parse_url($proxy->url(), PHP_URL_HOST)), true) as $file) {
+            foreach ($filesystem->listContents((string) parse_url($proxy->url(), PHP_URL_HOST), true) as $file) {
                 if ($file['type'] !== 'file') {
                     continue;
                 }
@@ -46,12 +47,12 @@ final class Version20200720112146 extends AbstractMigration implements Container
                     $filesystem->delete($file['path']);
                 }
 
-                if (strpos($file['basename'], '_') === false) {
+                if (!str_contains((string) $file['basename'], '_')) {
                     continue;
                 }
 
                 // rename old dist files to new format
-                $newName = $file['dirname'].DIRECTORY_SEPARATOR.substr($file['basename'], strpos($file['basename'], '_') + 1);
+                $newName = $file['dirname'].DIRECTORY_SEPARATOR.substr((string) $file['basename'], strpos((string) $file['basename'], '_') + 1);
                 if ($filesystem->has($newName)) {
                     continue;
                 }

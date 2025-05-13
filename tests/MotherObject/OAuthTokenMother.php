@@ -6,16 +6,17 @@ namespace Buddy\Repman\Tests\MotherObject;
 
 use Buddy\Repman\Entity\User;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
 use Ramsey\Uuid\Uuid;
 
 final class OAuthTokenMother
 {
-    public static function withoutRefreshToken(?\DateTimeImmutable $expireAt = null): OAuthToken
+    public static function withoutRefreshToken(?DateTimeImmutable $expireAt = null): OAuthToken
     {
         return new OAuthToken(Uuid::uuid4(), self::user(), OAuthToken::TYPE_GITHUB, 'token', null, $expireAt);
     }
 
-    public static function withExpireTime(\DateTimeImmutable $expireAt): OAuthToken
+    public static function withExpireTime(DateTimeImmutable $expireAt): OAuthToken
     {
         return new OAuthToken(Uuid::uuid4(), self::user(), OAuthToken::TYPE_GITHUB, 'token', 'refresh', $expireAt);
     }

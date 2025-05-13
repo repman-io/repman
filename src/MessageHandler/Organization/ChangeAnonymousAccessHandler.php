@@ -11,11 +11,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class ChangeAnonymousAccessHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $repositories;
-
-    public function __construct(OrganizationRepository $repositories)
+    public function __construct(private readonly OrganizationRepository $repositories)
     {
-        $this->repositories = $repositories;
     }
 
     public function __invoke(ChangeAnonymousAccess $message): void

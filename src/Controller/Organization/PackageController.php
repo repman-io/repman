@@ -33,25 +33,17 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function ucfirst;
 
 final class PackageController extends AbstractController
 {
-    private UserOAuthTokenProvider $oauthProvider;
-    private IntegrationRegister $integrations;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        UserOAuthTokenProvider $oauthProvider,
-        IntegrationRegister $integrations,
-        MessageBusInterface $messageBus
-    ) {
-        $this->oauthProvider = $oauthProvider;
-        $this->integrations = $integrations;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly UserOAuthTokenProvider $oauthProvider, private readonly IntegrationRegister $integrations, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/package/new/{type?}", name="organization_package_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
      */
     public function packageNew(Organization $organization, Request $request, ?string $type): Response
@@ -96,13 +88,13 @@ final class PackageController extends AbstractController
             if ($response instanceof Response) {
                 return $response;
             }
-        } catch (HttpException $exception) {
+        } catch (HttpException $httpException) {
             $this->addFlash('danger', sprintf(
                 'Failed to fetch repositories (reason: %s).
                 Please try again. If the problem persists, try to remove Repman OAuth application
                 from your provider or unlink %s integration in your Profile and try again.',
-                $exception->getMessage(),
-                \ucfirst((string) $type)
+                $httpException->getMessage(),
+                ucfirst((string) $type)
             ));
             $form->get('type')->setData(null);
         }
@@ -127,6 +119,7 @@ final class PackageController extends AbstractController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/package/{package}/edit", name="organization_package_edit", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
      */
     public function editPackage(Organization $organization, Package $package, Request $request): Response
@@ -235,7 +228,7 @@ final class PackageController extends AbstractController
                 $this->messageBus->dispatch(new AddPackage(
                     $id = Uuid::uuid4()->toString(),
                     $organization->id(),
-                    "https://github.com/{$repo}",
+                    'https://github.com/'.$repo,
                     'github-oauth',
                     [Metadata::GITHUB_REPO_NAME => $repo],
                     $form->get('keepLastReleases')->getData()

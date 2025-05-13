@@ -6,15 +6,8 @@ namespace Buddy\Repman\Query\User\Model;
 
 final class WebhookRequest
 {
-    private string $date;
-    private ?string $ip;
-    private ?string $userAgent;
-
-    public function __construct(string $date, ?string $ip, ?string $userAgent)
+    public function __construct(private readonly string $date, private readonly ?string $ip, private readonly ?string $userAgent)
     {
-        $this->date = $date;
-        $this->ip = $ip;
-        $this->userAgent = $userAgent;
     }
 
     public function date(): string

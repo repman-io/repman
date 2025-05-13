@@ -13,7 +13,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 final class GitLabAuthenticator extends OAuthAuthenticator
@@ -30,7 +30,7 @@ final class GitLabAuthenticator extends OAuthAuthenticator
         return $request->attributes->get('_route') === 'login_gitlab_check';
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         try {
             /** @var GitlabResourceOwner $gitLabUser */
@@ -44,8 +44,6 @@ final class GitLabAuthenticator extends OAuthAuthenticator
 
         $user = $this->userProvider->loadUserByIdentifier($gitLabUser->getEmail());
 
-        return new SelfValidatingPassport(new UserBadge($gitLabUser->getEmail(), function () use ($user): UserInterface {
-            return $user;
-        }));
+        return new SelfValidatingPassport(new UserBadge($gitLabUser->getEmail(), fn (): UserInterface => $user));
     }
 }

@@ -10,17 +10,13 @@ use Munus\Control\Option;
 
 final class FakeDownloader implements Downloader
 {
-    // todo: remove this and allow only for in-memory content to explicit control
-    private string $basePath;
-
     /**
      * @var mixed[]
      */
     private array $content = [];
 
-    public function __construct(string $basePath = __DIR__.'/../Resources')
+    public function __construct(private readonly string $basePath = __DIR__.'/../Resources')
     {
-        $this->basePath = $basePath;
     }
 
     /**
@@ -28,7 +24,7 @@ final class FakeDownloader implements Downloader
      *
      * @return Option<resource>
      */
-    public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option
+    public function getContents(string $url, array $headers = [], ?callable $notFoundHandler = null): Option
     {
         if (isset($this->content[$url])) {
             return Option::some(Stream::fromString($this->content[$url]['content']));
@@ -44,7 +40,7 @@ final class FakeDownloader implements Downloader
             return Option::some(Stream::fromString((string) file_get_contents($url)));
         }
 
-        if (strstr($path, 'not-found') !== false && $notFoundHandler !== null) {
+        if (str_contains($path, 'not-found') && $notFoundHandler !== null) {
             $notFoundHandler();
         }
 
@@ -80,7 +76,7 @@ final class FakeDownloader implements Downloader
         }
     }
 
-    public function addContent(string $url, ?string $content, int $timestamp = null): void
+    public function addContent(string $url, ?string $content, ?int $timestamp = null): void
     {
         $this->content[$url] = [
             'timestamp' => $timestamp ?? time(),

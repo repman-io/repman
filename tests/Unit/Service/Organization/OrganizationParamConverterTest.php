@@ -45,6 +45,6 @@ final class OrganizationParamConverterTest extends TestCase
 
         $converter->apply($request = new Request([], [], ['organization' => 'buddy']), new ParamConverter(['name' => 'organization']));
 
-        self::assertEquals($organization, $request->attributes->get('organization'));
+        $this->assertEquals($organization, $request->attributes->get('organization'));
     }
 }

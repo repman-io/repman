@@ -9,19 +9,17 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\ConsumedByWorkerStamp;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 final class ConsumedMessageLoggerMiddleware implements MiddlewareInterface
 {
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $consumerLogger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
-        $this->logger = $consumerLogger;
     }
 
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
-        if ($envelope->last(ConsumedByWorkerStamp::class) === null) {
+        if (!$envelope->last(ConsumedByWorkerStamp::class) instanceof StampInterface) {
             return $stack->next()->handle($envelope, $stack);
         }
 
@@ -34,7 +32,7 @@ final class ConsumedMessageLoggerMiddleware implements MiddlewareInterface
         $memoryAfter = memory_get_usage(true);
 
         $this->logger->info('Message consumed', [
-            'messageClass' => get_class($envelope->getMessage()),
+            'messageClass' => $envelope->getMessage()::class,
             'memoryBefore' => $memoryBefore,
             'memoryAfter' => $memoryAfter,
             'memoryDelta' => $memoryAfter - $memoryBefore,

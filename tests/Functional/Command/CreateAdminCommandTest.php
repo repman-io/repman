@@ -15,12 +15,13 @@ final class CreateAdminCommandTest extends FunctionalTestCase
     {
         $command = $this->container()->get(CreateAdminCommand::class);
         $command->setApplication(new Application());
+
         $commandTester = new CommandTester($command);
         $commandTester->execute([
             'email' => 'test@buddy.works',
             'password' => 'password',
         ]);
 
-        self::assertStringContainsString('Created admin user with id:', $commandTester->getDisplay());
+        $this->assertStringContainsString('Created admin user with id:', $commandTester->getDisplay());
     }
 }

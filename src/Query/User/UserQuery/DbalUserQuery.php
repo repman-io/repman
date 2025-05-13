@@ -8,15 +8,13 @@ use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\ApiToken;
 use Buddy\Repman\Query\User\Model\OAuthToken;
 use Buddy\Repman\Query\User\UserQuery;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class DbalUserQuery implements UserQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -27,7 +25,7 @@ final class DbalUserQuery implements UserQuery
         return array_map(
             static fn (array $data): OAuthToken => new OAuthToken(
                 $data['type'],
-                new \DateTimeImmutable($data['created_at'])
+                new DateTimeImmutable($data['created_at'])
             ),
             $this->connection->fetchAllAssociative('
                 SELECT type, created_at
@@ -89,8 +87,8 @@ final class DbalUserQuery implements UserQuery
         return new ApiToken(
             $data['name'],
             $data['value'],
-            new \DateTimeImmutable($data['created_at']),
-            $data['last_used_at'] !== null ? new \DateTimeImmutable($data['last_used_at']) : null
+            new DateTimeImmutable($data['created_at']),
+            $data['last_used_at'] !== null ? new DateTimeImmutable($data['last_used_at']) : null
         );
     }
 }

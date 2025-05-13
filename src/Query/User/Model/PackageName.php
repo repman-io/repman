@@ -6,15 +6,8 @@ namespace Buddy\Repman\Query\User\Model;
 
 final class PackageName
 {
-    private string $id;
-    private string $name;
-    private string $organization;
-
-    public function __construct(string $id, string $name, string $organization = '')
+    public function __construct(private readonly string $id, private readonly string $name, private readonly string $organization = '')
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->organization = $organization;
     }
 
     public function id(): string

@@ -8,14 +8,12 @@ use Buddy\Repman\Service\Integration\GitHubApi;
 use Github\AuthMethod;
 use Github\Client;
 use Github\ResultPager;
+use RuntimeException;
 
 final class RestGitHubApi implements GitHubApi
 {
-    private Client $client;
-
-    public function __construct(Client $client)
+    public function __construct(private readonly Client $client)
     {
-        $this->client = $client;
     }
 
     public function primaryEmail(string $accessToken): string
@@ -27,7 +25,7 @@ final class RestGitHubApi implements GitHubApi
             }
         }
 
-        throw new \RuntimeException('Primary e-mail not found.');
+        throw new RuntimeException('Primary e-mail not found.');
     }
 
     /**

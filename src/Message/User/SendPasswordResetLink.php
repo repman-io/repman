@@ -6,15 +6,8 @@ namespace Buddy\Repman\Message\User;
 
 final class SendPasswordResetLink
 {
-    private string $email;
-    private string $operatingSystem;
-    private string $browser;
-
-    public function __construct(string $email, string $operatingSystem, string $browser)
+    public function __construct(private readonly string $email, private readonly string $operatingSystem, private readonly string $browser)
     {
-        $this->email = $email;
-        $this->operatingSystem = $operatingSystem;
-        $this->browser = $browser;
     }
 
     public function email(): string

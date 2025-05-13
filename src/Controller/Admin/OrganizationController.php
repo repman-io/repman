@@ -10,6 +10,7 @@ use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,15 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class OrganizationController extends AbstractController
 {
-    private OrganizationQuery $organizationQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->organizationQuery = $organizationQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly OrganizationQuery $organizationQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -60,7 +54,7 @@ final class OrganizationController extends AbstractController
      */
     public function addAdmin(Organization $organization, Request $request): Response
     {
-        /** @var \Buddy\Repman\Security\Model\User $user */
+        /** @var User $user */
         $user = $this->getUser();
 
         $this->messageBus->dispatch(new InviteUser(

@@ -55,6 +55,7 @@ final class GitHubController extends OAuthController
 
     /**
      * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
+     *
      * @Route("/organization/{organization}/package/add-from-github", name="fetch_github_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
      */
     public function packageAddFromGithub(Request $request, Organization $organization, UserQuery $userQuery): Response
@@ -64,6 +65,7 @@ final class GitHubController extends OAuthController
         if ($userQuery->hasOAuthAccessToken($user->id(), OAuthToken::TYPE_GITHUB)) {
             return $this->redirectToRoute('organization_package_new', ['organization' => $organization->alias(), 'type' => OAuthToken::TYPE_GITHUB]);
         }
+
         $request->getSession()->set('organization', $organization->alias());
 
         return $this->oauth->getClient('github')
@@ -81,9 +83,7 @@ final class GitHubController extends OAuthController
         return $this->storeRepoToken(
             $request,
             OAuthToken::TYPE_GITHUB,
-            function (): AccessToken {
-                return $this->oauth->getClient('github')->getAccessToken();
-            },
+            fn (): AccessToken => $this->oauth->getClient('github')->getAccessToken(),
             'organization_package_new'
         );
     }

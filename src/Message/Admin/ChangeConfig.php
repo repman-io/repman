@@ -7,16 +7,10 @@ namespace Buddy\Repman\Message\Admin;
 final class ChangeConfig
 {
     /**
-     * @var array<string,string>
-     */
-    private array $values;
-
-    /**
      * @param array<string,string> $values
      */
-    public function __construct(array $values)
+    public function __construct(private readonly array $values)
     {
-        $this->values = $values;
     }
 
     /**

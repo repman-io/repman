@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Organization;
 
 final class RemovePackage
 {
-    private string $id;
-    private string $organizationId;
-
-    public function __construct(string $id, string $organizationId)
+    public function __construct(private readonly string $id, private readonly string $organizationId)
     {
-        $this->id = $id;
-        $this->organizationId = $organizationId;
     }
 
     public function id(): string

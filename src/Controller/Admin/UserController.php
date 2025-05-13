@@ -19,15 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 final class UserController extends AbstractController
 {
-    private UserQuery $userQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        UserQuery $userQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->userQuery = $userQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly UserQuery $userQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -47,7 +40,7 @@ final class UserController extends AbstractController
     /**
      * @Route("/admin/user/{user}/disable", name="admin_user_disable", methods={"POST"}, requirements={"user"="%uuid_pattern%"})
      */
-    public function disable(User $user, Request $request): Response
+    public function disable(User $user): Response
     {
         $this->messageBus->dispatch(new DisableUser($user->id()));
         $this->addFlash('success', sprintf('User %s has been successfully disabled', $user->email()));
@@ -58,7 +51,7 @@ final class UserController extends AbstractController
     /**
      * @Route("/admin/user/{user}/enable", name="admin_user_enable", methods={"POST"}, requirements={"user"="%uuid_pattern%"})
      */
-    public function enable(User $user, Request $request): Response
+    public function enable(User $user): Response
     {
         $this->messageBus->dispatch(new EnableUser($user->id()));
         $this->addFlash('success', sprintf('User %s has been successfully enabled', $user->email()));

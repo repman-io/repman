@@ -6,15 +6,8 @@ namespace Buddy\Repman\Query\User\Model\Organization;
 
 final class Invitation
 {
-    private string $email;
-    private string $role;
-    private string $token;
-
-    public function __construct(string $email, string $role, string $token)
+    public function __construct(private readonly string $email, private readonly string $role, private readonly string $token)
     {
-        $this->email = $email;
-        $this->role = $role;
-        $this->token = $token;
     }
 
     public function email(): string

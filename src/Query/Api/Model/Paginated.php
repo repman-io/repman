@@ -4,23 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\Api\Model;
 
-abstract class Paginated implements \JsonSerializable
-{
-    /**
-     * @var object[]
-     */
-    protected array $data;
-    protected int $total;
-    protected Links $links;
+use JsonSerializable;
 
+abstract class Paginated implements JsonSerializable
+{
     /**
      * @param object[] $data
      */
-    public function __construct(array $data, int $total, Links $links)
+    public function __construct(protected array $data, protected int $total, protected Links $links)
     {
-        $this->data = $data;
-        $this->total = $total;
-        $this->links = $links;
     }
 
     /**

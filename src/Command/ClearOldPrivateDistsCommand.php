@@ -12,21 +12,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class ClearOldPrivateDistsCommand extends Command
 {
-    private PackageQuery $query;
-    private PackageManager $packageManager;
-
-    public function __construct(PackageQuery $query, PackageManager $packageManager)
+    public function __construct(private readonly PackageQuery $query, private readonly PackageManager $packageManager)
     {
-        $this->query = $query;
-        $this->packageManager = $packageManager;
-
         parent::__construct();
     }
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('repman:package:clear-old-dists')

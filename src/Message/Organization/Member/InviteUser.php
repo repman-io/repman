@@ -6,17 +6,8 @@ namespace Buddy\Repman\Message\Organization\Member;
 
 final class InviteUser
 {
-    private string $email;
-    private string $role;
-    private string $organizationId;
-    private string $token;
-
-    public function __construct(string $email, string $role, string $organizationId, string $token)
+    public function __construct(private readonly string $email, private readonly string $role, private readonly string $organizationId, private readonly string $token)
     {
-        $this->email = $email;
-        $this->role = $role;
-        $this->organizationId = $organizationId;
-        $this->token = $token;
     }
 
     public function email(): string

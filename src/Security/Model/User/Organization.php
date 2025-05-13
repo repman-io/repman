@@ -6,17 +6,8 @@ namespace Buddy\Repman\Security\Model\User;
 
 final class Organization
 {
-    private string $alias;
-    private string $name;
-    private string $role;
-    private bool $hasAnonymousAccess;
-
-    public function __construct(string $alias, string $name, string $role, bool $hasAnonymousAccess)
+    public function __construct(private readonly string $alias, private readonly string $name, private readonly string $role, private readonly bool $hasAnonymousAccess)
     {
-        $this->alias = $alias;
-        $this->name = $name;
-        $this->role = $role;
-        $this->hasAnonymousAccess = $hasAnonymousAccess;
     }
 
     public function alias(): string

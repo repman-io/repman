@@ -9,26 +9,17 @@ use Munus\Control\Option;
 
 final class Organization
 {
-    private string $id;
-    private string $name;
-    private string $alias;
-    private bool $hasAnonymousAccess;
-
     /**
      * @var Member[]
      */
-    private array $members;
+    private readonly array $members;
 
     /**
      * @param Member[] $members
      */
-    public function __construct(string $id, string $name, string $alias, array $members, bool $hasAnonymousAccess)
+    public function __construct(private readonly string $id, private readonly string $name, private readonly string $alias, array $members, private readonly bool $hasAnonymousAccess)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->alias = $alias;
         $this->members = array_map(fn (Member $member) => $member, $members);
-        $this->hasAnonymousAccess = $hasAnonymousAccess;
     }
 
     public function id(): string

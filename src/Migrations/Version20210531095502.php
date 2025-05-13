@@ -29,7 +29,7 @@ final class Version20210531095502 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE organization_package_link ADD organization_id UUID NOT NULL');
-        $this->addSql('COMMENT ON COLUMN organization_package_link.organization_id IS \'(DC2Type:uuid)\'');
+        $this->addSql("COMMENT ON COLUMN organization_package_link.organization_id IS '(DC2Type:uuid)'");
         $this->addSql('ALTER TABLE organization_package_link ADD CONSTRAINT fk_4a06082932c8a3de FOREIGN KEY (organization_id) REFERENCES organization (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('CREATE INDEX idx_4a06082932c8a3de ON organization_package_link (organization_id)');
     }

@@ -7,6 +7,7 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\GitLabApi;
 use Buddy\Repman\Service\Integration\GitLabApi\Project;
 use Buddy\Repman\Service\Integration\GitLabApi\Projects;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ProjectsTest extends TestCase
 {
@@ -17,10 +18,10 @@ final class ProjectsTest extends TestCase
             new Project(2, 'second', 'url'),
         ]);
 
-        self::assertEquals([1 => 'first', 2 => 'second'], $projects->names());
+        $this->assertSame([1 => 'first', 2 => 'second'], $projects->names());
 
         $projects = new Projects([]);
-        self::assertEquals([], $projects->names());
+        $this->assertSame([], $projects->names());
     }
 
     public function testThrowExceptionWhenProjectNotFound(): void
@@ -29,7 +30,7 @@ final class ProjectsTest extends TestCase
             $first = new Project(1, 'first', 'url'),
         ]);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $projects->get(666);
     }
 }

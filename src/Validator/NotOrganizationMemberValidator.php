@@ -10,11 +10,8 @@ use Symfony\Component\Validator\ConstraintValidator;
 
 final class NotOrganizationMemberValidator extends ConstraintValidator
 {
-    private OrganizationQuery $organizationQuery;
-
-    public function __construct(OrganizationQuery $organizationQuery)
+    public function __construct(private readonly OrganizationQuery $organizationQuery)
     {
-        $this->organizationQuery = $organizationQuery;
     }
 
     /**

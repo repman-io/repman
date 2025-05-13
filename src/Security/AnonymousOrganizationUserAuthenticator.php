@@ -13,42 +13,37 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
 final class AnonymousOrganizationUserAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface
 {
-    private OrganizationProvider $organizationProvider;
-
-    public function __construct(OrganizationProvider $organizationProvider)
+    public function __construct(private readonly OrganizationProvider $organizationProvider)
     {
-        $this->organizationProvider = $organizationProvider;
     }
 
     /**
      * @codeCoverageIgnore
      */
-    public function start(Request $request, AuthenticationException $authException = null): JsonResponse
+    public function start(Request $request, ?AuthenticationException $authException = null): JsonResponse
     {
         return new JsonResponse([
             'message' => 'Authentication Required',
         ], Response::HTTP_UNAUTHORIZED);
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         $organizationAlias = $request->get('organization');
         if ($organizationAlias === null) {
             throw new BadCredentialsException();
         }
 
-        return new SelfValidatingPassport(new UserBadge($organizationAlias, function (string $organizationAlias): Organization {
-            return $this->organizationProvider->loadUserByAlias($organizationAlias);
-        }));
+        return new SelfValidatingPassport(new UserBadge($organizationAlias, fn (string $organizationAlias): Organization => $this->organizationProvider->loadUserByAlias($organizationAlias)));
     }
 
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         return $request->get('_route') !== 'repo_package_downloads'
             && !$request->headers->has('PHP_AUTH_USER')

@@ -15,7 +15,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4.2 || ^8.0",
+        "php": "^8.1",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -23,24 +23,25 @@
         "ext-json": "*",
         "ext-pdo_pgsql": "*",
         "ext-zip": "*",
+        "ext-simplexml": "*",
         "async-aws/ses": "^1.4",
         "bitbucket/client": "^4.0",
-        "buddy-works/buddy-works-php-api": "^1.3",
+        "buddy-works/buddy-works-php-api": "^1.4",
         "buddy-works/oauth2-client": "^1.0",
         "cbschuld/browser.php": "^1.9",
         "clue/mq-react": "^1.2",
-        "composer/composer": "^1.10.22",
-        "composer/semver": "^1.5",
+        "composer/composer": "^2.8.5",
+        "composer/semver": "^3.4.3",
         "doctrine/doctrine-bundle": "^2.1",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
         "excelwebzone/recaptcha-bundle": "^1.5",
+        "guzzlehttp/guzzle": "^6.5",
         "knplabs/github-api": "^3.0",
         "knpuniversity/oauth2-client-bundle": "^2.0",
-        "league/commonmark": "^1.5",
-        "league/flysystem-aws-s3-v3": "^1.0",
-        "league/flysystem-bundle": "^1.5",
-        "league/flysystem-cached-adapter": "^1.1",
+        "league/commonmark": "^2.6",
+        "league/flysystem-aws-s3-v3": "^2.5",
+        "league/flysystem-bundle": "^2.4",
         "league/oauth2-github": "^3.0",
         "m4tthumphrey/php-gitlab-api": "^11.0",
         "munusphp/munus": "^0.4.0",
@@ -50,30 +51,32 @@
         "omines/oauth2-gitlab": "^3.2",
         "ramsey/uuid-doctrine": "^1.5",
         "react/http": "^1.0",
-        "sensio/framework-extra-bundle": "^5.5",
+        "sensio/framework-extra-bundle": "*",
         "sentry/sentry-symfony": "^4.0",
         "stevenmaguire/oauth2-bitbucket": "^3.0",
-        "symfony/amazon-mailer": "5.4.*",
-        "symfony/asset": "5.4.*",
-        "symfony/console": "5.4.*",
-        "symfony/doctrine-messenger": "5.4.*",
-        "symfony/dotenv": "5.4.*",
+        "symfony/amazon-mailer": "6.4.*",
+        "symfony/asset": "6.4.*",
+        "symfony/cache": "6.4.*",
+        "symfony/console": "6.4.*",
+        "symfony/doctrine-messenger": "6.4.*",
+        "symfony/dotenv": "6.4.*",
         "symfony/flex": "^1.3.1",
-        "symfony/form": "5.4.*",
-        "symfony/framework-bundle": "5.4.*",
-        "symfony/http-client": "5.4.*",
-        "symfony/intl": "5.4.*",
-        "symfony/lock": "5.4.*",
-        "symfony/mailer": "5.4.*",
-        "symfony/messenger": "5.4.*",
+        "symfony/form": "6.4.*",
+        "symfony/framework-bundle": "6.4.*",
+        "symfony/http-client": "6.4.*",
+        "symfony/intl": "6.4.*",
+        "symfony/lock": "6.4.*",
+        "symfony/mailer": "6.4.*",
+        "symfony/messenger": "6.4.*",
         "symfony/monolog-bundle": "^3.5",
-        "symfony/process": "5.4.*",
-        "symfony/security-bundle": "5.4.*",
-        "symfony/twig-bundle": "5.4.*",
-        "symfony/validator": "5.4.*",
-        "symfony/yaml": "5.4.*",
-        "twig/extra-bundle": "^2.12 || ^3.0",
-        "twig/twig": "^2.12 || ^3.0"
+        "symfony/process": "6.4.*",
+        "symfony/security-bundle": "6.4.*",
+        "symfony/twig-bundle": "6.4.*",
+        "symfony/validator": "6.4.*",
+        "symfony/yaml": "6.4.*",
+        "twig/extra-bundle": "^3.0",
+        "twig/twig": "^3.0",
+        "ext-libxml": "*"
     },
     "replace": {
         "paragonie/random_compat": "2.*",
@@ -89,12 +92,12 @@
     },
     "require-dev": {
         "coduo/php-matcher": "^6.0",
-        "dama/doctrine-test-bundle": "^6.3",
+        "dama/doctrine-test-bundle": "^v8.2.2",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "ekino/phpstan-banned-code": "^1.0.0",
         "fakerphp/faker": "^1.9",
         "johnkary/phpunit-speedtrap": "^4.0",
-        "league/flysystem-memory": "^1.0",
+        "league/flysystem-memory": "^3.13",
         "php-cs-fixer/shim": "^3.9",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpstan/extension-installer": "^1.0",
@@ -105,6 +108,7 @@
         "phpstan/phpstan-strict-rules": "^1.1.0",
         "phpstan/phpstan-symfony": "^1.0.4",
         "phpunit/phpunit": "^9",
+        "rector/rector": "^1.2",
         "symfony/browser-kit": "*",
         "symfony/maker-bundle": "^1.14",
         "symfony/stopwatch": "*",
@@ -112,7 +116,7 @@
     },
     "config": {
         "platform": {
-            "php": "7.4.2"
+            "php": "8.1"
         },
         "preferred-install": {
             "*": "dist"
@@ -120,6 +124,7 @@
         "sort-packages": true,
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
+            "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "symfony/flex": true
         },
@@ -130,7 +135,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "5.4.*"
+            "require": "6.4.*"
         }
     },
     "autoload": {
@@ -143,15 +148,6 @@
             "Buddy\\Repman\\Tests\\": "tests/"
         }
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://repo.repman.io"
-        },
-        {
-            "packagist": false
-        }
-    ],
     "scripts": {
         "post-install-cmd": [
             "bin/console assets:install --symlink"

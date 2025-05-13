@@ -11,13 +11,8 @@ use Symfony\Component\Mime\Address;
 
 final class SymfonyMailer implements Mailer
 {
-    private MailerInterface $mailer;
-    private string $sender;
-
-    public function __construct(MailerInterface $mailer, string $sender)
+    public function __construct(private readonly MailerInterface $mailer, private readonly string $sender)
     {
-        $this->mailer = $mailer;
-        $this->sender = $sender;
     }
 
     public function sendPasswordResetLink(string $email, string $token, string $operatingSystem, string $browser): void
@@ -55,7 +50,7 @@ final class SymfonyMailer implements Mailer
         $this->mailer->send((new TemplatedEmail())
             ->from(Address::create($this->sender))
             ->to($email)
-            ->subject(sprintf('You\'ve been invited to %s organization', $organizationName))
+            ->subject(sprintf("You've been invited to %s organization", $organizationName))
             ->htmlTemplate('emails/organization-invitation.html.twig')
             ->context([
                 'userEmail' => $email,
@@ -75,7 +70,7 @@ final class SymfonyMailer implements Mailer
             $this->mailer->send((new TemplatedEmail())
                 ->from(Address::create($this->sender))
                 ->to($email)
-                ->subject("Vulnerabilities found in $packageName package")
+                ->subject(sprintf('Vulnerabilities found in %s package', $packageName))
                 ->htmlTemplate('emails/scan-result.html.twig')
                 ->context([
                     'packageName' => $packageName,

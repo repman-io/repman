@@ -6,6 +6,7 @@ namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
+use DateTimeImmutable;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -14,21 +15,15 @@ final class SendTelemetryCommand extends Command
 {
     protected static $defaultName = 'repman:telemetry:send';
 
-    private Config $config;
-    private Telemetry $telemetry;
-
-    public function __construct(Config $config, Telemetry $telemetry)
+    public function __construct(private readonly Config $config, private readonly Telemetry $telemetry)
     {
-        $this->config = $config;
-        $this->telemetry = $telemetry;
-
         parent::__construct();
     }
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Send telemetry data');
@@ -45,7 +40,7 @@ final class SendTelemetryCommand extends Command
         }
 
         $this->telemetry
-            ->collectAndSend((new \DateTimeImmutable())->modify('-1 day'));
+            ->collectAndSend((new DateTimeImmutable())->modify('-1 day'));
 
         return 0;
     }

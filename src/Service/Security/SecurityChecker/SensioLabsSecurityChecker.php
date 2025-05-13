@@ -5,32 +5,34 @@ declare(strict_types=1);
 namespace Buddy\Repman\Service\Security\SecurityChecker;
 
 use Buddy\Repman\Service\Security\SecurityChecker;
+use RecursiveCallbackFilterIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
+use UnexpectedValueException;
 
 final class SensioLabsSecurityChecker implements SecurityChecker
 {
-    private Parser $yamlParser;
-    private string $databaseDir;
-    private string $databaseRepo;
+    private readonly Parser $yamlParser;
 
     /**
      * @var array<string,Advisory[]>
      */
     private array $advisories = [];
 
-    public function __construct(string $databaseDir, string $databaseRepo)
+    public function __construct(private readonly string $databaseDir, private readonly string $databaseRepo)
     {
         $this->yamlParser = new Parser();
-        $this->databaseDir = $databaseDir;
-        $this->databaseRepo = $databaseRepo;
     }
 
     public function update(): bool
     {
         if (!is_dir($this->databaseDir.'/.git')) {
-            @mkdir($this->databaseDir, 0777, true);
+            @mkdir($this->databaseDir, 0o777, true);
             $this->cloneRepo();
 
             return true;
@@ -39,9 +41,6 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         return $this->updateRepo();
     }
 
-    /**
-     * @return mixed[]
-     */
     public function check(string $lockFile): array
     {
         $packages = $this->getPackages($lockFile);
@@ -89,12 +88,16 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     {
         $contents = json_decode($lockFile, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \UnexpectedValueException('Invalid composer.lock');
+            throw new UnexpectedValueException('Invalid composer.lock');
         }
 
         $packages = [];
         foreach (['packages', 'packages-dev'] as $key) {
-            if (!isset($contents[$key]) || !is_array($contents[$key])) {
+            if (!isset($contents[$key])) {
+                continue;
+            }
+
+            if (!is_array($contents[$key])) {
                 continue;
             }
 
@@ -113,7 +116,11 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     {
         $advisories = [];
         foreach ($this->getDatabase() as $file) {
-            if (!$file->isFile() || $file->getExtension() !== 'yaml') {
+            if (!$file->isFile()) {
+                continue;
+            }
+
+            if ($file->getExtension() !== 'yaml') {
                 continue;
             }
 
@@ -147,16 +154,13 @@ final class SensioLabsSecurityChecker implements SecurityChecker
         return $advisories;
     }
 
-    /**
-     * @return \RecursiveIteratorIterator<\RecursiveCallbackFilterIterator>
-     */
-    private function getDatabase(): \RecursiveIteratorIterator
+    private function getDatabase(): RecursiveIteratorIterator
     {
         if (!is_dir($this->databaseDir)) {
-            throw new \RuntimeException('Advisories database does not exist');
+            throw new RuntimeException('Advisories database does not exist');
         }
 
-        $advisoryFilter = function (\SplFileInfo $file): bool {
+        $advisoryFilter = function (SplFileInfo $file): bool {
             if ($file->isDir()) {
                 $dirName = $file->getFilename();
                 if ($dirName[0] === '.') {
@@ -167,9 +171,9 @@ final class SensioLabsSecurityChecker implements SecurityChecker
             return true;
         };
 
-        return new \RecursiveIteratorIterator(
-            new \RecursiveCallbackFilterIterator(
-                new \RecursiveDirectoryIterator($this->databaseDir),
+        return new RecursiveIteratorIterator(
+            new RecursiveCallbackFilterIterator(
+                new RecursiveDirectoryIterator($this->databaseDir),
                 $advisoryFilter
             )
         );

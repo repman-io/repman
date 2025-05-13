@@ -6,13 +6,8 @@ namespace Buddy\Repman\Message\Organization\Member;
 
 final class RemoveInvitation
 {
-    private string $organizationId;
-    private string $token;
-
-    public function __construct(string $organizationId, string $token)
+    public function __construct(private readonly string $organizationId, private readonly string $token)
     {
-        $this->organizationId = $organizationId;
-        $this->token = $token;
     }
 
     public function organizationId(): string

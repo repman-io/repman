@@ -13,13 +13,13 @@ final class NativeRemoteFilesystemTest extends TestCase
     {
         $rf = new ReactDownloader();
 
-        self::assertFalse($rf->getContents(__FILE__)->isEmpty());
+        $this->assertFalse($rf->getContents(__FILE__)->isEmpty());
     }
 
     public function testInCorrectDownload(): void
     {
         $rf = new ReactDownloader();
 
-        self::assertTrue($rf->getContents('/not/exits')->isEmpty());
+        $this->assertTrue($rf->getContents('/not/exits')->isEmpty());
     }
 }

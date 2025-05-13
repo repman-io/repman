@@ -7,19 +7,10 @@ namespace Buddy\Repman\Service\Proxy;
 class DistFile
 {
     /**
-     * @var resource
-     */
-    private $stream;
-
-    private int $fileSize;
-
-    /**
      * @param resource $stream
      */
-    public function __construct($stream, int $fileSize)
+    public function __construct(private $stream, private readonly int $fileSize)
     {
-        $this->stream = $stream;
-        $this->fileSize = $fileSize;
     }
 
     /**

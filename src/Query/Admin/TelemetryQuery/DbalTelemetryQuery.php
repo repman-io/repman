@@ -8,15 +8,13 @@ use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Query\Admin\TelemetryQuery;
 use Buddy\Repman\Service\Telemetry\Entry\Organization;
 use Buddy\Repman\Service\Telemetry\Entry\Package;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 
 final class DbalTelemetryQuery implements TelemetryQuery
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     public function usersCount(): int
@@ -33,16 +31,14 @@ final class DbalTelemetryQuery implements TelemetryQuery
      */
     public function organizations(int $limit = 100, int $offset = 0): array
     {
-        return array_map(function (array $data): Organization {
-            return new Organization(
-                $data['id'],
-                $data['tokens'],
-                $data['has_anonymous_access'],
-                $data['members'],
-                $data['owners'],
-            );
-            }, $this->connection->fetchAllAssociative(
-                'SELECT
+        return array_map(fn (array $data): Organization => new Organization(
+            $data['id'],
+            $data['tokens'],
+            $data['has_anonymous_access'],
+            $data['members'],
+            $data['owners'],
+        ), $this->connection->fetchAllAssociative(
+            'SELECT
                 o.id,
                 COUNT(t.value) tokens,
                 o.has_anonymous_access,
@@ -53,12 +49,12 @@ final class DbalTelemetryQuery implements TelemetryQuery
             LEFT JOIN "organization_member" m ON m.organization_id = o.id
             GROUP BY o.id
             LIMIT :limit OFFSET :offset',
-                [
-                    'role_member' => Member::ROLE_MEMBER,
-                    'role_owner' => Member::ROLE_OWNER,
-                    'limit' => $limit,
-                    'offset' => $offset,
-                ])
+            [
+                'role_member' => Member::ROLE_MEMBER,
+                'role_owner' => Member::ROLE_OWNER,
+                'limit' => $limit,
+                'offset' => $offset,
+            ])
         );
     }
 
@@ -74,22 +70,20 @@ final class DbalTelemetryQuery implements TelemetryQuery
     /**
      * @return Package[]
      */
-    public function packages(string $organizationId, \DateTimeImmutable $till, int $limit = 100, int $offset = 0): array
+    public function packages(string $organizationId, DateTimeImmutable $till, int $limit = 100, int $offset = 0): array
     {
-        return array_map(function (array $data): Package {
-            return new Package(
-                $data['type'],
-                $data['latest_release_date'] === null ? null : new \DateTimeImmutable($data['latest_release_date']),
-                $data['last_sync_at'] === null ? null : new \DateTimeImmutable($data['last_sync_at']),
-                $data['last_scan_date'] === null ? null : new \DateTimeImmutable($data['last_scan_date']),
-                $data['last_sync_error'] !== null,
-                $data['webhook_created_at'] !== null,
-                $data['last_scan_status'] ?? '',
-                $data['downloads'],
-                $data['webhooks'],
-            );
-            }, $this->connection->fetchAllAssociative(
-                'SELECT
+        return array_map(fn (array $data): Package => new Package(
+            $data['type'],
+            $data['latest_release_date'] === null ? null : new DateTimeImmutable($data['latest_release_date']),
+            $data['last_sync_at'] === null ? null : new DateTimeImmutable($data['last_sync_at']),
+            $data['last_scan_date'] === null ? null : new DateTimeImmutable($data['last_scan_date']),
+            $data['last_sync_error'] !== null,
+            $data['webhook_created_at'] !== null,
+            $data['last_scan_status'] ?? '',
+            $data['downloads'],
+            $data['webhooks'],
+        ), $this->connection->fetchAllAssociative(
+            'SELECT
                 p.type,
                 p.latest_release_date,
                 p.last_sync_at,
@@ -102,12 +96,12 @@ final class DbalTelemetryQuery implements TelemetryQuery
             FROM "organization_package" p
             WHERE p.organization_id = :organization_id
             LIMIT :limit OFFSET :offset',
-                [
-                    'organization_id' => $organizationId,
-                    'till' => $till->format('Y-m-d'),
-                    'limit' => $limit,
-                    'offset' => $offset,
-                ])
+            [
+                'organization_id' => $organizationId,
+                'till' => $till->format('Y-m-d'),
+                'limit' => $limit,
+                'offset' => $offset,
+            ])
         );
     }
 
@@ -124,7 +118,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
             );
     }
 
-    public function proxyDownloads(\DateTimeImmutable $till): int
+    public function proxyDownloads(DateTimeImmutable $till): int
     {
         return (int) $this
             ->connection
@@ -135,7 +129,7 @@ final class DbalTelemetryQuery implements TelemetryQuery
             );
     }
 
-    public function privateDownloads(\DateTimeImmutable $till): int
+    public function privateDownloads(DateTimeImmutable $till): int
     {
         return (int) $this
             ->connection

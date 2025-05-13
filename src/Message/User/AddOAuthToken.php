@@ -4,29 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Message\User;
 
+use DateTimeImmutable;
+
 final class AddOAuthToken
 {
-    private string $id;
-    private string $userId;
-    private string $type;
-    private string $accessToken;
-    private ?string $refreshToken = null;
-    private ?\DateTimeImmutable $expiresAt = null;
-
-    public function __construct(
-        string $id,
-        string $userId,
-        string $type,
-        string $accessToken,
-        ?string $refreshToken = null,
-        ?\DateTimeImmutable $expiresAt = null
-    ) {
-        $this->id = $id;
-        $this->userId = $userId;
-        $this->type = $type;
-        $this->accessToken = $accessToken;
-        $this->refreshToken = $refreshToken;
-        $this->expiresAt = $expiresAt;
+    public function __construct(private readonly string $id, private readonly string $userId, private readonly string $type, private readonly string $accessToken, private readonly ?string $refreshToken = null, private readonly ?DateTimeImmutable $expiresAt = null)
+    {
     }
 
     public function id(): string
@@ -54,7 +37,7 @@ final class AddOAuthToken
         return $this->refreshToken;
     }
 
-    public function expiresAt(): ?\DateTimeImmutable
+    public function expiresAt(): ?DateTimeImmutable
     {
         return $this->expiresAt;
     }

@@ -35,7 +35,7 @@ class ChangePasswordType extends AbstractType
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match',
                 'first_options' => ['label' => 'New password'],
-                'second_options' => ['label' => 'Repeat new password', 'help' => 'Make sure it\'s at least 6 characters'],
+                'second_options' => ['label' => 'Repeat new password', 'help' => "Make sure it's at least 6 characters"],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter a password',

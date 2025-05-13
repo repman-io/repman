@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Proxy;
 
-use Buddy\Repman\Service\Proxy\Downloads\Package;
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 
 final class Downloads
 {
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
-     * @param Package[] $packages
+     * @throws Exception
      */
-    public function save(array $packages, \DateTimeImmutable $date, ?string $ip, ?string $userAgent): void
+    public function save(array $packages, DateTimeImmutable $date, ?string $ip, ?string $userAgent): void
     {
         foreach ($packages as $package) {
             $this->connection->insert('proxy_package_download', [

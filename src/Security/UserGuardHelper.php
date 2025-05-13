@@ -12,15 +12,8 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 final class UserGuardHelper
 {
-    private UserProvider $userProvider;
-    private LoginFormAuthenticator $authenticator;
-    private TokenStorageInterface $tokenStorage;
-
-    public function __construct(UserProvider $userProvider, LoginFormAuthenticator $authenticator, TokenStorageInterface $tokenStorage)
+    public function __construct(private readonly UserProvider $userProvider, private readonly LoginFormAuthenticator $authenticator, private readonly TokenStorageInterface $tokenStorage)
     {
-        $this->userProvider = $userProvider;
-        $this->authenticator = $authenticator;
-        $this->tokenStorage = $tokenStorage;
     }
 
     public function userExists(string $email): bool
@@ -30,9 +23,7 @@ final class UserGuardHelper
 
     public function authenticateUser(string $email, Request $request): void
     {
-        $token = $this->authenticator->createToken(new SelfValidatingPassport(new UserBadge($email, function (string $email): UserInterface {
-            return $this->userProvider->loadUserByIdentifier($email);
-        })), 'main');
+        $token = $this->authenticator->createToken(new SelfValidatingPassport(new UserBadge($email, fn (string $email): UserInterface => $this->userProvider->loadUserByIdentifier($email))), 'main');
         $this->tokenStorage->setToken($token);
         $request->getSession()->set('_security_main', serialize($token));
     }

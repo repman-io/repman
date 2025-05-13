@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use DateTimeImmutable;
+
 trait PackageScanResultTrait
 {
     private ?ScanResult $scanResult;
@@ -13,7 +15,7 @@ trait PackageScanResultTrait
         return $this->scanResult !== null ? $this->scanResult->status() : ScanResult::statusPending();
     }
 
-    public function scanResultDate(): ?\DateTimeImmutable
+    public function scanResultDate(): ?DateTimeImmutable
     {
         return $this->scanResult !== null ? $this->scanResult->date() : null;
     }

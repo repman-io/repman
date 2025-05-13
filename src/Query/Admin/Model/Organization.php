@@ -6,17 +6,8 @@ namespace Buddy\Repman\Query\Admin\Model;
 
 final class Organization
 {
-    private string $id;
-    private string $name;
-    private string $alias;
-    private int $packagesCount;
-
-    public function __construct(string $id, string $name, string $alias, int $packagesCount)
+    public function __construct(private readonly string $id, private readonly string $name, private readonly string $alias, private readonly int $packagesCount)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->alias = $alias;
-        $this->packagesCount = $packagesCount;
     }
 
     public function id(): string

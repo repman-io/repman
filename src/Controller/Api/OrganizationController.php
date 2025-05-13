@@ -15,22 +15,14 @@ use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class OrganizationController extends ApiController
 {
-    private OrganizationQuery $organizationQuery;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
-    ) {
-        $this->organizationQuery = $organizationQuery;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly OrganizationQuery $organizationQuery, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -49,6 +41,7 @@ final class OrganizationController extends ApiController
      * @OA\Response(
      *     response=200,
      *     description="Returns list of user's organizations",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Organizations::class)
      *     )
@@ -77,12 +70,14 @@ final class OrganizationController extends ApiController
      *     methods={"POST"})
      *
      * @OA\RequestBody(
+     *
      *     @Model(type=CreateOrganizationType::class)
      * )
      *
      * @OA\Response(
      *     response=201,
      *     description="Create a new organization",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Organization::class)
      *     )
@@ -91,6 +86,7 @@ final class OrganizationController extends ApiController
      * @OA\Response(
      *     response=400,
      *     description="Bad request",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Errors::class)
      *     )

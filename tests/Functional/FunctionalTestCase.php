@@ -16,6 +16,7 @@ abstract class FunctionalTestCase extends WebTestCase
     use PHPMatcherAssertions;
 
     protected KernelBrowser $client;
+
     protected FixturesManager $fixtures;
 
     protected function setUp(): void

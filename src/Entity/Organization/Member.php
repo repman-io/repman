@@ -7,10 +7,12 @@ namespace Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
+use InvalidArgumentException;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity
+ *
  * @ORM\Table(
  *     name="organization_member",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="user_organization", columns={"user_id", "organization_id"})}
@@ -19,47 +21,42 @@ use Ramsey\Uuid\UuidInterface;
 class Member
 {
     public const ROLE_OWNER = 'owner';
+
     public const ROLE_MEMBER = 'member';
-
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private UuidInterface $id;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User", inversedBy="memberships")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
-    private User $user;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="members")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
-    private Organization $organization;
 
     /**
      * @ORM\Column(type="string", length=15)
      */
     private string $role;
 
-    public function __construct(UuidInterface $id, User $user, Organization $organization, string $role)
+    public function __construct(/**
+     * @ORM\Id
+     *
+     * @ORM\Column(type="uuid", unique=true)
+     */
+        private UuidInterface $id, /**
+     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User", inversedBy="memberships")
+     *
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     */
+        private User $user, /**
+     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="members")
+     *
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
+     */
+        private Organization $organization, string $role)
     {
         if (!in_array($role, self::availableRoles(), true)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported role: %s', $role));
+            throw new InvalidArgumentException(sprintf('Unsupported role: %s', $role));
         }
 
-        $this->id = $id;
-        $this->user = $user;
-        $this->organization = $organization;
         $this->role = $role;
     }
 
     public function changeRole(string $role): void
     {
         if (!in_array($role, self::availableRoles(), true)) {
-            throw new \InvalidArgumentException(sprintf('Unsupported role: %s', $role));
+            throw new InvalidArgumentException(sprintf('Unsupported role: %s', $role));
         }
 
         $this->role = $role;

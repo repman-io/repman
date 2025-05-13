@@ -7,6 +7,7 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Repository\OrganizationRepository;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,22 +18,15 @@ final class SynchronizeAllPackagesCommand extends Command
 {
     protected static $defaultName = 'repman:package:synchronize-all';
 
-    private MessageBusInterface $bus;
-
-    private OrganizationRepository $organizations;
-
-    public function __construct(MessageBusInterface $bus, OrganizationRepository $organizations)
+    public function __construct(private readonly MessageBusInterface $bus, private readonly OrganizationRepository $organizations)
     {
-        $this->bus = $bus;
-        $this->organizations = $organizations;
-
         parent::__construct();
     }
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Synchronize all packages')
@@ -60,7 +54,7 @@ final class SynchronizeAllPackagesCommand extends Command
     /**
      * @return Organization[]
      */
-    protected function getOrganizationsToSync(?string $organizationAlias): array
+    private function getOrganizationsToSync(?string $organizationAlias): array
     {
         if ($organizationAlias === null) {
             return $this->organizations->findAll();
@@ -69,7 +63,7 @@ final class SynchronizeAllPackagesCommand extends Command
         $organization = $this->organizations->findOneBy(['alias' => $organizationAlias]);
 
         if (!$organization instanceof Organization) {
-            throw new \InvalidArgumentException(sprintf('Organization with alias %s not found.', $organizationAlias));
+            throw new InvalidArgumentException(sprintf('Organization with alias %s not found.', $organizationAlias));
         }
 
         return [$organization];

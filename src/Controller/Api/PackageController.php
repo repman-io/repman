@@ -25,15 +25,17 @@ use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\IntegrationRegister;
 use Buddy\Repman\Service\User\UserOAuthTokenProvider;
+use DateTimeImmutable;
+use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,21 +43,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class PackageController extends ApiController
 {
-    private PackageQuery $packageQuery;
-    private UserOAuthTokenProvider $oauthProvider;
-    private IntegrationRegister $integrations;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(
-        PackageQuery $packageQuery,
-        UserOAuthTokenProvider $oauthProvider,
-        IntegrationRegister $integrations,
-        MessageBusInterface $messageBus
-    ) {
-        $this->packageQuery = $packageQuery;
-        $this->oauthProvider = $oauthProvider;
-        $this->integrations = $integrations;
-        $this->messageBus = $messageBus;
+    public function __construct(private readonly PackageQuery $packageQuery, private readonly UserOAuthTokenProvider $oauthProvider, private readonly IntegrationRegister $integrations, private readonly MessageBusInterface $messageBus)
+    {
     }
 
     /**
@@ -75,6 +64,7 @@ final class PackageController extends ApiController
      * @OA\Response(
      *     response=200,
      *     description="Returns list of organization's packages",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Packages::class)
      *     )
@@ -120,6 +110,7 @@ final class PackageController extends ApiController
      * @OA\Response(
      *     response=200,
      *     description="Returns a single package",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Package::class)
      *     )
@@ -129,7 +120,6 @@ final class PackageController extends ApiController
      *     response=404,
      *     description="Package not found"
      * )
-     *
      * @OA\Response(
      *     response=403,
      *     description="Forbidden"
@@ -163,12 +153,10 @@ final class PackageController extends ApiController
      *     response=200,
      *     description="Package removed, if there was a problem with removing the webhook, the 'warning' field will appear"
      * )
-     *
      * @OA\Response(
      *     response=404,
      *     description="Package not found"
      * )
-     *
      * @OA\Response(
      *     response=403,
      *     description="Forbidden"
@@ -205,7 +193,6 @@ final class PackageController extends ApiController
      *     response=200,
      *     description="Package updated"
      * )
-     *
      * @OA\Response(
      *     response=404,
      *     description="Package not found"
@@ -238,6 +225,7 @@ final class PackageController extends ApiController
      * )
      *
      * @OA\RequestBody(
+     *
      *     @Model(type=EditPackageType::class)
      * )
      *
@@ -245,17 +233,14 @@ final class PackageController extends ApiController
      *     response=200,
      *     description="Package updated"
      * )
-     *
      * @OA\Response(
      *     response=404,
      *     description="Package not found"
      * )
-     *
      * @OA\Response(
      *     response=403,
      *     description="Forbidden"
      * )
-     *
      * @OA\Response(
      *     response=400,
      *     description="Bad request"
@@ -300,12 +285,14 @@ final class PackageController extends ApiController
      * )
      *
      * @OA\RequestBody(
+     *
      *     @Model(type=AddPackageType::class)
      * )
      *
      * @OA\Response(
      *     response=201,
      *     description="Returns added package",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Package::class)
      *     )
@@ -314,6 +301,7 @@ final class PackageController extends ApiController
      * @OA\Response(
      *     response=400,
      *     description="Bad request",
+     *
      *     @OA\JsonContent(
      *        ref=@Model(type=Errors::class)
      *     )
@@ -335,12 +323,13 @@ final class PackageController extends ApiController
 
         try {
             $id = $this->handleAddPackage($type, $form, $organization, $json);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             if (!$form->isSubmitted()) {
                 $form->submit($json);
             }
+
             $form->get('type')->addError(new FormError($exception->getMessage()));
-        } catch (\RuntimeException $exception) {
+        } catch (RuntimeException $exception) {
             $form->get('repository')->addError(new FormError($exception->getMessage()));
         }
 
@@ -429,7 +418,7 @@ final class PackageController extends ApiController
         $this->messageBus->dispatch(new AddPackage(
             $id = Uuid::uuid4()->toString(),
             $organization->id(),
-            "https://github.com/{$repo}",
+            'https://github.com/'.$repo,
             'github-oauth',
             [Metadata::GITHUB_REPO_NAME => $repo],
             $form->get('keepLastReleases')->getData()
@@ -456,7 +445,7 @@ final class PackageController extends ApiController
         $projectId = $byNames[$repo] ?? null;
 
         if ($projectId === null) {
-            throw new \RuntimeException("Repository '$repo' not found.");
+            throw new RuntimeException(sprintf("Repository '%s' not found.", $repo));
         }
 
         $this->messageBus->dispatch(new AddPackage(
@@ -489,7 +478,7 @@ final class PackageController extends ApiController
         $repoUuid = $byNames[$repo] ?? null;
 
         if ($repoUuid === null) {
-            throw new \RuntimeException("Repository '$repo' not found.");
+            throw new RuntimeException(sprintf("Repository '%s' not found.", $repo));
         }
 
         $this->messageBus->dispatch(new AddPackage(
@@ -510,7 +499,7 @@ final class PackageController extends ApiController
     {
         $token = $this->oauthProvider->findAccessToken($this->getUser()->id(), $type);
         if ($token === null) {
-            throw new \InvalidArgumentException("Missing $type integration.");
+            throw new InvalidArgumentException(sprintf('Missing %s integration.', $type));
         }
 
         return $token;
@@ -519,7 +508,7 @@ final class PackageController extends ApiController
     private function tryToRemoveWebhook(Package $package): ?string
     {
         $warning = null;
-        if ($package->getWebhookCreatedAt() !== null) {
+        if ($package->getWebhookCreatedAt() instanceof DateTimeImmutable) {
             try {
                 switch ($package->getType()) {
                     case 'github-oauth':

@@ -29,6 +29,6 @@ final class RemoveGitLabHookHandlerTest extends IntegrationTestCase
             ->get(PackageQuery::class)
             ->getById($packageId);
 
-        self::assertEquals(null, $package->get()->webhookCreatedAt());
+        $this->assertEquals(null, $package->get()->webhookCreatedAt());
     }
 }

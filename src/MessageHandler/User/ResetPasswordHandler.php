@@ -12,15 +12,8 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
 final class ResetPasswordHandler implements MessageHandlerInterface
 {
-    private UserRepository $users;
-    private PasswordHasherFactoryInterface $hasherFactory;
-    private int $resetPasswordTokenTtl;
-
-    public function __construct(UserRepository $users, PasswordHasherFactoryInterface $hasherFactory, int $resetPasswordTokenTtl)
+    public function __construct(private readonly UserRepository $users, private readonly PasswordHasherFactoryInterface $hasherFactory, private readonly int $resetPasswordTokenTtl)
     {
-        $this->users = $users;
-        $this->hasherFactory = $hasherFactory;
-        $this->resetPasswordTokenTtl = $resetPasswordTokenTtl;
     }
 
     public function __invoke(ResetPassword $message): void

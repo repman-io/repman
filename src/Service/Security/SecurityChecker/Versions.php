@@ -8,13 +8,8 @@ use Composer\Semver\Semver;
 
 final class Versions
 {
-    private string $from;
-    private ?string $to;
-
-    public function __construct(string $from, ?string $to = null)
+    public function __construct(private readonly string $from, private readonly ?string $to = null)
     {
-        $this->from = $from;
-        $this->to = $to;
     }
 
     public function include(string $version): bool

@@ -13,13 +13,13 @@ final class DistTest extends TestCase
     {
         $dist = new Dist('repo', 'package', 'dev-master/feature', '123456', 'zip');
 
-        self::assertEquals(md5('dev-master/feature'), $dist->version());
+        $this->assertSame(md5('dev-master/feature'), $dist->version());
     }
 
     public function testVersionDevMaster(): void
     {
         $dist = new Dist('repo', 'package', 'dev-master', '123456', 'zip');
 
-        self::assertEquals('9999999-dev', $dist->version());
+        $this->assertSame('9999999-dev', $dist->version());
     }
 }

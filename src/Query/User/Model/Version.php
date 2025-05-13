@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Query\User\Model;
 
+use DateTimeImmutable;
+
 final class Version
 {
-    private string $version;
-    private string $reference;
-    private int $size;
-    private \DateTimeImmutable $date;
-
-    public function __construct(string $version, string $reference, int $size, \DateTimeImmutable $date)
+    public function __construct(private readonly string $version, private readonly string $reference, private readonly int $size, private readonly DateTimeImmutable $date)
     {
-        $this->version = $version;
-        $this->reference = $reference;
-        $this->size = $size;
-        $this->date = $date;
     }
 
     public function version(): string
@@ -34,7 +27,7 @@ final class Version
         return $this->size;
     }
 
-    public function date(): \DateTimeImmutable
+    public function date(): DateTimeImmutable
     {
         return $this->date;
     }

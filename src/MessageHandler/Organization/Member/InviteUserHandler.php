@@ -12,13 +12,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class InviteUserHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $organizations;
-    private Mailer $mailer;
-
-    public function __construct(OrganizationRepository $organizations, Mailer $mailer)
+    public function __construct(private readonly OrganizationRepository $organizations, private readonly Mailer $mailer)
     {
-        $this->organizations = $organizations;
-        $this->mailer = $mailer;
     }
 
     public function __invoke(InviteUser $message): void

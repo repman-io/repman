@@ -29,17 +29,14 @@ jobs:
       fail-fast: false
       matrix:
         php:
-          - "7.4"
           - "8.0"
         postgresql:
-          - "11"
+          - "17"
         include:
-          - php: "7.4"
-            php-version: "7.4.2"
           - php: "8.0"
             php-version: "8.0.30"
-          - postgresql: "11"
-            postgresql-version: "11.7"
+          - postgresql: "17"
+            postgresql-version: "17.7"
 
     steps:
       - name: "Install OS dependencies"

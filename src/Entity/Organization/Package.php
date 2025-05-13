@@ -8,13 +8,17 @@ use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization\Package\Link;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Entity\User\OAuthToken;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
+use RuntimeException;
 
 /**
  * @ORM\Entity
+ *
  * @ORM\Table(
  *     name="organization_package",
  *     uniqueConstraints={@ORM\UniqueConstraint(name="package_name", columns={"organization_id", "name"})}
@@ -23,12 +27,6 @@ use Ramsey\Uuid\UuidInterface;
 class Package
 {
     public const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
-
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
-    private UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -48,20 +46,11 @@ class Package
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $latestReleaseDate = null;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private string $repositoryUrl;
-
-    /**
-     * @ORM\Column(type="string")
-     */
-    private string $type;
+    private ?DateTimeImmutable $latestReleaseDate = null;
 
     /**
      * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="packages")
+     *
      * @ORM\JoinColumn(nullable=false)
      */
     private Organization $organization;
@@ -69,12 +58,12 @@ class Package
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeInterface $lastSyncAt;
+    private ?DateTimeInterface $lastSyncAt = null;
 
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $webhookCreatedAt = null;
+    private ?DateTimeImmutable $webhookCreatedAt = null;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -85,13 +74,6 @@ class Package
      * @ORM\Column(type="text", nullable=true)
      */
     private ?string $lastSyncError = null;
-
-    /**
-     * @ORM\Column(type="json")
-     *
-     * @var mixed[]
-     */
-    private array $metadata;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -113,29 +95,21 @@ class Package
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private ?\DateTimeImmutable $lastScanDate = null;
+    private ?DateTimeImmutable $lastScanDate = null;
 
     /**
      * @var Collection<int,Version>|Version[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Version", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $versions;
 
     /**
      * @var Collection<int,Link>|Link[]
+     *
      * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Link", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
      */
     private Collection $links;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private int $keepLastReleases = 0;
-
-    /**
-     * @ORM\Column(type="boolean", options={"default":"true"})
-     */
-    private bool $enableSecurityScan = true;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -145,14 +119,28 @@ class Package
     /**
      * @param mixed[] $metadata
      */
-    public function __construct(UuidInterface $id, string $type, string $url, array $metadata = [], int $keepLastReleases = 0, bool $enableSecurityScan = true)
+    public function __construct(/**
+     * @ORM\Id
+     *
+     * @ORM\Column(type="uuid", unique=true)
+     */
+        private UuidInterface $id, /**
+     * @ORM\Column(type="string")
+     */
+        private string $type, /**
+     * @ORM\Column(type="text")
+     */
+        private string $repositoryUrl, /**
+     * @ORM\Column(type="json")
+     */
+        private array $metadata = [], /**
+     * @ORM\Column(type="integer")
+     */
+        private int $keepLastReleases = 0, /**
+     * @ORM\Column(type="boolean", options={"default":"true"})
+     */
+        private bool $enableSecurityScan = true)
     {
-        $this->id = $id;
-        $this->type = $type;
-        $this->repositoryUrl = $url;
-        $this->metadata = $metadata;
-        $this->keepLastReleases = $keepLastReleases;
-        $this->enableSecurityScan = $enableSecurityScan;
         $this->versions = new ArrayCollection();
         $this->links = new ArrayCollection();
     }
@@ -165,8 +153,9 @@ class Package
     public function setOrganization(Organization $organization): void
     {
         if (isset($this->organization)) {
-            throw new \RuntimeException('You can not change package organization');
+            throw new RuntimeException('You can not change package organization');
         }
+
         $this->organization = $organization;
     }
 
@@ -184,7 +173,7 @@ class Package
      * @param array<string,bool> $encounteredVersions
      * @param array<string,bool> $encounteredLinks
      */
-    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, \DateTimeImmutable $latestReleaseDate): void
+    public function syncSuccess(string $name, string $description, string $latestReleasedVersion, array $encounteredVersions, array $encounteredLinks, DateTimeImmutable $latestReleaseDate): void
     {
         $this->setName($name);
         $this->description = $description;
@@ -211,13 +200,14 @@ class Package
 
             $this->links->remove($key);
         }
-        $this->lastSyncAt = new \DateTimeImmutable();
+
+        $this->lastSyncAt = new DateTimeImmutable();
         $this->lastSyncError = null;
     }
 
     public function syncFailure(string $error): void
     {
-        $this->lastSyncAt = new \DateTimeImmutable();
+        $this->lastSyncAt = new DateTimeImmutable();
         $this->lastSyncError = $error;
     }
 
@@ -249,8 +239,8 @@ class Package
     public function oauthToken(): OAuthToken
     {
         $token = $this->organization->oauthToken(str_replace('-oauth', '', $this->type));
-        if ($token === null) {
-            throw new \RuntimeException('Oauth token not found');
+        if (!$token instanceof OAuthToken) {
+            throw new RuntimeException('Oauth token not found');
         }
 
         return $token;
@@ -258,12 +248,12 @@ class Package
 
     public function hasOAuthToken(): bool
     {
-        return strpos($this->type, 'oauth') !== false;
+        return str_contains($this->type, 'oauth');
     }
 
     public function webhookWasCreated(): void
     {
-        $this->webhookCreatedAt = new \DateTimeImmutable();
+        $this->webhookCreatedAt = new DateTimeImmutable();
         $this->webhookCreatedError = null;
     }
 
@@ -294,7 +284,7 @@ class Package
     public function metadata(string $key)
     {
         if (!isset($this->metadata[$key])) {
-            throw new \RuntimeException(sprintf('Metadata %s not found for project %s', $key, $this->id->toString()));
+            throw new RuntimeException(sprintf('Metadata %s not found for project %s', $key, $this->id->toString()));
         }
 
         return $this->metadata[$key];
@@ -318,7 +308,7 @@ class Package
     /**
      * @param mixed[] $result
      */
-    public function setScanResult(string $status, \DateTimeImmutable $date, array $result): void
+    public function setScanResult(string $status, DateTimeImmutable $date, array $result): void
     {
         $this->lastScanDate = $date;
         $this->lastScanStatus = $status;
@@ -328,7 +318,7 @@ class Package
     private function setName(string $name): void
     {
         if (preg_match(self::NAME_PATTERN, $name, $matches) !== 1) {
-            throw new \RuntimeException("Package name {$name} is invalid");
+            throw new RuntimeException(sprintf('Package name %s is invalid', $name));
         }
 
         $this->name = $name;

@@ -9,6 +9,7 @@ use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -24,16 +25,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  */
 final class PrivatePackageDownloadFixtures extends Fixture
 {
-    private OrganizationQuery $organizations;
-    private PackageQuery $packages;
-    private Generator $faker;
-    private EntityManagerInterface $em;
+    private readonly Generator $faker;
 
-    public function __construct(OrganizationQuery $organizations, PackageQuery $packages, EntityManagerInterface $em)
+    public function __construct(private readonly OrganizationQuery $organizations, private readonly PackageQuery $packages, private readonly EntityManagerInterface $em)
     {
-        $this->organizations = $organizations;
-        $this->packages = $packages;
-        $this->em = $em;
         $this->faker = Factory::create();
     }
 
@@ -60,18 +55,21 @@ final class PrivatePackageDownloadFixtures extends Fixture
                 $this->em->persist(new Download(
                     Uuid::uuid4(),
                     Uuid::fromString($package->id()),
-                    (new \DateTimeImmutable())->modify(sprintf('-%s days', $i)),
+                    (new DateTimeImmutable())->modify(sprintf('-%s days', $i)),
                     $this->faker->randomElement($versions),
                     $this->faker->ipv4,
                     $this->faker->userAgent
                 ));
                 $this->em->flush();
             }
+
             $progress->advance();
         }
+
         $this->em->commit();
         $this->em->beginTransaction();
         $this->em->clear();
+
         $output->writeln('');
     }
 }

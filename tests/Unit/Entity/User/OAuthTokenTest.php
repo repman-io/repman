@@ -7,8 +7,12 @@ namespace Buddy\Repman\Tests\Unit\Entity\User;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
 use Buddy\Repman\Tests\MotherObject\OAuthTokenMother;
+use DateTimeImmutable;
+use Iterator;
+use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class OAuthTokenTest extends TestCase
 {
@@ -27,25 +31,25 @@ final class OAuthTokenTest extends TestCase
      */
     public function testExpiredAccessToken(string $modifyTime): void
     {
-        $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify($modifyTime));
+        $token = OAuthTokenMother::withExpireTime((new DateTimeImmutable())->modify($modifyTime));
         $this->refresher->method('refresh')->willReturn(new AccessToken('new-token'));
 
-        self::assertEquals('new-token', $token->accessToken($this->refresher));
+        $this->assertSame('new-token', $token->accessToken($this->refresher));
     }
 
     public function testAccessTokenWithFutureExpirationDate(): void
     {
-        $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('61 sec'));
+        $token = OAuthTokenMother::withExpireTime((new DateTimeImmutable())->modify('61 sec'));
 
-        self::assertEquals('token', $token->accessToken($this->refresher));
+        $this->assertSame('token', $token->accessToken($this->refresher));
     }
 
     public function testErrorDuringRefresh(): void
     {
-        $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('-1 day'));
-        $this->refresher->method('refresh')->willThrowException(new \RuntimeException('invalid refresh_token'));
+        $token = OAuthTokenMother::withExpireTime((new DateTimeImmutable())->modify('-1 day'));
+        $this->refresher->method('refresh')->willThrowException(new RuntimeException('invalid refresh_token'));
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessageMatches('/invalid refresh_token/');
 
         $token->accessToken($this->refresher);
@@ -53,9 +57,9 @@ final class OAuthTokenTest extends TestCase
 
     public function testErrorWhenMissingRefreshToken(): void
     {
-        $token = OAuthTokenMother::withoutRefreshToken((new \DateTimeImmutable())->modify('-1 day'));
+        $token = OAuthTokenMother::withoutRefreshToken((new DateTimeImmutable())->modify('-1 day'));
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
 
         $token->accessToken($this->refresher);
     }
@@ -63,13 +67,11 @@ final class OAuthTokenTest extends TestCase
     /**
      * @return mixed[]
      */
-    public function expiredTimeProvider(): array
+    public function expiredTimeProvider(): Iterator
     {
-        return [
-            ['-1 hour'],
-            ['0 sec'],
-            ['9 sec'],
-            ['1 min'],
-        ];
+        yield ['-1 hour'];
+        yield ['0 sec'];
+        yield ['9 sec'];
+        yield ['1 min'];
     }
 }

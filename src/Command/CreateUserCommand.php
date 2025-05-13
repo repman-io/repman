@@ -17,23 +17,20 @@ final class CreateUserCommand extends Command
 {
     protected static $defaultName = 'repman:create:user';
 
-    private MessageBusInterface $bus;
-
-    public function __construct(MessageBusInterface $bus)
+    public function __construct(private readonly MessageBusInterface $bus)
     {
-        $this->bus = $bus;
         parent::__construct();
     }
 
     /**
      * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Create normal user')
             ->addArgument('email', InputArgument::REQUIRED, 'e-mail used to log in')
-            ->addArgument('password', InputArgument::OPTIONAL, 'plain password, if you don\'t provide it, you\'ll be asked for it')
+            ->addArgument('password', InputArgument::OPTIONAL, "plain password, if you don't provide it, you'll be asked for it")
         ;
     }
 

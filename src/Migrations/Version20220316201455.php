@@ -20,7 +20,7 @@ final class Version20220316201455 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE organization_package ADD enable_security_scan BOOLEAN DEFAULT \'true\' NOT NULL');
+        $this->addSql("ALTER TABLE organization_package ADD enable_security_scan BOOLEAN DEFAULT 'true' NOT NULL");
     }
 
     public function down(Schema $schema): void

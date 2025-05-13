@@ -5,23 +5,21 @@ declare(strict_types=1);
 namespace Buddy\Repman\Query\User\Model;
 
 use Buddy\Repman\Query\User\Model\Installs\Day;
+use DateTimeImmutable;
 
 final class Installs
 {
     /**
      * @var Day[]
      */
-    private array $days;
-
-    private int $total;
+    private readonly array $days;
 
     /**
      * @param Day[] $days
      */
-    public function __construct(array $days, int $preriod, int $total)
+    public function __construct(array $days, int $preriod, private readonly int $total)
     {
         $this->days = $this->addMissing($days, $preriod);
-        $this->total = $total;
     }
 
     /**
@@ -55,11 +53,12 @@ final class Installs
         }
 
         for ($i = 0; $i < $period; ++$i) {
-            $date = (new \DateTimeImmutable())->modify(sprintf('-%s days', $i))->format('Y-m-d');
+            $date = (new DateTimeImmutable())->modify(sprintf('-%s days', $i))->format('Y-m-d');
             if (!isset($all[$date])) {
                 $all[$date] = new Day($date, 0);
             }
         }
+
         ksort($all);
 
         return array_values($all);

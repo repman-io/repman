@@ -12,13 +12,8 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 final class RemoveOrganizationHandler implements MessageHandlerInterface
 {
-    private OrganizationRepository $organizations;
-    private PackageManager $packageManager;
-
-    public function __construct(OrganizationRepository $organizations, PackageManager $packageManager)
+    public function __construct(private readonly OrganizationRepository $organizations, private readonly PackageManager $packageManager)
     {
-        $this->organizations = $organizations;
-        $this->packageManager = $packageManager;
     }
 
     public function __invoke(RemoveOrganization $message): void

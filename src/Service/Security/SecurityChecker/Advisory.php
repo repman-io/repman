@@ -6,23 +6,11 @@ namespace Buddy\Repman\Service\Security\SecurityChecker;
 
 final class Advisory
 {
-    private string $title;
-    private string $cve;
-    private string $link;
-    /**
-     * @var Versions[]
-     */
-    private array $branches;
-
     /**
      * @param Versions[] $branches
      */
-    public function __construct(string $title, string $cve, string $link, array $branches)
+    public function __construct(private readonly string $title, private readonly string $cve, private readonly string $link, private readonly array $branches)
     {
-        $this->title = $title;
-        $this->cve = $cve;
-        $this->link = $link;
-        $this->branches = $branches;
     }
 
     /**
