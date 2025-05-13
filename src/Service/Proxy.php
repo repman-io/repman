@@ -312,7 +312,7 @@ final class Proxy
             $filename = basename((string) $path);
             $dirname = dirname((string) $path);
 
-            preg_match('/(?<n>.+)\$/', $filename, $matches);
+            preg_match('/(?<name>.+)\$/', $filename, $matches);
             $key = $dirname.'/'.$matches['name'];
             if (!isset($latest[$key])) {
                 $latest[$key] = [
@@ -337,7 +337,7 @@ final class Proxy
         $providers = [];
         foreach ($latest as $fileData) {
             $path = $fileData['path'];
-            preg_match('/'.$this->name.'\/p\/(?<n>.+)\$/', (string) $path, $matches);
+            preg_match('/'.$this->name.'\/p\/(?<name>.+)\$/', (string) $path, $matches);
             $providers[$matches['name']] = [
                 'sha256' => hash('sha256', (string) $this->filesystem->read($path)),
             ];
