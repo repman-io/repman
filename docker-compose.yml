@@ -1,12 +1,10 @@
-version: '3.4'
-
 x-restart-policy: &restart_policy
   restart: unless-stopped
 
 services:
   database:
     << : *restart_policy
-    image: postgres:11.20-alpine
+    image: postgres:17-alpine
     logging:
       driver: none
     environment:
