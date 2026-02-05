@@ -19,8 +19,8 @@ class S3AdapterFactoryTest extends TestCase
 
         self::assertSame('eu-east-1', $cfg['signing_region']);
         self::assertSame('s3v4', $cfg['signature_version']);
-        // The credentials provider is set - getCredentials() returns a promise
-        self::assertInstanceOf(\GuzzleHttp\Promise\PromiseInterface::class, $instance->getCredentials());
+        // The 'credentials' key should NOT be in config when using provider chain
+        self::assertArrayNotHasKey('credentials', $cfg);
     }
 
     public function testCreateWithDefaultCredentialChainUsesProvider(): void
@@ -28,10 +28,10 @@ class S3AdapterFactoryTest extends TestCase
         $factory = new S3AdapterFactory('eu-east-1', false);
 
         $instance = $factory->create();
+        $cfg = $instance->getConfig();
 
-        // The credentials provider is set - getCredentials() returns a promise
-        // When using the default provider chain, the SDK handles credential resolution
-        self::assertInstanceOf(\GuzzleHttp\Promise\PromiseInterface::class, $instance->getCredentials());
+        // When using the default provider chain, credentials are not in config
+        self::assertArrayNotHasKey('credentials', $cfg);
     }
 
     /**
@@ -52,10 +52,6 @@ class S3AdapterFactoryTest extends TestCase
 
         // Verify the client is configured correctly
         self::assertSame('eu-west-1', $cfg['signing_region']);
-
-        // getCredentials() should return a promise (from the provider chain)
-        $credentialsPromise = $instance->getCredentials();
-        self::assertInstanceOf(\GuzzleHttp\Promise\PromiseInterface::class, $credentialsPromise);
     }
 
     /**
@@ -69,10 +65,8 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
 
         // When using opaque auth, credentials should resolve to the provided values
-        /** @var Credentials $creds */
         $creds = $instance->getCredentials()->wait();
 
-        self::assertInstanceOf(Credentials::class, $creds);
         self::assertSame('my-access-key', $creds->getAccessKeyId());
         self::assertSame('my-secret-key', $creds->getSecretKey());
     }
@@ -96,10 +90,8 @@ class S3AdapterFactoryTest extends TestCase
             $instance = $factory->create();
 
             // The credential chain should resolve from environment variables
-            /** @var Credentials $creds */
             $creds = $instance->getCredentials()->wait();
 
-            self::assertInstanceOf(Credentials::class, $creds);
             self::assertSame('env-test-key', $creds->getAccessKeyId());
             self::assertSame('env-test-secret', $creds->getSecretKey());
         } finally {
