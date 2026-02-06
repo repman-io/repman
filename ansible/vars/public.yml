@@ -38,7 +38,7 @@ db_user: repman
 db_password: "{{ lookup('env', 'REPMAN_DB_PASSWORD') or 'password' }}"
 
 # Postgres
-postgresql_version: 11
+postgresql_version: 17
 postgresql_port: "{{ db_port }}"
 postgresql_encoding: 'UTF-8'
 postgresql_locale: 'en_US.UTF-8'

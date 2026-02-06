@@ -4,8 +4,21 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Integration\Aws;
 
+use Aws\Credentials\CredentialProvider;
 use Aws\S3\S3Client;
 
+/**
+ * Factory for creating S3Client instances with flexible authentication.
+ *
+ * Supports multiple authentication methods:
+ * - Explicit credentials (STORAGE_AWS_OPAQUE_AUTH=true): Uses provided key/secret
+ * - Default credential chain (STORAGE_AWS_OPAQUE_AUTH=false): Uses AWS SDK's default
+ *   credential provider chain which supports:
+ *   - Environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+ *   - Web identity token (EKS Pod Identity / IRSA)
+ *   - ECS container credentials
+ *   - EC2 instance profile credentials
+ */
 final class S3AdapterFactory
 {
     private string $region;
@@ -55,10 +68,16 @@ final class S3AdapterFactory
         ];
 
         if ($this->isOpaqueAuth) {
+            // Use explicit credentials when provided
             $args['credentials'] = [
                 'key' => $this->key,
                 'secret' => $this->secret,
             ];
+        } else {
+            // Use the default credential provider chain with memoization
+            // This supports: env vars, web identity (Pod Identity/IRSA), ECS, instance profile
+            $provider = CredentialProvider::defaultProvider();
+            $args['credentials'] = CredentialProvider::memoize($provider);
         }
 
         if ($this->endpoint !== null) {
