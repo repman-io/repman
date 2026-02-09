@@ -25,7 +25,7 @@ final class GitLabController extends OAuthController
     {
         $this->ensureOAuthRegistrationIsEnabled();
 
-        return $this->oauth->getClient('gitlab')->redirect(['read_user'], []);
+        return $this->oauth->getClient('gitlab')->redirect(['read_user'], ['redirect_uri' => $this->generateUrl('register_gitlab_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
     /**
