@@ -42,6 +42,7 @@
         "league/flysystem-bundle": "^1.5",
         "league/flysystem-cached-adapter": "^1.1",
         "league/oauth2-github": "^3.0",
+        "league/oauth2-google": "^4.0",
         "m4tthumphrey/php-gitlab-api": "^11.0",
         "munusphp/munus": "^0.4.0",
         "nelmio/api-doc-bundle": "^4.3",
