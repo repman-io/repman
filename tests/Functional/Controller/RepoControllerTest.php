@@ -105,6 +105,10 @@ final class RepoControllerTest extends FunctionalTestCase
                 {
                     "dist-url": "http://buddy.repo.repman.wip/dists/%package%/%version%/%reference%.%type%",
                     "preferred": true
+                },
+                {
+                    "dist-url": "http://buddy.repo.repman.wip/dists/%package%/%version%/%type%",
+                    "preferred": false
                 }
             ]
         }
@@ -137,6 +141,37 @@ final class RepoControllerTest extends FunctionalTestCase
 
         $this->contentFromStream(function (): void {
             $this->client->request('GET', '/dists/vendor/package/9.9.9.9/ac7dcaf888af2324cd14200769362129c8dd8550.zip', [], [], [
+                'HTTP_HOST' => 'buddy.repo.repman.wip',
+                'PHP_AUTH_USER' => 'token',
+                'PHP_AUTH_PW' => 'secret-org-token',
+            ]);
+        });
+
+        self::assertTrue($this->client->getResponse()->isNotFound());
+    }
+
+    public function testOrganizationArtifactPackageDistDownload(): void
+    {
+        $this->fixtures->prepareRepoFiles();
+        $this->fixtures->createToken(
+            $this->fixtures->createOrganization('buddy', $this->fixtures->createUser()),
+            'secret-org-token'
+        );
+
+        $this->contentFromStream(function (): void {
+            $this->client->request('GET', '/dists/buddy-works/artifact/1.0.0.0/zip', [], [], [
+                'HTTP_HOST' => 'buddy.repo.repman.wip',
+                'PHP_AUTH_USER' => 'token',
+                'PHP_AUTH_PW' => 'secret-org-token',
+            ]);
+        });
+
+        $response = $this->client->getResponse();
+        self::assertTrue($response->isOk(), 'Response code was not 200, it was instead '.$response->getStatusCode());
+        self::assertInstanceOf(StreamedResponse::class, $response);
+
+        $this->contentFromStream(function (): void {
+            $this->client->request('GET', '/dists/vendor/artifact/1.0.0.0/zip', [], [], [
                 'HTTP_HOST' => 'buddy.repo.repman.wip',
                 'PHP_AUTH_USER' => 'token',
                 'PHP_AUTH_PW' => 'secret-org-token',
