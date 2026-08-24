@@ -31,17 +31,46 @@ final class RestBitbucketApi implements BitbucketApi
         throw new \RuntimeException('Primary e-mail not found.');
     }
 
+    /**
+     * Assembled one workspace at a time because Bitbucket removed the endpoint that
+     * listed every repository a user can reach in a single call - GET /2.0/repositories,
+     * sunset on 2026-04-14 as part of CHANGE-2770 - and shipped no replacement for it.
+     * Until then this was one request; it is now one per workspace the user belongs to.
+     */
     public function repositories(string $accessToken): Repositories
     {
         $this->client->authenticate(Client::AUTH_OAUTH_TOKEN, $accessToken);
 
-        return new Repositories(array_map(function (array $repo): Repository {
-            return new Repository(
-                $repo['uuid'],
-                $repo['full_name'],
-                $repo['links']['html']['href'].'.git'
-            );
-        }, $this->pager->fetchAll($this->client->repositories(), 'list', [['role' => 'member']])));
+        $repositories = [];
+        foreach ($this->workspaceSlugs() as $slug) {
+            $repositories = array_merge($repositories, array_map(function (array $repo): Repository {
+                return new Repository(
+                    $repo['uuid'],
+                    $repo['full_name'],
+                    $repo['links']['html']['href'].'.git'
+                );
+            }, $this->pager->fetchAll($this->client->repositories()->workspaces($slug), 'list', [['role' => 'member']])));
+        }
+
+        return new Repositories($repositories);
+    }
+
+    /**
+     * GET /2.0/workspaces, which survived the change above - it is a different endpoint
+     * from the GET /2.0/user/permissions/workspaces that was withdrawn alongside it.
+     * Deliberately unfiltered: its default is every workspace the user belongs to, and
+     * narrowing by role here would drop repositories that used to be listed.
+     *
+     * @return string[]
+     */
+    private function workspaceSlugs(): array
+    {
+        return array_map(
+            function (array $workspace): string {
+                return $workspace['slug'];
+            },
+            $this->pager->fetchAll($this->client->currentUser(), 'listWorkspaces')
+        );
     }
 
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void
