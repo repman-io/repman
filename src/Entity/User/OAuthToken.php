@@ -193,11 +193,13 @@ class OAuthToken
         $expiresAt = $refreshed->expiresAt();
 
         if ($expiresAt !== null && (new \DateTimeImmutable()) > $expiresAt) {
-            throw new \RuntimeException(sprintf(
+            $message = sprintf(
                 'The %s provider returned an access token that had already expired at %s',
                 $this->type,
                 $expiresAt->format(\DateTimeInterface::ATOM)
-            ));
+            );
+
+            throw new \RuntimeException($message);
         }
 
         return $refreshed->token();
