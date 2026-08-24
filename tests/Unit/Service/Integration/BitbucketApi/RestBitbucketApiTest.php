@@ -12,6 +12,7 @@ use Bitbucket\ResultPagerInterface;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repositories;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 use Buddy\Repman\Service\Integration\BitbucketApi\RestBitbucketApi;
+use Buddy\Repman\Service\Integration\BitbucketApi\UserWorkspaces;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -81,10 +82,13 @@ final class RestBitbucketApiTest extends TestCase
      * Every workspace has to be asked separately: the endpoint that answered for all of
      * them at once was withdrawn by Bitbucket (CHANGE-2770), so a user whose
      * repositories live in more than one workspace is the case that matters here.
+     *
+     * @dataProvider workspaceListingShapeProvider
+     *
+     * @param mixed[] $workspaceListing
      */
-    public function testFetchRepositoriesFromEveryWorkspace(): void
+    public function testFetchRepositoriesFromEveryWorkspace(array $workspaceListing): void
     {
-        $currentUser = $this->createMock(CurrentUser::class);
         $workspaceApis = [
             'repman' => $this->createMock(RepositoriesApi\Workspaces::class),
             'other-team' => $this->createMock(RepositoriesApi\Workspaces::class),
@@ -94,16 +98,16 @@ final class RestBitbucketApiTest extends TestCase
         $repos->method('workspaces')->willReturnCallback(
             fn (string $slug): RepositoriesApi\Workspaces => $workspaceApis[$slug]
         );
-        $this->clientMock->method('currentUser')->willReturn($currentUser);
         $this->clientMock->method('repositories')->willReturn($repos);
 
         $this->pagerMock->method('fetchAll')->willReturnCallback(
-            function (AbstractApi $api, string $method, array $parameters = []) use ($currentUser, $workspaceApis): array {
-                if ($api === $currentUser) {
-                    // unfiltered, or workspaces the user is only a member of drop out
+            function (AbstractApi $api, string $method, array $parameters = []) use ($workspaceApis, $workspaceListing): array {
+                if ($api instanceof UserWorkspaces) {
+                    // unfiltered: a role filter here would drop workspaces whose
+                    // repositories are still reachable
                     self::assertSame([], $parameters);
 
-                    return [['slug' => 'repman'], ['slug' => 'other-team']];
+                    return $workspaceListing;
                 }
 
                 self::assertSame([['role' => 'member']], $parameters);
@@ -130,10 +134,36 @@ final class RestBitbucketApiTest extends TestCase
         ]), $this->api->repositories('token'));
     }
 
+    /**
+     * Atlassian's documentation for the replacement endpoint does not say which of
+     * these it answers with, and the endpoints it replaced used one each.
+     *
+     * @return mixed[]
+     */
+    public function workspaceListingShapeProvider(): array
+    {
+        return [
+            'workspaces' => [[
+                ['slug' => 'repman'],
+                ['slug' => 'other-team'],
+            ]],
+            'memberships carrying a workspace' => [[
+                ['permission' => 'owner', 'workspace' => ['slug' => 'repman']],
+                ['permission' => 'member', 'workspace' => ['slug' => 'other-team']],
+            ]],
+        ];
+    }
+
+    public function testEntryWithoutAWorkspaceSlugIsSkipped(): void
+    {
+        $this->clientMock->expects(self::never())->method('repositories');
+        $this->pagerMock->method('fetchAll')->willReturn([['permission' => 'member'], 'nonsense']);
+
+        self::assertEquals(new Repositories([]), $this->api->repositories('token'));
+    }
+
     public function testFetchRepositoriesWhenUserBelongsToNoWorkspace(): void
     {
-        $currentUser = $this->createMock(CurrentUser::class);
-        $this->clientMock->method('currentUser')->willReturn($currentUser);
         // nothing to ask about, so the repositories endpoint is never reached
         $this->clientMock->expects(self::never())->method('repositories');
         $this->pagerMock->method('fetchAll')->willReturn([]);

@@ -35,7 +35,8 @@ final class RestBitbucketApi implements BitbucketApi
      * Assembled one workspace at a time because Bitbucket removed the endpoint that
      * listed every repository a user can reach in a single call - GET /2.0/repositories,
      * sunset on 2026-04-14 as part of CHANGE-2770 - and shipped no replacement for it.
-     * Until then this was one request; it is now one per workspace the user belongs to.
+     * Until then this was one request; it is now one per workspace the user belongs to,
+     * after one more to find out which those are.
      */
     public function repositories(string $accessToken): Repositories
     {
@@ -56,21 +57,34 @@ final class RestBitbucketApi implements BitbucketApi
     }
 
     /**
-     * GET /2.0/workspaces, which survived the change above - it is a different endpoint
-     * from the GET /2.0/user/permissions/workspaces that was withdrawn alongside it.
-     * Deliberately unfiltered: its default is every workspace the user belongs to, and
-     * narrowing by role here would drop repositories that used to be listed.
+     * Every workspace the user belongs to, which is every workspace their repositories
+     * can be in: Bitbucket does not grant a repository permission to anyone who is not
+     * a member of the repository's workspace.
+     *
+     * Both shapes the endpoint may answer with are accepted. The withdrawn permission
+     * endpoints returned memberships, which carry the workspace nested inside them,
+     * while the equally withdrawn GET /2.0/workspaces returned workspaces directly, and
+     * Atlassian's documentation for the replacement does not settle which one it
+     * follows. Guessing wrong is a failure nobody sees until it reaches a real account,
+     * so read whichever is there and skip an entry that has neither.
      *
      * @return string[]
      */
     private function workspaceSlugs(): array
     {
-        return array_map(
-            function (array $workspace): string {
-                return $workspace['slug'];
-            },
-            $this->pager->fetchAll($this->client->currentUser(), 'listWorkspaces')
-        );
+        $slugs = [];
+
+        foreach ($this->pager->fetchAll(new UserWorkspaces($this->client), 'list') as $entry) {
+            $workspace = is_array($entry) ? $entry : [];
+            /** @var mixed $slug */
+            $slug = $workspace['slug'] ?? $workspace['workspace']['slug'] ?? null;
+
+            if (is_string($slug) && $slug !== '') {
+                $slugs[] = $slug;
+            }
+        }
+
+        return $slugs;
     }
 
     public function addHook(string $accessToken, string $fullName, string $hookUrl): void
