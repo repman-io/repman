@@ -10,10 +10,13 @@ class AccessToken
 
     private ?\DateTimeImmutable $expiresAt;
 
-    public function __construct(string $token, ?\DateTimeImmutable $expiresAt = null)
+    private ?string $refreshToken;
+
+    public function __construct(string $token, ?\DateTimeImmutable $expiresAt = null, ?string $refreshToken = null)
     {
         $this->token = $token;
         $this->expiresAt = $expiresAt;
+        $this->refreshToken = $refreshToken;
     }
 
     public function token(): string
@@ -24,5 +27,14 @@ class AccessToken
     public function expiresAt(): ?\DateTimeImmutable
     {
         return $this->expiresAt;
+    }
+
+    /**
+     * Providers with rotating refresh tokens (e.g. Bitbucket) return a new
+     * refresh token with every refresh and invalidate the previous one.
+     */
+    public function refreshToken(): ?string
+    {
+        return $this->refreshToken;
     }
 }

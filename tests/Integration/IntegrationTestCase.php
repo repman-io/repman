@@ -34,6 +34,25 @@ abstract class IntegrationTestCase extends KernelTestCase
         $this->container()->get(MessageBusInterface::class)->dispatch($message, $stamps);
     }
 
+    /**
+     * For the rare test that needs a connection of its own, outside the one the test
+     * transaction wraps. Resolved the way Symfony resolves %env(DATABASE_URL)%: the
+     * superglobals first, then the process environment. Plain getenv() would miss it on
+     * a developer machine, where config/bootstrap.php loads .env with usePutenv
+     * disabled, while still working in CI where the workflow exports it for real.
+     */
+    protected static function databaseUrl(): string
+    {
+        /** @var string|false $url */
+        $url = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL');
+
+        if ($url === false || $url === '') {
+            self::fail('DATABASE_URL is not set, cannot reach the database this test needs');
+        }
+
+        return $url;
+    }
+
     protected function createRequestWithSession(): Request
     {
         $request = Request::createFromGlobals();

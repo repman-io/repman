@@ -1,6 +1,9 @@
 parameters:
-    dists_dir: '%kernel.project_dir%/tests/Resources'
-    repo_dir: '%kernel.project_dir%/tests/Resources'
+    # a copy of tests/Resources, rebuilt before every run - see Buddy\Repman\Tests\TestStorage.
+    # The application writes here as it serves and synchronizes packages, which must not
+    # land on the tracked fixtures.
+    dists_dir: '%kernel.project_dir%/var/test-storage'
+    repo_dir: '%kernel.project_dir%/var/test-storage'
     security_advisories_db_dir: '%kernel.project_dir%/tests/Resources/fixtures/security/security-advisories'
     security_advisories_db_repo: 'bogus'
     instance_id_file: '%kernel.cache_dir%/test-instance-id'

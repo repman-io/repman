@@ -37,6 +37,7 @@ services:
             $proxyFilesystem: '@proxy.storage'
             $repoFilesystem: '@repo.storage'
             $instanceIdFile: '%instance_id_file%'
+            $databaseUrl: '%env(resolve:DATABASE_URL)%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -119,6 +120,40 @@ services:
 
     Buddy\Repman\Service\Twig\DateExtension:
         arguments: ['@security.token_storage']
+
+    # OAuth providers reach the token endpoint while a refresh holds the token's row
+    # lock, so these have to stay well below OAuthTokenStore's lock timeout: an
+    # unbounded request would keep the lock, and every other worker needing that token,
+    # waiting indefinitely.
+    oauth.http_client:
+        class: GuzzleHttp\Client
+        arguments:
+            -
+                connect_timeout: 5
+                timeout: 8
+
+    # A refresh on the request path cannot afford the wait a worker can. The default
+    # store gives whoever holds the lock the whole token request above before giving
+    # up, twice over - a wait a background job can sit out, but one that would leave a
+    # page hanging for the better part of half a minute before it even started
+    # rendering. Waiting a fraction of that instead means a contended page reports an
+    # error rather than holding the request open for a refresh another process is
+    # already doing, and the next attempt finds the token it committed.
+    oauth.token_store.request:
+        class: Buddy\Repman\Service\User\OAuthTokenStore
+        arguments:
+            $lockTimeoutMs: 1500
+
+    oauth.token_refresher.request:
+        class: Buddy\Repman\Service\User\UserOAuthTokenRefresher
+        arguments:
+            $store: '@oauth.token_store.request'
+
+    # the sole entry point on the request path: everything else that refreshes a token
+    # does it from a message handler, where the default wait is the right one
+    Buddy\Repman\Service\User\UserOAuthTokenProvider:
+        arguments:
+            $tokenRefresher: '@oauth.token_refresher.request'
 
     ### Vendor
     Github\Client:

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Buddy\Repman\Tests\TestStorage;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Transport\InMemoryTransport;
 
@@ -40,7 +41,7 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testPackagesActionMissingProvider(): void
     {
-        $providerBasePath = __DIR__.'/../../Resources/packagist.org/provider';
+        $providerBasePath = TestStorage::path('packagist.org/provider');
         $oldProviderName = $providerBasePath.'/provider-latest$bf7274d469c9a2c4b4d0babeeb112b40a3afd19a9887adb342671818360ae326.json';
         $newProviderName = $providerBasePath.'/file.json';
 

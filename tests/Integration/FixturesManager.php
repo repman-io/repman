@@ -29,6 +29,7 @@ use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Repository\ScanResultRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Service\PackageSynchronizer;
+use Buddy\Repman\Tests\TestStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Munus\Collection\Stream;
 use Ramsey\Uuid\Uuid;
@@ -236,7 +237,7 @@ final class FixturesManager
         $filesystem = new \Symfony\Component\Filesystem\Filesystem();
         $filesystem->mirror(
             __DIR__.'/../Resources/fixtures/buddy/dist/buddy-works/repman',
-            __DIR__.'/../Resources/buddy/dist/buddy-works/repman',
+            TestStorage::path('buddy/dist/buddy-works/repman'),
             null,
             ['delete' => true]
         );

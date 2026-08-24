@@ -9,6 +9,7 @@ use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
 use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Buddy\Repman\Tests\TestStorage;
 use Doctrine\DBAL\Connection;
 use Munus\Control\Option;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -19,15 +20,14 @@ use Symfony\Component\Lock\Store\DoctrineDbalStore;
 
 final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 {
-    private string $basePath = __DIR__.'/../../Resources';
     private FilesystemAdapter $cache;
     private string $newDistPath = '/packagist.org/dist/buddy-works/repman/61e39aa8197cf1bc7fcb16a6f727b0c291bc9b76.zip';
     private string $feedPath = '/packagist.org/feed/releases.rss';
 
     public function testSyncReleases(): void
     {
-        $newDist = $this->basePath.$this->newDistPath;
-        $feed = (string) file_get_contents($this->basePath.$this->feedPath);
+        $newDist = TestStorage::path($this->newDistPath);
+        $feed = (string) file_get_contents(TestStorage::path($this->feedPath));
         @unlink($newDist);
 
         // cache miss (no pubDate)
@@ -60,8 +60,8 @@ final class ProxySyncReleasesCommandTest extends FunctionalTestCase
 
     public function testJobLocking(): void
     {
-        $newDist = $this->basePath.$this->newDistPath;
-        $feed = (string) file_get_contents($this->basePath.$this->feedPath);
+        $newDist = TestStorage::path($this->newDistPath);
+        $feed = (string) file_get_contents(TestStorage::path($this->feedPath));
         @unlink($newDist);
 
         $command = $this->prepareCommand($feed, false, true);

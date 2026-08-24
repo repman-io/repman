@@ -1,0 +1,32 @@
+# The database the integration and functional suites need. Deliberately separate
+# from the docker-compose.yml at the root: that one runs the whole application, and
+# its database is reachable only from inside its own network, while the test suites
+# connect over 127.0.0.1 like any other local client. Driven by bin/test-database.
+name: repman-test
+
+services:
+  database:
+    image: postgres:17-alpine
+    logging:
+      driver: none
+    environment:
+      POSTGRES_USER: main
+      POSTGRES_PASSWORD: main
+      POSTGRES_DB: main
+      # a subdirectory of the mount below rather than the mount itself, so the
+      # postgres user creates it and can give it the 0700 initdb insists on
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      # overridable for a machine already running Postgres on the default port
+      - '${REPMAN_TEST_DB_PORT:-5432}:5432'
+    # a test database is disposable by definition, so it lives in memory: `down`
+    # leaves nothing behind, and initdb on each start costs less than the disk does
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      # what `up --wait` waits for: Postgres starts accepting connections well
+      # after the container itself is up
+      test: ['CMD-SHELL', 'pg_isready -U main -d main']
+      interval: 1s
+      timeout: 3s
+      retries: 60

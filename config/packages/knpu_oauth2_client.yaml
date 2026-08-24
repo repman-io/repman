@@ -1,4 +1,7 @@
 knpu_oauth2_client:
+    # a bare Guzzle client - what the providers build for themselves - has no timeouts at
+    # all, and a token refresh runs while holding a row lock on the token
+    http_client: oauth.http_client
     clients:
         github:
             type: github

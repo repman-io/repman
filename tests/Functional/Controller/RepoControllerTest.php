@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Functional\Controller;
 
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use Buddy\Repman\Tests\TestStorage;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -230,7 +231,7 @@ final class RepoControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
 
         $fileModifiedTime = (new \DateTimeImmutable())
-            ->setTimestamp((int) \filemtime(__DIR__.'/../../Resources/p2/buddy-works/repman.json'));
+            ->setTimestamp((int) \filemtime(TestStorage::path('p2/buddy-works/repman.json')));
 
         $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',

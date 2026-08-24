@@ -148,7 +148,9 @@ final class SensioLabsSecurityCheckerTest extends TestCase
     private function createAdvisoriesDatabaseRepo(): void
     {
         $this->filesystem->mkdir($this->repoDir);
-        $this->executeCommandInRepoDir(['git', 'init']);
+        // the checker clones a fixed branch, so do not let the machine's
+        // init.defaultBranch decide how the fixture repo names it
+        $this->executeCommandInRepoDir(['git', '-c', 'init.defaultBranch=master', 'init']);
         $this->filesystem->mirror(
             __DIR__.'/../../../Resources/fixtures/security/security-advisories',
             $this->repoDir

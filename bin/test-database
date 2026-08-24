@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+#
+# Runs the test suites that need a real database against a throwaway Postgres.
+# The unit suite needs none of this - `composer phpunit:unit` is enough.
+#
+#   bin/test-database up                          start it and apply the migrations
+#   bin/test-database run                         the above, then the integration suite
+#   bin/test-database run --testsuite=functional  any phpunit arguments work
+#   bin/test-database run tests/Integration/Service/User/OAuthTokenStoreTest.php
+#   bin/test-database down                        stop it and throw it away
+#
+# It stays up between runs; only `down` removes it. Set REPMAN_TEST_DB_PORT if
+# something already listens on 5432 - a Postgres of your own, most likely.
+
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+compose_file="$root/docker/test/docker-compose.yml"
+port="${REPMAN_TEST_DB_PORT:-5432}"
+
+# Exported rather than written into .env.test: this URL is only true while the
+# container is running, so anyone who runs the suites against a Postgres of their
+# own keeps the DATABASE_URL from .env. Symfony's Dotenv leaves an already-set
+# variable alone, and IntegrationTestCase::databaseUrl() falls back to getenv(),
+# so exporting it here is enough for both the console and the tests.
+export DATABASE_URL="postgresql://main:main@127.0.0.1:${port}/main?serverVersion=17&charset=utf8"
+export APP_ENV=test
+
+compose() {
+    docker compose --file "$compose_file" "$@"
+}
+
+start_database() {
+    if ! docker info >/dev/null 2>&1; then
+        echo "Docker is not running. Start it, or point DATABASE_URL at a Postgres of your own and run phpunit directly." >&2
+        exit 1
+    fi
+
+    # --wait holds until the healthcheck passes, so the migrations below do not
+    # race the server's startup
+    compose up --detach --wait
+
+    # --allow-no-migration: the database survives between runs, so the usual case
+    # is having nothing left to apply, which is not a failure
+    "$root/bin/console" doctrine:migrations:migrate --no-interaction --allow-no-migration
+
+    # the test environment swaps the application transports for in-memory ones, but
+    # not the failed one - it stays on doctrine with auto_setup off, and Telemetry
+    # counts its messages, so its table has to exist before the functional suite runs
+    "$root/bin/console" messenger:setup-transports --no-interaction
+}
+
+command="${1-run}"
+shift || true
+
+case "$command" in
+    up)
+        start_database
+        echo
+        echo "Database ready. To reach it from your own shell:"
+        echo "  export DATABASE_URL='$DATABASE_URL'"
+        ;;
+    run)
+        start_database
+        if [ "$#" -eq 0 ]; then
+            set -- --testsuite=integration
+        fi
+        "$root/vendor/bin/phpunit" "$@"
+        ;;
+    down)
+        compose down --remove-orphans
+        ;;
+    *)
+        echo "usage: bin/test-database [up | run [phpunit arguments] | down]" >&2
+        exit 1
+        ;;
+esac
