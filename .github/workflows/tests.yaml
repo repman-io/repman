@@ -34,8 +34,12 @@ jobs:
         postgresql:
           - "17"
         include:
+          # the patch release only picks the container image: composer.lock pins
+          # config.platform.php to 7.4.2, so that is still what dependencies resolve
+          # against. 7.4.2's image is Alpine 3.11, too old for the Node the checkout
+          # action now ships, which fails the job before any of the project runs.
           - php: "7.4"
-            php-version: "7.4.2"
+            php-version: "7.4.33"
           - php: "8.0"
             php-version: "8.0.30"
           - postgresql: "17"
