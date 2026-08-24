@@ -63,7 +63,10 @@ final class BitbucketController extends OAuthController
         }
         $request->getSession()->set('organization', $organization->alias());
 
-        return $this->oauth->getClient('bitbucket')->redirect(['repository', 'webhook'], ['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
+        // account is what GET /2.0/user/workspaces asks for, and since CHANGE-2770 that
+        // is the only way left to find out which workspaces to list repositories from -
+        // repository alone can read them, but no longer says where to look
+        return $this->oauth->getClient('bitbucket')->redirect(['account', 'repository', 'webhook'], ['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
     /**
