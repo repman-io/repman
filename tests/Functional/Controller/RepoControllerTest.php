@@ -101,6 +101,7 @@ final class RepoControllerTest extends FunctionalTestCase
             ],
             "metadata-url": "/p2/%package%.json",
             "notify-batch": "http://buddy.repo.repman.wip/downloads",
+            "providers-url": "/p2/%package%.json",
             "search": "https://packagist.org/search.json?q=%query%&type=%type%",
             "mirrors": [
                 {
@@ -206,7 +207,7 @@ final class RepoControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
 
-        self::assertMatchesPattern('
+        self::assertJsonStringEqualsJsonString('
         {
             "packages": {
                 "buddy-works/repman": {
@@ -222,7 +223,7 @@ final class RepoControllerTest extends FunctionalTestCase
                 }
             }
         }
-        ', $this->client->getResponse()->getContent());
+        ', (string) $this->client->getResponse()->getContent());
     }
 
     public function testProviderV2ActionWithCache(): void

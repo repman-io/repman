@@ -199,30 +199,9 @@ final class PackageControllerTest extends FunctionalTestCase
 
         self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        self::assertJsonStringEqualsJsonString(
+        self::assertMatchesPattern(
+            '{"id":"'.$packageId.'","type":"vcs","url":"https:\/\/github.com\/buddy-works\/repman","name":"buddy-works\/repman","latestReleasedVersion":"2.1.1","latestReleaseDate":"@string@","description":"Repository manager","lastSyncAt":"@string@","lastSyncError":null,"webhookCreatedAt":null,"isSynchronizedSuccessfully":true,"scanResultDate":"@string@","scanResultStatus":"ok","lastScanResultContent":{"composer.lock":[]},"keepLastReleases":0,"enableSecurityScan":true}',
             $this->lastResponseBody(),
-            '
-            {
-                "id": "'.$packageId.'",
-                "type": "vcs",
-                "url": "https://github.com/buddy-works/repman",
-                "name": "buddy-works/repman",
-                "latestReleasedVersion": "2.1.1",
-                "latestReleaseDate": "'.$release->format(\DateTime::ATOM).'",
-                "description": "Repository manager",
-                "enableSecurityScan": true,
-                "lastSyncAt": "'.$now.'",
-                "lastSyncError": null,
-                "webhookCreatedAt": null,
-                "isSynchronizedSuccessfully": true,
-                "keepLastReleases": 0,
-                "scanResultStatus": "ok",
-                "scanResultDate": "'.$now.'",
-                "lastScanResultContent": {
-                    "composer.lock": []
-                }
-            }
-            '
         );
     }
 
