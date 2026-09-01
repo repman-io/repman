@@ -193,14 +193,14 @@ final class SensioLabsSecurityChecker implements SecurityChecker
     private function cloneRepo(): void
     {
         $this->runProcess([
-            'git', 'clone', '--depth', '1', '--branch', 'master', $this->databaseRepo, '.',
+            'git', 'clone', '--depth', '1', '--branch', 'main', $this->databaseRepo, '.',
         ]);
     }
 
     private function updateRepo(): bool
     {
         $this->runProcess(['git', '--git-dir=.git', 'clean', '-f']);
-        $this->runProcess(['git', '--git-dir=.git', 'reset', '--hard', 'origin/master']);
+        $this->runProcess(['git', '--git-dir=.git', 'reset', '--hard', 'origin/main']);
         $output = $this->runProcess(['git', '--git-dir=.git', 'pull']);
 
         return preg_match('/up to date/i', $output) !== 1;
