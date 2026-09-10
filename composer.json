@@ -89,7 +89,7 @@
     },
     "require-dev": {
         "coduo/php-matcher": "^6.0",
-        "dama/doctrine-test-bundle": "^6.3",
+        "dama/doctrine-test-bundle": "^7.1",
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "ekino/phpstan-banned-code": "^1.0.0",
         "fakerphp/faker": "^1.9",
