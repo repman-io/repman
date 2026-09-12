@@ -10,6 +10,9 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+### Fixed
+- Prefer VCS tag/branch name over hardcoded `version` in composer.json when syncing packages (tags were silently skipped, webhook/sync looked successful but the release never appeared)
+
 ## [1.3.4] - 2021-06-25
 ### Security
 - Upgrade flysystem to 1.1.4 - fix [CVE-2021-32708](https://github.com/thephpleague/flysystem/security/advisories/GHSA-9f46-5r25-5wfm)

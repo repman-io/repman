@@ -60,8 +60,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
     {
         try {
             $io = $this->createIO($package);
-            /** @var RepositoryInterface $repository */
-            $repository = current(RepositoryFactory::defaultRepos($io, $this->createConfig($package, $io)));
+            $repository = $this->createRepository($package, $io);
             $json = ['packages' => []];
             $packages = $repository->getPackages();
 
@@ -271,6 +270,24 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         return $package->oauthToken()->accessToken($this->tokenRefresher);
     }
 
+    private function createRepository(Package $package, IOInterface $io): RepositoryInterface
+    {
+        $config = $this->createConfig($package, $io);
+        $repoType = $this->repositoryType($package);
+
+        if ($this->isVcsRepositoryType($repoType)) {
+            return new PreferTagVcsRepository([
+                'type' => $repoType,
+                'url' => $package->repositoryUrl(),
+            ], $io, $config);
+        }
+
+        /** @var RepositoryInterface $repository */
+        $repository = current(RepositoryFactory::defaultRepos($io, $config));
+
+        return $repository;
+    }
+
     private function createConfig(Package $package, IOInterface $io): Config
     {
         unset(Config::$defaultRepositories['packagist.org']);
@@ -278,7 +295,7 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         $config->merge([
             'repositories' => [
                 [
-                    'type' => strpos($package->type(), '-oauth') !== false ? 'vcs' : $package->type(),
+                    'type' => $this->repositoryType($package),
                     'url' => $package->repositoryUrl(),
                 ],
             ],
@@ -292,5 +309,15 @@ final class ComposerPackageSynchronizer implements PackageSynchronizer
         }
 
         return $config;
+    }
+
+    private function repositoryType(Package $package): string
+    {
+        return strpos($package->type(), '-oauth') !== false ? 'vcs' : $package->type();
+    }
+
+    private function isVcsRepositoryType(string $type): bool
+    {
+        return \in_array($type, ['vcs', 'git', 'github', 'gitlab', 'bitbucket'], true);
     }
 }
