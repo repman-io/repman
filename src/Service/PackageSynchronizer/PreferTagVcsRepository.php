@@ -11,7 +11,7 @@ final class PreferTagVcsRepository extends VcsRepository
 {
     private ?VcsDriverInterface $wrappedDriver = null;
 
-    public function getDriver()
+    public function getDriver(): ?VcsDriverInterface
     {
         if ($this->wrappedDriver !== null) {
             return $this->wrappedDriver;

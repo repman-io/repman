@@ -23,12 +23,14 @@ final class IgnoreComposerJsonVersionVcsDriver implements VcsDriverInterface
         $this->driver = $driver;
     }
 
-    public function initialize()
+    public function initialize(): void
     {
         $this->driver->initialize();
     }
 
     /**
+     * @param string $identifier
+     *
      * @return mixed[]|null
      */
     public function getComposerInformation($identifier)
@@ -42,57 +44,91 @@ final class IgnoreComposerJsonVersionVcsDriver implements VcsDriverInterface
         return $data;
     }
 
+    /**
+     * @param string $file
+     * @param string $identifier
+     *
+     * @return string|null
+     */
     public function getFileContent($file, $identifier)
     {
         return $this->driver->getFileContent($file, $identifier);
     }
 
+    /**
+     * @param string $identifier
+     *
+     * @return \DateTime|null
+     */
     public function getChangeDate($identifier)
     {
         return $this->driver->getChangeDate($identifier);
     }
 
-    public function getRootIdentifier()
+    public function getRootIdentifier(): string
     {
         return $this->driver->getRootIdentifier();
     }
 
-    public function getBranches()
+    /**
+     * @return array<string, string>
+     */
+    public function getBranches(): array
     {
         return $this->driver->getBranches();
     }
 
-    public function getTags()
+    /**
+     * @return array<string, string>
+     */
+    public function getTags(): array
     {
         return $this->driver->getTags();
     }
 
+    /**
+     * @param string $identifier
+     *
+     * @return mixed[]|null
+     */
     public function getDist($identifier)
     {
         return $this->driver->getDist($identifier);
     }
 
+    /**
+     * @param string $identifier
+     *
+     * @return mixed[]
+     */
     public function getSource($identifier)
     {
         return $this->driver->getSource($identifier);
     }
 
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->driver->getUrl();
     }
 
-    public function hasComposerFile($identifier)
+    /**
+     * @param string $identifier
+     */
+    public function hasComposerFile($identifier): bool
     {
         return $this->driver->hasComposerFile($identifier);
     }
 
-    public function cleanup()
+    public function cleanup(): void
     {
         $this->driver->cleanup();
     }
 
-    public static function supports(IOInterface $io, Config $config, $url, $deep = false)
+    /**
+     * @param string $url
+     * @param bool   $deep
+     */
+    public static function supports(IOInterface $io, Config $config, $url, $deep = false): bool
     {
         return false;
     }
