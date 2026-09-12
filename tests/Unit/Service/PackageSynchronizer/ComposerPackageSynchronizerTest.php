@@ -284,6 +284,56 @@ final class ComposerPackageSynchronizerTest extends TestCase
         @unlink($tmpPath);
     }
 
+    public function testSynchronizeGitPackagePrefersTagOverComposerJsonVersion(): void
+    {
+        $repoDir = sys_get_temp_dir().'/repman-git-'.uniqid('', true);
+        mkdir($repoDir);
+
+        $composerJson = json_encode([
+            'name' => 'buddy-works/tagged',
+            'description' => 'Package with hardcoded version',
+            'version' => '1.0.0',
+            'license' => 'MIT',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        self::assertNotFalse($composerJson);
+        file_put_contents($repoDir.'/composer.json', $composerJson."\n");
+
+        $git = static function (string $command) use ($repoDir): void {
+            $output = [];
+            $exitCode = 0;
+            exec(sprintf('cd %s && %s 2>&1', escapeshellarg($repoDir), $command), $output, $exitCode);
+            self::assertSame(0, $exitCode, implode("\n", $output));
+        };
+
+        $git('git init');
+        $git('git config user.email "test@example.com"');
+        $git('git config user.name "Test"');
+        $git('git add composer.json');
+        $git('git commit -m "initial"');
+        $git('git tag 1.0.0');
+        file_put_contents($repoDir.'/README.md', "release 1.0.1\n");
+        $git('git add README.md');
+        $git('git commit -m "bump"');
+        $git('git tag 1.0.1');
+
+        $path = $this->baseDir.'/buddy/p/buddy-works/tagged.json';
+        @unlink($path);
+
+        $package = PackageMother::withOrganization('vcs', $repoDir, 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
+        self::assertFileExists($path);
+
+        $json = unserialize((string) file_get_contents($path));
+        self::assertArrayHasKey('1.0.0', $json['packages']['buddy-works/tagged']);
+        self::assertArrayHasKey('1.0.1', $json['packages']['buddy-works/tagged']);
+        self::assertEquals('1.0.1', $this->getProperty($package, 'latestReleasedVersion'));
+
+        @unlink($path);
+        exec(sprintf('rm -rf %s', escapeshellarg($repoDir)));
+    }
+
     /**
      * @return mixed
      */
