@@ -122,7 +122,7 @@ final class SensioLabsPackageScanner implements PackageScanner
                 ??
                 $this->versionParser->normalize($packageData['version']);
             $packageDist = $packageData['dist'];
-            $reference = $packageDist['reference'] ?? $packageDist['shasum'];
+            $reference = $packageDist['reference'] ?? '';
 
             if ($packageVersion === $normalizedVersion && isset($packageDist['url'], $reference)) {
                 $archiveType = $packageDist['type'];

@@ -109,6 +109,11 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertContains('replaces-buddy-works/replace-^1.0', $linkStrings);
         self::assertContains('conflicts-buddy-works/conflict-^1.0', $linkStrings);
         self::assertContains('suggests-buddy-works/suggests-You really should', $linkStrings);
+
+        $referencestrings = array_map(function (Version $version): string {
+            return $version->reference();
+        }, $package->versions()->toArray());
+        self::assertEquals(['', '', '', ''], $referencestrings);
     }
 
     public function testWithMostRecentUnstable(): void
