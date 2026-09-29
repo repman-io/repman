@@ -344,3 +344,12 @@ parameters:
 			count: 1
 			path: tests/Unit/Security/Model/UserTest.php
 
+		-
+			message: "#^Service \"messenger\\.transport\\.async\" is private\\.$#"
+			count: 1
+			path: tests/Functional/Command/AddPackageCommandTest.php
+
+		-
+			message: "#^Service \"Buddy\\\\Repman\\\\Command\\\\AddPackageCommand\" is private\\.$#"
+			count: 3
+			path: tests/Functional/Command/AddPackageCommandTest.php
