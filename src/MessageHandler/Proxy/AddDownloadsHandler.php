@@ -8,9 +8,10 @@ use Buddy\Repman\Message\Proxy\AddDownloads;
 use Buddy\Repman\Message\Proxy\AddDownloads\Package as MessagePackage;
 use Buddy\Repman\Service\Proxy\Downloads;
 use Buddy\Repman\Service\Proxy\Downloads\Package;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class AddDownloadsHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class AddDownloadsHandler
 {
     private Downloads $downloads;
 

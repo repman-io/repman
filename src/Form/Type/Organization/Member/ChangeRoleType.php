@@ -15,6 +15,9 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotNull;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 final class ChangeRoleType extends AbstractType
 {
     public function getBlockPrefix(): string

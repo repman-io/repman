@@ -13,6 +13,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 class EditPackageType extends AbstractType
 {
     public function getBlockPrefix(): string

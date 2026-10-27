@@ -21,20 +21,20 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
             $this->container()->get(SendTelemetryCommand::class)
         );
 
-        self::assertEquals(0, $commandTester->execute([]));
+        self::assertSame(0, $commandTester->execute([]));
         self::assertTrue($this->container()->get(TelemetryEndpoint::class)->entryWasNotSent());
     }
 
     public function testSendTelemetryWithTelemetryDisabled(): void
     {
-        $instanceId = $this->generateInstanceIdFile();
+        $this->generateInstanceIdFile();
         $this->fixtures->changeConfig(Config::TELEMETRY, Config::TELEMETRY_DISABLED);
 
         $commandTester = new CommandTester(
             $this->container()->get(SendTelemetryCommand::class)
         );
 
-        self::assertEquals(0, $commandTester->execute([]));
+        self::assertSame(0, $commandTester->execute([]));
         self::assertTrue($this->container()->get(TelemetryEndpoint::class)->entryWasNotSent());
     }
 
@@ -49,7 +49,7 @@ final class SendTelemetryCommandTest extends FunctionalTestCase
             $this->container()->get(SendTelemetryCommand::class)
         );
 
-        self::assertEquals(0, $commandTester->execute([]));
+        self::assertSame(0, $commandTester->execute([]));
         self::assertTrue($this->container()->get(TelemetryEndpoint::class)->wasEntrySent($instanceId));
     }
 

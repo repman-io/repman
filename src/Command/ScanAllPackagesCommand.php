@@ -9,15 +9,15 @@ use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'repman:security:scan-all', description: 'Scan all synchronized packages')]
 final class ScanAllPackagesCommand extends Command
 {
-    protected static $defaultName = 'repman:security:scan-all';
-
     private PackageScanner $scanner;
     private PackageQuery $packageQuery;
     private PackageRepository $packageRepository;
@@ -31,16 +31,6 @@ final class ScanAllPackagesCommand extends Command
         $this->em = $em;
 
         parent::__construct();
-    }
-
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-        $this
-            ->setDescription('Scan all synchronized packages')
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -64,6 +54,6 @@ final class ScanAllPackagesCommand extends Command
         $progressBar->finish();
         $output->writeln(sprintf("\nSuccessfully scanned %d packages", $count));
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

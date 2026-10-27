@@ -8,7 +8,7 @@ use Buddy\Repman\Security\Model\Organization;
 use Buddy\Repman\Security\OrganizationProvider;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 
 final class OrganizationProviderTest extends IntegrationTestCase
 {
@@ -26,15 +26,15 @@ final class OrganizationProviderTest extends IntegrationTestCase
         /** @var Organization $organization */
         $organization = $this->container()->get(OrganizationProvider::class)->loadUserByIdentifier('org1-token');
 
-        self::assertEquals('buddy', $organization->name());
-        self::assertEquals($org1Id, $organization->id());
-        self::assertEquals('org1-token', $organization->getPassword());
-        self::assertEquals('', $organization->getSalt());
-        self::assertEquals('buddy', $organization->getUserIdentifier());
+        self::assertSame('buddy', $organization->name());
+        self::assertSame($org1Id, $organization->id());
+        self::assertSame('org1-token', $organization->getPassword());
+        self::assertSame('', $organization->getSalt());
+        self::assertSame('buddy', $organization->getUserIdentifier());
 
         self::assertEquals($organization, $provider->refreshUser($organization));
 
-        $this->expectException(UsernameNotFoundException::class);
+        $this->expectException(UserNotFoundException::class);
         $provider->refreshUser(new Organization(Uuid::uuid4()->toString(), 'evil', 'evil', 'not-exist'));
     }
 }

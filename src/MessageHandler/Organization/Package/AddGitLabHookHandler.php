@@ -8,8 +8,10 @@ use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\AddGitLabHook;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+#[AsMessageHandler]
 final class AddGitLabHookHandler extends AbstractHookHandler
 {
     public function __invoke(AddGitLabHook $message): void

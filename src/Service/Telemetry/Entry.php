@@ -29,7 +29,7 @@ final class Entry implements \JsonSerializable
         Instance $instance,
         array $organizations,
         Downloads $downloads,
-        Proxy $proxy
+        Proxy $proxy,
     ) {
         $this->date = $date;
         $this->instance = $instance;

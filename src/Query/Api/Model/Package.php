@@ -35,7 +35,7 @@ final class Package implements \JsonSerializable
         ?\DateTimeImmutable $webhookCreatedAt = null,
         ?ScanResult $scanResult = null,
         int $keepLastReleases = 0,
-        bool $enableSecurityScan = true
+        bool $enableSecurityScan = true,
     ) {
         $this->id = $id;
         $this->type = $type;
@@ -47,7 +47,7 @@ final class Package implements \JsonSerializable
         $this->lastSyncAt = $lastSyncAt;
         $this->lastSyncError = $lastSyncError;
         $this->webhookCreatedAt = $webhookCreatedAt;
-        $this->scanResult = $scanResult ?? null;
+        $this->scanResult = $scanResult;
         $this->keepLastReleases = $keepLastReleases;
         $this->enableSecurityScan = $enableSecurityScan;
     }

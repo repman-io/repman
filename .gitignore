@@ -11,6 +11,7 @@
 ###> phpunit/phpunit ###
 /phpunit.xml
 .phpunit.result.cache
+/.phpunit.cache
 /coverage
 /clover.xml
 ###< phpunit/phpunit ###
@@ -27,8 +28,6 @@
 
 ###> Docker ###
 docker-compose.*.yml
-/docker/logs/nginx/*
-!/docker/logs/nginx/.gitkeep
 /docker/nginx/ssl/certs/*
 !/docker/nginx/ssl/certs/.gitkeep
 /docker/nginx/ssl/private/*
@@ -41,3 +40,10 @@ composer.phar
 /.php-cs-fixer.php
 /.php-cs-fixer.cache
 ###< php-cs-fixer/shim ###
+
+###> local docker files (deploy key, backups, overrides) ###
+/ssh
+/repman-backup.dump
+/repman-var-backup.tgz
+/docker-compose.override.yml
+###< local docker files ###

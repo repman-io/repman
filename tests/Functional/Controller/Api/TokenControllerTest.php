@@ -34,16 +34,18 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_tokens', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
         self::assertCount(1, $json['data']);
         self::assertEquals($json['data'][0]['name'], 'test-list-name');
         self::assertEquals($json['data'][0]['value'], 'test-list-value');
-        self::assertNotEmpty($json['data'][0]['createdAt']);
+        self::assertIsString($json['data'][0]['createdAt']);
+        self::assertNotSame('', $json['data'][0]['createdAt']);
         self::assertEquals($json['data'][0]['lastUsedAt'], null);
         self::assertEquals($json['total'], 1);
-        self::assertNotEmpty($json['links']);
+        self::assertIsArray($json['links']);
+        self::assertNotSame([], $json['links']);
     }
 
     public function testTokensListPagination(): void
@@ -58,7 +60,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'page' => 2,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
 
@@ -80,7 +82,7 @@ final class TokenControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_tokens', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
         self::assertEquals($json['data'], []);
@@ -105,10 +107,12 @@ final class TokenControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         self::assertEquals($json['name'], 'new-token');
-        self::assertNotEmpty($json['createdAt']);
-        self::assertNotEmpty($json['value']);
+        self::assertIsString($json['createdAt']);
+        self::assertNotSame('', $json['createdAt']);
+        self::assertIsString($json['value']);
+        self::assertNotSame('', $json['value']);
         self::assertEquals($json['lastUsedAt'], null);
         self::assertFalse(
             $this->container()
@@ -126,7 +130,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'organization' => self::$organization,
         ]), [], [], [], 'invalid');
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 
     public function testGenerateTokenBadRequest(): void
@@ -136,7 +140,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'organization' => self::$organization,
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
         self::assertJsonStringEqualsJsonString(
             $this->lastResponseBody(),
             '
@@ -162,7 +166,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'token' => 'test-remove-value',
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         self::assertTrue(
             $this->container()
                 ->get(DbalOrganizationQuery::class)
@@ -181,7 +185,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'token' => 'not exists',
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
     public function testRegenerateToken(): void
@@ -195,8 +199,8 @@ final class TokenControllerTest extends FunctionalTestCase
         ]));
 
         $json = $this->jsonResponse();
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertNotEquals(
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertNotSame(
             $this->container()
                 ->get(DbalOrganizationQuery::class)
                 ->findTokenByName($this->organizationId, 'test-regenerate-name')
@@ -205,8 +209,10 @@ final class TokenControllerTest extends FunctionalTestCase
             'test-regenerate-value'
         );
         self::assertEquals($json['name'], 'test-regenerate-name');
-        self::assertNotEmpty($json['createdAt']);
-        self::assertNotEmpty($json['value']);
+        self::assertIsString($json['createdAt']);
+        self::assertNotSame('', $json['createdAt']);
+        self::assertIsString($json['value']);
+        self::assertNotSame('', $json['value']);
         self::assertEquals($json['lastUsedAt'], null);
     }
 
@@ -220,7 +226,7 @@ final class TokenControllerTest extends FunctionalTestCase
             'token' => 'not exists',
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
     /**

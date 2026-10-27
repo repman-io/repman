@@ -31,7 +31,7 @@ final class SensioLabsPackageScanner implements PackageScanner
         PackageManager $packageManager,
         ScanResultRepository $results,
         MessageBusInterface $messageBus,
-        Storage $distStorage
+        Storage $distStorage,
     ) {
         $this->checker = $checker;
         $this->packageManager = $packageManager;
@@ -47,12 +47,14 @@ final class SensioLabsPackageScanner implements PackageScanner
         $result = [];
         $status = ScanResult::STATUS_OK;
 
-        if ($packageName === null) {
+        // checked here because every path goes through it: the scan-all command and the
+        // advisories update run it directly, not through ScanPackageHandler
+        if ($packageName === null || !$package->isEnabledSecurityScan()) {
             return;
         }
 
         try {
-            $lockFiles = $this->extractLockFiles($this->findDistribution($package));
+            $lockFiles = $this->lockFiles($package);
             if ($lockFiles === []) {
                 $status = ScanResult::STATUS_NOT_AVAILABLE;
             }
@@ -104,43 +106,92 @@ final class SensioLabsPackageScanner implements PackageScanner
         }
     }
 
-    private function findDistribution(Package $package): string
+    /**
+     * @return array<string,string> composer.lock contents by their path in the package
+     */
+    private function lockFiles(Package $package): array
     {
-        $packageName = $package->name();
-        $latestReleasedVersion = $package->latestReleasedVersion();
-
-        $normalizedVersion = $latestReleasedVersion === 'no stable release' ?
-            '9999999-dev' : $this->versionParser->normalize((string) $latestReleasedVersion);
+        $packageName = (string) $package->name();
+        $latestReleasedVersion = (string) $package->latestReleasedVersion();
 
         [, $providerData] = $this->packageManager->findProviders(
             $package->organizationAlias(),
-            [new PackageName($package->id()->toString(), (string) $package->name())]
+            [new PackageName($package->id()->toString(), $packageName)]
         );
+        $versions = $providerData[$packageName] ?? [];
 
-        foreach ($providerData[$packageName] ?? [] as $packageData) {
-            $packageVersion = $packageData['version_normalized']
-                ??
-                $this->versionParser->normalize($packageData['version']);
-            $packageDist = $packageData['dist'];
-            $reference = $packageDist['reference'] ?? $packageDist['shasum'];
+        $packageData = $latestReleasedVersion === 'no stable release'
+            ? $this->defaultBranch($versions)
+            : $this->versionData($versions, $this->versionParser->normalize($latestReleasedVersion));
+        if ($packageData === null) {
+            throw new \RuntimeException(sprintf('Version %s for package %s not found', $latestReleasedVersion, $packageName));
+        }
 
-            if ($packageVersion === $normalizedVersion && isset($packageDist['url'], $reference)) {
-                $archiveType = $packageDist['type'];
-                $filename = $this->packageManager->distFilename(
-                    $package->organizationAlias(),
-                    (string) $packageName,
-                    $normalizedVersion,
-                    $reference,
-                    $archiveType
-                );
+        $packageVersion = $this->normalizedVersion($packageData);
+        $packageDist = $packageData['dist'] ?? [];
+        $reference = $packageDist['reference'] ?? $packageDist['shasum'] ?? null;
+        if (isset($packageDist['url'], $packageDist['type']) && $reference !== null) {
+            return $this->extractLockFiles($this->packageManager
+                ->distFilename($package->organizationAlias(), $packageName, $packageVersion, $reference, $packageDist['type'])
+                ->getOrElseThrow(new \RuntimeException("Distribution file for version $packageVersion not found")));
+        }
 
-                return $filename->getOrElseThrow(
-                    new \RuntimeException("Distribution file for version $packageVersion not found")
-                );
+        // installed from source (plain git, hg, svn): the sync kept the composer.lock of the version
+        $sourceReference = $packageData['source']['reference'] ?? null;
+        $lock = \is_string($sourceReference)
+            ? $this->packageManager->sourceLock($package->organizationAlias(), $packageName, $packageVersion, $sourceReference)
+            : null;
+
+        return $lock !== null ? ['/composer.lock' => $lock] : [];
+    }
+
+    /**
+     * The version to scan when there is no stable release. Composer 2 marks the default branch; data
+     * synced with Composer 1 named it 9999999-dev (Composer 2 normalizes dev-master to dev-master).
+     *
+     * @param array<string, array<string, mixed>> $versions
+     *
+     * @return array<string, mixed>|null
+     */
+    private function defaultBranch(array $versions): ?array
+    {
+        foreach ($versions as $packageData) {
+            if (($packageData['default-branch'] ?? false) === true) {
+                return $packageData;
             }
         }
 
-        throw new \RuntimeException("Version $normalizedVersion for package $packageName not found");
+        foreach ($versions as $packageData) {
+            if (\in_array($this->normalizedVersion($packageData), ['dev-master', '9999999-dev'], true)) {
+                return $packageData;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $versions
+     *
+     * @return array<string, mixed>|null
+     */
+    private function versionData(array $versions, string $normalizedVersion): ?array
+    {
+        foreach ($versions as $packageData) {
+            if ($this->normalizedVersion($packageData) === $normalizedVersion) {
+                return $packageData;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<string, mixed> $packageData
+     */
+    private function normalizedVersion(array $packageData): string
+    {
+        return (string) ($packageData['version_normalized'] ?? $this->versionParser->normalize((string) $packageData['version']));
     }
 
     /**
@@ -155,14 +206,19 @@ final class SensioLabsPackageScanner implements PackageScanner
             throw new \RuntimeException("Error while opening ZIP file '$distFilename', code: $result");
         }
 
-        $lockFiles = [];
+        $names = [];
         for ($i = 0; $i < $zip->numFiles; ++$i) {
-            $filename = (string) $zip->getNameIndex($i);
-            if (\preg_match('/\/composer.lock$/', $filename) === 1) {
-                $lockFileContent = $zip->getFromIndex($i);
-                $trimmed = \explode('/', $filename);
-                \array_shift($trimmed);
-                $lockFiles['/'.\implode('/', $trimmed)] = (string) $lockFileContent;
+            $names[$i] = (string) $zip->getNameIndex($i);
+        }
+
+        // archives of GitHub, GitLab and Bitbucket wrap everything in one directory, artifacts usually do not
+        $first = \strstr($names[0] ?? '', '/', true);
+        $root = $first !== false && \array_filter($names, fn (string $name): bool => !\str_starts_with($name, $first.'/')) === [] ? $first.'/' : '';
+
+        $lockFiles = [];
+        foreach ($names as $i => $filename) {
+            if (\preg_match('{(^|/)composer\.lock$}', $filename) === 1) {
+                $lockFiles['/'.\substr($filename, \strlen($root))] = (string) $zip->getFromIndex($i);
             }
         }
 

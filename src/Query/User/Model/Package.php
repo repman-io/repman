@@ -38,7 +38,7 @@ final class Package
         ?string $webhookCreatedError = null,
         ?ScanResult $scanResult = null,
         int $keepLastReleases = 0,
-        bool $enableSecurityScan = true
+        bool $enableSecurityScan = true,
     ) {
         $this->id = $id;
         $this->organizationId = $organizationId;
@@ -52,7 +52,7 @@ final class Package
         $this->lastSyncError = $lastSyncError;
         $this->webhookCreatedAt = $webhookCreatedAt;
         $this->webhookCreatedError = $webhookCreatedError;
-        $this->scanResult = $scanResult ?? null;
+        $this->scanResult = $scanResult;
         $this->keepLastReleases = $keepLastReleases;
         $this->enableSecurityScan = $enableSecurityScan;
     }

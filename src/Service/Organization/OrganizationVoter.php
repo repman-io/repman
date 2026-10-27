@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, mixed>
+ */
 final class OrganizationVoter extends Voter
 {
     private OrganizationQuery $organizations;
@@ -57,8 +60,8 @@ final class OrganizationVoter extends Voter
         }
 
         if ($subject instanceof Request) {
-            $alias = $subject->get('organization');
-            $checkOrganization = $this->organizations->getByAlias($alias)->getOrNull();
+            $alias = $subject->attributes->get('organization');
+            $checkOrganization = $alias instanceof Organization ? $alias : $this->organizations->getByAlias((string) $alias)->getOrNull();
             if ($checkOrganization instanceof Organization) {
                 $subject->attributes->set('organization', $checkOrganization);
             }

@@ -6,9 +6,7 @@ namespace Buddy\Repman\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @Annotation
- */
+#[\Attribute]
 class UniqueOrganization extends Constraint
 {
     public string $message = 'Organization "{{ value }}" already exists.';

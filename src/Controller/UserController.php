@@ -29,7 +29,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class UserController extends AbstractController
 {
@@ -38,15 +38,13 @@ final class UserController extends AbstractController
 
     public function __construct(
         UserQuery $userQuery,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->userQuery = $userQuery;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route(path="/user", name="user_profile", methods={"GET","POST"})
-     */
+    #[Route(path: '/user', name: 'user_profile', methods: ['GET', 'POST'])]
     public function profile(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_REMEMBERED');
@@ -97,9 +95,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route(path="/user/email-preferences", name="user_email_preferences", methods={"POST"})
-     */
+    #[Route(path: '/user/email-preferences', name: 'user_email_preferences', methods: ['POST'])]
     public function emailPreferences(Request $request): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -116,9 +112,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('user_profile');
     }
 
-    /**
-     * @Route(path="/user/remove", name="user_remove", methods={"DELETE"})
-     */
+    #[Route(path: '/user/remove', name: 'user_remove', methods: ['DELETE'])]
     public function remove(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -128,9 +122,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('index');
     }
 
-    /**
-     * @Route(path="/user/resend-verification", name="user_resend_verification", methods={"POST"})
-     */
+    #[Route(path: '/user/resend-verification', name: 'user_resend_verification', methods: ['POST'])]
     public function resendVerificationEmail(): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -143,9 +135,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('user_profile');
     }
 
-    /**
-     * @Route(path="/user/remove-oauth-token/{type}", name="user_remove_oauth_token", methods={"DELETE"}, requirements={"type"="github|gitlab|bitbucket|buddy"})
-     */
+    #[Route(path: '/user/remove-oauth-token/{type}', name: 'user_remove_oauth_token', methods: ['DELETE'], requirements: ['type' => 'github|gitlab|bitbucket|buddy'])]
     public function removeOAuthToken(string $type): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -155,11 +145,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('user_profile');
     }
 
-    /**
-     * @Route("/user/token",
-     *  name="user_api_tokens",
-     *  methods={"GET"})
-     */
+    #[Route(path: '/user/token', name: 'user_api_tokens', methods: ['GET'])]
     public function apiTokens(Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -171,11 +157,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/user/api-token/new",
-     *  name="user_api_token_new",
-     *  methods={"GET","POST"})
-     */
+    #[Route(path: '/user/api-token/new', name: 'user_api_token_new', methods: ['GET', 'POST'])]
     public function generateApiToken(Request $request): Response
     {
         $form = $this->createForm(GenerateApiTokenType::class);
@@ -197,11 +179,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/user/token/{token}/regenerate",
-     *  name="user_api_token_regenerate",
-     * methods={"POST"})
-     */
+    #[Route(path: '/user/token/{token}/regenerate', name: 'user_api_token_regenerate', methods: ['POST'])]
     public function regenerateApiToken(string $token): Response
     {
         $this->messageBus->dispatch(new RegenerateApiToken($this->getUser()->id(), $token));
@@ -211,11 +189,7 @@ final class UserController extends AbstractController
         return $this->redirectToRoute('user_api_tokens');
     }
 
-    /**
-     * @Route("/user/token/{token}",
-     *  name="user_api_token_remove",
-     * methods={"DELETE"})
-     */
+    #[Route(path: '/user/token/{token}', name: 'user_api_token_remove', methods: ['DELETE'])]
     public function removeApiToken(string $token): Response
     {
         $this->messageBus->dispatch(new RemoveApiToken($this->getUser()->id(), $token));
@@ -233,9 +207,7 @@ final class UserController extends AbstractController
         return $user;
     }
 
-    /**
-     * @Route("/user/organization/new", name="organization_create", methods={"GET","POST"})
-     */
+    #[Route(path: '/user/organization/new', name: 'organization_create', methods: ['GET', 'POST'])]
     public function createOrganization(Request $request, AliasGenerator $aliasGenerator): Response
     {
         $form = $this->createForm(CreateType::class);

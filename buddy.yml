@@ -9,7 +9,7 @@
     type: "BUILD"
     working_directory: "/buddy/repman"
     docker_image_name: "library/php"
-    docker_image_tag: "8.0.19"
+    docker_image_tag: "8.4"
     execute_commands:
     - "composer validate"
     - "composer install"
@@ -41,7 +41,7 @@
     - "  "
     - "echo \"memory_limit=-1\" >> /usr/local/etc/php/conf.d/buddy.ini"
     - "git config --global user.email \"buddy@repman.io\""
-      "git config --global user.name \"buddy.works\""
+    - "git config --global user.name \"buddy.works\""
     services:
     - type: "POSTGRE_SQL"
       version: "17-alpine"
@@ -83,7 +83,7 @@
       type: "BUILD"
       working_directory: "/buddy/repman"
       docker_image_name: "library/php"
-      docker_image_tag: "8.0.19"
+      docker_image_tag: "8.4"
       execute_commands:
         - "/local-php-security-checker"
       setup_commands:

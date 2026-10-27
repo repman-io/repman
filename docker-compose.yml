@@ -1,76 +1,124 @@
 x-restart-policy: &restart_policy
   restart: unless-stopped
 
+# app, consumer and cron run the same image, built from this checkout. To run an image built
+# elsewhere, set REPMAN_IMAGE (e.g. registry.example.com/repman:latest) and run `docker compose up --no-build`.
+# settings: .env.docker holds the defaults and is tracked by git, put your own values (APP_HOST,
+# APP_SECRET, MAILER_DSN, OAuth keys...) into .env.docker.local, which git ignores and wins
+x-env-files: &env_files
+  - .env.docker
+  - path: .env.docker.local
+    required: false
+
+x-repman-image: &repman_image
+  image: ${REPMAN_IMAGE:-repman:local}
+  build: .
+
 services:
+  # the official postgres image plus an in-place pg_upgrade: data of an older PostgreSQL (the 1.x
+  # releases shipped 11) is upgraded to 17 on the first start, a new volume starts as plain 17
   database:
     << : *restart_policy
-    image: postgres:17-alpine
-    logging:
-      driver: none
+    image: pgautoupgrade/pgautoupgrade:17-alpine
     environment:
       POSTGRES_USER: main
       POSTGRES_PASSWORD: main
       POSTGRES_DB: main
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'main', '-d', 'main']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30m  # an upgrade of a big database takes a while
 
+  # each service starts as root only to hand var/ (a bind mount, possibly written by an older
+  # version as root) to www-data, then runs as www-data; php-fpm's workers run as www-data.
+  # var/cache is an anonymous volume, which `up --build` keeps across image updates: every
+  # service rebuilds its cache on start so it never runs new code with an old container.
   app:
-    << : *restart_policy
-    image: buddy/repman:1.3.4
+    << : [*restart_policy, *repman_image]
     sysctls:
       net.core.somaxconn: 2048
+    # /tmp/ready marks the migrations as done: consumer and cron wait for it
     command: >
-      bash -c 'bin/console d:m:m --no-interaction &&
-      bin/console messenger:setup-transports --no-interaction &&
-      bin/console repman:security:update-db &&
-      bin/console assets:install &&
+      bash -c 'rm -f /tmp/ready &&
+      chown -R www-data:www-data var &&
+      mkdir -p public/bundles && chown -R www-data:www-data public/bundles &&
+      su-exec www-data bin/console cache:clear &&
+      su-exec www-data bin/console d:m:m --no-interaction &&
+      su-exec www-data bin/console messenger:setup-transports --no-interaction &&
+      su-exec www-data bin/console repman:security:update-db &&
+      su-exec www-data bin/console assets:install &&
+      touch /tmp/ready &&
       php-fpm'
-    env_file: .env.docker
+    env_file: *env_files
     volumes:
       - app-var:/app/var
       - /app/var/cache
       - app-public:/app/public
+    healthcheck:
+      test: ['CMD', 'test', '-f', '/tmp/ready']
+      interval: 5s
+      start_period: 5m
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   consumer:
-    << : *restart_policy
-    image: buddy/repman:1.3.4
-    command: ['bin/console', 'messenger:consume', 'async', '--limit=500']
-    env_file: .env.docker
+    << : [*restart_policy, *repman_image]
+    command: >
+      sh -c 'chown -R www-data:www-data var/cache &&
+      su-exec www-data bin/console cache:clear &&
+      exec su-exec www-data bin/console messenger:consume async --limit=500'
+    env_file: *env_files
     volumes:
       - app-var:/app/var
       - /app/var/cache
     depends_on:
-      - app
+      app:
+        condition: service_healthy
 
+  # crond itself runs as root; the jobs in docker/crontabs/www-data run as www-data
   cron:
-    << : *restart_policy
-    image: buddy/repman:1.3.4
-    command: ['crond', '-f', '-L', '/app/var/log/cron.log']
-    env_file: .env.docker
+    << : [*restart_policy, *repman_image]
+    command: >
+      sh -c 'chown -R www-data:www-data var/cache &&
+      su-exec www-data bin/console cache:clear &&
+      exec crond -f -L /app/var/log/cron.log'
+    env_file: *env_files
     volumes:
       - app-var:/app/var
       - /app/var/cache
       - docker-crontabs:/var/spool/cron/crontabs
     depends_on:
-      - app
+      app:
+        condition: service_healthy
 
+  # web server and certificates: Caddy, see docker/caddy/Caddyfile. With ACME_EMAIL set it gets a Let's
+  # Encrypt certificate for the app, the proxy and every organization's host by itself. Port 80 is only
+  # needed to redirect plain http (TLS-ALPN on 443 answers Let's Encrypt), publish it in an override if
+  # wanted. Still named nginx, so docker-compose.override.yml files written for it keep working.
   nginx:
     << : *restart_policy
-    image: nginx:1.17-alpine
-    env_file: .env.docker
-    command: ['/nginx/start.sh']
+    image: caddy:2.11-alpine
+    env_file: *env_files
+    command: ['/etc/caddy/start.sh']
     ports:
       - 443:443
+      - 443:443/udp  # HTTP/3
     depends_on:
       - app
     volumes:
-      - app-public:/app/public
-      - docker-logs-nginx:/var/log/nginx
-      - docker-nginx-scripts:/nginx
-      - docker-nginx-ssl-certs:/etc/ssl/certs
-      - docker-nginx-ssl-private:/etc/ssl/private
+      - docker-caddy:/etc/caddy:ro
+      - app-public:/app/public:ro
+      # an own certificate, kept where the nginx setup had it
+      - docker-nginx-ssl-certs:/ssl/certs:ro
+      - docker-nginx-ssl-private:/ssl/private:ro
+      # ACME account, issued certificates and the internal CA
+      - caddy-data:/data
+      - caddy-config:/config
 
 volumes:
   postgres-data:
@@ -86,18 +134,14 @@ volumes:
       type: none
       device: $PWD/public
       o: bind
-  docker-logs-nginx:
+  docker-caddy:
     driver: local
     driver_opts:
       type: none
-      device: $PWD/docker/logs/nginx
+      device: $PWD/docker/caddy
       o: bind
-  docker-nginx-scripts:
-    driver: local
-    driver_opts:
-      type: none
-      device: $PWD/docker/nginx/scripts
-      o: bind
+  caddy-data:
+  caddy-config:
   docker-nginx-ssl-certs:
     driver: local
     driver_opts:

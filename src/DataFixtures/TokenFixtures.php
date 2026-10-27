@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\DataFixtures;
 
-use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;

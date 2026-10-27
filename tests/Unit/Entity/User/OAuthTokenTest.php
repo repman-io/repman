@@ -9,6 +9,7 @@ use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\MissingRefreshTokenException;
 use Buddy\Repman\Tests\MotherObject\OAuthTokenMother;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -24,42 +25,40 @@ final class OAuthTokenTest extends TestCase
         $this->refresher = $this->createMock(UserOAuthTokenRefresher::class);
     }
 
-    /**
-     * @dataProvider expiredTimeProvider
-     */
+    #[DataProvider('expiredTimeProvider')]
     public function testExpiredAccessToken(string $modifyTime): void
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify($modifyTime));
         $this->refresher->method('refresh')->willReturn(new AccessToken('new-token'));
 
-        self::assertEquals('new-token', $token->accessToken($this->refresher));
+        self::assertSame('new-token', $token->accessToken($this->refresher));
     }
 
     public function testAccessTokenWithFutureExpirationDate(): void
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('61 sec'));
 
-        self::assertEquals('token', $token->accessToken($this->refresher));
+        self::assertSame('token', $token->accessToken($this->refresher));
     }
 
     public function testRefreshedTokenIsReusedWhileStillValid(): void
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('-1 day'));
 
-        $this->refresher->expects(self::once())
+        $this->refresher->expects($this->once())
             ->method('refresh')
             ->with($token->id(), OAuthToken::TYPE_GITHUB)
             ->willReturn(new AccessToken('new-token', (new \DateTimeImmutable())->modify('1 hour')));
 
-        self::assertEquals('new-token', $token->accessToken($this->refresher));
-        self::assertEquals('new-token', $token->accessToken($this->refresher));
+        self::assertSame('new-token', $token->accessToken($this->refresher));
+        self::assertSame('new-token', $token->accessToken($this->refresher));
     }
 
     public function testRefreshedTokenIsRefreshedAgainOnceItExpires(): void
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('-1 day'));
 
-        $this->refresher->expects(self::exactly(2))
+        $this->refresher->expects($this->exactly(2))
             ->method('refresh')
             ->with($token->id(), OAuthToken::TYPE_GITHUB)
             ->willReturnOnConsecutiveCalls(
@@ -67,11 +66,11 @@ final class OAuthTokenTest extends TestCase
                 new AccessToken('second-token', (new \DateTimeImmutable())->modify('1 hour'))
             );
 
-        self::assertEquals('first-token', $token->accessToken($this->refresher));
+        self::assertSame('first-token', $token->accessToken($this->refresher));
         // the minimum interval between refreshes has to let go again, or a worker
         // outliving one token would keep using it well past its real expiry
         $this->ageLastRefresh($token, '-31 sec');
-        self::assertEquals('second-token', $token->accessToken($this->refresher));
+        self::assertSame('second-token', $token->accessToken($this->refresher));
     }
 
     /**
@@ -85,12 +84,12 @@ final class OAuthTokenTest extends TestCase
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('-1 day'));
 
-        $this->refresher->expects(self::once())
+        $this->refresher->expects($this->once())
             ->method('refresh')
             ->willReturn(new AccessToken('new-token', (new \DateTimeImmutable())->modify('30 sec')));
 
         for ($call = 0; $call < 5; ++$call) {
-            self::assertEquals('new-token', $token->accessToken($this->refresher));
+            self::assertSame('new-token', $token->accessToken($this->refresher));
         }
     }
 
@@ -106,7 +105,7 @@ final class OAuthTokenTest extends TestCase
 
         // once: the provider is not asked again inside the interval, which is what the
         // floor is for - a second request could only spend another rotation
-        $this->refresher->expects(self::once())
+        $this->refresher->expects($this->once())
             ->method('refresh')
             ->willReturn(new AccessToken('dead-token', (new \DateTimeImmutable())->modify('-1 sec')));
 
@@ -126,7 +125,7 @@ final class OAuthTokenTest extends TestCase
     {
         $token = OAuthTokenMother::withExpireTime((new \DateTimeImmutable())->modify('-1 day'));
 
-        $this->refresher->expects(self::exactly(2))
+        $this->refresher->expects($this->exactly(2))
             ->method('refresh')
             ->willReturnOnConsecutiveCalls(
                 new AccessToken('dead-token', (new \DateTimeImmutable())->modify('-1 sec')),
@@ -190,17 +189,15 @@ final class OAuthTokenTest extends TestCase
     }
 
     /**
-     * @return mixed[]
+     * @return \Iterator<(int | string), mixed>
      */
-    public function expiredTimeProvider(): array
+    public static function expiredTimeProvider(): \Iterator
     {
-        return [
-            ['-1 hour'],
-            ['0 sec'],
-            ['9 sec'],
-            // a second short of the margin boundary on purpose: exactly on it, the row
-            // would hold only because the clock advances mid-test
-            ['59 sec'],
-        ];
+        yield ['-1 hour'];
+        yield ['0 sec'];
+        yield ['9 sec'];
+        // a second short of the margin boundary on purpose: exactly on it, the row
+        // would hold only because the clock advances mid-test
+        yield ['59 sec'];
     }
 }

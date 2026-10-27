@@ -56,10 +56,11 @@ class Filter extends \Buddy\Repman\Query\Filter
     public static function fromRequest(Request $request, ?string $defaultSortColumn = null): self
     {
         return new self(
-            (int) $request->get('offset', 0),
-            (int) $request->get('limit', 20),
-            $request->get('sort', $defaultSortColumn),
-            $request->get('search', null),
+            (int) $request->query->get('offset', 0),
+            (int) $request->query->get('limit', 20),
+            $request->query->get('sort', $defaultSortColumn),
+            // the search form always submits the field; an empty one is no search
+            ($request->query->get('search') ?? '') !== '' ? $request->query->get('search') : null,
         );
     }
 }

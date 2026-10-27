@@ -6,10 +6,12 @@ namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(name: 'repman:package:clear-old-dists', description: 'Clear old private dev distributions files')]
 final class ClearOldPrivateDistsCommand extends Command
 {
     private PackageQuery $query;
@@ -21,16 +23,6 @@ final class ClearOldPrivateDistsCommand extends Command
         $this->packageManager = $packageManager;
 
         parent::__construct();
-    }
-
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-        $this
-            ->setName('repman:package:clear-old-dists')
-            ->setDescription('Clear old private dev distributions files');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -52,6 +44,6 @@ final class ClearOldPrivateDistsCommand extends Command
             }
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

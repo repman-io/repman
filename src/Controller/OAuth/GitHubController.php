@@ -10,17 +10,15 @@ use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use League\OAuth2\Client\Token\AccessToken;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class GitHubController extends OAuthController
 {
-    /**
-     * @Route("/register/github", name="register_github_start", methods={"GET"})
-     */
+    #[Route(path: '/register/github', name: 'register_github_start', methods: ['GET'])]
     public function register(): Response
     {
         $this->ensureOAuthRegistrationIsEnabled();
@@ -28,9 +26,7 @@ final class GitHubController extends OAuthController
         return $this->oauth->getClient('github')->redirect(['user:email'], []);
     }
 
-    /**
-     * @Route("/auth/github", name="auth_github_start", methods={"GET"})
-     */
+    #[Route(path: '/auth/github', name: 'auth_github_start', methods: ['GET'])]
     public function auth(): Response
     {
         return $this->oauth
@@ -39,9 +35,7 @@ final class GitHubController extends OAuthController
         ;
     }
 
-    /**
-     * @Route("/register/github/check", name="register_github_check", methods={"GET"})
-     */
+    #[Route(path: '/register/github/check', name: 'register_github_check', methods: ['GET'])]
     public function registerCheck(Request $request, GitHubApi $api): Response
     {
         $this->ensureOAuthRegistrationIsEnabled();
@@ -53,10 +47,8 @@ final class GitHubController extends OAuthController
         );
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/package/add-from-github", name="fetch_github_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/package/add-from-github', name: 'fetch_github_package_token', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function packageAddFromGithub(Request $request, Organization $organization, UserQuery $userQuery): Response
     {
         /** @var User */
@@ -73,9 +65,7 @@ final class GitHubController extends OAuthController
             );
     }
 
-    /**
-     * @Route("/user/token/github/check", name="package_github_check", methods={"GET"})
-     */
+    #[Route(path: '/user/token/github/check', name: 'package_github_check', methods: ['GET'])]
     public function storeGitHubRepoToken(Request $request): Response
     {
         return $this->storeRepoToken(

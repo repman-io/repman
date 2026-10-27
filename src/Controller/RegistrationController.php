@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
 {
@@ -27,16 +27,14 @@ class RegistrationController extends AbstractController
     public function __construct(
         UserGuardHelper $guard,
         Config $config,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->guard = $guard;
         $this->config = $config;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/register", name="app_register", methods={"GET","POST"})
-     */
+    #[Route(path: '/register', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request): Response
     {
         $this->ensureRegistrationIsEnabled();
@@ -80,9 +78,7 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/register/confirm/{token}", name="app_register_confirm", methods={"GET"}, requirements={"token":"%uuid_pattern%"})
-     */
+    #[Route(path: '/register/confirm/{token}', name: 'app_register_confirm', methods: ['GET'], requirements: ['token' => '%uuid_pattern%'])]
     public function confirm(string $token): Response
     {
         $this->ensureLocalRegistrationIsEnabled();

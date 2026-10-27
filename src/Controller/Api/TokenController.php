@@ -13,12 +13,12 @@ use Buddy\Repman\Query\Api\Model\Token;
 use Buddy\Repman\Query\Api\Model\Tokens;
 use Buddy\Repman\Query\Api\OrganizationQuery;
 use Buddy\Repman\Query\User\Model\Organization;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class TokenController extends ApiController
@@ -28,7 +28,7 @@ final class TokenController extends ApiController
 
     public function __construct(
         OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->organizationQuery = $organizationQuery;
         $this->messageBus = $messageBus;
@@ -36,33 +36,11 @@ final class TokenController extends ApiController
 
     /**
      * List organization's tokens.
-     *
-     * @Route("/api/organization/{organization}/token",
-     *     name="api_tokens",
-     *     methods={"GET"},
-     *     requirements={"organization"="%organization_pattern%"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="page",
-     *     in="query"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Returns list of organization's tokens",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Tokens::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Token")
      */
+    #[Route(path: '/api/organization/{organization}/token', name: 'api_tokens', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
+    #[OA\Response(response: 200, description: "Returns list of organization's tokens", content: new OA\JsonContent(ref: new Model(type: Tokens::class)))]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Token')]
     public function tokens(Organization $organization, Request $request): JsonResponse
     {
         return $this->json(
@@ -70,7 +48,7 @@ final class TokenController extends ApiController
                 fn ($perPage, $offset) => $this->organizationQuery->findAllTokens($organization->id(), $perPage, $offset),
                 $this->organizationQuery->tokenCount($organization->id()),
                 20,
-                (int) $request->get('page', 1),
+                (int) $request->query->get('page', 1),
                 $this->generateUrl('api_tokens', [
                     'organization' => $organization->alias(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL)
@@ -80,40 +58,13 @@ final class TokenController extends ApiController
 
     /**
      * Generate new token.
-     *
-     * @Route("/api/organization/{organization}/token",
-     *     name="api_token_generate",
-     *     methods={"POST"},
-     *     requirements={"organization"="%organization_pattern%"}
-     * )
-     *
-     * @OA\RequestBody(
-     *     @Model(type=GenerateTokenType::class)
-     * )
-     *
-     * @OA\Response(
-     *     response=201,
-     *     description="Returns generated token",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Token::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=400,
-     *     description="Bad request",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Errors::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Token")
      */
+    #[Route(path: '/api/organization/{organization}/token', name: 'api_token_generate', methods: ['POST'], requirements: ['organization' => '%organization_pattern%'])]
+    #[OA\RequestBody(content: new Model(type: GenerateTokenType::class))]
+    #[OA\Response(response: 201, description: 'Returns generated token', content: new OA\JsonContent(ref: new Model(type: Token::class)))]
+    #[OA\Response(response: 400, description: 'Bad request', content: new OA\JsonContent(ref: new Model(type: Errors::class)))]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Token')]
     public function generateToken(Organization $organization, Request $request): JsonResponse
     {
         $form = $this->createApiForm(GenerateTokenType::class);
@@ -137,30 +88,12 @@ final class TokenController extends ApiController
 
     /**
      * Delete token.
-     *
-     * @Route("/api/organization/{organization}/token/{token}",
-     *     name="api_token_remove",
-     *     methods={"DELETE"},
-     *     requirements={"organization"="%organization_pattern%"}
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Token deleted"
-     * )
-     *
-     * @OA\Response(
-     *     response=404,
-     *     description="Token not found"
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Token")
      */
+    #[Route(path: '/api/organization/{organization}/token/{token}', name: 'api_token_remove', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%'])]
+    #[OA\Response(response: 200, description: 'Token deleted')]
+    #[OA\Response(response: 404, description: 'Token not found')]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Token')]
     public function removeToken(Organization $organization, Token $token): JsonResponse
     {
         $this->messageBus->dispatch(new RemoveToken($organization->id(), $token->getValue()));
@@ -171,29 +104,15 @@ final class TokenController extends ApiController
     /**
      * Regenerate token.
      *
-     * @Route("/api/organization/{organization}/token/{token}",
-     *     name="api_token_regenerate",
-     *     methods={"PUT"})
-     *     requirements={"organization"="%organization_pattern%"}
+     * requirements={"organization"="%organization_pattern%"}
      * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Token regenerated"
-     * )
-     *
-     * @OA\Response(
-     *     response=404,
-     *     description="Token not found"
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Token")
      */
+    #[OA\Parameter(name: 'page', in: 'query')]
+    #[Route(path: '/api/organization/{organization}/token/{token}', name: 'api_token_regenerate', methods: ['PUT'])]
+    #[OA\Response(response: 200, description: 'Token regenerated')]
+    #[OA\Response(response: 404, description: 'Token not found')]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Token')]
     public function regenerateToken(Organization $organization, Token $token): JsonResponse
     {
         $this->messageBus->dispatch(new RegenerateToken($organization->id(), $token->getValue()));

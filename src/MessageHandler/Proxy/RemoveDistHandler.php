@@ -6,9 +6,10 @@ namespace Buddy\Repman\MessageHandler\Proxy;
 
 use Buddy\Repman\Message\Proxy\RemoveDist;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemoveDistHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemoveDistHandler
 {
     private ProxyRegister $register;
 

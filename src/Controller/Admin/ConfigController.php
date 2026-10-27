@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class ConfigController extends AbstractController
 {
@@ -23,16 +23,14 @@ final class ConfigController extends AbstractController
     public function __construct(
         Config $config,
         Telemetry $telemetry,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->config = $config;
         $this->telemetry = $telemetry;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/admin/config", name="admin_config", methods={"GET","POST"})
-     */
+    #[Route(path: '/admin/config', name: 'admin_config', methods: ['GET', 'POST'])]
     public function edit(Request $request): Response
     {
         $form = $this->createForm(ConfigType::class, $this->config->getAll());
@@ -49,9 +47,7 @@ final class ConfigController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/config/telemetry", name="admin_config_toggle_telemetry", methods={"POST","DELETE"})
-     */
+    #[Route(path: '/admin/config/telemetry', name: 'admin_config_toggle_telemetry', methods: ['POST', 'DELETE'])]
     public function toggleTelemetry(Request $request): Response
     {
         $this->telemetry->generateInstanceId();

@@ -8,9 +8,10 @@ use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemoveOrganizationHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemoveOrganizationHandler
 {
     private OrganizationRepository $organizations;
     private PackageManager $packageManager;

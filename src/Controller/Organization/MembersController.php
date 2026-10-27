@@ -17,13 +17,13 @@ use Buddy\Repman\Query\User\Model\Organization\Member;
 use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class MembersController extends AbstractController
 {
@@ -34,16 +34,14 @@ final class MembersController extends AbstractController
     public function __construct(
         OrganizationQuery $organizations,
         TokenStorageInterface $tokenStorage,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->organizations = $organizations;
         $this->tokenStorage = $tokenStorage;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/organization/{organization}/member", name="organization_members", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/member', name: 'organization_members', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function listMembers(Organization $organization, Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -57,9 +55,7 @@ final class MembersController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/user/invitation/{token}", name="organization_accept_invitation", methods={"GET"}, requirements={"token"="%uuid_pattern%"})
-     */
+    #[Route(path: '/user/invitation/{token}', name: 'organization_accept_invitation', methods: ['GET'], requirements: ['token' => '%uuid_pattern%'])]
     public function acceptInvitation(Request $request, string $token): Response
     {
         /** @var User|null $user */
@@ -75,7 +71,7 @@ final class MembersController extends AbstractController
         $organization = $this->organizations->getByInvitation($token, $user->email());
         if ($organization->isEmpty()) {
             $this->addFlash('danger', 'Invitation not found or belongs to different user');
-            $this->tokenStorage->setToken();
+            $this->tokenStorage->setToken(null);
 
             return $this->redirectToRoute('app_login');
         }
@@ -87,10 +83,8 @@ final class MembersController extends AbstractController
         return $this->redirectToRoute('organization_overview', ['organization' => $organization->get()->alias()]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/member/invite", name="organization_invite_member", methods={"GET", "POST"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/member/invite', name: 'organization_invite_member', methods: ['GET', 'POST'], requirements: ['organization' => '%organization_pattern%'])]
     public function invite(Organization $organization, Request $request): Response
     {
         $form = $this->createForm(InviteMemberType::class, [], ['organizationId' => $organization->id()]);
@@ -115,10 +109,8 @@ final class MembersController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/invitation", name="organization_invitations", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/invitation', name: 'organization_invitations', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function listInvitations(Organization $organization, Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -131,10 +123,8 @@ final class MembersController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/invitation/{token}", name="organization_remove_invitation", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/invitation/{token}', name: 'organization_remove_invitation', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%'])]
     public function removeInvitation(Organization $organization, string $token): Response
     {
         $this->messageBus->dispatch(new RemoveInvitation($organization->id(), $token));
@@ -143,10 +133,8 @@ final class MembersController extends AbstractController
         return $this->redirectToRoute('organization_invitations', ['organization' => $organization->alias()]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/member/{member}", name="organization_remove_member", methods={"DELETE"}, requirements={"organization"="%organization_pattern%", "member"="%uuid_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/member/{member}', name: 'organization_remove_member', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%', 'member' => '%uuid_pattern%'])]
     public function removeMember(Organization $organization, Member $member): Response
     {
         if ($organization->isLastOwner($member->userId())) {
@@ -159,10 +147,8 @@ final class MembersController extends AbstractController
         return $this->redirectToRoute('organization_members', ['organization' => $organization->alias()]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/member/{member}/role", name="organization_change_member_role", methods={"GET", "POST"}, requirements={"organization"="%organization_pattern%", "member"="%uuid_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/member/{member}/role', name: 'organization_change_member_role', methods: ['GET', 'POST'], requirements: ['organization' => '%organization_pattern%', 'member' => '%uuid_pattern%'])]
     public function changeRole(Organization $organization, Member $member, Request $request): Response
     {
         $form = $this->createForm(ChangeRoleType::class, ['role' => $member->role()], ['isLastOwner' => $organization->isLastOwner($member->userId())]);

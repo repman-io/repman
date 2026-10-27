@@ -6,17 +6,17 @@ namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\ProxyRegister;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Lock\LockFactory;
 
+#[AsCommand(name: 'repman:proxy:sync-metadata', description: 'Sync proxy metadata with origins')]
 final class ProxySyncMetadataCommand extends Command
 {
     public const LOCK_TTL = 60;
     public const LOCK_NAME = 'proxy_metadata';
-
-    protected static $defaultName = 'repman:proxy:sync-metadata';
 
     private ProxyRegister $register;
     private LockFactory $lockFactory;
@@ -29,21 +29,11 @@ final class ProxySyncMetadataCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
-    {
-        $this
-            ->setDescription('Sync proxy metadata with origins')
-        ;
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $lock = $this->lockFactory->createLock(self::LOCK_NAME, self::LOCK_TTL);
         if (!$lock->acquire()) {
-            return 0;
+            return Command::SUCCESS;
         }
 
         try {
@@ -57,6 +47,6 @@ final class ProxySyncMetadataCommand extends Command
             $lock->release();
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

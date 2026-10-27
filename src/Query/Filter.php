@@ -82,9 +82,9 @@ class Filter
     public static function fromRequest(Request $request, ?string $defaultSortColumn = null): self
     {
         return new self(
-            (int) $request->get('offset', 0),
-            (int) $request->get('limit', 20),
-            $request->get('sort', $defaultSortColumn),
+            (int) $request->query->get('offset', 0),
+            (int) $request->query->get('limit', 20),
+            $request->query->get('sort', $defaultSortColumn),
         );
     }
 }

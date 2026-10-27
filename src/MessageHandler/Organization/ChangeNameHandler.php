@@ -7,9 +7,10 @@ namespace Buddy\Repman\MessageHandler\Organization;
 use Buddy\Repman\Message\Organization\ChangeName;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ChangeNameHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ChangeNameHandler
 {
     private OrganizationRepository $repositories;
 

@@ -32,7 +32,10 @@ final class IndexControllerTest extends FunctionalTestCase
         $this->client->disableReboot();
         // start new session
         $this->client->request('GET', $this->urlTo('index'));
-        $this->client->getRequest()->getSession()->set('organization-token', $token);
+        $session = $this->client->getRequest()->getSession();
+        $session->set('organization-token', $token);
+        // since Symfony 6 the session is written at the end of a request, not by a shared service
+        $session->save();
         $this->client->request('GET', $this->urlTo('index'));
 
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_accept_invitation', [

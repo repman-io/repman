@@ -18,6 +18,6 @@ final class UserCheckerTest extends TestCase
         $checker->checkPostAuth($organization);
 
         // exception was not thrown
-        self::assertEquals('buddy', $organization->name());
+        self::assertSame('buddy', $organization->name());
     }
 }

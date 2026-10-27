@@ -20,7 +20,7 @@ final class RestGitHubApi implements GitHubApi
 
     public function primaryEmail(string $accessToken): string
     {
-        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::ACCESS_TOKEN);
         foreach ($this->client->currentUser()->emails()->all() as $email) {
             if ($email['primary'] === true) {
                 return $email['email'];
@@ -35,7 +35,7 @@ final class RestGitHubApi implements GitHubApi
      */
     public function repositories(string $accessToken): array
     {
-        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::ACCESS_TOKEN);
 
         $repos = array_map(fn ($repo) => $repo['full_name'], $this->privateRepos());
 
@@ -45,7 +45,8 @@ final class RestGitHubApi implements GitHubApi
             }
         }
 
-        return $repos;
+        // /user/repos already lists repositories of the user's organizations
+        return array_values(array_unique($repos));
     }
 
     /**
@@ -54,7 +55,7 @@ final class RestGitHubApi implements GitHubApi
     public function addHook(string $accessToken, string $repo, string $url): void
     {
         [$owner, $repo] = explode('/', $repo);
-        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::ACCESS_TOKEN);
 
         foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
             if ($hook['config']['url'] === $url) {
@@ -77,7 +78,7 @@ final class RestGitHubApi implements GitHubApi
     public function removeHook(string $accessToken, string $repo, string $url): void
     {
         [$owner, $repo] = explode('/', $repo);
-        $this->client->authenticate($accessToken, null, AuthMethod::JWT);
+        $this->client->authenticate($accessToken, null, AuthMethod::ACCESS_TOKEN);
 
         foreach ($this->client->repositories()->hooks()->all($owner, $repo) as $hook) {
             if ($hook['config']['url'] === $url) {
@@ -111,6 +112,10 @@ final class RestGitHubApi implements GitHubApi
      */
     private function memberships(): array
     {
-        return $this->client->currentUser()->memberships()->all();
+        // paginated (30 per page by default), and pending invitations give no access to repositories
+        return array_filter(
+            (new ResultPager($this->client))->fetchAll($this->client->currentUser()->memberships(), 'all'),
+            fn ($membership) => ($membership['state'] ?? 'active') === 'active'
+        );
     }
 }

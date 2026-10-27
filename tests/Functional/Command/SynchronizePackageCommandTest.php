@@ -8,19 +8,18 @@ use Buddy\Repman\Command\SynchronizePackageCommand;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 final class SynchronizePackageCommandTest extends FunctionalTestCase
 {
-    private string $userId;
     private string $buddyId;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->userId = $this->createAndLoginAdmin();
-        $this->buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $userId = $this->createAndLoginAdmin();
+        $this->buddyId = $this->fixtures->createOrganization('buddy', $userId);
     }
 
     public function testSynchronizeSuccess(): void
@@ -39,7 +38,7 @@ final class SynchronizePackageCommandTest extends FunctionalTestCase
 
         self::assertCount(1, $transport->getSent());
         self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
-        self::assertEquals($result, 0);
+        self::assertSame(0, $result);
     }
 
     public function testPackageNotFound(): void
@@ -50,6 +49,6 @@ final class SynchronizePackageCommandTest extends FunctionalTestCase
         ]);
 
         self::assertStringContainsString('Package not found', $commandTester->getDisplay());
-        self::assertEquals($result, 1);
+        self::assertSame(1, $result);
     }
 }

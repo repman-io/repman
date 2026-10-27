@@ -9,9 +9,10 @@ use Buddy\Repman\Message\User\GenerateApiToken;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class GenerateApiTokenHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class GenerateApiTokenHandler
 {
     private UserRepository $users;
     private TokenGenerator $tokenGenerator;

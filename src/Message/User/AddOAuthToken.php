@@ -19,7 +19,7 @@ final class AddOAuthToken
         string $type,
         string $accessToken,
         ?string $refreshToken = null,
-        ?\DateTimeImmutable $expiresAt = null
+        ?\DateTimeImmutable $expiresAt = null,
     ) {
         $this->id = $id;
         $this->userId = $userId;

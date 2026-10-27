@@ -31,19 +31,19 @@ final class SynchronizePackageHandlerTest extends IntegrationTestCase
         /** @var Package $package */
         $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
 
-        self::assertEquals($name, $package->name());
-        self::assertEquals($description, $package->description());
-        self::assertEquals($version, $package->latestReleasedVersion());
+        self::assertSame($name, $package->name());
+        self::assertSame($description, $package->description());
+        self::assertSame($version, $package->latestReleasedVersion());
 
         /** @var \DateTimeImmutable $releaseDate */
         $releaseDate = $package->latestReleaseDate();
-        self::assertEquals($date->format('Y-m-d H:i:s'), $releaseDate->format('Y-m-d H:i:s'));
+        self::assertSame($date->format('Y-m-d H:i:s'), $releaseDate->format('Y-m-d H:i:s'));
 
         /** @var Link[] $packageLinks */
         $packageLinks = $this->container()->get(DbalPackageQuery::class)->getLinks($packageId, $organizationId)['requires'];
         self::assertCount(1, $packageLinks);
-        self::assertEquals($link->target(), $packageLinks[0]->target());
-        self::assertEquals($link->constraint(), $packageLinks[0]->constraint());
+        self::assertSame($link->target(), $packageLinks[0]->target());
+        self::assertSame($link->constraint(), $packageLinks[0]->constraint());
     }
 
     public function testHandlePackageNotFoundWithoutError(): void

@@ -29,21 +29,22 @@ jobs:
       fail-fast: false
       matrix:
         php:
-          - "7.4"
-          - "8.0"
+          - "8.4"
         postgresql:
           - "17"
+        experimental: [false]
         include:
-          # the patch release only picks the container image: composer.lock pins
-          # config.platform.php to 7.4.2, so that is still what dependencies resolve
-          # against. 7.4.2's image is Alpine 3.11, too old for the Node the checkout
-          # action now ships, which fails the job before any of the project runs.
-          - php: "7.4"
-            php-version: "7.4.33"
-          - php: "8.0"
-            php-version: "8.0.30"
+          - php: "8.4"
+            php-version: "8.4"
           - postgresql: "17"
             postgresql-version: "17"
+          # the next PHP release, to see deprecations coming; it does not fail the build
+          - php: "8.5"
+            php-version: "8.5"
+            postgresql: "17"
+            postgresql-version: "17"
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
 
     steps:
       - name: "Install OS dependencies"
@@ -60,7 +61,7 @@ jobs:
           install-php-extensions intl pdo_pgsql zip
 
       - name: "Install composer"
-        run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer --version=2.6.6
+        run: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer --2
 
       - name: "Checkout"
         uses: "actions/checkout@v4"
@@ -70,7 +71,7 @@ jobs:
           show-progress: false
 
       - name: "Install composer dependencies"
-        uses: "ramsey/composer-install@v2"
+        uses: "ramsey/composer-install@v3"
 
       - name: "Validate composer dependencies"
         run: "composer validate"
@@ -83,6 +84,12 @@ jobs:
 
       - name: "Run PHPStan"
         run: "composer phpstan"
+
+      - name: "Check Rector has nothing left to do"
+        run: "vendor/bin/rector process --dry-run --no-progress-bar"
+
+      - name: "Check composer dependencies are declared"
+        run: "vendor/bin/composer-dependency-analyser"
 
       - name: "Lint twig"
         run: "bin/console lint:twig templates --show-deprecations"

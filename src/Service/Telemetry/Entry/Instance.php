@@ -28,7 +28,7 @@ final class Instance implements \JsonSerializable
         string $phpVersion,
         int $users,
         int $failedMessages,
-        array $config
+        array $config,
     ) {
         $this->id = $id;
         $this->version = $version;

@@ -28,7 +28,7 @@ final class OAuthProviderExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('oauth_enabled', [$this, 'oAuthEnabled']),
+            new TwigFunction('oauth_enabled', $this->oAuthEnabled(...)),
         ];
     }
 

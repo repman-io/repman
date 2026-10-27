@@ -33,14 +33,16 @@ use Buddy\Repman\Query\User\OrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Query\User\PackageQuery\Filter as PackageFilter;
 use Buddy\Repman\Security\Model\User;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Composer\Semver\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class OrganizationController extends AbstractController
 {
@@ -51,16 +53,14 @@ final class OrganizationController extends AbstractController
     public function __construct(
         PackageQuery $packageQuery,
         OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->packageQuery = $packageQuery;
         $this->organizationQuery = $organizationQuery;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/organization/{organization}/overview", name="organization_overview", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/overview', name: 'organization_overview', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function overview(Organization $organization): Response
     {
         return $this->render('organization/overview.html.twig', [
@@ -70,9 +70,7 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/organization/{organization}/package", name="organization_packages", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/package', name: 'organization_packages', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function packages(Organization $organization, Request $request): Response
     {
         $filter = PackageFilter::fromRequest($request, 'name');
@@ -92,10 +90,8 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/package/{package}", name="organization_package_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/package/{package}', name: 'organization_package_remove', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
     public function removePackage(Organization $organization, Package $package): Response
     {
         $this->tryToRemoveWebhook($package);
@@ -110,9 +106,7 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
 
-    /**
-     * @Route("/organization/{organization}/package/{package}/details", name="organization_package_details", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/package/{package}/details', name: 'organization_package_details', methods: ['GET'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
     public function packageDetails(Organization $organization, PackageDetails $package, Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -129,28 +123,46 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/organization/{organization}/package/{package}/stats", name="organization_package_stats", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/package/{package}/stats', name: 'organization_package_stats', methods: ['GET'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
     public function packageStats(Organization $organization, Package $package, Request $request): Response
     {
-        $days = min(max((int) $request->get('days', 30), 7), 365);
+        $days = min(max((int) $request->query->get('days', 30), 7), 365);
 
         return $this->render('organization/package/stats.html.twig', [
             'organization' => $organization,
             'package' => $package,
             'installs' => $this->packageQuery->getInstalls($package->id(), $days),
             'versions' => $this->packageQuery->getInstallVersions($package->id()),
+            'versionLabels' => $this->versionLabels($package->id()),
             'days' => $days,
         ]);
     }
 
     /**
-     * @Route("/organization/{organization}/package/{package}/stats/{version}", name="organization_package_version_stats", methods={"GET"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
+     * Downloads are recorded with the normalized version of the dist URL (3.0.2.0, 1.0.9999999.9999999-dev),
+     * so the stats show the version as the package names it (3.0.2, 1.0.x-dev).
+     *
+     * @return array<string,string>
      */
+    private function versionLabels(string $packageId): array
+    {
+        $parser = new VersionParser();
+        $labels = [];
+        // ponytail: the 100 newest versions, older downloads keep the normalized version
+        foreach ($this->packageQuery->getVersions($packageId, new Filter(0, 100)) as $version) {
+            try {
+                $labels[$parser->normalize($version->version())] = $version->version();
+            } catch (\UnexpectedValueException) {
+            }
+        }
+
+        return $labels;
+    }
+
+    #[Route(path: '/organization/{organization}/package/{package}/stats/{version}', name: 'organization_package_version_stats', methods: ['GET'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%', 'version' => Requirement::CATCH_ALL])]
     public function packageVersionStats(Organization $organization, Package $package, string $version, Request $request): JsonResponse
     {
-        $days = min(max((int) $request->get('days', 30), 7), 365);
+        $days = min(max((int) $request->query->get('days', 30), 7), 365);
 
         return new JsonResponse(array_map(fn (Day $day) => [
             'x' => $day->date(),
@@ -158,9 +170,7 @@ final class OrganizationController extends AbstractController
         ], $this->packageQuery->getInstalls($package->id(), $days, $version)->days()));
     }
 
-    /**
-     * @Route("/organization/{organization}/package/{package}/webhook", name="organization_package_webhook", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/package/{package}/webhook', name: 'organization_package_webhook', methods: ['GET', 'POST'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
     public function packageWebhook(Organization $organization, Package $package, Request $request): Response
     {
         if ($request->isMethod(Request::METHOD_POST)) {
@@ -187,9 +197,7 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/organization/{organization}/token/new", name="organization_token_new", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/token/new', name: 'organization_token_new', methods: ['GET', 'POST'], requirements: ['organization' => '%organization_pattern%'])]
     public function generateToken(Organization $organization, Request $request): Response
     {
         $form = $this->createForm(GenerateTokenType::class);
@@ -212,9 +220,7 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/organization/{organization}/token", name="organization_tokens", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/token', name: 'organization_tokens', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function tokens(Organization $organization, Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -227,9 +233,7 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/organization/{organization}/token/{token}/regenerate", name="organization_token_regenerate", methods={"POST"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/token/{token}/regenerate', name: 'organization_token_regenerate', methods: ['POST'], requirements: ['organization' => '%organization_pattern%'])]
     public function regenerateToken(Organization $organization, Token $token): Response
     {
         $this->messageBus->dispatch(new RegenerateToken(
@@ -242,9 +246,7 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('organization_tokens', ['organization' => $organization->alias()]);
     }
 
-    /**
-     * @Route("/organization/{organization}/token/{token}", name="organization_token_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/token/{token}', name: 'organization_token_remove', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%'])]
     public function removeToken(Organization $organization, Token $token): Response
     {
         $this->messageBus->dispatch(new RemoveToken(
@@ -257,10 +259,8 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('organization_tokens', ['organization' => $organization->alias()]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/settings", name="organization_settings", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/settings', name: 'organization_settings', methods: ['GET', 'POST'], requirements: ['organization' => '%organization_pattern%'])]
     public function settings(Organization $organization, Request $request): Response
     {
         $renameForm = $this->createForm(ChangeNameType::class, ['name' => $organization->name()]);
@@ -298,14 +298,12 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}", name="organization_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}', name: 'organization_remove', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%'])]
     public function removeOrganization(Organization $organization): Response
     {
         $offset = 0;
-        while (($packages = $this->packageQuery->findAll($organization->id(), new PackageQuery\Filter($offset, $limit = 100))) !== []) {
+        while (($packages = $this->packageQuery->findAll($organization->id(), new PackageFilter($offset, $limit = 100))) !== []) {
             array_walk($packages, [$this, 'tryToRemoveWebhook']);
             $offset += $limit;
         }
@@ -316,12 +314,10 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('index');
     }
 
-    /**
-     * @Route("/organization/{organization}/stats", name="organizations_stats")
-     */
+    #[Route(path: '/organization/{organization}/stats', name: 'organizations_stats')]
     public function stats(Organization $organization, Request $request): Response
     {
-        $days = min(max((int) $request->get('days', 30), 7), 365);
+        $days = min(max((int) $request->query->get('days', 30), 7), 365);
 
         return $this->render('organization/stats.html.twig', [
             'organization' => $organization,
@@ -330,9 +326,7 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/organization/{organization}/package/{package}/scan", name="organization_package_scan", methods={"POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/package/{package}/scan', name: 'organization_package_scan', methods: ['POST'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
     public function scanPackage(Organization $organization, Package $package): Response
     {
         $this->messageBus->dispatch(new ScanPackage($package->id()));
@@ -342,9 +336,7 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('organization_packages', ['organization' => $organization->alias()]);
     }
 
-    /**
-     * @Route("/organization/{organization}/package/{package}/scan-results", name="organization_package_scan_results", methods={"GET","POST"}, requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"})
-     */
+    #[Route(path: '/organization/{organization}/package/{package}/scan-results', name: 'organization_package_scan_results', methods: ['GET', 'POST'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
     public function packageScanResults(Organization $organization, Package $package, Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -374,7 +366,7 @@ final class OrganizationController extends AbstractController
                         break;
                 }
             } catch (HandlerFailedException $exception) {
-                $reason = current($exception->getNestedExceptions());
+                $reason = current($exception->getWrappedExceptions());
                 $this->addFlash('danger', sprintf(
                     'Webhook removal failed due to "%s". Please remove it manually.',
                     $reason !== false ? $reason->getMessage() : $exception->getMessage()
@@ -387,8 +379,8 @@ final class OrganizationController extends AbstractController
     {
         $user = parent::getUser();
 
-        return $user instanceof User &&
-            $organization->isOwner($user->id()) &&
-            $this->packageQuery->count($organization->id(), new PackageFilter()) === 0;
+        return $user instanceof User
+            && $organization->isOwner($user->id())
+            && $this->packageQuery->count($organization->id(), new PackageFilter()) === 0;
     }
 }

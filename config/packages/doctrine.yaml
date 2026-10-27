@@ -1,17 +1,23 @@
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
+        use_savepoints: true
         types:
             uuid: 'Ramsey\Uuid\Doctrine\UuidType'
         schema_filter: '~^(?!messenger_messages|organization_package_webhook_request|proxy_package_download|lock_keys)~'
     orm:
-        auto_generate_proxy_classes: true
+        # PHP 8.4 lazy objects instead of generated proxy classes
+        enable_native_lazy_objects: true
+        report_fields_where_declared: true
+        controller_resolver:
+            # controllers get entities through the app's value resolvers, never by id from the route
+            auto_mapping: false
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
         mappings:
             Repman:
                 is_bundle: false
-                type: annotation
+                type: attribute
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'Buddy\Repman\Entity'
                 alias: Repman

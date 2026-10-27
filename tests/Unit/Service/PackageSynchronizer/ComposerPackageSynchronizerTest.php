@@ -14,10 +14,12 @@ use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
-use League\Flysystem\Adapter\Local;
+use Composer\IO\BufferIO;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 final class ComposerPackageSynchronizerTest extends TestCase
 {
@@ -31,7 +33,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
     protected function setUp(): void
     {
         $this->baseDir = sys_get_temp_dir().'/repman';
-        $repoFilesystem = new Filesystem(new Local($this->baseDir));
+        $repoFilesystem = new Filesystem(new LocalFilesystemAdapter($this->baseDir));
         $this->downloader = new FakeDownloader();
         $distStorage = new Storage($this->downloader, $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
@@ -39,7 +41,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
             new PackageNormalizer(),
             $this->repoMock = $this->createMock(PackageRepository::class),
             $distStorage,
-            $this->createMock(UserOAuthTokenRefresher::class),
+            self::createStub(UserOAuthTokenRefresher::class),
             'gitlab.com'
         );
         $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';
@@ -49,20 +51,132 @@ final class ComposerPackageSynchronizerTest extends TestCase
     {
         $path = $this->baseDir.'/buddy/p/repman-io/repman.json';
         @unlink($path);
+        // left by runs from before path dists were skipped
+        $stale = glob($this->baseDir.'/buddy/dist/repman-io/repman/*.path');
+        array_map(unlink(...), is_array($stale) ? $stale : []);
 
-        $basePath = dirname(__DIR__, 4);
-        $this->downloader->addContent($basePath, 'foobar');
+        // a plain directory (no VCS), so the result does not depend on the git state of this checkout
+        $basePath = sys_get_temp_dir().'/repman-path-'.uniqid('', true);
+        mkdir($basePath);
+        file_put_contents($basePath.'/composer.json', (string) json_encode(['name' => 'repman-io/repman', 'version' => '1.2.3']));
 
         $package = PackageMother::withOrganization('path', $basePath, 'buddy');
         $this->synchronizer->synchronize($package);
 
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
-        self::assertTrue($json['packages']['repman-io/repman'] !== []);
+        self::assertSame(['1.2.3'], array_keys($json['packages']['repman-io/repman']));
         @unlink($path);
+        unlink($basePath.'/composer.json');
+        rmdir($basePath);
 
         self::assertCount(1, $package->versions());
+        // the directory is not archived: there is no dist to download (the version is installed from the path)
+        $version = $package->versions()->first();
+        self::assertInstanceOf(Version::class, $version);
+        self::assertSame(0, $version->size());
+        self::assertSame([], glob($this->baseDir.'/buddy/dist/repman-io/repman/*.path'));
+    }
+
+    public function testSynchronizeGitPackageWithoutDistKeepsTheLockFileOfTheScannedVersions(): void
+    {
+        $repoDir = sys_get_temp_dir().'/repman-git-'.uniqid('', true);
+        mkdir($repoDir);
+        $git = static function (string ...$command) use ($repoDir): string {
+            return new Process(['git', '-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', 'init.defaultBranch=main', ...$command], $repoDir)->mustRun()->getOutput();
+        };
+        file_put_contents($repoDir.'/composer.json', (string) json_encode(['name' => 'buddy-works/locked-app']));
+        file_put_contents($repoDir.'/composer.lock', '{"packages":[{"name":"old/dep","version":"1.0.0"}]}');
+        $git('init');
+        $git('add', '.');
+        $git('commit', '-m', 'initial');
+        $git('tag', '1.0.0');
+        file_put_contents($repoDir.'/composer.lock', '{"packages":[{"name":"new/dep","version":"2.0.0"}]}');
+        $git('commit', '-am', 'update');
+        $git('tag', '1.1.0');
+        $ref = trim($git('rev-parse', 'HEAD'));
+
+        $package = PackageMother::withOrganization('git', $repoDir, 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
+        $dir = $this->baseDir.'/buddy/dist/buddy-works/locked-app';
+        // the latest release and the default branch are what the scan reads, older tags are not
+        self::assertStringEqualsFile($dir.'/1.1.0.0_'.$ref.'.lock', '{"packages":[{"name":"new/dep","version":"2.0.0"}]}');
+        self::assertStringEqualsFile($dir.'/dev-main_'.$ref.'.lock', '{"packages":[{"name":"new/dep","version":"2.0.0"}]}');
+        self::assertSame([], glob($dir.'/1.0.0.0_*'));
+
+        // a new release: the locks of the previous one are dropped, nothing scans them any more
+        file_put_contents($repoDir.'/composer.lock', '{"packages":[]}');
+        $git('commit', '-am', 'drop dependencies');
+        $git('tag', '1.2.0');
+        $newRef = trim($git('rev-parse', 'HEAD'));
+        $this->synchronizer->synchronize($package);
+
+        $found = glob($dir.'/*.lock');
+        self::assertIsArray($found);
+        $locks = array_map(basename(...), $found);
+        sort($locks);
+        self::assertSame(['1.2.0.0_'.$newRef.'.lock', 'dev-main_'.$newRef.'.lock'], $locks);
+
+        (new \Symfony\Component\Filesystem\Filesystem())->remove([$repoDir, $dir, $this->baseDir.'/buddy/p/buddy-works/locked-app.json']);
+    }
+
+    public function testSynchronizeGitPackageWithoutDistRecordsVersionsAndLinks(): void
+    {
+        $repoDir = sys_get_temp_dir().'/repman-git-'.uniqid('', true);
+        mkdir($repoDir);
+        $git = static function (string ...$command) use ($repoDir): void {
+            new Process(['git', '-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', 'init.defaultBranch=main', ...$command], $repoDir)->mustRun();
+        };
+        file_put_contents($repoDir.'/composer.json', (string) json_encode(['name' => 'buddy-works/plain-git', 'require' => ['psr/log' => '^3.0']]));
+        $git('init');
+        $git('add', 'composer.json');
+        $git('commit', '-m', 'initial');
+        $git('tag', '1.2.0');
+
+        // a plain git repository has no dist, Composer installs it from source
+        $package = PackageMother::withOrganization('git', $repoDir, 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
+        $versions = array_map(fn (Version $version): string => $version->version(), $package->versions()->toArray());
+        sort($versions);
+        self::assertSame(['1.2.0', 'dev-main'], $versions);
+        $release = $package->getVersion('1.2.0');
+        self::assertInstanceOf(Version::class, $release);
+        self::assertSame(0, $release->size());
+        self::assertSame(['requires-psr/log-^3.0'], array_values(array_map(
+            fn (Link $link): string => $link->type().'-'.$link->target().'-'.$link->constraint(),
+            $package->links()->toArray(),
+        )));
+
+        @unlink($this->baseDir.'/buddy/p/buddy-works/plain-git.json');
+        (new \Symfony\Component\Filesystem\Filesystem())->remove($repoDir);
+    }
+
+    public function testSynchronizeGitPackageWithoutReleasesKeepsLinksOfTheDefaultBranch(): void
+    {
+        $repoDir = sys_get_temp_dir().'/repman-git-'.uniqid('', true);
+        mkdir($repoDir);
+        file_put_contents($repoDir.'/composer.json', (string) json_encode(['name' => 'buddy-works/untagged', 'require' => ['psr/log' => '^3.0']]));
+        foreach ([['init'], ['add', 'composer.json'], ['commit', '-m', 'initial']] as $command) {
+            new Process(['git', '-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', 'init.defaultBranch=main', ...$command], $repoDir)->mustRun();
+        }
+
+        // Composer lists the default branch twice, as dev-main and as its 9999999-dev alias
+        $package = PackageMother::withOrganization('git', $repoDir, 'buddy');
+        $this->synchronizer->synchronize($package);
+
+        self::assertTrue($package->isSynchronizedSuccessfully(), (string) $this->getProperty($package, 'lastSyncError'));
+        self::assertSame('no stable release', $this->getProperty($package, 'latestReleasedVersion'));
+        self::assertSame(['dev-main'], array_values(array_map(fn (Version $version): string => $version->version(), $package->versions()->toArray())));
+        self::assertCount(1, $package->links());
+
+        @unlink($this->baseDir.'/buddy/p/buddy-works/untagged.json');
+        (new \Symfony\Component\Filesystem\Filesystem())->remove($repoDir);
     }
 
     public function testSynchronizeError(): void
@@ -86,6 +200,13 @@ final class ComposerPackageSynchronizerTest extends TestCase
         $json = unserialize((string) file_get_contents($path));
         self::assertCount(4, $json['packages']['buddy-works/alpha']);
         @unlink($path);
+
+        // the served reference is what the dist is stored under, so the download URL resolves
+        foreach ($json['packages']['buddy-works/alpha'] as $data) {
+            self::assertMatchesRegularExpression('/^[a-f0-9]{40}$/', $data['dist']['reference']);
+            self::assertSame($data['dist']['shasum'], $data['dist']['reference']);
+            self::assertFileExists(sprintf('%s/buddy/dist/buddy-works/alpha/%s_%s.zip', $this->baseDir, $data['version_normalized'], $data['dist']['reference']));
+        }
 
         self::assertCount(4, $package->versions());
         $versionStrings = array_map(function (Version $version): string {
@@ -143,7 +264,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
-        self::assertTrue($json['packages']['repman-io/repman'] !== []);
+        self::assertNotSame([], $json['packages']['repman-io/repman']);
         @unlink($path);
     }
 
@@ -159,8 +280,27 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
-        self::assertTrue($json['packages']['repman-io/repman'] !== []);
+        self::assertNotSame([], $json['packages']['repman-io/repman']);
         @unlink($path);
+    }
+
+    public function testTokenOfThePackageWinsOverAGlobalComposerAuthToken(): void
+    {
+        putenv('COMPOSER_AUTH={"github-oauth":{"github.com":"global-token"}}');
+        try {
+            $package = PackageMother::withOrganizationAndToken('github', 'https://github.com/buddy-works/repman', 'buddy');
+            $call = fn (string $method, mixed ...$args): mixed => (new \ReflectionMethod($this->synchronizer, $method))->invoke($this->synchronizer, ...$args);
+
+            /** @var BufferIO $io */
+            $io = $call('createIO');
+            $call('createRepository', $package, $io);
+            self::assertSame('global-token', $io->getAuthentication('github.com')['username']);
+
+            $call('authenticate', $package, $io);
+            self::assertSame('secret', $io->getAuthentication('github.com')['username']);
+        } finally {
+            putenv('COMPOSER_AUTH');
+        }
     }
 
     public function testSynchronizePackageWithBitbucketToken(): void
@@ -175,7 +315,7 @@ final class ComposerPackageSynchronizerTest extends TestCase
         self::assertFileExists($path);
 
         $json = unserialize((string) file_get_contents($path));
-        self::assertTrue($json['packages']['repman-io/repman'] !== []);
+        self::assertNotSame([], $json['packages']['repman-io/repman']);
         @unlink($path);
     }
 

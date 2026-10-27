@@ -32,7 +32,7 @@ abstract class OAuthController extends AbstractController
         UserGuardHelper $guard,
         ClientRegistry $oauth,
         Config $config,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->guard = $guard;
         $this->oauth = $oauth;

@@ -11,7 +11,7 @@ final class OAuthProviderExtensionTest extends TestCase
 {
     public function testGetFilters(): void
     {
-        self::assertEquals('oauth_enabled', (new OAuthProviderExtension([]))->getFunctions()[0]->getName());
+        self::assertSame('oauth_enabled', (new OAuthProviderExtension([]))->getFunctions()[0]->getName());
     }
 
     public function testAnyOauthProviderEnabled(): void

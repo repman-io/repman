@@ -40,7 +40,7 @@
         <div class="col-2">
             <p>Versions</p>
             {% for version in versions %}
-                <a href="#" class="package-version">{{ version }}</a><br />
+                <a href="#" class="package-version" data-url="{{ path('organization_package_version_stats', {organization: organization.alias, package: package.id, version: version, days: days}) }}">{{ versionLabels[version] ?? version }}</a><br />
             {% endfor %}
         </div>
         <div class="col-10">

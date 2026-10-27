@@ -6,7 +6,6 @@ namespace Buddy\Repman\Migrations\Factory;
 
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\Migrations\Version\MigrationFactory;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MigrationFactoryDecorator implements MigrationFactory
@@ -24,7 +23,7 @@ class MigrationFactoryDecorator implements MigrationFactory
     {
         $instance = $this->migrationFactory->createVersion($migrationClassName);
 
-        if ($instance instanceof ContainerAwareInterface) {
+        if ($instance instanceof ContainerAwareMigration) {
             $instance->setContainer($this->container);
         }
 

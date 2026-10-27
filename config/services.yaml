@@ -16,7 +16,7 @@ parameters:
     router.request_context.scheme: '%env(resolve:APP_URL_SCHEME)%'
     router.request_context.host: '%env(default:domain:APP_PUBLIC_HOST)%'
     security_advisories_db_dir: '%env(resolve:SECURITY_ADVISORIES_DB_DIR)%'
-    security_advisories_db_repo: 'https://github.com/FriendsOfPHP/security-advisories.git'
+    security_advisories_api_url: 'https://packagist.org/api/security-advisories/'
     instance_id_file: '%kernel.project_dir%/var/instance-id'
     kernel_version: !php/const Buddy\Repman\Kernel::REPMAN_VERSION
     storage.aws.endpoint: ~ # Default to null
@@ -33,7 +33,6 @@ services:
         bind:
             $distsDir: '%dists_dir%'
             $resetPasswordTokenTtl: 86400 # 24h
-            Symfony\Component\HttpFoundation\Session\Session $session: '@session'
             $proxyFilesystem: '@proxy.storage'
             $repoFilesystem: '@repo.storage'
             $instanceIdFile: '%instance_id_file%'
@@ -50,6 +49,12 @@ services:
     Buddy\Repman\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
+
+    Buddy\Repman\Service\ServedHosts:
+        arguments:
+            $domain: '%domain%'
+            $domainSeparator: '%domain_separator%'
+            $organizationSeparator: '%organization_separator%'
 
     Buddy\Repman\Service\Integration\Aws\S3AdapterFactory:
         arguments:
@@ -104,10 +109,10 @@ services:
                 bitbucket: '%env(OAUTH_BITBUCKET_CLIENT_ID)%'
                 buddy: '%env(OAUTH_BUDDY_CLIENT_ID)%'
 
-    Buddy\Repman\Service\Security\SecurityChecker\SensioLabsSecurityChecker:
+    Buddy\Repman\Service\Security\SecurityChecker\PackagistSecurityChecker:
         arguments:
-            $databaseDir: '%security_advisories_db_dir%'
-            $databaseRepo: '%security_advisories_db_repo%'
+            $apiUrl: '%security_advisories_api_url%'
+            $stateDir: '%security_advisories_db_dir%'
 
     Buddy\Repman\Service\Telemetry:
         arguments:
@@ -195,17 +200,43 @@ services:
         arguments:
             - '@Gitlab\Client'
 
-    Sentry\Integration\IgnoreErrorsIntegration:
-        arguments:
-            $options:
-                ignore_exceptions:
-                    - 'Symfony\Component\Security\Core\Exception\AccessDeniedException'
-                    - 'Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException'
-                    - 'Symfony\Component\HttpKernel\Exception\NotFoundHttpException'
-                    - 'Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException'
-
     Buddy\Repman\Service\Integration\GitLabApi\RestGitLabApi:
         arguments:
             $url: '%env(APP_GITLAB_API_URL)%'
 
-    Buddy\Buddy:
+    # Run before the built-in RequestAttributeValueResolver (priority 100), which would
+    # otherwise hand the raw route attribute (an alias or id string) to the controller.
+    Buddy\Repman\Service\Organization\OrganizationValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\Organization\PackageValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\Organization\PackageDetailsValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\Organization\MemberValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\Organization\TokenValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\Api\PackageValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\Api\TokenValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+    Buddy\Repman\Service\User\UserValueResolver:
+        autoconfigure: false
+        tags: [{ name: controller.argument_value_resolver, priority: 150 }]
+
+    # Google reCAPTCHA on sign-up; the EWZ_ names are kept from the bundle this replaced
+    Buddy\Repman\Form\Type\RecaptchaType:
+        arguments:
+            $enabled: '%env(bool:EWZ_RECAPTCHA_ENABLED)%'
+            $siteKey: '%env(EWZ_RECAPTCHA_SITE_KEY)%'
+    Buddy\Repman\Validator\RecaptchaValidator:
+        arguments:
+            $enabled: '%env(bool:EWZ_RECAPTCHA_ENABLED)%'
+            $secret: '%env(EWZ_RECAPTCHA_SECRET)%'

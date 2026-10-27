@@ -7,7 +7,7 @@ namespace Buddy\Repman\Tests\Functional\Controller;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Buddy\Repman\Tests\TestStorage;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 final class ProxyControllerTest extends FunctionalTestCase
 {
@@ -181,7 +181,7 @@ final class ProxyControllerTest extends FunctionalTestCase
 
     public function testDistributionAction(): void
     {
-        $file = $this->contentFromStream(fn () => $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip', [], [], [
+        $this->contentFromStream(fn () => $this->client->request('GET', '/dists/buddy-works/repman/0.1.2.0/f0c896a759d4e2e1eff57978318e841911796305.zip', [], [], [
             'HTTP_HOST' => 'repo.repman.wip',
         ]));
 
@@ -218,7 +218,7 @@ final class ProxyControllerTest extends FunctionalTestCase
             ],
         ]));
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(1, $transport->getSent());
@@ -230,6 +230,17 @@ final class ProxyControllerTest extends FunctionalTestCase
             'HTTP_HOST' => 'repo.repman.wip',
         ], 'invalid');
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function testTrackDownloadsSkipsMalformedEntries(): void
+    {
+        $this->client->request('POST', '/downloads', [], [], [
+            'HTTP_HOST' => 'repo.repman.wip',
+        ], (string) json_encode([
+            'downloads' => ['not-an-object', ['name' => ['nested'], 'version' => '1.0'], ['name' => 'buddy-works/repman', 'version' => '1.2.0.0']],
+        ]));
+
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
     }
 }

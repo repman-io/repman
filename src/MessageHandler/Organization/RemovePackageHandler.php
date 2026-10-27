@@ -9,9 +9,10 @@ use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemovePackageHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemovePackageHandler
 {
     private OrganizationRepository $organizations;
     private PackageManager $packageManager;

@@ -46,8 +46,8 @@ final class GitLabAuthenticatorTest extends IntegrationTestCase
     public function testCustomMessageExceptionOnGitlabError(): void
     {
         $this->container()->get(HttpClientStub::class)->setNextResponses([new Response(429, [
-            'RateLimit-Limit' => 600,
-            'RateLimit-Remaining' => 0,
+            'RateLimit-Limit' => '600',
+            'RateLimit-Remaining' => '0',
         ], '')]);
 
         $request = $this->createRequestWithSession();
@@ -57,6 +57,23 @@ final class GitLabAuthenticatorTest extends IntegrationTestCase
 
         $this->expectException(CustomUserMessageAuthenticationException::class);
         $this->expectExceptionMessage('Too Many Requests');
+
+        $this->container()->get(GitLabAuthenticator::class)->authenticate($request);
+    }
+
+    public function testKeepGitlabErrorMessageWhenResponseHasBody(): void
+    {
+        $this->container()->get(HttpClientStub::class)->setNextResponses([new Response(401, [], (string) json_encode([
+            'message' => 'invalid_grant',
+        ]))]);
+
+        $request = $this->createRequestWithSession();
+        $request->attributes->set('_route', 'login_gitlab_check');
+        $request->query->set('code', '123');
+        $this->container()->get(ClientRegistry::class)->getClient('gitlab')->setAsStateless();
+
+        $this->expectException(CustomUserMessageAuthenticationException::class);
+        $this->expectExceptionMessage('invalid_grant');
 
         $this->container()->get(GitLabAuthenticator::class)->authenticate($request);
     }

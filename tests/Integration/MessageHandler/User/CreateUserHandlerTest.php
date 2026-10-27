@@ -14,7 +14,7 @@ final class CreateUserHandlerTest extends IntegrationTestCase
     public function testCreateUser(): void
     {
         $this->container()->get(MessageBusInterface::class)->dispatch(new CreateUser(
-            $id = '669dc378-f8a0-46c5-a515-38fddbd43165',
+            '669dc378-f8a0-46c5-a515-38fddbd43165',
             'test@buddy.works',
             'secret123',
             'ccd235dc-fce0-4c48-a40f-999aeb63710d'

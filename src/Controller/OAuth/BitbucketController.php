@@ -10,17 +10,15 @@ use Buddy\Repman\Query\User\UserQuery;
 use Buddy\Repman\Security\Model\User;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use League\OAuth2\Client\Token\AccessToken;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class BitbucketController extends OAuthController
 {
-    /**
-     * @Route("/register/bitbucket", name="register_bitbucket_start", methods={"GET"})
-     */
+    #[Route(path: '/register/bitbucket', name: 'register_bitbucket_start', methods: ['GET'])]
     public function register(): Response
     {
         $this->ensureOAuthRegistrationIsEnabled();
@@ -28,17 +26,13 @@ final class BitbucketController extends OAuthController
         return $this->oauth->getClient('bitbucket')->redirect(['email'], []);
     }
 
-    /**
-     * @Route("/auth/bitbucket", name="auth_bitbucket_start", methods={"GET"})
-     */
+    #[Route(path: '/auth/bitbucket', name: 'auth_bitbucket_start', methods: ['GET'])]
     public function auth(): Response
     {
         return $this->oauth->getClient('bitbucket')->redirect(['email'], ['redirect_uri' => $this->generateUrl('login_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
-    /**
-     * @Route("/register/bitbucket/check", name="register_bitbucket_check", methods={"GET"})
-     */
+    #[Route(path: '/register/bitbucket/check', name: 'register_bitbucket_check', methods: ['GET'])]
     public function registerCheck(Request $request, BitbucketApi $api): Response
     {
         $this->ensureOAuthRegistrationIsEnabled();
@@ -50,10 +44,8 @@ final class BitbucketController extends OAuthController
         );
     }
 
-    /**
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     * @Route("/organization/{organization}/package/add-from-bitbucket", name="fetch_bitbucket_package_token", methods={"GET"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/organization/{organization}/package/add-from-bitbucket', name: 'fetch_bitbucket_package_token', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
     public function packageAddFromBitbucket(Request $request, Organization $organization, UserQuery $userQuery): Response
     {
         /** @var User */
@@ -69,9 +61,7 @@ final class BitbucketController extends OAuthController
         return $this->oauth->getClient('bitbucket')->redirect(['account', 'repository', 'webhook'], ['redirect_uri' => $this->generateUrl('package_bitbucket_check', [], UrlGeneratorInterface::ABSOLUTE_URL)]);
     }
 
-    /**
-     * @Route("/user/token/bitbucket/check", name="package_bitbucket_check", methods={"GET"})
-     */
+    #[Route(path: '/user/token/bitbucket/check', name: 'package_bitbucket_check', methods: ['GET'])]
     public function storeBitbucketRepoToken(Request $request): Response
     {
         return $this->storeRepoToken(

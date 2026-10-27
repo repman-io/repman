@@ -12,7 +12,7 @@ final class NotOrganizationMember extends Constraint
     public string $alreadyMemberMessage = 'User "{{ value }}" is already a member of this organization';
     public string $organizationId = '';
 
-    public function getRequiredOptions()
+    public function getRequiredOptions(): array
     {
         return ['organizationId'];
     }

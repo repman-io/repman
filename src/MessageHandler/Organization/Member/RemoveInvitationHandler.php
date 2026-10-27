@@ -7,9 +7,10 @@ namespace Buddy\Repman\MessageHandler\Organization\Member;
 use Buddy\Repman\Message\Organization\Member\RemoveInvitation;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemoveInvitationHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemoveInvitationHandler
 {
     private OrganizationRepository $organizations;
 

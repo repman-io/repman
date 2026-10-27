@@ -10,6 +10,9 @@ use Buddy\Repman\Validator\NotOrganizationMemberValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
+/**
+ * @extends ConstraintValidatorTestCase<NotOrganizationMemberValidator>
+ */
 final class NoOrganizationMemberValidatorTest extends ConstraintValidatorTestCase
 {
     /**
@@ -19,7 +22,7 @@ final class NoOrganizationMemberValidatorTest extends ConstraintValidatorTestCas
 
     protected function createValidator(): NotOrganizationMemberValidator
     {
-        $this->organizationQuery = $this->getMockBuilder(OrganizationQuery::class)->getMock();
+        $this->organizationQuery = $this->createMock(OrganizationQuery::class);
 
         return new NotOrganizationMemberValidator($this->organizationQuery);
     }

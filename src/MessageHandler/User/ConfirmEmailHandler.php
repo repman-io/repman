@@ -6,9 +6,10 @@ namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Message\User\ConfirmEmail;
 use Buddy\Repman\Repository\UserRepository;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ConfirmEmailHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ConfirmEmailHandler
 {
     private UserRepository $users;
 

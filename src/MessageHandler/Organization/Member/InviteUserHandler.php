@@ -8,9 +8,10 @@ use Buddy\Repman\Message\Organization\Member\InviteUser;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Service\Mailer;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class InviteUserHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class InviteUserHandler
 {
     private OrganizationRepository $organizations;
     private Mailer $mailer;

@@ -31,7 +31,7 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint($client);
         $endpoint->send($this->entry());
 
-        self::assertEquals(1, $called);
+        self::assertSame(1, $called);
         self::assertJsonStringEqualsJsonString(
             $response,
             '
@@ -108,7 +108,7 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint($client);
         $endpoint->addTechnicalEmail($this->email());
 
-        self::assertEquals(1, $called);
+        self::assertSame(1, $called);
         self::assertJsonStringEqualsJsonString(
             $response,
             '
@@ -144,7 +144,7 @@ final class TelemetryEndpointTest extends TestCase
         $endpoint = new TelemetryEndpoint($client);
         $endpoint->removeTechnicalEmail($this->email());
 
-        self::assertEquals(1, $called);
+        self::assertSame(1, $called);
         self::assertJsonStringEqualsJsonString(
             $response,
             '

@@ -15,11 +15,11 @@ interface Downloader
      *
      * @return Option<resource>
      */
-    public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option;
+    public function getContents(string $url, array $headers = [], ?callable $notFoundHandler = null): Option;
 
     /**
-     * @param string[]                $headers
-     * @param callable(resource):void $onFulfilled
+     * @param string[]                        $headers
+     * @param callable(resource, string):void $onFulfilled called with the body and the response's Last-Modified header (empty when missing)
      */
     public function getAsyncContents(string $url, array $headers, callable $onFulfilled): void;
 

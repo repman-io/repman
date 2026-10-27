@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 
@@ -29,16 +29,16 @@ final class AnonymousOrganizationUserAuthenticator extends AbstractAuthenticator
     /**
      * @codeCoverageIgnore
      */
-    public function start(Request $request, AuthenticationException $authException = null): JsonResponse
+    public function start(Request $request, ?AuthenticationException $authException = null): JsonResponse
     {
         return new JsonResponse([
             'message' => 'Authentication Required',
         ], Response::HTTP_UNAUTHORIZED);
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
-        $organizationAlias = $request->get('organization');
+        $organizationAlias = $request->attributes->get('organization');
         if ($organizationAlias === null) {
             throw new BadCredentialsException();
         }
@@ -48,18 +48,22 @@ final class AnonymousOrganizationUserAuthenticator extends AbstractAuthenticator
         }));
     }
 
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
-        return $request->get('_route') !== 'repo_package_downloads'
+        return $request->attributes->get('_route') !== 'repo_package_downloads'
             && !$request->headers->has('PHP_AUTH_USER')
             && !$request->headers->has('PHP_AUTH_PW');
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
-        return (new JsonResponse([
+        // never cacheable: a shared cache would serve this refusal to correctly authenticated clients too
+        $response = (new JsonResponse([
             'message' => strtr($exception->getMessageKey(), $exception->getMessageData()),
-        ], Response::HTTP_FORBIDDEN))->setMaxAge(60)->setPublic();
+        ], Response::HTTP_FORBIDDEN))->setPrivate();
+        $response->headers->addCacheControlDirective('no-store');
+
+        return $response;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

@@ -6,9 +6,7 @@ namespace Buddy\Repman\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @Annotation
- */
+#[\Attribute]
 class AliasNotBlank extends Constraint
 {
     public string $message = 'Name cannot consist of special characters only.';

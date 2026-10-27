@@ -30,7 +30,7 @@ final class ScanAllPackagesCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($this->container()->get(ScanAllPackagesCommand::class));
         $result = $commandTester->execute([]);
 
-        self::assertEquals($result, 0);
+        self::assertSame($result, 0);
         self::assertTrue($this->container()->get(PackageScanner::class)->wasScanned($packageId));
     }
 }

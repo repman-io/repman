@@ -10,6 +10,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Exception\DriverException;
+use Doctrine\DBAL\Tools\DsnParser;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -84,6 +85,11 @@ class OAuthTokenStore
      */
     private const ASSUMED_LIFETIME_SECONDS = 600;
 
+    /**
+     * The URL schemes DATABASE_URL may use for PostgreSQL, the one database Repman runs on.
+     */
+    private const SCHEMES = ['postgresql' => 'pdo_pgsql', 'postgres' => 'pdo_pgsql', 'pgsql' => 'pdo_pgsql'];
+
     private string $databaseUrl;
     private int $lockTimeoutMs;
     private int $connectRetryDelayMs;
@@ -91,7 +97,7 @@ class OAuthTokenStore
     public function __construct(
         string $databaseUrl,
         int $lockTimeoutMs = self::DEFAULT_LOCK_TIMEOUT_MS,
-        int $connectRetryDelayMs = self::DEFAULT_CONNECT_RETRY_DELAY_MS
+        int $connectRetryDelayMs = self::DEFAULT_CONNECT_RETRY_DELAY_MS,
     ) {
         $this->databaseUrl = $databaseUrl;
         $this->lockTimeoutMs = $lockTimeoutMs;
@@ -156,7 +162,8 @@ class OAuthTokenStore
 
         while (true) {
             ++$attempt;
-            $connection = DriverManager::getConnection(['url' => $this->databaseUrl]);
+            // parsed here: DBAL deprecated the "url" connection parameter (gone in DBAL 4)
+            $connection = DriverManager::getConnection((new DsnParser(self::SCHEMES))->parse($this->databaseUrl));
 
             try {
                 // DBAL connects lazily, so this first statement is also what establishes

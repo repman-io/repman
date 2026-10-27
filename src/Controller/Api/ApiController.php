@@ -11,6 +11,7 @@ use Buddy\Repman\Security\Model\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 abstract class ApiController extends AbstractController
 {
+    /**
+     * @param class-string<FormTypeInterface<mixed>> $class
+     *
+     * @return FormInterface<mixed>
+     */
     protected function createApiForm(string $class): FormInterface
     {
         return $this->createForm(
@@ -46,6 +52,9 @@ abstract class ApiController extends AbstractController
         return $data;
     }
 
+    /**
+     * @param FormInterface<mixed> $form
+     */
     protected function getErrors(FormInterface $form): Errors
     {
         $errors = [];
@@ -68,7 +77,7 @@ abstract class ApiController extends AbstractController
         if ($pages === 0) {
             $pages = 1;
         }
-        $page = $page <= 0 ? $page = 1 : $page;
+        $page = $page <= 0 ? 1 : $page;
         $page = $page > $pages ? $pages : $page;
         $offset = ($perPage * $page) - $perPage;
 

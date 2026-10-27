@@ -6,9 +6,10 @@ namespace Buddy\Repman\MessageHandler\Admin;
 
 use Buddy\Repman\Message\Admin\AddTechnicalEmail;
 use Buddy\Repman\Service\Telemetry;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class AddTechnicalEmailHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class AddTechnicalEmailHandler
 {
     private Telemetry $telemetry;
 

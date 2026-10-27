@@ -7,37 +7,25 @@ namespace Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Entity\Organization;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="organization_token")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'organization_token')]
 class Token
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=64, unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 64, unique: true)]
     private string $value;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private string $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="tokens")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'tokens')]
+    #[ORM\JoinColumn(nullable: false)]
     private Organization $organization;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $lastUsedAt = null;
 
     public function __construct(string $value, string $name)

@@ -70,7 +70,7 @@ final class MemberControllerTest extends FunctionalTestCase
 
     public function testRedirectOnAcceptInvitationWhenNotLogged(): void
     {
-        $this->fixtures->createUser($email = 'some@buddy.works', $password = 'secret123');
+        $this->fixtures->createUser('some@buddy.works', 'secret123');
         $this->fixtures->inviteUser($this->organizationId, 'some@buddy.works', $token = '04550fd6-47d1-491f-84d6-227d4a1a38e8');
         $this->logoutCurrentUser();
 
@@ -124,7 +124,7 @@ final class MemberControllerTest extends FunctionalTestCase
 
     public function testChangeMemberRole(): void
     {
-        $userId = $this->fixtures->addAcceptedMember($this->organizationId, $email = 'some@buddy.works', Member::ROLE_MEMBER);
+        $userId = $this->fixtures->addAcceptedMember($this->organizationId, 'some@buddy.works', Member::ROLE_MEMBER);
         $this->client->request('GET', $this->urlTo('organization_change_member_role', ['organization' => 'repman', 'member' => $userId]));
 
         $this->client->submitForm('Change role', [

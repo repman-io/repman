@@ -8,16 +8,16 @@ use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Repository\PackageRepository;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsCommand(name: 'repman:package:synchronize', description: 'Synchronize given package')]
 final class SynchronizePackageCommand extends Command
 {
-    protected static $defaultName = 'repman:package:synchronize';
-
     private MessageBusInterface $bus;
     private PackageRepository $packages;
 
@@ -29,13 +29,9 @@ final class SynchronizePackageCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Synchronize given package')
             ->addArgument('packageId', InputArgument::REQUIRED, 'package UUID')
         ;
     }
@@ -47,11 +43,11 @@ final class SynchronizePackageCommand extends Command
         if (!$this->packages->find(Uuid::fromString($packageId)) instanceof Package) {
             $output->writeln('Package not found');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $this->bus->dispatch(new SynchronizePackage($packageId));
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

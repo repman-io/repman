@@ -16,8 +16,5 @@ framework:
 
         # Namespaced pools use the above "app" backend by default
         pools:
-            packagist_releases_feed.cache:
-                adapter: cache.app
-
             config.cache:
                 adapter: cache.app

@@ -10,14 +10,13 @@ use Buddy\Repman\Query\Api\Model\Errors;
 use Buddy\Repman\Query\Api\Model\Organization;
 use Buddy\Repman\Query\Api\Model\Organizations;
 use Buddy\Repman\Query\Api\OrganizationQuery;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class OrganizationController extends ApiController
@@ -27,7 +26,7 @@ final class OrganizationController extends ApiController
 
     public function __construct(
         OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->organizationQuery = $organizationQuery;
         $this->messageBus = $messageBus;
@@ -35,27 +34,11 @@ final class OrganizationController extends ApiController
 
     /**
      * List user's organizations.
-     *
-     * @Route("/api/organization",
-     *     name="api_organizations",
-     *     methods={"GET"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="page",
-     *     in="query"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Returns list of user's organizations",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Organizations::class)
-     *     )
-     * )
-     *
-     * @OA\Tag(name="Organization")
      */
+    #[OA\Parameter(name: 'page', in: 'query')]
+    #[Route(path: '/api/organization', name: 'api_organizations', methods: ['GET'])]
+    #[OA\Response(response: 200, description: "Returns list of user's organizations", content: new OA\JsonContent(ref: new Model(type: Organizations::class)))]
+    #[OA\Tag(name: 'Organization')]
     public function organizations(Request $request): JsonResponse
     {
         return $this->json(
@@ -63,7 +46,7 @@ final class OrganizationController extends ApiController
                 fn ($perPage, $offset) => $this->organizationQuery->getUserOrganizations($this->getUser()->id(), $perPage, $offset),
                 $this->organizationQuery->userOrganizationsCount($this->getUser()->id()),
                 20,
-                (int) $request->get('page', 1),
+                (int) $request->query->get('page', 1),
                 $this->generateUrl('api_organizations', [], UrlGeneratorInterface::ABSOLUTE_URL)
             ))
         );
@@ -71,33 +54,12 @@ final class OrganizationController extends ApiController
 
     /**
      * Create a new organization.
-     *
-     * @Route("/api/organization",
-     *     name="api_organization_create",
-     *     methods={"POST"})
-     *
-     * @OA\RequestBody(
-     *     @Model(type=CreateOrganizationType::class)
-     * )
-     *
-     * @OA\Response(
-     *     response=201,
-     *     description="Create a new organization",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Organization::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=400,
-     *     description="Bad request",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Errors::class)
-     *     )
-     * )
-     *
-     * @OA\Tag(name="Organization")
      */
+    #[Route(path: '/api/organization', name: 'api_organization_create', methods: ['POST'])]
+    #[OA\RequestBody(content: new Model(type: CreateOrganizationType::class))]
+    #[OA\Response(response: 201, description: 'Create a new organization', content: new OA\JsonContent(ref: new Model(type: Organization::class)))]
+    #[OA\Response(response: 400, description: 'Bad request', content: new OA\JsonContent(ref: new Model(type: Errors::class)))]
+    #[OA\Tag(name: 'Organization')]
     public function createOrganization(Request $request): JsonResponse
     {
         $form = $this->createApiForm(CreateOrganizationType::class);

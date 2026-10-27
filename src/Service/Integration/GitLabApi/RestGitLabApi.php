@@ -24,10 +24,8 @@ final class RestGitLabApi implements GitLabApi
     {
         $this->client->authenticate($accessToken, Client::AUTH_OAUTH_TOKEN);
 
-        return new Projects(array_merge(
-            $this->fetchAllProjects(['owned' => true]),
-            $this->fetchAllProjects(['membership' => true])
-        ));
+        // membership covers the user's own projects too, a separate "owned" listing only doubled the calls
+        return new Projects($this->fetchAllProjects(['membership' => true]));
     }
 
     public function addHook(string $accessToken, int $projectId, string $hookUrl): void

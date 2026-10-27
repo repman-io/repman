@@ -6,9 +6,10 @@ namespace Buddy\Repman\MessageHandler\User;
 
 use Buddy\Repman\Message\User\SendConfirmToken;
 use Buddy\Repman\Service\Mailer;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class SendConfirmTokenHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class SendConfirmTokenHandler
 {
     private Mailer $mailer;
 

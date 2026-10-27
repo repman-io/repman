@@ -1,60 +1,52 @@
 # Read the documentation at https://github.com/thephpleague/flysystem-bundle/blob/master/docs/1-getting-started.md
 flysystem:
     storages:
+        # Flysystem 3 creates directories 0700 by default; cron and the consumer may write as another
+        # user than php-fpm, which has to read what they stored
         storage.local.proxy:
-            adapter: 'local'
-            options:
+            local:
                 directory: '%dists_dir%'
-
-        storage.local.cached.proxy:
-            adapter: 'cache'
-            options:
-                store: 'cache.app'
-                source: 'storage.local.proxy'
+            directory_visibility: public
 
         storage.local.repo:
-            adapter: 'local'
-            options:
+            local:
                 directory: '%repo_dir%'
-
-        storage.local.cached.repo:
-            adapter: 'cache'
-            options:
-                store: 'cache.app'
-                source: 'storage.local.repo'
+            directory_visibility: public
 
         storage.s3.proxy:
-            adapter: 'aws'
-            options:
+            aws:
                 client: 'Aws\S3\S3Client'
                 bucket: '%env(STORAGE_AWS_BUCKET)%'
                 prefix: '%dists_dir%'
 
-        storage.s3.cached.proxy:
-            adapter: 'cache'
-            options:
-                store: 'cache.app'
-                source: 'storage.s3.proxy'
-
         storage.s3.repo:
-            adapter: 'aws'
-            options:
+            aws:
                 client: 'Aws\S3\S3Client'
                 bucket: '%env(STORAGE_AWS_BUCKET)%'
                 prefix: '%repo_dir%'
 
+        # Flysystem 2+ dropped the metadata cache adapter. These keep the old
+        # STORAGE_SOURCE=storage.local.cached / storage.s3.cached values working.
+        storage.local.cached.proxy:
+            lazy:
+                source: 'storage.local.proxy'
+
+        storage.local.cached.repo:
+            lazy:
+                source: 'storage.local.repo'
+
+        storage.s3.cached.proxy:
+            lazy:
+                source: 'storage.s3.proxy'
+
         storage.s3.cached.repo:
-            adapter: 'cache'
-            options:
-                store: 'cache.app'
+            lazy:
                 source: 'storage.s3.repo'
 
         repo.storage:
-            adapter: 'lazy'
-            options:
+            lazy:
                 source: '%env(STORAGE_SOURCE)%.repo'
 
         proxy.storage:
-            adapter: 'lazy'
-            options:
+            lazy:
                 source: '%env(STORAGE_SOURCE)%.proxy'

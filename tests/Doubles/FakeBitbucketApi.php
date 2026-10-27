@@ -6,6 +6,7 @@ namespace Buddy\Repman\Tests\Doubles;
 
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\BitbucketApi\Repositories;
+use Buddy\Repman\Service\Integration\BitbucketApi\Repository;
 
 final class FakeBitbucketApi implements BitbucketApi
 {
@@ -38,7 +39,7 @@ final class FakeBitbucketApi implements BitbucketApi
         $this->throwExceptionIfSet();
 
         return new Repositories([
-            new BitbucketApi\Repository('{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}', 'buddy-works/repman', 'https://bitbucket.org/buddy-works/repman.git'),
+            new Repository('{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}', 'buddy-works/repman', 'https://bitbucket.org/buddy-works/repman.git'),
         ]);
     }
 

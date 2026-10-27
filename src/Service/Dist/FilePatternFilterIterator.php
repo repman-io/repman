@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Service\Dist;
 
+/**
+ * @extends \FilterIterator<array-key, array<string, string>, \Iterator<array-key, array<string, string>>>
+ */
 final class FilePatternFilterIterator extends \FilterIterator
 {
     private ?string $excludedPattern = null;

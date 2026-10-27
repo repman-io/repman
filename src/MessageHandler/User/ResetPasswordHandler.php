@@ -7,10 +7,11 @@ namespace Buddy\Repman\MessageHandler\User;
 use Buddy\Repman\Message\User\ResetPassword;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
-final class ResetPasswordHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ResetPasswordHandler
 {
     private UserRepository $users;
     private PasswordHasherFactoryInterface $hasherFactory;

@@ -7,9 +7,10 @@ namespace Buddy\Repman\MessageHandler\User;
 use Buddy\Repman\Message\User\ChangeEmailPreferences;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ChangeEmailPreferencesHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ChangeEmailPreferencesHandler
 {
     private UserRepository $users;
 

@@ -15,14 +15,14 @@ final class BytesExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('format_bytes', [$this, 'formatBytes']),
+            new TwigFilter('format_bytes', $this->formatBytes(...)),
         ];
     }
 
     public function formatBytes(int $bytes, int $precision = 2): string
     {
         $size = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        $factor = floor((strlen((string) $bytes) - 1) / 3);
+        $factor = (int) floor((strlen((string) $bytes) - 1) / 3);
 
         return sprintf("%.{$precision}f", $bytes / (1024 ** $factor)).' '.$size[$factor];
     }

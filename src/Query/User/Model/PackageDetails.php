@@ -34,7 +34,7 @@ final class PackageDetails
         int $keepLastReleases = 0,
         ?string $readme = null,
         ?string $replacementPackage = null,
-        bool $enableSecurityScan = true
+        bool $enableSecurityScan = true,
     ) {
         $this->id = $id;
         $this->organizationId = $organizationId;
@@ -44,7 +44,7 @@ final class PackageDetails
         $this->latestReleaseDate = $latestReleaseDate;
         $this->description = $description;
         $this->lastSyncError = $lastSyncError;
-        $this->scanResult = $scanResult ?? null;
+        $this->scanResult = $scanResult;
         $this->keepLastReleases = $keepLastReleases;
         $this->readme = $readme;
         $this->replacementPackage = $replacementPackage;

@@ -1,9 +1,9 @@
-- name: Add sync proxy releases command to cron
+# repman:proxy:sync-releases is deprecated (packagist.org no longer serves its feed to Repman)
+- name: Remove sync proxy releases command from cron
   cron:
     name="Sync proxy releases with packagist.org"
     user="{{ system_user }}"
-    minute="*/5"
-    job="{{ app_current_dir }}/bin/console repman:proxy:sync-releases >>{{ app_current_dir }}/var/log/cron.log 2>&1"
+    state=absent
 
 - name: Add sync proxy metadata command to cron
   cron:

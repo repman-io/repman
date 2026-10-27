@@ -1,0 +1,83 @@
+# Serves Repman and gets its certificates. docker/caddy/start.sh picks the TLS mode:
+#   acme      ACME_EMAIL is set: Let's Encrypt, one certificate per host name, issued the first time
+#             the name is asked for and renewed in the background
+#   custom    docker/nginx/ssl/certs/server.crt and docker/nginx/ssl/private/server.key exist
+#   internal  neither: certificates of Caddy's own CA, renewed in the background (local installs)
+# and whether plain http is redirected (default) or served (APP_URL_SCHEME=http).
+
+{
+	# Repman tells which names are its own: the app, the proxy and every organization (see
+	# ServedHosts); anything else gets no certificate, so nobody can use up the Let's Encrypt limits
+	on_demand_tls {
+		ask http://127.0.0.1:9180/_tls/allowed
+	}
+}
+
+(app) {
+	root * /app/public
+	encode zstd gzip
+	request_body {
+		max_size 200MB
+	}
+	php_fastcgi {$PHP_URL:app:9000} {
+		read_timeout 300s
+	}
+	file_server
+}
+
+# the certificate check is for Caddy only, see the internal site below
+(public) {
+	@tls path /_tls/*
+	handle @tls {
+		respond 404
+	}
+	handle {
+		import app
+	}
+}
+
+(tls-acme) {
+	tls {$ACME_EMAIL} {
+		on_demand
+		ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+	}
+}
+
+(tls-custom) {
+	tls /ssl/certs/server.crt /ssl/private/server.key
+}
+
+(tls-internal) {
+	tls internal {
+		on_demand
+	}
+}
+
+(http-redirect) {
+	redir https://{host}{uri} 308
+}
+
+(http-serve) {
+	import public
+}
+
+https:// {
+	import tls-{$REPMAN_TLS}
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Frame-Options DENY
+		X-Content-Type-Options nosniff
+		-Server
+	}
+	import public
+}
+
+http:// {
+	import http-{$REPMAN_HTTP}
+}
+
+# not published: only Caddy itself asks here before it gets a certificate
+http://:9180 {
+	bind 127.0.0.1
+	import app
+}

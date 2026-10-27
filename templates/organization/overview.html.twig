@@ -10,13 +10,15 @@
     {% endif %}
 {% endblock %}
 
+{# printed inside <pre>, so no whitespace may leak out of this block #}
 {% block token %}
-    {% if tokenCount <= 1 %}
+    {%- if tokenCount <= 1 -%}
         <span class="token d-none" data-type="token">{{ token }}</span>
+        {{- '' -}}
         <button class="btn btn-primary btn-sm show-token">Show token</button>
-    {% else %}
+    {%- else -%}
         <a href="{{ path('organization_tokens', {organization: organization.alias}) }}" class="btn btn-primary btn-sm">Get token</a>
-    {% endif %}
+    {%- endif -%}
 {% endblock %}
 
 {% block repositories %}
@@ -40,13 +42,13 @@
             {% if tokenCount > 0 %}
                 <p>Configure global authentication to access this organization's packages:</p>
                 <div class="highlight">
-                    <pre>composer config --global --auth http-basic.{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }} token {{ block('token') | spaceless }}</pre>
+                    <pre>composer config --global --auth http-basic.{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }} token {{ block('token') }}</pre>
                 </div>
                 {{ block('repositories') }}
                 <p>
                     You can also use the <code>COMPOSER_AUTH</code> environment variable to authenticate Composer:
                 </p>
-                <pre>COMPOSER_AUTH={"http-basic": {"{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }}": {"username": "token", "password": "{{ block('token') | spaceless }}"}}}</pre>
+                <pre>COMPOSER_AUTH={"http-basic": {"{{ url('organization_repo_url', {organization: organization.alias}, true) | trim('/') }}": {"username": "token", "password": "{{ block('token') }}"}}}</pre>
             {% else %}
                 Missing authentication tokens,
                 <a class="btn btn-primary" href="{{ path('organization_token_new', {organization: organization.alias}) }}">

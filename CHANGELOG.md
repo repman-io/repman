@@ -10,6 +10,67 @@ On next release:
 - [ ] update src/Kernel.php (REPMAN_VERSION)
 - [ ] update docker-compose.yml (image tags)
 
+## [Unreleased]
+### Security
+- Update all dependencies; `composer audit` reported 88 advisories against the previous lock file
+- Escape raw HTML in package READMEs (rendered unescaped on the package page)
+- Do not let shared caches store repository authentication failures ([#613](https://github.com/repman-io/repman/issues/613))
+- Docker: PHP 8.4, nginx 1.30, TLS 1.3, containers run as `www-data`, SSH accepts new host keys but refuses changed ones
+- Docker: the build refuses PHP older than 8.4.27 (PHP2Shell, CVE-2026-109618 and CVE-2026-109619, remote code
+  execution exploited in the wild) and turns session upload progress off (CVE-2026-115560, no fix yet)
+
+### Changed
+- Require PHP 8.4; Symfony 6.4 LTS, Doctrine ORM 3, Composer 2, Flysystem 3, CommonMark 2, PHPUnit 11, PHPStan 2
+- Proxy Packagist through repo.packagist.org with conditional metadata refreshes ([#702](https://github.com/repman-io/repman/issues/702), [#709](https://github.com/repman-io/repman/issues/709))
+- `repman:proxy:sync-releases` is deprecated and does nothing ([#701](https://github.com/repman-io/repman/issues/701))
+- Honour `MESSENGER_TRANSPORT_DSN` ([#533](https://github.com/repman-io/repman/issues/533))
+- Docker: the database image upgrades data of an older PostgreSQL (the 1.x releases shipped 11) to 17 in place;
+  app waits for the database, consumer and cron for the migrations; own settings live in `.env.docker.local`
+- `COMPOSER_AUTH` (e.g. a GitHub token against the API rate limit) is used when packages are synchronized
+- Update front-end libraries (jQuery 3.7, Bootstrap 4.6, ApexCharts 3.54) with SRI
+- Docker: Caddy replaces nginx. With `ACME_EMAIL` set it gets Let's Encrypt certificates for the app, the proxy and
+  every organization's host by itself (issued on first use, only for hosts Repman serves, renewed in the
+  background); otherwise it uses `docker/nginx/ssl/` or its own local CA. HTTP/3, no more openssl scripts
+- Security scans use Packagist's security advisories API (GitHub Advisory Database plus FriendsOfPHP) instead of a
+  git clone of FriendsOfPHP alone, which missed most advisories (e.g. 2 of 18 for league/commonmark)
+- Downloads go through Symfony HttpClient (retries, redirects, concurrency) instead of ReactPHP and own retry code;
+  clue/mq-react and react/* are no longer dependencies
+- Bitbucket workspaces are listed through bitbucket/client instead of an own endpoint class; GitLab projects are
+  fetched once instead of twice (owned projects are part of the membership listing)
+
+### Fixed
+- `repman:proxy:sync-metadata` never refreshed anything ([#328](https://github.com/repman-io/repman/issues/328))
+- Artifact packages could not be downloaded ([#453](https://github.com/repman-io/repman/issues/453))
+- Non UTF-8 READMEs failed the package sync ([#699](https://github.com/repman-io/repman/issues/699))
+- Long `suggest` descriptions failed the package sync ([#563](https://github.com/repman-io/repman/pull/563))
+- Disabled security scans still ran and sent e-mails ([#682](https://github.com/repman-io/repman/issues/682))
+- Security scan of packages without a stable release always failed ([#443](https://github.com/repman-io/repman/issues/443))
+- Pagination rendered an empty last page ([#318](https://github.com/repman-io/repman/issues/318))
+- Empty package search hid unsynchronized packages ([#640](https://github.com/repman-io/repman/issues/640))
+- GitHub organizations beyond the first 30 were ignored when adding packages
+- Changed dependency constraints were not shown after a resync
+- Old version dists were never cleaned up (`removeVersionDists` never matched any file)
+- Download retries: no retry on client errors, backoff on 429/5xx, status read after redirects ([#577](https://github.com/repman-io/repman/issues/577))
+- `TRUSTED_PROXIES` setups, download statistics and invitation links after the Symfony upgrade
+- Plain Git, Mercurial and Subversion packages never showed versions, dependencies or dependants (they have no dist)
+- Per-version statistics broke for versions with a slash (`dev-feature/x`) or organizations with "version" in the alias
+- The timezone select showed (and saved) the first zone of the list for users still on the default UTC
+- The Buddy button on the registration page appeared only when Bitbucket was enabled
+- HTML in package descriptions was shown escaped, descriptions are plain text now
+- Docker on Linux: `assets:install` could not write the bind mounted `public/` as `www-data`
+- Docker: the database logged nothing, so a failing database restarted without a trace
+- Per-version statistics listed normalized versions (3.0.2.0) instead of the package's own names
+- Searching packages dropped the chosen sort order
+- Security scans skipped packages installed from source (plain git over SSH, Mercurial, Subversion): they have no
+  archive to read composer.lock from; the sync now keeps the committed lock of the scanned versions
+- Artifact packages were never scanned (composer.lock at the archive root was not found)
+- Path packages failed to synchronize: their dist, a directory on the server, was downloaded like an archive
+
+### Removed
+- PEAR package type (removed from Composer 2)
+- Universal Analytics (`GA_TRACKING`)
+- Abandoned dependencies: sensio/framework-extra-bundle, excelwebzone/recaptcha-bundle, buddy-works/buddy-works-php-api, buddy-works/oauth2-client, doctrine/annotations, doctrine/cache
+
 ## [1.3.4] - 2021-06-25
 ### Security
 - Upgrade flysystem to 1.1.4 - fix [CVE-2021-32708](https://github.com/thephpleague/flysystem/security/advisories/GHSA-9f46-5r25-5wfm)

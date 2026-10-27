@@ -9,9 +9,10 @@ use Buddy\Repman\Message\Organization\GenerateToken;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class GenerateTokenHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class GenerateTokenHandler
 {
     private OrganizationRepository $organizations;
     private TokenGenerator $tokenGenerator;

@@ -7,8 +7,10 @@ namespace Buddy\Repman\MessageHandler\Organization\Package;
 use Buddy\Repman\Entity\Organization\Package\Metadata;
 use Buddy\Repman\Message\Organization\Package\RemoveGitHubHook;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+#[AsMessageHandler]
 final class RemoveGitHubHookHandler extends AbstractHookHandler
 {
     public function __invoke(RemoveGitHubHook $message): void

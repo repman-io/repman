@@ -26,11 +26,11 @@ final class RestGitHubApiTest extends TestCase
     protected function setUp(): void
     {
         $this->clientMock = $this->getMockBuilder(Client::class)
-            ->addMethods(['currentUser', 'organization'])
-            ->onlyMethods(['authenticate', 'getLastResponse'])
+            // currentUser() and organization() are magic methods that end up in api()
+            ->onlyMethods(['authenticate', 'getLastResponse', 'api'])
             ->getMock()
         ;
-        $this->clientMock->expects(self::once())->method('authenticate');
+        $this->clientMock->expects($this->once())->method('authenticate');
         // mock pagination
         $this->clientMock->method('getLastResponse')->willReturn(new Response());
 
@@ -39,8 +39,8 @@ final class RestGitHubApiTest extends TestCase
 
     public function testReturnPrimaryEmail(): void
     {
-        $currentUser = $this->getMockBuilder(CurrentUser::class)->disableOriginalConstructor()->getMock();
-        $emails = $this->getMockBuilder(Emails::class)->disableOriginalConstructor()->getMock();
+        $currentUser = $this->createMock(CurrentUser::class);
+        $emails = $this->createMock(Emails::class);
 
         $currentUser->method('emails')->willReturn($emails);
         $emails->method('all')->willReturn([
@@ -56,19 +56,19 @@ final class RestGitHubApiTest extends TestCase
                 'visibility' => 'public',
             ],
         ]);
-        $this->clientMock->method('currentUser')->willReturn($currentUser);
+        $this->clientMock->method('api')->with('currentUser')->willReturn($currentUser);
 
-        self::assertEquals('test@buddy.works', $this->api->primaryEmail('token'));
+        self::assertSame('test@buddy.works', $this->api->primaryEmail('token'));
     }
 
     public function testThrowExceptionWhenPrimaryEmailNotFound(): void
     {
-        $currentUser = $this->getMockBuilder(CurrentUser::class)->disableOriginalConstructor()->getMock();
-        $emails = $this->getMockBuilder(Emails::class)->disableOriginalConstructor()->getMock();
+        $currentUser = $this->createMock(CurrentUser::class);
+        $emails = $this->createMock(Emails::class);
 
         $currentUser->method('emails')->willReturn($emails);
         $emails->method('all')->willReturn([]);
-        $this->clientMock->method('currentUser')->willReturn($currentUser);
+        $this->clientMock->method('api')->with('currentUser')->willReturn($currentUser);
 
         $this->expectException(\RuntimeException::class);
         $this->api->primaryEmail('token');
@@ -76,9 +76,9 @@ final class RestGitHubApiTest extends TestCase
 
     public function testReturnRepository(): void
     {
-        $currentUser = $this->getMockBuilder(CurrentUser::class)->disableOriginalConstructor()->getMock();
-        $memberships = $this->getMockBuilder(Memberships::class)->disableOriginalConstructor()->getMock();
-        $organization = $this->getMockBuilder(Organization::class)->disableOriginalConstructor()->getMock();
+        $currentUser = $this->createMock(CurrentUser::class);
+        $memberships = $this->createMock(Memberships::class);
+        $organization = $this->createMock(Organization::class);
 
         $organization->method('repositories')->willReturn([
             ['full_name' => 'buddy/repman'],
@@ -88,18 +88,26 @@ final class RestGitHubApiTest extends TestCase
         $currentUser->method('memberships')->willReturn($memberships);
         $memberships->method('all')->willReturn([
             [
+                'state' => 'active',
                 'organization' => [
                     'login' => 'buddy',
                 ],
             ],
+            [
+                'state' => 'pending',
+                'organization' => [
+                    'login' => 'invited-only',
+                ],
+            ],
         ]);
+        $organization->expects(self::once())->method('repositories')->with('buddy');
 
         $currentUser->method('repositories')->willReturn([
             ['full_name' => 'private/repman'],
+            ['full_name' => 'buddy/repman'],
         ]);
 
-        $this->clientMock->method('currentUser')->willReturn($currentUser);
-        $this->clientMock->method('organization')->willReturn($organization);
+        $this->clientMock->method('api')->willReturnMap([['currentUser', $currentUser], ['organization', $organization]]);
 
         self::assertEquals([
             'private/repman',

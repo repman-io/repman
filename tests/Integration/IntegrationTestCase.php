@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\TestContainer;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\StampInterface;
@@ -21,7 +21,7 @@ abstract class IntegrationTestCase extends KernelTestCase
         $this->fixtures = new FixturesManager(self::$kernel->getContainer()->get('test.service_container'));
     }
 
-    protected function container(): TestContainer
+    protected function container(): ContainerInterface
     {
         return self::$kernel->getContainer()->get('test.service_container');
     }

@@ -10,7 +10,9 @@ use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Service\Config;
 use Buddy\Repman\Service\Telemetry;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,10 +20,9 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsCommand(name: 'repman:create:admin', description: 'Create admin user')]
 final class CreateAdminCommand extends Command
 {
-    protected static $defaultName = 'repman:create:admin';
-
     private MessageBusInterface $bus;
     private Telemetry $telemetry;
     private Config $config;
@@ -35,13 +36,9 @@ final class CreateAdminCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Create admin user')
             ->addArgument('email', InputArgument::REQUIRED, 'e-mail used to log in')
             ->addArgument('password', InputArgument::OPTIONAL, 'plain password, if you don\'t provide it, you\'ll be asked for it')
         ;
@@ -52,7 +49,7 @@ final class CreateAdminCommand extends Command
         /** @var string $email */
         $email = $input->getArgument('email');
         /** @var string $plainPassword */
-        $plainPassword = $input->getArgument('password') ?? $this->getHelper('question')
+        $plainPassword = $input->getArgument('password') ?? $this->questionHelper()
             ->ask($input, $output, (new Question('User password:'))->setHidden(true));
         $id = Uuid::uuid4()->toString();
 
@@ -74,7 +71,7 @@ final class CreateAdminCommand extends Command
 
         $output->writeln(sprintf('Created admin user with id: %s', $id));
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function askForTelemetry(InputInterface $input, OutputInterface $output): void
@@ -84,7 +81,7 @@ final class CreateAdminCommand extends Command
             true
         );
 
-        if ($this->getHelper('question')->ask($input, $output, $question) === true) {
+        if ($this->questionHelper()->ask($input, $output, $question) === true) {
             $this->bus->dispatch(new ChangeConfig([
                 Config::TELEMETRY => Config::TELEMETRY_ENABLED,
             ]));
@@ -99,9 +96,19 @@ final class CreateAdminCommand extends Command
             'Allow for sending emails with software updates? (y/n)', true
         );
 
-        if ($this->getHelper('question')->ask($input, $output, $question) === true) {
+        if ($this->questionHelper()->ask($input, $output, $question) === true) {
             $this->bus->dispatch(new ChangeConfig([Config::TECHNICAL_EMAIL => $email]));
             $this->bus->dispatch(new AddTechnicalEmail($email));
         }
+    }
+
+    private function questionHelper(): QuestionHelper
+    {
+        $helper = $this->getHelper('question');
+        if (!$helper instanceof QuestionHelper) {
+            throw new \LogicException('The question helper is not available');
+        }
+
+        return $helper;
     }
 }

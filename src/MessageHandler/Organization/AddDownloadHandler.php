@@ -8,9 +8,10 @@ use Buddy\Repman\Entity\Organization\Package\Download;
 use Buddy\Repman\Message\Organization\AddDownload;
 use Buddy\Repman\Repository\PackageRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class AddDownloadHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class AddDownloadHandler
 {
     private PackageRepository $packages;
 

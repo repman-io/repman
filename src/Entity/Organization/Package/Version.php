@@ -8,58 +8,39 @@ use Buddy\Repman\Entity\Organization\Package;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity
- * @ORM\Table(
- *     name="organization_package_version",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="package_version", columns={"package_id", "version"})},
- *     indexes={
- *      @ORM\Index(name="version_package_id_idx", columns={"package_id"}),
- *      @ORM\Index(name="version_date_idx", columns={"date"})
- *     }
- * )
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'organization_package_version')]
+#[ORM\Index(name: 'version_package_id_idx', columns: ['package_id'])]
+#[ORM\Index(name: 'version_date_idx', columns: ['date'])]
+#[ORM\UniqueConstraint(name: 'package_version', columns: ['package_id', 'version'])]
 class Version
 {
     public const STABILITY_STABLE = 'stable';
 
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid')]
     private UuidInterface $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization\Package", inversedBy="versions")
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
-     */
+    #[ORM\ManyToOne(targetEntity: Package::class, inversedBy: 'versions')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Package $package;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private string $version;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private string $reference;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $size;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $date;
 
     /**
-     * @ORM\Column(type="string")
-     *
-     * (dev, alpha, beta, RC, stable)
+     * (dev, alpha, beta, RC, stable).
      */
+    #[ORM\Column(type: 'string')]
     private string $stability;
 
     public function __construct(
@@ -68,7 +49,7 @@ class Version
         string $reference,
         int $size,
         \DateTimeImmutable $date,
-        string $stability
+        string $stability,
     ) {
         $this->id = $id;
         $this->version = $version;

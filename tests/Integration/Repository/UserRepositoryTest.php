@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Integration\Repository;
 
 use Buddy\Repman\Repository\UserRepository;
-use Buddy\Repman\Security\Model\Organization;
 use Buddy\Repman\Tests\Integration\IntegrationTestCase;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final class UserRepositoryTest extends IntegrationTestCase
 {
@@ -24,7 +25,26 @@ final class UserRepositoryTest extends IntegrationTestCase
     {
         $this->expectException(UnsupportedUserException::class);
 
-        $this->users->upgradePassword(new Organization('id', 'name', 'alias', 'token'), 'password');
+        $this->users->upgradePassword(new class implements PasswordAuthenticatedUserInterface, UserInterface {
+            public function getPassword(): string
+            {
+                return 'hash';
+            }
+
+            public function getRoles(): array
+            {
+                return [];
+            }
+
+            public function eraseCredentials(): void
+            {
+            }
+
+            public function getUserIdentifier(): string
+            {
+                return 'someone@else.io';
+            }
+        }, 'password');
     }
 
     public function testThrowExceptionWhenNotFoundByEmail(): void

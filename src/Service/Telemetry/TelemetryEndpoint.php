@@ -23,27 +23,27 @@ final class TelemetryEndpoint implements Endpoint
     public function send(Entry $entry): void
     {
         $this->checkResponse($this->client->request('POST', $this->telemetryUrl(), [
-                'headers' => self::HEADERS,
-                'body' => json_encode($entry),
-            ]
+            'headers' => self::HEADERS,
+            'body' => json_encode($entry),
+        ]
         ));
     }
 
     public function addTechnicalEmail(TechnicalEmail $email): void
     {
         $this->checkResponse($this->client->request('POST', $this->emailUrl(), [
-                'headers' => self::HEADERS,
-                'body' => json_encode($email),
-            ]
+            'headers' => self::HEADERS,
+            'body' => json_encode($email),
+        ]
         ));
     }
 
     public function removeTechnicalEmail(TechnicalEmail $email): void
     {
         $this->checkResponse($this->client->request('DELETE', $this->emailUrl(), [
-                'headers' => self::HEADERS,
-                'body' => json_encode($email),
-            ]
+            'headers' => self::HEADERS,
+            'body' => json_encode($email),
+        ]
         ));
     }
 

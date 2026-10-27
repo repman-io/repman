@@ -8,6 +8,7 @@ use Buddy\Repman\Query\Admin\Model\Organization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Installs;
+use Buddy\Repman\Query\User\Model\Installs\Day;
 use Doctrine\DBAL\Connection;
 
 final class DbalOrganizationQuery implements OrganizationQuery
@@ -52,7 +53,7 @@ final class DbalOrganizationQuery implements OrganizationQuery
     {
         return new Installs(
             array_map(
-                static fn (array $row): Installs\Day => new Installs\Day($row['date'], $row['count']),
+                static fn (array $row): Day => new Day($row['date'], $row['count']),
                 $this->connection->fetchAllAssociative('SELECT * FROM (SELECT COUNT(package_id), date FROM organization_package_download WHERE date > :date GROUP BY date) AS installs ORDER BY date ASC', [
                     'date' => (new \DateTimeImmutable())->modify(sprintf('-%s days', $lastDays))->format('Y-m-d'),
                 ]),

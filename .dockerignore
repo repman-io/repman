@@ -3,9 +3,16 @@
 /buddy.yml
 /ansible
 /docker
-!/docker/nginx/cert
 /tests
 /var/*
+/vendor
+/node_modules
+/.env.local
+/.env.local.php
+/.env.*.local
+/.phpunit.cache
+/rector.php
+/composer-dependency-analyser.php
 
 ###> php-cs-fixer/shim ###
 /.php-cs-fixer.cache
@@ -28,3 +35,10 @@
 ###> OS ###
 .DS_Store
 ###< OS ###
+
+###> local docker files (deploy key, backups, overrides) ###
+/ssh
+/repman-backup.dump
+/repman-var-backup.tgz
+/docker-compose.override.yml
+###< local docker files ###

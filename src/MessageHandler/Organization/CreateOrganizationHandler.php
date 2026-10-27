@@ -10,9 +10,10 @@ use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\Organization\AliasGenerator;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class CreateOrganizationHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class CreateOrganizationHandler
 {
     private UserRepository $users;
     private OrganizationRepository $organizations;

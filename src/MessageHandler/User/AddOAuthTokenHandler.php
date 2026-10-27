@@ -8,9 +8,10 @@ use Buddy\Repman\Entity\User\OAuthToken;
 use Buddy\Repman\Message\User\AddOAuthToken;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class AddOAuthTokenHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class AddOAuthTokenHandler
 {
     private UserRepository $users;
 

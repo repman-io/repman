@@ -8,9 +8,10 @@ use Buddy\Repman\Message\Organization\Member\ChangeRole;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ChangeRoleHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ChangeRoleHandler
 {
     private OrganizationRepository $organizations;
     private UserRepository $users;

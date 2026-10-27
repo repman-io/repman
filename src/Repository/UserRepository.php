@@ -10,14 +10,15 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
- * @method User|null findOneBy(array $criteria, array $orderBy = null)
+ * @method User|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method User[]    findAll()
- * @method User[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method User[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
+ *
  * @extends ServiceEntityRepository<User>
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
@@ -29,7 +30,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function emailExist(string $email): bool
     {
-        return false !== $this->_em->getConnection()->fetchOne('SELECT id FROM "user" WHERE email = :email', [
+        return false !== $this->getEntityManager()->getConnection()->fetchOne('SELECT id FROM "user" WHERE email = :email', [
             'email' => \mb_strtolower($email),
         ]);
     }
@@ -76,34 +77,34 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function add(User $user): void
     {
-        $this->_em->persist($user);
+        $this->getEntityManager()->persist($user);
     }
 
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
         if (!$user instanceof SecurityUser) {
             throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', \get_class($user)));
         }
 
         $user = $this->getByEmail($user->getUserIdentifier());
-        $user->setPassword($newEncodedPassword);
-        $this->_em->persist($user);
-        $this->_em->flush();
+        $user->setPassword($newHashedPassword);
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
     }
 
     public function remove(UuidInterface $id): void
     {
-        $this->_em->remove($this->getById($id));
+        $this->getEntityManager()->remove($this->getById($id));
     }
 
     public function setEmailScanResult(UuidInterface $id, bool $value): void
     {
         $user = $this->getById($id);
         $user->setEmailScanResult($value);
-        $this->_em->persist($user);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($user);
+        $this->getEntityManager()->flush();
     }
 }

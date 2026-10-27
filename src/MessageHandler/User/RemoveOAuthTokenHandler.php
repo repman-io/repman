@@ -7,9 +7,10 @@ namespace Buddy\Repman\MessageHandler\User;
 use Buddy\Repman\Message\User\RemoveOAuthToken;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemoveOAuthTokenHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemoveOAuthTokenHandler
 {
     private UserRepository $users;
 

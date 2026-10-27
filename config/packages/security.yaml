@@ -1,5 +1,4 @@
 security:
-    enable_authenticator_manager: true
     password_hashers:
         Buddy\Repman\Security\Model\User:
             algorithm: auto
@@ -12,10 +11,16 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        # the web server's question whether to get a certificate for a host, see TlsController
+        tls:
+            pattern: ^/_tls/
+            security: false
         repo:
             host: '([a-z0-9_-]+)\%organization_separator%repo\%domain_separator%(.+)'
             logout: false
             stateless: true
+            # the authenticators load the organization themselves; a provider is required regardless
+            provider: user_provider
             custom_authenticators:
                 - Buddy\Repman\Security\TokenAuthenticator
                 - Buddy\Repman\Security\AnonymousOrganizationUserAuthenticator
@@ -23,6 +28,7 @@ security:
         api:
             pattern: ^/api(?!/doc)
             stateless: true
+            provider: api_user_provider
             custom_authenticators:
                 - Buddy\Repman\Security\ApiTokenAuthenticator
         main:
@@ -46,14 +52,14 @@ security:
 
     access_control:
          - { path: ^/admin, roles: ROLE_ADMIN }
-         - { path: ^/user/invitation, roles: [ROLE_USER, IS_AUTHENTICATED_ANONYMOUSLY] }
+         - { path: ^/user/invitation, roles: PUBLIC_ACCESS }
          - { path: ^/user, roles: ROLE_USER }
          - { path: ^/$, roles: ROLE_USER }
          - { path: ^/organization/.+/overview$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+/package$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+/package/.+/details$, roles: ROLE_ORGANIZATION_ANONYMOUS_USER }
          - { path: ^/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
-         - { path: ^/downloads, host: '([a-z0-9_-]+)\%organization_separator%repo\%domain_separator%(.+)', roles: IS_AUTHENTICATED_ANONYMOUSLY}
+         - { path: ^/downloads, host: '([a-z0-9_-]+)\%organization_separator%repo\%domain_separator%(.+)', roles: PUBLIC_ACCESS }
          - { path: ^/, host: '([a-z0-9_-]+)\%organization_separator%repo\%domain_separator%(.+)', roles: ROLE_ORGANIZATION }
          - { path: ^/api/organization/.+(/.+)*, roles: ROLE_ORGANIZATION_MEMBER }
          - { path: ^/api(?!/doc), roles: ROLE_USER }

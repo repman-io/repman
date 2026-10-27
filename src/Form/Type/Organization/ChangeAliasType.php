@@ -13,6 +13,9 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 class ChangeAliasType extends AbstractType
 {
     public function getBlockPrefix(): string

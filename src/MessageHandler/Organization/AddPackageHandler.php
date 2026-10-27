@@ -8,9 +8,10 @@ use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Organization\AddPackage;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class AddPackageHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class AddPackageHandler
 {
     private OrganizationRepository $organizations;
 

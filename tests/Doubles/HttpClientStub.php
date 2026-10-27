@@ -15,7 +15,7 @@ use Psr\Http\Message\UriInterface;
 final class HttpClientStub implements ClientInterface
 {
     /**
-     * @var ResponseInterface[];
+     * @var ResponseInterface[]
      */
     private array $nextResponses = [];
 

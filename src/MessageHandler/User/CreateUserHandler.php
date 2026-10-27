@@ -9,10 +9,11 @@ use Buddy\Repman\Message\User\CreateUser;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Security\Model\User as SecurityUser;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 
-final class CreateUserHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class CreateUserHandler
 {
     private UserRepository $users;
     private PasswordHasherFactoryInterface $hasherFactory;

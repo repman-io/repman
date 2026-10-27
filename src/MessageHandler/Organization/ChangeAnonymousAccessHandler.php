@@ -7,9 +7,10 @@ namespace Buddy\Repman\MessageHandler\Organization;
 use Buddy\Repman\Message\Organization\ChangeAnonymousAccess;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ChangeAnonymousAccessHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ChangeAnonymousAccessHandler
 {
     private OrganizationRepository $repositories;
 

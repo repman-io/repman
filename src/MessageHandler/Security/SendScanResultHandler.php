@@ -6,9 +6,10 @@ namespace Buddy\Repman\MessageHandler\Security;
 
 use Buddy\Repman\Message\Security\SendScanResult;
 use Buddy\Repman\Service\Mailer;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class SendScanResultHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class SendScanResultHandler
 {
     private Mailer $mailer;
 

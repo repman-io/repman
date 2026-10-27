@@ -10,7 +10,7 @@
 - name: Ensure php-fpm is running
   become: yes
   service:
-    name: php7.4-fpm
+    name: php{{ php_version }}-fpm
     state: started
     enabled: yes
 

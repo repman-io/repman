@@ -9,9 +9,10 @@ use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\Security\PackageScanner;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ScanPackageHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ScanPackageHandler
 {
     private PackageScanner $scanner;
     private PackageRepository $packages;

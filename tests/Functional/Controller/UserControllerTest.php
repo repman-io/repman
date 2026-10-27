@@ -60,6 +60,8 @@ final class UserControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('user_profile'));
 
         self::assertStringContainsString('UTC', $this->lastResponseBody());
+        // the default timezone of a new user is preselected, not the first zone of the list
+        self::assertStringContainsString('<option value="UTC" selected="selected">', $this->lastResponseBody());
 
         $this->client->submitForm('changeTimezone', [
             'timezone' => 'Europe/Warsaw',

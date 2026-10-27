@@ -6,9 +6,10 @@ namespace Buddy\Repman\Tests\Unit\Service\Integration\Aws;
 
 use Aws\Credentials\Credentials;
 use Buddy\Repman\Service\Integration\Aws\S3AdapterFactory;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class S3AdapterFactoryTest extends TestCase
+final class S3AdapterFactoryTest extends TestCase
 {
     public function testCreateWithDefaultCredentialChain(): void
     {
@@ -132,7 +133,7 @@ class S3AdapterFactoryTest extends TestCase
         $instance = $factory->create();
         $endpoint = $instance->getEndpoint();
 
-        self::assertSame($endpoint->getHost(), 's3.eu-east-1.amazonaws.com');
+        self::assertSame('s3.eu-east-1.amazonaws.com', $endpoint->getHost());
     }
 
     public function testCreateWithEndpoint(): void
@@ -181,46 +182,42 @@ class S3AdapterFactoryTest extends TestCase
     }
 
     /**
-     * @return array<string, array<string, ?string>>
+     * @return \Iterator<string, array<string, (string | null)>>
      */
-    public function providesInvalidValueCombinationOfKeyAndSecret(): array
+    public static function providesInvalidValueCombinationOfKeyAndSecret(): \Iterator
     {
-        return [
-            'when key is empty' => [
-                '$key' => '',
-                '$secret' => 'my_secret',
-                '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
-            ],
-            'when key is null' => [
-                '$key' => null,
-                '$secret' => 'my_secret',
-                '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
-            ],
-            'when secret is empty' => [
-                '$key' => 'mykey',
-                '$secret' => '',
-                '$expectedMessage' => 'Must pass AWS secret when authentication is opaque',
-            ],
-            'when secret is null' => [
-                '$key' => 'mykey',
-                '$secret' => null,
-                '$expectedMessage' => 'Must pass AWS secret when authentication is opaque',
-            ],
-            'when both are invalid' => [
-                '$key' => '',
-                '$secret' => '',
-                '$expectedMessage' => 'Must pass AWS key when authentication is opaque',
-            ],
+        yield 'when key is empty' => [
+            'key' => '',
+            'secret' => 'my_secret',
+            'expectedMessage' => 'Must pass AWS key when authentication is opaque',
+        ];
+        yield 'when key is null' => [
+            'key' => null,
+            'secret' => 'my_secret',
+            'expectedMessage' => 'Must pass AWS key when authentication is opaque',
+        ];
+        yield 'when secret is empty' => [
+            'key' => 'mykey',
+            'secret' => '',
+            'expectedMessage' => 'Must pass AWS secret when authentication is opaque',
+        ];
+        yield 'when secret is null' => [
+            'key' => 'mykey',
+            'secret' => null,
+            'expectedMessage' => 'Must pass AWS secret when authentication is opaque',
+        ];
+        yield 'when both are invalid' => [
+            'key' => '',
+            'secret' => '',
+            'expectedMessage' => 'Must pass AWS key when authentication is opaque',
         ];
     }
 
-    /**
-     * @dataProvider providesInvalidValueCombinationOfKeyAndSecret
-     */
+    #[DataProvider('providesInvalidValueCombinationOfKeyAndSecret')]
     public function testOpaqueWithoutCredentialsWillThrowError(
         ?string $key,
         ?string $secret,
-        string $expectedMessage
+        string $expectedMessage,
     ): void {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage($expectedMessage);

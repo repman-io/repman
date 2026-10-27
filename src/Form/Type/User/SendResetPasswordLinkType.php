@@ -11,6 +11,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\NotNull;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 final class SendResetPasswordLinkType extends AbstractType
 {
     public function getBlockPrefix(): string

@@ -13,6 +13,6 @@ final class RandomTokenGeneratorTest extends TestCase
     {
         $generator = new RandomTokenGenerator();
 
-        self::assertNotEquals($generator->generate(), $generator->generate());
+        self::assertNotSame($generator->generate(), $generator->generate());
     }
 }

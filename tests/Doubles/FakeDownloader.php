@@ -28,7 +28,7 @@ final class FakeDownloader implements Downloader
      *
      * @return Option<resource>
      */
-    public function getContents(string $url, array $headers = [], callable $notFoundHandler = null): Option
+    public function getContents(string $url, array $headers = [], ?callable $notFoundHandler = null): Option
     {
         if (isset($this->content[$url])) {
             return Option::some(Stream::fromString($this->content[$url]['content']));
@@ -52,12 +52,12 @@ final class FakeDownloader implements Downloader
     }
 
     /**
-     * @param callable(resource):void $onFulfilled
+     * @param callable(resource, string):void $onFulfilled
      */
     public function getAsyncContents(string $url, array $headers, callable $onFulfilled): void
     {
         if (isset($this->content[$url]) && $this->content[$url]['content'] !== null) {
-            $onFulfilled(Stream::fromString($this->content[$url]['content']));
+            $onFulfilled(Stream::fromString($this->content[$url]['content']), '');
         }
     }
 
@@ -80,7 +80,7 @@ final class FakeDownloader implements Downloader
         }
     }
 
-    public function addContent(string $url, ?string $content, int $timestamp = null): void
+    public function addContent(string $url, ?string $content, ?int $timestamp = null): void
     {
         $this->content[$url] = [
             'timestamp' => $timestamp ?? time(),

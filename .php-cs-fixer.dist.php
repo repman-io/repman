@@ -30,7 +30,7 @@ return $config->setRiskyAllowed(true)
         'increment_style' => true,
         'single_quote' => true,
         'trim_array_spaces' => true,
-        'single_blank_line_before_namespace' => true,
+        'blank_lines_before_namespace' => true,
         'yoda_style' => false,
         'global_namespace_import' => [
             'import_classes' => false,

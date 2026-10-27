@@ -8,4 +8,4 @@
     name: "{{ item }}"
     state: present
   with_nested: "{{ php_packages }}"
-  notify: restart php7-fpm
+  notify: restart php-fpm

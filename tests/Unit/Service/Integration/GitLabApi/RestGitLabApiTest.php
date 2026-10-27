@@ -33,7 +33,9 @@ final class RestGitLabApiTest extends TestCase
     public function testFetchUserProjects(): void
     {
         $projects = $this->createMock(ProjectsApi::class);
-        $projects->method('all')->willReturn([
+        $projects->expects(self::once())->method('all')->with(self::callback(
+            fn (array $options): bool => ($options['membership'] ?? false) === true && !isset($options['owned'])
+        ))->willReturn([
             [
                 'id' => 17275574,
                 'path' => 'left-pad',

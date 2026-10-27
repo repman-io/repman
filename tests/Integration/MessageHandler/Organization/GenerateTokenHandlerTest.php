@@ -25,7 +25,7 @@ final class GenerateTokenHandlerTest extends IntegrationTestCase
         // then
         $tokens = $this->container()->get(DbalOrganizationQuery::class)->findAllTokens($orgId, new Filter());
         self::assertCount(1, $tokens);
-        self::assertEquals('random-string', $tokens[0]->value());
-        self::assertEquals('prod', $tokens[0]->name());
+        self::assertSame('random-string', $tokens[0]->value());
+        self::assertSame('prod', $tokens[0]->name());
     }
 }

@@ -12,9 +12,10 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @method Package|null find($id, $lockMode = null, $lockVersion = null)
- * @method Package|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Package|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method Package[]    findAll()
- * @method Package[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Package[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
+ *
  * @extends ServiceEntityRepository<Package>
  */
 class PackageRepository extends ServiceEntityRepository
@@ -36,7 +37,7 @@ class PackageRepository extends ServiceEntityRepository
 
     public function packageExist(string $name, UuidInterface $organizationId): bool
     {
-        return false !== $this->_em->getConnection()->fetchOne('SELECT id FROM organization_package WHERE name = :name AND organization_id = :organizationId', [
+        return false !== $this->getEntityManager()->getConnection()->fetchOne('SELECT id FROM organization_package WHERE name = :name AND organization_id = :organizationId', [
             'name' => $name,
             'organizationId' => $organizationId->toString(),
         ]);
@@ -44,6 +45,6 @@ class PackageRepository extends ServiceEntityRepository
 
     public function addDownload(Download $download): void
     {
-        $this->_em->persist($download);
+        $this->getEntityManager()->persist($download);
     }
 }

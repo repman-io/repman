@@ -6,8 +6,8 @@ namespace Buddy\Repman\Tests\Functional\Command;
 
 use Buddy\Repman\Command\ClearMetadataCacheCommand;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
@@ -15,7 +15,7 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
 {
     public function testClearMetadataCache(): void
     {
-        $basePath = \sys_get_temp_dir().'/'.'repman/clear-metadata';
+        $basePath = \sys_get_temp_dir().'/repman/clear-metadata';
 
         $ignoredFiles = [
             $basePath.'/dist/.svn/foo/packages.json',
@@ -31,7 +31,7 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
         self::assertFileExists($packagesFile);
         self::assertFileExists($distFile);
 
-        $command = new ClearMetadataCacheCommand(new Filesystem(new Local($basePath)));
+        $command = new ClearMetadataCacheCommand(new Filesystem(new LocalFilesystemAdapter($basePath)));
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 
@@ -42,7 +42,7 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
             self::assertFileExists($ignoredFile);
         }
 
-        self::assertEquals("Deleted 1 file(s).\n", $commandTester->getDisplay());
+        self::assertSame("Deleted 1 file(s).\n", $commandTester->getDisplay());
 
         $filesystem = new SymfonyFilesystem();
         $filesystem->remove($basePath);
@@ -50,13 +50,13 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
 
     public function testNoMetadataFilesFound(): void
     {
-        $basePath = \sys_get_temp_dir().'/'.'repman/clear-metadata';
+        $basePath = \sys_get_temp_dir().'/repman/clear-metadata';
 
-        $command = new ClearMetadataCacheCommand(new Filesystem(new Local($basePath)));
+        $command = new ClearMetadataCacheCommand(new Filesystem(new LocalFilesystemAdapter($basePath)));
         $commandTester = new CommandTester($command);
         $commandTester->execute([]);
 
-        self::assertEquals("No metadata files found.\n", $commandTester->getDisplay());
+        self::assertSame("No metadata files found.\n", $commandTester->getDisplay());
     }
 
     /**
@@ -65,7 +65,7 @@ final class ClearMetadataCacheCommandTest extends FunctionalTestCase
     private function prepareTempFiles(
         string $packagesFile,
         string $distFile,
-        array $ignoredFiles
+        array $ignoredFiles,
     ): void {
         $this->ensureDirExist($packagesFile);
         $this->ensureDirExist($distFile);

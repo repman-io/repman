@@ -21,7 +21,7 @@ final class AddPackageHandlerTest extends IntegrationTestCase
             $id = Uuid::uuid4()->toString(),
             $organizationId,
             $url
-            )
+        )
         );
 
         $package = $this
@@ -31,7 +31,7 @@ final class AddPackageHandlerTest extends IntegrationTestCase
             ->get();
 
         self::assertEquals($id, $package->id());
-        self::assertEquals($url, $package->url());
+        self::assertSame($url, $package->url());
     }
 
     public function testMissingOrganization(): void
@@ -43,7 +43,7 @@ final class AddPackageHandlerTest extends IntegrationTestCase
             Uuid::uuid4()->toString(),
             'c5e33fc9-27b0-42e1-b8cc-49a7f79b49b2',
             'test.com'
-            )
+        )
         );
     }
 }

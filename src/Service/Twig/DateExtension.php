@@ -18,6 +18,7 @@ use Symfony\Component\Intl\Timezones;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
+use Twig\Extension\CoreExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
@@ -39,19 +40,11 @@ class DateExtension extends AbstractExtension
         'f' => 'μs',
     ];
 
-    private string $timezone;
+    private TokenStorageInterface $tokenStorage;
 
     public function __construct(TokenStorageInterface $tokenStorage)
     {
-        $this->timezone = date_default_timezone_get();
-
-        if (($token = $tokenStorage->getToken()) === null) {
-            return;
-        }
-
-        if (($user = $token->getUser()) instanceof User) {
-            $this->timezone = $user->timezone();
-        }
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -60,19 +53,19 @@ class DateExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('time_diff', [$this, 'diff'], ['needs_environment' => true]),
-            new TwigFilter('date_time', [$this, 'dateTime'], ['needs_environment' => true]),
-            new TwigFilter('date_time_utc', [$this, 'dateTimeUtc'], ['needs_environment' => true]),
+            new TwigFilter('time_diff', $this->diff(...), ['needs_environment' => true]),
+            new TwigFilter('date_time', $this->dateTime(...), ['needs_environment' => true]),
+            new TwigFilter('date_time_utc', $this->dateTimeUtc(...), ['needs_environment' => true]),
         ];
     }
 
     /**
      * @return TwigFunction[]
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
-            new TwigFunction('gmt_offset', [$this, 'gmtOffset'], ['needs_environment' => true]),
+            new TwigFunction('gmt_offset', $this->gmtOffset(...), ['needs_environment' => true]),
         ];
     }
 
@@ -86,23 +79,31 @@ class DateExtension extends AbstractExtension
      */
     public function diff(Environment $env, $date, $now = null): string
     {
-        $date = twig_date_converter($env, $date);
+        $date = $this->convertDate($env, $date);
 
         $now = $now === null
             ? new \DateTimeImmutable(
-                twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
+                $this->convertDate($env, null, $this->timezone())->format('Y-m-d H:i:s')
             )
-            : twig_date_converter($env, $now);
+            : $this->convertDate($env, $now);
 
         // Get the difference between the two DateTime objects.
         $diff = $date->diff($now);
 
         // Check for each interval if it appears in the $diff object.
         foreach (self::$units as $attribute => $unit) {
-            $count = $diff->$attribute;
+            $count = match ($attribute) {
+                'y' => $diff->y,
+                'm' => $diff->m,
+                'd' => $diff->d,
+                'h' => $diff->h,
+                'i' => $diff->i,
+                's' => $diff->s,
+                default => $diff->f,
+            };
 
             if (0 !== $count) {
-                if ($attribute === 'f') {
+                if (\is_float($count)) {
                     return 'just now';
                 }
 
@@ -118,14 +119,17 @@ class DateExtension extends AbstractExtension
      */
     public function dateTime(Environment $env, $date, ?string $sourceTimezone = null): string
     {
-        $date = $sourceTimezone === null
-            ? twig_date_converter($env, $date, $this->timezone)
-            : (new \DateTimeImmutable(
-                twig_date_converter($env, $date)->format('Y-m-d H:i:s'),
-                new \DateTimeZone($sourceTimezone)
-            ))->setTimezone(new \DateTimeZone($this->timezone));
+        if ($sourceTimezone === null) {
+            return $this->convertDate($env, $date, $this->timezone())->format('Y-m-d H:i:s');
+        }
 
-        return $date->format('Y-m-d H:i:s');
+        // the wall-clock value is in $sourceTimezone (e.g. a UTC column read without zone); interpret it
+        // there exactly once, without Twig first shifting it into the default timezone
+        $wallClock = $date instanceof \DateTimeInterface ? $date->format('Y-m-d H:i:s') : $date;
+
+        return (new \DateTimeImmutable($wallClock, new \DateTimeZone($sourceTimezone)))
+            ->setTimezone(new \DateTimeZone($this->timezone()))
+            ->format('Y-m-d H:i:s');
     }
 
     /**
@@ -143,11 +147,11 @@ class DateExtension extends AbstractExtension
     {
         $now = $now === null
             ? new \DateTimeImmutable(
-                twig_date_converter($env, null, $this->timezone)->format('Y-m-d H:i:s')
+                $this->convertDate($env, null, $this->timezone())->format('Y-m-d H:i:s')
             )
-            : twig_date_converter($env, $now);
+            : $this->convertDate($env, $now);
 
-        return Timezones::getGmtOffset($this->timezone, $now->getTimestamp());
+        return Timezones::getGmtOffset($this->timezone(), $now->getTimestamp());
     }
 
     private function getPluralizedInterval(int $count, int $invert, string $unit): string
@@ -157,5 +161,25 @@ class DateExtension extends AbstractExtension
         }
 
         return $invert === 1 ? "in $count $unit" : "$count $unit ago";
+    }
+
+    /**
+     * @param string|\DateTimeInterface|null $date
+     */
+    private function convertDate(Environment $env, $date, ?string $timezone = null): \DateTimeInterface
+    {
+        return $env->getExtension(CoreExtension::class)->convertDate($date, $timezone);
+    }
+
+    /**
+     * Read on use rather than when Twig is built: the extension outlives a request in workers,
+     * and touching the token at construction time starts the session for every request that
+     * instantiates Twig, which turns public responses private.
+     */
+    private function timezone(): string
+    {
+        $user = $this->tokenStorage->getToken()?->getUser();
+
+        return $user instanceof User ? $user->timezone() : date_default_timezone_get();
     }
 }

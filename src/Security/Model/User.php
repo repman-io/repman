@@ -87,7 +87,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
         return $this->organizations;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         // deny all access
         if ($this->isDisabled()) {
@@ -118,7 +118,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
         return Option::some($this->organizations[0]->alias());
     }
 
-    public function getSalt()
+    public function getSalt(): null
     {
         // not needed when using the "bcrypt" algorithm in security.yaml
         return null;
@@ -140,7 +140,7 @@ final class User implements UserInterface, EquatableInterface, PasswordAuthentic
         // e.x. $this->plainPassword = null;
     }
 
-    public function isEqualTo(UserInterface $user)
+    public function isEqualTo(UserInterface $user): bool
     {
         if (!$user instanceof self) {
             return false;

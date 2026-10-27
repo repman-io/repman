@@ -32,7 +32,7 @@ final class SecurityControllerTest extends FunctionalTestCase
 
     public function testLoginWithInvalidPassword(): void
     {
-        $this->fixtures->createAdmin($email = 'test@buddy.works', $password = 'password');
+        $this->fixtures->createAdmin($email = 'test@buddy.works', 'password');
         $this->client->request('GET', $this->urlTo('app_login'));
         $this->client->submitForm('Sign in', [
             'email' => $email,

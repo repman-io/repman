@@ -24,7 +24,7 @@ final class AcceptInvitationHandlerTest extends IntegrationTestCase
 
         /** @var DbalOrganizationQuery $query */
         $query = $this->container()->get(DbalOrganizationQuery::class);
-        self::assertEquals(0, $query->invitationsCount($organizationId));
+        self::assertSame(0, $query->invitationsCount($organizationId));
         self::assertEquals([], $query->findAllInvitations($organizationId, new Filter()));
 
         /** @var Organization $organization */
@@ -32,7 +32,7 @@ final class AcceptInvitationHandlerTest extends IntegrationTestCase
         self::assertTrue($organization->isOwner($ownerId));
         self::assertFalse($organization->isOwner($invitedId));
 
-        self::assertEquals(2, $query->membersCount($organizationId));
+        self::assertSame(2, $query->membersCount($organizationId));
         self::assertEquals([
             new Member($ownerId, $ownerEmail, DomainMember::ROLE_OWNER),
             new Member($invitedId, $invitedEmail, DomainMember::ROLE_MEMBER),

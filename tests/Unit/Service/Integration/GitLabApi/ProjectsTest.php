@@ -26,7 +26,7 @@ final class ProjectsTest extends TestCase
     public function testThrowExceptionWhenProjectNotFound(): void
     {
         $projects = new Projects([
-            $first = new Project(1, 'first', 'url'),
+            new Project(1, 'first', 'url'),
         ]);
 
         $this->expectException(\RuntimeException::class);

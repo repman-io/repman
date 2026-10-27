@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 final class ProxyController extends AbstractController
@@ -29,22 +29,13 @@ final class ProxyController extends AbstractController
 
     public function __construct(
         ProxyRegister $register,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->register = $register;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route(
-     *     "/packages.json",
-     *     host="repo{domain_separator}{domain}",
-     *     name="packages",
-     *     methods={"GET"},
-     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"domain"="%domain%","domain_separator"="%domain_separator%"}
-     * )
-     */
+    #[Route(path: '/packages.json', host: 'repo{domain_separator}{domain}', name: 'packages', methods: ['GET'], defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'])]
     public function packages(Request $request): JsonResponse
     {
         $metadata = $this->register->getByHost('packagist.org')->latestProvider();
@@ -77,14 +68,7 @@ final class ProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/p/{package}${hash}.json",
-     *     name="package_legacy_metadata",
-     *     host="repo{domain_separator}{domain}",
-     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"package"="%package_name_pattern%","domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     methods={"GET"})
-     */
+    #[Route(path: '/p/{package}${hash}.json', name: 'package_legacy_metadata', host: 'repo{domain_separator}{domain}', defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['package' => '%package_name_pattern%', 'domain' => '%domain%', 'domain_separator' => '%domain_separator%'], methods: ['GET'])]
     public function legacyMetadata(string $package, string $hash, Request $request): Response
     {
         /** @var Metadata $metadata */
@@ -108,14 +92,7 @@ final class ProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/p/{package}",
-     *     name="package_legacy_metadata_lazy",
-     *     host="repo{domain_separator}{domain}",
-     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"package"="%package_name_pattern%","domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     methods={"GET"})
-     */
+    #[Route(path: '/p/{package}', name: 'package_legacy_metadata_lazy', host: 'repo{domain_separator}{domain}', defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['package' => '%package_name_pattern%', 'domain' => '%domain%', 'domain_separator' => '%domain_separator%'], methods: ['GET'])]
     public function legacyMetadataLazy(string $package, Request $request): Response
     {
         /** @var Metadata $metadata */
@@ -139,16 +116,7 @@ final class ProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route(
-     *     "/p/provider-{version}${hash}.json",
-     *     host="repo{domain_separator}{domain}",
-     *     name="providers",
-     *     methods={"GET"},
-     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"domain"="%domain%","domain_separator"="%domain_separator%"}
-     * )
-     */
+    #[Route(path: '/p/provider-{version}${hash}.json', host: 'repo{domain_separator}{domain}', name: 'providers', methods: ['GET'], defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'])]
     public function providers(string $version, string $hash, Request $request): Response
     {
         /** @var Metadata $metadata */
@@ -172,14 +140,7 @@ final class ProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/p2/{package}.json",
-     *     name="package_metadata",
-     *     host="repo{domain_separator}{domain}",
-     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"package"="%package_name_pattern%","domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     methods={"GET"})
-     */
+    #[Route(path: '/p2/{package}.json', name: 'package_metadata', host: 'repo{domain_separator}{domain}', defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['package' => '%package_name_pattern%', 'domain' => '%domain%', 'domain_separator' => '%domain_separator%'], methods: ['GET'])]
     public function metadata(string $package, Request $request): Response
     {
         /** @var Metadata $metadata */
@@ -203,14 +164,7 @@ final class ProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/dists/{package}/{version}/{ref}.{type}",
-     *     name="package_dist",
-     *     host="repo{domain_separator}{domain}",
-     *     defaults={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     methods={"GET"})
-     */
+    #[Route(path: '/dists/{package}/{version}/{ref}.{type}', name: 'package_dist', host: 'repo{domain_separator}{domain}', defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['package' => '%package_name_pattern%', 'ref' => '[a-f0-9]*?', 'type' => 'zip|tar', 'domain' => '%domain%', 'domain_separator' => '%domain_separator%'], methods: ['GET'])]
     public function distribution(string $package, string $version, string $ref, string $type, Request $request): Response
     {
         /** @var DistFile $distFile */
@@ -234,14 +188,7 @@ final class ProxyController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/downloads",
-     *     name="package_downloads",
-     *     host="repo{domain_separator}{domain}",
-     *     defaults={"domain":"%domain%","domain_separator"="%domain_separator%"},
-     *     requirements={"domain"="%domain%","domain_separator"="%domain_separator%"},
-     *     methods={"POST"})
-     */
+    #[Route(path: '/downloads', name: 'package_downloads', host: 'repo{domain_separator}{domain}', defaults: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'domain_separator' => '%domain_separator%'], methods: ['POST'])]
     public function downloads(Request $request): JsonResponse
     {
         $contents = \json_decode($request->getContent(), true);
@@ -252,12 +199,16 @@ final class ProxyController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
+        $packages = [];
+        foreach ($contents['downloads'] as $row) {
+            // composer sends name/version pairs; anything else is skipped rather than failing the batch
+            if (\is_array($row) && \is_string($row['name'] ?? null) && \is_string($row['version'] ?? null)) {
+                $packages[] = new Package($row['name'], $row['version']);
+            }
+        }
+
         $this->messageBus->dispatch(new AddDownloads(
-            \array_map(function (array $data): Package {
-                return new Package($data['name'], $data['version']);
-                }, \array_filter($contents['downloads'], function (array $row): bool {
-                    return isset($row['name'], $row['version']);
-                })),
+            $packages,
             new \DateTimeImmutable(),
             $request->getClientIp(),
             $request->headers->get('User-Agent')

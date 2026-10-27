@@ -6,9 +6,10 @@ namespace Buddy\Repman\MessageHandler\Admin;
 
 use Buddy\Repman\Message\Admin\RemoveTechnicalEmail;
 use Buddy\Repman\Service\Telemetry;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemoveTechnicalEmailHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemoveTechnicalEmailHandler
 {
     private Telemetry $telemetry;
 

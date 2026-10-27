@@ -15,13 +15,13 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $this->client->request('POST', '/hook/c675c468-6c0f-46bf-a445-65430146c55e');
 
-        self::assertEquals(Response::HTTP_ACCEPTED, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_ACCEPTED, $this->client->getResponse()->getStatusCode());
     }
 
     public function testWebhookNotFound(): void
     {
         $this->client->request('POST', '/hook/c675c468-6c0f-46bf-a445-65430146c55e');
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 }

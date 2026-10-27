@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service;
 
+use Buddy\Repman\Service\Downloader;
 use Buddy\Repman\Service\Proxy;
 use Buddy\Repman\Service\Proxy\Metadata;
+use Buddy\Repman\Service\Proxy\ProxyFactory;
+use Buddy\Repman\Service\Stream;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use League\Flysystem\Filesystem;
-use League\Flysystem\Memory\MemoryAdapter;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use Munus\Control\Option;
 use PHPUnit\Framework\TestCase;
 
 final class ProxyTest extends TestCase
@@ -22,7 +26,7 @@ final class ProxyTest extends TestCase
         $this->proxy = new Proxy(
             'packagist.org',
             'https://packagist.org',
-            $this->filesystem = new Filesystem(new MemoryAdapter()),
+            $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter()),
             $this->downloader = new FakeDownloader()
         );
     }
@@ -76,21 +80,81 @@ final class ProxyTest extends TestCase
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/repman')->get();
-        self::assertEquals($oldTimestamp, $metadata->timestamp());
+        self::assertSame($oldTimestamp, $metadata->timestamp());
 
         $this->proxy->syncMetadata();
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/repman')->get();
         self::assertTrue($metadata->timestamp() > $oldTimestamp);
-        self::assertEquals('new', stream_get_contents($metadata->stream()));
+        self::assertSame('new', stream_get_contents($metadata->stream()));
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->metadata('buddy-works/old')->get();
         self::assertTrue($metadata->timestamp() > $oldTimestamp);
 
-        self::assertTrue($this->filesystem->has('packagist.org/p/buddy-works/repman$c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84.json'));
+        // Composer 1 metadata is no longer published upstream, so it is left as it is
+        self::assertSame('content', $this->filesystem->read('packagist.org/p/buddy-works/repman.json'));
+        self::assertFalse($this->filesystem->has('packagist.org/p/buddy-works/repman$c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84.json'));
         self::assertFalse($this->filesystem->has('packagist.org/p2/buddy-works/repman$c49fea7425fa7f8699897a97c159c6690267d9003bb78c53fafa8fc15c325d84.json'));
+    }
+
+    public function testSyncMetadataSendsConditionalRequestsAndKeepsUnchangedFiles(): void
+    {
+        $this->filesystem->write('packagist.org/p2/buddy-works/repman.json', 'stored');
+        $this->filesystem->write('packagist.org/p2/buddy-works/repman.json.last-modified', 'Tue, 30 Jun 2026 10:52:46 GMT');
+        $this->filesystem->write('packagist.org/p2/buddy-works/new.json', 'stored');
+        /** @var \ArrayObject<string, string[]> $requests */
+        $requests = new \ArrayObject();
+        $proxy = new Proxy('packagist.org', 'https://packagist.org', $this->filesystem, new class($requests) implements Downloader {
+            /** @param \ArrayObject<string, string[]> $requests */
+            public function __construct(private \ArrayObject $requests)
+            {
+            }
+
+            public function getContents(string $url, array $headers = [], ?callable $notFoundHandler = null): Option
+            {
+                return Option::none();
+            }
+
+            public function getAsyncContents(string $url, array $headers, callable $onFulfilled): void
+            {
+                $this->requests[$url] = $headers;
+                $headers === []
+                    ? $onFulfilled(Stream::fromString('{"fresh":true}'), 'Wed, 01 Jul 2026 08:00:00 GMT')
+                    : $onFulfilled(Stream::fromString(''), ''); // what a 304 leaves behind
+            }
+
+            public function getLastModified(string $url, callable $onFulfilled): void
+            {
+            }
+
+            public function run(): void
+            {
+            }
+        }, 'https://repo.packagist.org');
+
+        $proxy->syncMetadata();
+
+        self::assertSame([
+            'https://repo.packagist.org/p2/buddy-works/new.json' => [],
+            'https://repo.packagist.org/p2/buddy-works/repman.json' => ['If-Modified-Since' => 'Tue, 30 Jun 2026 10:52:46 GMT'],
+        ], $requests->getArrayCopy());
+        // unchanged upstream: left as it is
+        self::assertSame('stored', $this->filesystem->read('packagist.org/p2/buddy-works/repman.json'));
+        // first refresh: stored with the Last-Modified to send next time
+        self::assertSame('{"fresh":true}', $this->filesystem->read('packagist.org/p2/buddy-works/new.json'));
+        self::assertSame('Wed, 01 Jul 2026 08:00:00 GMT', $this->filesystem->read('packagist.org/p2/buddy-works/new.json.last-modified'));
+    }
+
+    public function testPackagistMetadataComesFromRepoPackagistAndIsStoredUnderPackagist(): void
+    {
+        $this->downloader->addContent('https://repo.packagist.org/p2/buddy-works/repman.json', '{"packages":{}}');
+        $proxy = (new ProxyFactory($this->downloader, $this->filesystem))->create('https://packagist.org');
+
+        self::assertTrue($proxy->metadata('buddy-works/repman')->isPresent());
+        self::assertSame('{"packages":{}}', $this->filesystem->read('packagist.org/p2/buddy-works/repman.json'));
+        self::assertSame('https://packagist.org', $proxy->url());
     }
 
     public function testIgnoreSyncIfCannotDownload(): void
@@ -106,21 +170,17 @@ final class ProxyTest extends TestCase
         self::assertEquals($oldTimestamp, $metadata->timestamp());
     }
 
-    public function testSyncLegacyMetadata(): void
+    public function testLegacyMetadataIsNotRefreshed(): void
     {
         $oldTimestamp = strtotime('2019-01-01 08:00:00');
         $this->filesystem->write('packagist.org/p/buddy-works/repman.json', 'content', ['timestamp' => $oldTimestamp]);
         $this->downloader->addContent('https://packagist.org/p/buddy-works/repman.json', 'new');
 
-        /** @var Metadata $metadata */
-        $metadata = $this->proxy->legacyMetadata('buddy-works/repman')->get();
-        self::assertEquals($oldTimestamp, $metadata->timestamp());
-
         $this->proxy->syncMetadata();
 
         /** @var Metadata $metadata */
         $metadata = $this->proxy->legacyMetadata('buddy-works/repman')->get();
-        self::assertTrue($metadata->timestamp() > $oldTimestamp);
+        self::assertSame($oldTimestamp, $metadata->timestamp());
     }
 
     public function testUpdateLatestProviders(): void

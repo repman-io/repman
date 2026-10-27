@@ -10,12 +10,13 @@ use Buddy\Repman\Message\Organization\RemoveOrganization;
 use Buddy\Repman\Query\Admin\OrganizationQuery;
 use Buddy\Repman\Query\Filter;
 use Buddy\Repman\Query\User\Model\Organization;
+use Buddy\Repman\Security\Model\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class OrganizationController extends AbstractController
 {
@@ -24,15 +25,13 @@ final class OrganizationController extends AbstractController
 
     public function __construct(
         OrganizationQuery $organizationQuery,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->organizationQuery = $organizationQuery;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/admin/organization", name="admin_organization_list", methods={"GET"})
-     */
+    #[Route(path: '/admin/organization', name: 'admin_organization_list', methods: ['GET'])]
     public function list(Request $request): Response
     {
         $filter = Filter::fromRequest($request);
@@ -44,9 +43,7 @@ final class OrganizationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/organization/{organization}", name="admin_organization_remove", methods={"DELETE"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/admin/organization/{organization}', name: 'admin_organization_remove', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%'])]
     public function remove(Organization $organization, Request $request): Response
     {
         $this->messageBus->dispatch(new RemoveOrganization($organization->id()));
@@ -55,12 +52,10 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('admin_organization_list');
     }
 
-    /**
-     * @Route("/admin/organization/{organization}", name="admin_organization_add_admin", methods={"POST"}, requirements={"organization"="%organization_pattern%"})
-     */
+    #[Route(path: '/admin/organization/{organization}', name: 'admin_organization_add_admin', methods: ['POST'], requirements: ['organization' => '%organization_pattern%'])]
     public function addAdmin(Organization $organization, Request $request): Response
     {
-        /** @var \Buddy\Repman\Security\Model\User $user */
+        /** @var User $user */
         $user = $this->getUser();
 
         $this->messageBus->dispatch(new InviteUser(
@@ -75,12 +70,10 @@ final class OrganizationController extends AbstractController
         return $this->redirectToRoute('admin_organization_list');
     }
 
-    /**
-     * @Route("/admin/stats", name="admin_stats", methods={"GET"})
-     */
+    #[Route(path: '/admin/stats', name: 'admin_stats', methods: ['GET'])]
     public function stats(Request $request): Response
     {
-        $days = min(max((int) $request->get('days', 30), 7), 365);
+        $days = min(max((int) $request->query->get('days', 30), 7), 365);
 
         return $this->render('admin/stats.html.twig', [
             'installs' => $this->organizationQuery->getInstalls($days),

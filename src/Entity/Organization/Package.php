@@ -13,133 +13,91 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity
- * @ORM\Table(
- *     name="organization_package",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="package_name", columns={"organization_id", "name"})}
- * )
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'organization_package')]
+#[ORM\UniqueConstraint(name: 'package_name', columns: ['organization_id', 'name'])]
 class Package
 {
     public const NAME_PATTERN = '/^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9]([_.-]?[a-z0-9]+)*$/';
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $latestReleasedVersion = null;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $latestReleaseDate = null;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private string $repositoryUrl;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     private string $type;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\Organization", inversedBy="packages")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'packages')]
+    #[ORM\JoinColumn(nullable: false)]
     private Organization $organization;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
-    private ?\DateTimeInterface $lastSyncAt;
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastSyncAt;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $webhookCreatedAt = null;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     private ?string $webhookCreatedError = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $lastSyncError = null;
 
     /**
-     * @ORM\Column(type="json")
-     *
      * @var mixed[]
      */
+    #[ORM\Column(type: 'json')]
     private array $metadata;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $readme = null;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
-     *
      * @var mixed[]
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $lastScanResult = null;
 
-    /**
-     * @ORM\Column(type="string", length=7, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 7, nullable: true)]
     private ?string $lastScanStatus = null;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $lastScanDate = null;
 
     /**
-     * @var Collection<int,Version>|Version[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Version", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, Version>
      */
+    #[ORM\OneToMany(targetEntity: Version::class, mappedBy: 'package', cascade: ['persist'], orphanRemoval: true)]
     private Collection $versions;
 
     /**
-     * @var Collection<int,Link>|Link[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package\Link", mappedBy="package", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, Link>
      */
+    #[ORM\OneToMany(targetEntity: Link::class, mappedBy: 'package', cascade: ['persist'], orphanRemoval: true)]
     private Collection $links;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $keepLastReleases = 0;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default":"true"})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 'true'])]
     private bool $enableSecurityScan = true;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $replacementPackage = null;
 
     /**
@@ -197,7 +155,8 @@ class Package
         }
 
         $uniqueLinks = [];
-        foreach ($this->links as $key => $link) {
+        // newest first: a resync adds the current constraints after the stored ones, and those win
+        foreach (\array_reverse($this->links->toArray(), true) as $key => $link) {
             $uniqueKey = $link->type().'-'.$link->target();
             if (!isset($encounteredLinks[$uniqueKey])) {
                 $this->links->remove($key);
@@ -335,7 +294,7 @@ class Package
     }
 
     /**
-     * @return Collection<int,Version>|Version[]
+     * @return Collection<int, Version>
      */
     public function versions(): Collection
     {
@@ -357,7 +316,7 @@ class Package
     }
 
     /**
-     * @return Collection<int,Link>|Link[]
+     * @return Collection<int, Link>
      */
     public function links(): Collection
     {

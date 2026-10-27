@@ -11,13 +11,15 @@ use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Query\User\Model\Package\Link;
 use Buddy\Repman\Query\User\OrganizationQuery\DbalOrganizationQuery;
 use Buddy\Repman\Query\User\PackageQuery;
+use Buddy\Repman\Query\User\PackageQuery\Filter;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Service\Integration\BitbucketApi;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Service\Organization\TokenGenerator;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 use function Ramsey\Uuid\v4;
 
 final class OrganizationControllerTest extends FunctionalTestCase
@@ -113,10 +115,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
 
-        self::assertStringContainsString(
-            '1 entries',
-            (string) $this->client->getResponse()->getContent()
-        );
+        self::assertStringContainsString('1 entries', (string) $this->client->getResponse()->getContent());
     }
 
     public function testPackageSearch(): void
@@ -133,10 +132,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy']));
 
         self::assertTrue($this->client->getResponse()->isOk());
-        self::assertStringContainsString(
-            '2 entries',
-            (string) $this->client->getResponse()->getContent()
-        );
+        self::assertStringContainsString('2 entries', (string) $this->client->getResponse()->getContent());
 
         // Search for 'testing' (which is in name)
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'search' => 'testing']));
@@ -200,7 +196,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isOk());
         $content = (string) $this->client->getResponse()->getContent();
         self::assertStringContainsString('Showing 1 to 1 of 111 entries', $content);
-        self::assertStringContainsString('offset=111&amp;limit=1', $content);
+        self::assertStringContainsString('offset=110&amp;limit=1', $content);
+        // 111 entries end at offset 110; there is no empty page after them
+        self::assertStringNotContainsString('offset=111&amp;limit=1', $content);
 
         // Invalid limit (too low)
         $this->client->request('GET', $this->urlTo('organization_packages', ['organization' => 'buddy', 'limit' => -1]));
@@ -300,10 +298,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertStringContainsString(
-            'Package has been successfully removed',
-            $this->lastResponseBody()
-        );
+        self::assertStringContainsString('Package has been successfully removed', $this->lastResponseBody());
 
         $this->fixtures->prepareRepoFiles();
     }
@@ -424,14 +419,14 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testUpdateNonExistingPackage(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
-        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->addPackage($buddyId, 'https://buddy.com');
 
         $this->client->request('POST', $this->urlTo('organization_package_update', [
             'organization' => 'buddy',
             'package' => Uuid::uuid4()->toString(), // random
         ]));
 
-        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testSynchronizationError(): void
@@ -449,14 +444,14 @@ final class OrganizationControllerTest extends FunctionalTestCase
     public function testRemoveNonExistingPackage(): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
-        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->addPackage($buddyId, 'https://buddy.com');
 
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'buddy',
             'package' => Uuid::uuid4()->toString(), // random
         ]));
 
-        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testRemoveNotOwnedPackage(): void
@@ -464,14 +459,14 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
         $buddyPackageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $repmanId = $this->fixtures->createOrganization('repman', $this->userId);
-        $repmanPackageId = $this->fixtures->addPackage($repmanId, 'https://repman.io');
+        $this->fixtures->addPackage($repmanId, 'https://repman.io');
 
         $this->client->request('DELETE', $this->urlTo('organization_package_remove', [
             'organization' => 'repman',
             'package' => $buddyPackageId, // package from other organization
         ]));
 
-        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testPackageDetails(): void
@@ -487,7 +482,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             new Link('requires', 'buddy-works/target', '^1.5'),
             new Link('suggests', 'buddy-works/buddy', '^2.0'), // Suggest self to test dependant link
         ];
-        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable(), $versions, $links, 'This is a readme');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test <b>bold</b><script>alert(1)</script>', '1.1.1', new \DateTimeImmutable(), $versions, $links, 'This is a readme');
         $this->fixtures->addScanResult($packageId, 'ok');
 
         $crawler = $this->client->request('GET', $this->urlTo('organization_package_details', [
@@ -497,7 +492,9 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('buddy-works/buddy details', $this->lastResponseBody());
-        self::assertStringContainsString('Test', $this->lastResponseBody());
+        // composer.json descriptions are plain text: markup is dropped, neither rendered nor shown escaped
+        self::assertStringContainsString('<p>Test boldalert(1)</p>', $this->lastResponseBody());
+        self::assertStringNotContainsString('&lt;b&gt;', $this->lastResponseBody());
         self::assertStringContainsString('Available versions', $this->lastResponseBody());
         foreach ($versions as $version) {
             self::assertStringContainsString($version->version(), $this->lastResponseBody());
@@ -525,9 +522,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertTrue($this->client->getResponse()->isNotFound());
     }
 
-    /**
-     * @dataProvider getAbandonedReplacements
-     */
+    #[DataProvider('getAbandonedReplacements')]
     public function testPackageDetailsAbandoned(string $replacementPackage, string $expectedMessage): void
     {
         $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
@@ -546,7 +541,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
     /**
      * @return \Generator<array<mixed>>
      */
-    public function getAbandonedReplacements(): \Generator
+    public static function getAbandonedReplacements(): \Generator
     {
         yield 'Abandoned without replacement package' => [
             '',
@@ -581,6 +576,47 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('{"x":"'.date('Y-m-d').'","y":3}', $this->lastResponseBody());
+    }
+
+    public function testPackageStatsNameVersionsAsThePackageDoes(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('buddy', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', 'v1.2.3', new \DateTimeImmutable(), [
+            new Version(Uuid::uuid4(), 'v1.2.3', 'someref', 1234, new \DateTimeImmutable(), Version::STABILITY_STABLE),
+        ]);
+        // downloads carry the normalized version of the dist URL
+        $this->fixtures->addPackageDownload(1, $packageId, '1.2.3.0');
+
+        $this->client->request('GET', $this->urlTo('organization_package_stats', [
+            'organization' => 'buddy',
+            'package' => $packageId,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('/stats/1.2.3.0?days=30">v1.2.3</a>', $this->lastResponseBody());
+    }
+
+    public function testPackageStatsOfABranchVersionWithASlash(): void
+    {
+        $buddyId = $this->fixtures->createOrganization('version-tracking', $this->userId);
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
+        $this->fixtures->addPackageDownload(2, $packageId, $version = 'dev-feature/x');
+
+        $this->client->request('GET', $this->urlTo('organization_package_stats', [
+            'organization' => 'version-tracking',
+            'package' => $packageId,
+        ]));
+        self::assertTrue($this->client->getResponse()->isOk());
+
+        $this->client->request('GET', $this->urlTo('organization_package_version_stats', [
+            'organization' => 'version-tracking',
+            'package' => $packageId,
+            'version' => $version,
+        ]));
+
+        self::assertTrue($this->client->getResponse()->isOk());
+        self::assertStringContainsString('{"x":"'.date('Y-m-d').'","y":2}', $this->lastResponseBody());
     }
 
     public function testPackageWebhookPage(): void
@@ -630,9 +666,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'name' => 'Production Token',
         ]);
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy'])));
 
         $this->client->followRedirect();
         self::assertStringContainsString('Production Token', $this->lastResponseBody());
@@ -650,9 +684,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'token' => 'secret-token',
         ]));
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy'])));
         $this->client->followRedirect();
         self::assertStringContainsString('regenerated-token', $this->lastResponseBody());
     }
@@ -668,9 +700,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'token' => 'secret-token',
         ]));
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_tokens', ['organization' => 'buddy'])));
         $this->client->followRedirect();
         self::assertStringNotContainsString('secret-token', $this->lastResponseBody());
     }
@@ -705,7 +735,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertTrue($this->client->getResponse()->isOk());
         self::assertStringContainsString('Organization alias has been successfully changed.', $this->lastResponseBody());
-        self::assertEquals('repman', $organization->alias());
+        self::assertSame('repman', $organization->alias());
     }
 
     public function testChangeAliasWithInvalidChars(): void
@@ -771,7 +801,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         self::assertStringContainsString('Organization buddy inc has been successfully removed', $this->lastResponseBody());
         self::assertStringContainsString('Repository was archived', $this->lastResponseBody());
-        self::assertEquals(0, $this->container()->get(PackageQuery::class)->count($organizationId, new PackageQuery\Filter()));
+        self::assertSame(0, $this->container()->get(PackageQuery::class)->count($organizationId, new Filter()));
         self::assertEquals(['org/repo'], $this->container()->get(GitHubApi::class)->removedWebhooks());
         self::assertEquals([], $this->container()->get(BitbucketApi::class)->removedWebhooks());
     }

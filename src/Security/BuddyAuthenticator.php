@@ -12,7 +12,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
 final class BuddyAuthenticator extends OAuthAuthenticator
@@ -32,7 +32,7 @@ final class BuddyAuthenticator extends OAuthAuthenticator
         return $request->attributes->get('_route') === 'login_buddy_check';
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         try {
             $email = $this->buddyApi->primaryEmail($this->fetchAccessToken(

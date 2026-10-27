@@ -9,15 +9,15 @@ use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Query\User\PackageQuery;
 use Buddy\Repman\Service\Organization\PackageManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -30,17 +30,15 @@ final class RepoController extends AbstractController
     public function __construct(
         PackageQuery $packageQuery,
         PackageManager $packageManager,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->packageQuery = $packageQuery;
         $this->packageManager = $packageManager;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/packages.json", host="{organization}{sep1}repo{sep2}{domain}", name="repo_packages", methods={"GET"}, defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"}, requirements={"domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
-     * @Cache(public=false)
-     */
+    #[Route(path: '/packages.json', host: '{organization}{sep1}repo{sep2}{domain}', name: 'repo_packages', methods: ['GET'], defaults: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'])]
+    #[Cache(public: false)]
     public function packages(Request $request, Organization $organization): JsonResponse
     {
         $packageNames = $this->packageQuery->getAllNames($organization->id());
@@ -73,15 +71,8 @@ final class RepoController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/dists/{package}/{version}/{ref}.{type}",
-     *     name="repo_package_dist",
-     *     host="{organization}{sep1}repo{sep2}{domain}",
-     *     defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *     requirements={"package"="%package_name_pattern%","ref"="[a-f0-9]*?","type"="zip|tar","domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *     methods={"GET"})
-     * @Cache(public=false)
-     */
+    #[Route(path: '/dists/{package}/{version}/{ref}.{type}', name: 'repo_package_dist', host: '{organization}{sep1}repo{sep2}{domain}', defaults: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], requirements: ['package' => '%package_name_pattern%', 'ref' => '[a-f0-9]*?', 'type' => 'zip|tar', 'domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], methods: ['GET'])]
+    #[Cache(public: false)]
     public function distribution(Organization $organization, string $package, string $version, string $ref, string $type): StreamedResponse
     {
         $filename = $this->packageManager
@@ -102,14 +93,7 @@ final class RepoController extends AbstractController
         });
     }
 
-    /**
-     * @Route("/downloads",
-     *     name="repo_package_downloads",
-     *     host="{organization}{sep1}repo{sep2}{domain}",
-     *     defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *     requirements={"domain"="%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *     methods={"POST"})
-     */
+    #[Route(path: '/downloads', name: 'repo_package_downloads', host: '{organization}{sep1}repo{sep2}{domain}', defaults: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], methods: ['POST'])]
     public function downloads(Request $request, Organization $organization): JsonResponse
     {
         $contents = json_decode($request->getContent(), true);
@@ -122,7 +106,7 @@ final class RepoController extends AbstractController
 
         $packageMap = $this->getPackageNameMap($organization->id());
         foreach ($contents['downloads'] as $package) {
-            if (!isset($package['name']) || !isset($package['version'])) {
+            if (!\is_array($package) || !\is_string($package['name'] ?? null) || !\is_string($package['version'] ?? null)) {
                 continue;
             }
 
@@ -140,15 +124,8 @@ final class RepoController extends AbstractController
         return new JsonResponse(['status' => 'success'], JsonResponse::HTTP_CREATED);
     }
 
-    /**
-     * @Route("/p2/{package}~dev.json",
-     *      host="{organization}{sep1}repo{sep2}{domain}",
-     *      name="repo_package_provider_v2_dev",
-     *      methods={"GET"},
-     *      defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
-     * @Cache(public=false)
-     */
+    #[Route(path: '/p2/{package}~dev.json', host: '{organization}{sep1}repo{sep2}{domain}', name: 'repo_package_provider_v2_dev', methods: ['GET'], defaults: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'package' => '%package_name_pattern%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'])]
+    #[Cache(public: false)]
     public function providerV2Dev(Request $request, Organization $organization, string $package): JsonResponse
     {
         if (($package = preg_replace('/~dev$/', '', $package)) === null) {
@@ -158,15 +135,8 @@ final class RepoController extends AbstractController
         return $this->providerV2($request, $organization, $package);
     }
 
-    /**
-     * @Route("/p2/{package}.json",
-     *      host="{organization}{sep1}repo{sep2}{domain}",
-     *      name="repo_package_provider_v2",
-     *      methods={"GET"},
-     *      defaults={"domain":"%domain%","sep1"="%organization_separator%","sep2"="%domain_separator%"},
-     *      requirements={"domain"="%domain%","package"="%package_name_pattern%","sep1"="%organization_separator%","sep2"="%domain_separator%"})
-     * @Cache(public=false)
-     */
+    #[Route(path: '/p2/{package}.json', host: '{organization}{sep1}repo{sep2}{domain}', name: 'repo_package_provider_v2', methods: ['GET'], defaults: ['domain' => '%domain%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'], requirements: ['domain' => '%domain%', 'package' => '%package_name_pattern%', 'sep1' => '%organization_separator%', 'sep2' => '%domain_separator%'])]
+    #[Cache(public: false)]
     public function providerV2(Request $request, Organization $organization, string $package): JsonResponse
     {
         [$lastModified, $providerData] = $this->packageManager->findProviders(

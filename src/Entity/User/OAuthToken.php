@@ -12,13 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity
- * @ORM\Table(
- *     name="user_oauth_token",
- *     uniqueConstraints={@UniqueConstraint(name="token_type", columns={"type", "user_id"})}
- * )
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'user_oauth_token')]
+#[UniqueConstraint(name: 'token_type', columns: ['type', 'user_id'])]
 class OAuthToken
 {
     public const TYPE_GITHUB = 'github';
@@ -53,41 +49,27 @@ class OAuthToken
      */
     private const MIN_REFRESH_INTERVAL = '-30 sec';
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Buddy\Repman\Entity\User", inversedBy="oauthTokens")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'oauthTokens')]
+    #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\Column(type="string", length=9)
-     */
+    #[ORM\Column(type: 'string', length: 9)]
     private string $type;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private string $accessToken;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $refreshToken = null;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $expiresAt = null;
 
     /**
@@ -113,7 +95,7 @@ class OAuthToken
         string $type,
         string $accessToken,
         ?string $refreshToken = null,
-        ?\DateTimeImmutable $expiresAt = null
+        ?\DateTimeImmutable $expiresAt = null,
     ) {
         $this->id = $id;
         $this->user = $user->addOAuthToken($this);

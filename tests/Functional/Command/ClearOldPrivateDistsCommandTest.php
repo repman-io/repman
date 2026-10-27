@@ -8,7 +8,7 @@ use Buddy\Repman\Command\ClearOldPrivateDistsCommand;
 use Buddy\Repman\Entity\Organization\Package\Version;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Composer\Semver\VersionParser;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -18,7 +18,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
     private string $packageName = 'buddy-works/repman';
     private string $version = '1.2.3';
 
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     protected function setUp(): void
     {
@@ -49,7 +49,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
 
         $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
 
-        self::assertEquals(0, $commandTester->execute([]));
+        self::assertSame(0, $commandTester->execute([]));
 
         $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
 
@@ -83,7 +83,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
         $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
         $this->assertFileExistence($this->distFilePath('dev-master', $devRef));
 
-        self::assertEquals(0, $commandTester->execute([]));
+        self::assertSame(0, $commandTester->execute([]));
 
         $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
         $this->assertFileExistence($this->distFilePath('dev-master', $devRef));
@@ -134,7 +134,7 @@ final class ClearOldPrivateDistsCommandTest extends FunctionalTestCase
         $this->assertFileExistence($this->distFilePath('dev-stage', $dev4Ref));
         $this->assertFileExistence($this->distFilePath('dev-stage', $dev5Ref));
 
-        self::assertEquals(0, $commandTester->execute([]));
+        self::assertSame(0, $commandTester->execute([]));
 
         $this->assertFileExistence($this->distFilePath($this->version, $this->ref));
         self::assertFileDoesNotExist($this->distFilePath('dev-master', $dev1Ref));

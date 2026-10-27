@@ -71,6 +71,21 @@ final class PackageTest extends TestCase
         self::assertCount(1, $this->package->links());
     }
 
+    public function testResyncKeepsCurrentLinkConstraint(): void
+    {
+        $this->package->addLink(new Link(Uuid::uuid4(), $this->package, 'requires', 'php', '^7.4'));
+        $this->package->syncSuccess('some/package', 'desc', '1.0.0', [], ['requires-php' => true], new \DateTimeImmutable());
+
+        // the next sync adds the constraint from the new release
+        $this->package->addLink(new Link(Uuid::uuid4(), $this->package, 'requires', 'php', '^8.1'));
+        $this->package->syncSuccess('some/package', 'desc', '2.0.0', [], ['requires-php' => true], new \DateTimeImmutable());
+
+        self::assertCount(1, $this->package->links());
+        $link = $this->package->links()->first();
+        self::assertInstanceOf(Link::class, $link);
+        self::assertSame('^8.1', $link->constraint());
+    }
+
     public function testOuathTokenNotFound(): void
     {
         $this->expectException(\RuntimeException::class);
@@ -93,9 +108,9 @@ final class PackageTest extends TestCase
 
         self::assertInstanceOf(Version::class, $returnedVersion = $this->package->getVersion('1.0.0'));
         self::assertEquals($id, $returnedVersion->id());
-        self::assertEquals('1.0.0', $returnedVersion->version());
-        self::assertEquals('someref', $returnedVersion->reference());
-        self::assertEquals(1234, $returnedVersion->size());
+        self::assertSame('1.0.0', $returnedVersion->version());
+        self::assertSame('someref', $returnedVersion->reference());
+        self::assertSame(1234, $returnedVersion->size());
         self::assertEquals($date, $returnedVersion->date());
     }
 
@@ -112,15 +127,15 @@ final class PackageTest extends TestCase
         $date = new \DateTimeImmutable('tomorrow');
         // Make sure the dates do not match so we can test that it is updated
         $version = new Version($id1 = Uuid::uuid4(), '1.0.0', 'someref', 1234, new \DateTimeImmutable('today'), Version::STABILITY_STABLE);
-        $versionUpdated = new Version($id2 = Uuid::uuid4(), '1.0.0', 'newref', 5678, $date, Version::STABILITY_STABLE);
+        $versionUpdated = new Version(Uuid::uuid4(), '1.0.0', 'newref', 5678, $date, Version::STABILITY_STABLE);
         $this->package->addOrUpdateVersion($version);
         $this->package->addOrUpdateVersion($versionUpdated);
 
         self::assertInstanceOf(Version::class, $returnedVersion = $this->package->getVersion('1.0.0'));
         self::assertEquals($id1, $returnedVersion->id()); // We don't update the ID
-        self::assertEquals('1.0.0', $returnedVersion->version());
-        self::assertEquals('newref', $returnedVersion->reference());
-        self::assertEquals(5678, $returnedVersion->size());
+        self::assertSame('1.0.0', $returnedVersion->version());
+        self::assertSame('newref', $returnedVersion->reference());
+        self::assertSame(5678, $returnedVersion->size());
         self::assertEquals($date, $returnedVersion->date());
     }
 

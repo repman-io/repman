@@ -12,6 +12,9 @@ use Munus\Control\Option;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
+/**
+ * @extends ConstraintValidatorTestCase<UniqueEmailValidator>
+ */
 final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
 {
     /**
@@ -21,7 +24,7 @@ final class UniqueEmailValidatorTest extends ConstraintValidatorTestCase
 
     protected function createValidator(): UniqueEmailValidator
     {
-        $this->userQueryMock = $this->getMockBuilder(UserQuery::class)->getMock();
+        $this->userQueryMock = $this->createMock(UserQuery::class);
 
         return new UniqueEmailValidator($this->userQueryMock);
     }

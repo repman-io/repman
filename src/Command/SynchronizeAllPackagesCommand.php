@@ -7,16 +7,16 @@ namespace Buddy\Repman\Command;
 use Buddy\Repman\Entity\Organization;
 use Buddy\Repman\Message\Organization\SynchronizePackage;
 use Buddy\Repman\Repository\OrganizationRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsCommand(name: 'repman:package:synchronize-all', description: 'Synchronize all packages')]
 final class SynchronizeAllPackagesCommand extends Command
 {
-    protected static $defaultName = 'repman:package:synchronize-all';
-
     private MessageBusInterface $bus;
 
     private OrganizationRepository $organizations;
@@ -29,13 +29,9 @@ final class SynchronizeAllPackagesCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Synchronize all packages')
             ->addArgument('organization', InputArgument::OPTIONAL, 'Organization alias')
         ;
     }
@@ -54,7 +50,7 @@ final class SynchronizeAllPackagesCommand extends Command
             }
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

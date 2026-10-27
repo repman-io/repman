@@ -4,39 +4,33 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Controller\OAuth;
 
-use Buddy\OAuth2\Client\Provider\Buddy;
 use Buddy\Repman\Service\Integration\BuddyApi;
+use Buddy\Repman\Service\OAuth\BuddyProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class BuddyController extends OAuthController
 {
-    /**
-     * @Route("/register/buddy", name="register_buddy_start", methods={"GET"})
-     */
+    #[Route(path: '/register/buddy', name: 'register_buddy_start', methods: ['GET'])]
     public function register(): Response
     {
         $this->ensureOAuthRegistrationIsEnabled();
 
-        return $this->oauth->getClient('buddy')->redirect([Buddy::SCOPE_USER_EMAIL], []);
+        return $this->oauth->getClient('buddy')->redirect([BuddyProvider::SCOPE_USER_EMAIL], []);
     }
 
-    /**
-     * @Route("/auth/buddy", name="auth_buddy_start", methods={"GET"})
-     */
+    #[Route(path: '/auth/buddy', name: 'auth_buddy_start', methods: ['GET'])]
     public function auth(): Response
     {
         return $this->oauth
             ->getClient('buddy')
-            ->redirect([Buddy::SCOPE_USER_EMAIL], ['redirect_uri' => $this->generateUrl('login_buddy_check', [], UrlGeneratorInterface::ABSOLUTE_URL)])
+            ->redirect([BuddyProvider::SCOPE_USER_EMAIL], ['redirect_uri' => $this->generateUrl('login_buddy_check', [], UrlGeneratorInterface::ABSOLUTE_URL)])
         ;
     }
 
-    /**
-     * @Route("/register/buddy/check", name="register_buddy_check", methods={"GET"})
-     */
+    #[Route(path: '/register/buddy/check', name: 'register_buddy_check', methods: ['GET'])]
     public function registerCheck(Request $request, BuddyApi $api): Response
     {
         $this->ensureOAuthRegistrationIsEnabled();

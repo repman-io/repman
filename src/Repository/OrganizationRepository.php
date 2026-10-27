@@ -11,9 +11,10 @@ use Ramsey\Uuid\UuidInterface;
 
 /**
  * @method Organization|null find($id, $lockMode = null, $lockVersion = null)
- * @method Organization|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Organization|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method Organization[]    findAll()
- * @method Organization[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Organization[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
+ *
  * @extends ServiceEntityRepository<Organization>
  */
 class OrganizationRepository extends ServiceEntityRepository
@@ -52,11 +53,11 @@ class OrganizationRepository extends ServiceEntityRepository
 
     public function add(Organization $organization): void
     {
-        $this->_em->persist($organization);
+        $this->getEntityManager()->persist($organization);
     }
 
     public function remove(UuidInterface $id): void
     {
-        $this->_em->remove($this->getById($id));
+        $this->getEntityManager()->remove($this->getById($id));
     }
 }

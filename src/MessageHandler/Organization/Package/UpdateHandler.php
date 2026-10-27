@@ -8,9 +8,10 @@ use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Message\Organization\Package\Update;
 use Buddy\Repman\Repository\PackageRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class UpdateHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class UpdateHandler
 {
     private PackageRepository $packages;
 

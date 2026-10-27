@@ -32,7 +32,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_organizations'));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
         self::assertCount(1, $json['data']);
@@ -40,7 +40,8 @@ final class OrganizationControllerTest extends FunctionalTestCase
         self::assertEquals($json['data'][0]['alias'], 'buddy-works');
         self::assertEquals($json['data'][0]['hasAnonymousAccess'], false);
         self::assertEquals($json['total'], 1);
-        self::assertNotEmpty($json['links']);
+        self::assertIsArray($json['links']);
+        self::assertNotSame([], $json['links']);
     }
 
     public function testOrganizationsListPagination(): void
@@ -52,7 +53,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_organizations', ['page' => 2]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
 
@@ -79,7 +80,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
 
         $json = $this->jsonResponse();
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
         self::assertEquals($json['name'], 'New organization');
         self::assertEquals($json['alias'], 'new-organization');
         self::assertEquals($json['hasAnonymousAccess'], false);
@@ -96,7 +97,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('POST', $this->urlTo('api_organization_create'));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
         self::assertJsonStringEqualsJsonString(
             $this->lastResponseBody(),
             '
@@ -119,7 +120,7 @@ final class OrganizationControllerTest extends FunctionalTestCase
             'name' => self::$organization,
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
         self::assertJsonStringEqualsJsonString(
             $this->lastResponseBody(),
             '

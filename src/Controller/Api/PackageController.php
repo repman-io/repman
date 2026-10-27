@@ -25,19 +25,18 @@ use Buddy\Repman\Query\Api\PackageQuery;
 use Buddy\Repman\Query\User\Model\Organization;
 use Buddy\Repman\Service\IntegrationRegister;
 use Buddy\Repman\Service\User\UserOAuthTokenProvider;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
+use OpenApi\Attributes as OA;
 use Ramsey\Uuid\Uuid;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class PackageController extends ApiController
 {
@@ -50,7 +49,7 @@ final class PackageController extends ApiController
         PackageQuery $packageQuery,
         UserOAuthTokenProvider $oauthProvider,
         IntegrationRegister $integrations,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->packageQuery = $packageQuery;
         $this->oauthProvider = $oauthProvider;
@@ -60,33 +59,12 @@ final class PackageController extends ApiController
 
     /**
      * List organization's packages.
-     *
-     * @Route("/api/organization/{organization}/package",
-     *     name="api_packages",
-     *     methods={"GET"},
-     *     requirements={"organization"="%organization_pattern%"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="page",
-     *     in="query"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Returns list of organization's packages",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Packages::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Package")
      */
+    #[OA\Parameter(name: 'page', in: 'query')]
+    #[Route(path: '/api/organization/{organization}/package', name: 'api_packages', methods: ['GET'], requirements: ['organization' => '%organization_pattern%'])]
+    #[OA\Response(response: 200, description: "Returns list of organization's packages", content: new OA\JsonContent(ref: new Model(type: Packages::class)))]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Package')]
     public function packages(Organization $organization, Request $request): JsonResponse
     {
         return $this->json(
@@ -94,7 +72,7 @@ final class PackageController extends ApiController
                 fn ($perPage, $offset) => $this->packageQuery->findAll($organization->id(), $perPage, $offset),
                 $this->packageQuery->count($organization->id()),
                 20,
-                (int) $request->get('page', 1),
+                (int) $request->query->get('page', 1),
                 $this->generateUrl('api_packages', [
                     'organization' => $organization->alias(),
                 ], UrlGeneratorInterface::ABSOLUTE_URL)
@@ -104,39 +82,13 @@ final class PackageController extends ApiController
 
     /**
      * Find package.
-     *
-     * @Route("/api/organization/{organization}/package/{package}",
-     *     name="api_package_get",
-     *     methods={"GET"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="package",
-     *     in="path",
-     *     description="UUID"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Returns a single package",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Package::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=404,
-     *     description="Package not found"
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Package")
      */
+    #[OA\Parameter(name: 'package', in: 'path', description: 'UUID')]
+    #[Route(path: '/api/organization/{organization}/package/{package}', name: 'api_package_get', methods: ['GET'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
+    #[OA\Response(response: 200, description: 'Returns a single package', content: new OA\JsonContent(ref: new Model(type: Package::class)))]
+    #[OA\Response(response: 404, description: 'Package not found')]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Package')]
     public function getPackage(Organization $organization, Package $package): JsonResponse
     {
         return $this->json($package);
@@ -144,38 +96,14 @@ final class PackageController extends ApiController
 
     /**
      * Remove package.
-     *
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     *
-     * @Route("/api/organization/{organization}/package/{package}",
-     *     name="api_package_remove",
-     *     methods={"DELETE"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="package",
-     *     in="path",
-     *     description="UUID"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Package removed, if there was a problem with removing the webhook, the 'warning' field will appear"
-     * )
-     *
-     * @OA\Response(
-     *     response=404,
-     *     description="Package not found"
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Package")
      */
+    #[OA\Parameter(name: 'package', in: 'path', description: 'UUID')]
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/api/organization/{organization}/package/{package}', name: 'api_package_remove', methods: ['DELETE'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
+    #[OA\Response(response: 200, description: "Package removed, if there was a problem with removing the webhook, the 'warning' field will appear")]
+    #[OA\Response(response: 404, description: 'Package not found')]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Package')]
     public function removePackage(Organization $organization, Package $package): JsonResponse
     {
         $warning = $this->tryToRemoveWebhook($package);
@@ -188,31 +116,12 @@ final class PackageController extends ApiController
 
     /**
      * Synchronize package.
-     *
-     * @Route("/api/organization/{organization}/package/{package}",
-     *     name="api_synchronize_update",
-     *     methods={"PUT"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="package",
-     *     in="path",
-     *     description="UUID"
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Package updated"
-     * )
-     *
-     * @OA\Response(
-     *     response=404,
-     *     description="Package not found"
-     * )
-     *
-     * @OA\Tag(name="Package")
      */
+    #[OA\Parameter(name: 'package', in: 'path', description: 'UUID')]
+    #[Route(path: '/api/organization/{organization}/package/{package}', name: 'api_synchronize_update', methods: ['PUT'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
+    #[OA\Response(response: 200, description: 'Package updated')]
+    #[OA\Response(response: 404, description: 'Package not found')]
+    #[OA\Tag(name: 'Package')]
     public function synchronizePackage(Organization $organization, Package $package): JsonResponse
     {
         $this->messageBus->dispatch(new SynchronizePackage($package->getId()));
@@ -222,47 +131,16 @@ final class PackageController extends ApiController
 
     /**
      * Update and synchronize package.
-     *
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     *
-     * @Route("/api/organization/{organization}/package/{package}",
-     *     name="api_package_update",
-     *     methods={"PATCH"},
-     *     requirements={"organization"="%organization_pattern%","package"="%uuid_pattern%"}
-     * )
-     *
-     * @Oa\Parameter(
-     *     name="package",
-     *     in="path",
-     *     description="UUID"
-     * )
-     *
-     * @OA\RequestBody(
-     *     @Model(type=EditPackageType::class)
-     * )
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Package updated"
-     * )
-     *
-     * @OA\Response(
-     *     response=404,
-     *     description="Package not found"
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Response(
-     *     response=400,
-     *     description="Bad request"
-     * )
-     *
-     * @OA\Tag(name="Package")
      */
+    #[OA\Parameter(name: 'package', in: 'path', description: 'UUID')]
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/api/organization/{organization}/package/{package}', name: 'api_package_update', methods: ['PATCH'], requirements: ['organization' => '%organization_pattern%', 'package' => '%uuid_pattern%'])]
+    #[OA\RequestBody(content: new Model(type: EditPackageType::class))]
+    #[OA\Response(response: 200, description: 'Package updated')]
+    #[OA\Response(response: 404, description: 'Package not found')]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Response(response: 400, description: 'Bad request')]
+    #[OA\Tag(name: 'Package')]
     public function updatePackage(Organization $organization, Package $package, Request $request): JsonResponse
     {
         $form = $this->createApiForm(EditPackageType::class);
@@ -290,42 +168,14 @@ final class PackageController extends ApiController
 
     /**
      * Add new package.
-     *
-     * @IsGranted("ROLE_ORGANIZATION_OWNER", subject="organization")
-     *
-     * @Route("/api/organization/{organization}/package",
-     *     name="api_package_add",
-     *     methods={"POST"},
-     *     requirements={"organization"="%organization_pattern%"}
-     * )
-     *
-     * @OA\RequestBody(
-     *     @Model(type=AddPackageType::class)
-     * )
-     *
-     * @OA\Response(
-     *     response=201,
-     *     description="Returns added package",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Package::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=400,
-     *     description="Bad request",
-     *     @OA\JsonContent(
-     *        ref=@Model(type=Errors::class)
-     *     )
-     * )
-     *
-     * @OA\Response(
-     *     response=403,
-     *     description="Forbidden"
-     * )
-     *
-     * @OA\Tag(name="Package")
      */
+    #[IsGranted('ROLE_ORGANIZATION_OWNER', subject: 'organization')]
+    #[Route(path: '/api/organization/{organization}/package', name: 'api_package_add', methods: ['POST'], requirements: ['organization' => '%organization_pattern%'])]
+    #[OA\RequestBody(content: new Model(type: AddPackageType::class))]
+    #[OA\Response(response: 201, description: 'Returns added package', content: new OA\JsonContent(ref: new Model(type: Package::class)))]
+    #[OA\Response(response: 400, description: 'Bad request', content: new OA\JsonContent(ref: new Model(type: Errors::class)))]
+    #[OA\Response(response: 403, description: 'Forbidden')]
+    #[OA\Tag(name: 'Package')]
     public function addPackage(Organization $organization, Request $request): JsonResponse
     {
         $form = $this->createApiForm(AddPackageType::class);
@@ -356,6 +206,7 @@ final class PackageController extends ApiController
 
     /**
      * @param array<string,string> $json
+     * @param FormInterface<mixed> $form
      */
     private function handleAddPackage(?string $type, FormInterface $form, Organization $organization, array $json): ?string
     {
@@ -365,7 +216,6 @@ final class PackageController extends ApiController
             case 'git':
             case 'mercurial':
             case 'subversion':
-            case 'pear':
                 $id = $this->packageNewFromUrl($form, $organization, $json);
                 break;
             case 'path':
@@ -390,6 +240,7 @@ final class PackageController extends ApiController
 
     /**
      * @param array<string,string> $json
+     * @param FormInterface<mixed> $form
      */
     private function packageNewFromUrl(FormInterface $form, Organization $organization, array $json): ?string
     {
@@ -414,6 +265,7 @@ final class PackageController extends ApiController
 
     /**
      * @param array<string,string> $json
+     * @param FormInterface<mixed> $form
      */
     private function packageNewFromGitHub(FormInterface $form, Organization $organization, array $json): ?string
     {
@@ -442,6 +294,7 @@ final class PackageController extends ApiController
 
     /**
      * @param array<string,string> $json
+     * @param FormInterface<mixed> $form
      */
     private function packageNewFromGitLab(FormInterface $form, Organization $organization, array $json): ?string
     {
@@ -475,6 +328,7 @@ final class PackageController extends ApiController
 
     /**
      * @param array<string,string> $json
+     * @param FormInterface<mixed> $form
      */
     private function packageNewFromBitbucket(FormInterface $form, Organization $organization, array $json): ?string
     {
@@ -533,7 +387,7 @@ final class PackageController extends ApiController
                         break;
                 }
             } catch (HandlerFailedException $exception) {
-                $reason = current($exception->getNestedExceptions());
+                $reason = current($exception->getWrappedExceptions());
 
                 $warning = sprintf(
                     'Webhook removal failed due to "%s". Please remove it manually.',

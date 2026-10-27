@@ -24,7 +24,7 @@ final class UserTest extends TestCase
         $this->user->setResetPasswordToken('token');
         $this->user->resetPassword('token', 'secret', 3600);
 
-        self::assertEquals('secret', $this->user->getPassword());
+        self::assertSame('secret', $this->user->getPassword());
     }
 
     public function testResetPasswordWithInvalidToken(): void
@@ -72,7 +72,7 @@ final class UserTest extends TestCase
     {
         $user = new User(Uuid::uuid4(), 'tEsT@buDDy.woRKs', '4f6a2491-244a-4aef-8ec9-8dc36f7a10ce', ['ROLE_USER']);
 
-        self::assertEquals($user->getEmail(), 'test@buddy.works');
+        self::assertSame($user->getEmail(), 'test@buddy.works');
     }
 
     public function testIgnoreIfIsAlreadyMember(): void

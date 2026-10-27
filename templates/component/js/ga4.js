@@ -3,5 +3,5 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
-    gtag('config', '{{ ga4_tracking }}');
+    gtag('config', '{{ ga4_tracking|e('js') }}');
 })();

@@ -10,12 +10,13 @@ use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Repository\PackageRepository;
 use Buddy\Repman\Service\PackageSynchronizer;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
-final class SynchronizePackageHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class SynchronizePackageHandler
 {
     private PackageSynchronizer $synchronizer;
     private PackageRepository $packages;

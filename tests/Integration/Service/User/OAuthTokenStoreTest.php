@@ -135,7 +135,7 @@ final class OAuthTokenStoreTest extends IntegrationTestCase
         self::assertGreaterThan(time(), $storedExpiry);
         self::assertLessThanOrEqual(time() + 600, $storedExpiry);
         // and the caller is handed the expiry that was written, not the absent one it gave
-        self::assertEquals($storedExpiry, $returned->expiresAt() !== null ? $returned->expiresAt()->getTimestamp() : null);
+        self::assertSame($storedExpiry, $returned->expiresAt() !== null ? $returned->expiresAt()->getTimestamp() : null);
     }
 
     public function testStoredTokenIsLeftAloneWhenThereIsNothingToRefresh(): void

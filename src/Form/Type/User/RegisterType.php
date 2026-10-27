@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Form\Type\User;
 
+use Buddy\Repman\Form\Type\RecaptchaType;
 use Buddy\Repman\Validator\UniqueEmail;
-use EWZ\Bundle\RecaptchaBundle\Form\Type\EWZRecaptchaType;
-use EWZ\Bundle\RecaptchaBundle\Validator\Constraints\IsTrue as RecaptchaTrue;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -17,6 +16,9 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 final class RegisterType extends AbstractType
 {
     public function getBlockPrefix(): string
@@ -52,22 +54,7 @@ final class RegisterType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('g-recaptcha-response', EWZRecaptchaType::class, [
-                'label' => false,
-                'attr' => [
-                    'options' => [
-                        'theme' => 'light',
-                        'type' => 'image',
-                        'size' => 'normal',
-                        'defer' => true,
-                        'async' => true,
-                    ],
-                ],
-                'mapped' => false,
-                'constraints' => [
-                    new RecaptchaTrue(),
-                ],
-            ])
+            ->add('recaptcha', RecaptchaType::class)
             ->add('register', SubmitType::class, [
                 'label' => 'Sign up',
                 'attr' => ['class' => 'btn-primary btn-block'],

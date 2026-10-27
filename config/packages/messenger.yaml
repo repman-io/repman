@@ -1,3 +1,6 @@
+parameters:
+    messenger_async_dsn: 'doctrine://default?auto_setup=false'
+
 framework:
     messenger:
         buses:
@@ -8,7 +11,7 @@ framework:
         failure_transport: failed
 
         transports:
-            async: 'doctrine://default?auto_setup=false'
+            async: '%env(default:messenger_async_dsn:MESSENGER_TRANSPORT_DSN)%'
             failed: 'doctrine://default?queue_name=failed&auto_setup=false'
 
         routing:

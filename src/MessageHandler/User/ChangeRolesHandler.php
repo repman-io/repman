@@ -7,9 +7,10 @@ namespace Buddy\Repman\MessageHandler\User;
 use Buddy\Repman\Message\User\ChangeRoles;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class ChangeRolesHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class ChangeRolesHandler
 {
     private UserRepository $users;
 

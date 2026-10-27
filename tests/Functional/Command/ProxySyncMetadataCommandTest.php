@@ -29,7 +29,7 @@ final class ProxySyncMetadataCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($this->prepareCommand());
         $result = $commandTester->execute([]);
 
-        self::assertEquals($result, 0);
+        self::assertSame($result, 0);
 
         // test if lock was released
         self::assertTrue($lock->acquire());
@@ -45,7 +45,7 @@ final class ProxySyncMetadataCommandTest extends FunctionalTestCase
         $commandTester = new CommandTester($this->prepareCommand());
         $result = $commandTester->execute([]);
 
-        self::assertEquals($result, 0);
+        self::assertSame($result, 0);
         self::assertTrue($lock->isAcquired());
         $lock->release();
     }

@@ -39,10 +39,8 @@ final class PackageControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', $this->urlTo('api_packages', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -51,8 +49,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testInvalidCredentials(): void
@@ -60,10 +57,8 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->loginApiUser('fake-token');
         $this->client->request('GET', $this->urlTo('api_packages', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_UNAUTHORIZED, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -72,8 +67,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testOrganizationAccessDenied(): void
@@ -81,7 +75,7 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_packages', ['organization' => self::$fakeId]));
 
-        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testPackagesList(): void
@@ -92,11 +86,9 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_packages', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "data": [
                     {
@@ -126,8 +118,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     "prev": null
                 }
             }
-            '
-        );
+            ');
     }
 
     public function testPackagesListPagination(): void
@@ -143,12 +134,12 @@ final class PackageControllerTest extends FunctionalTestCase
             'page' => 2,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
 
         self::assertCount(20, $json['data']);
-        self::assertEquals($json['total'], 41);
+        self::assertEquals(41, $json['total']);
 
         $baseUrl = $this->urlTo('api_packages', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
         self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
@@ -162,11 +153,11 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->loginApiUser($this->apiToken);
         $this->client->request('GET', $this->urlTo('api_packages', ['organization' => self::$organization]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
         $json = $this->jsonResponse();
-        self::assertEquals($json['data'], []);
-        self::assertEquals($json['total'], 0);
+        self::assertEquals([], $json['data']);
+        self::assertEquals(0, $json['total']);
 
         $baseUrl = $this->urlTo('api_packages', ['organization' => self::$organization], UrlGeneratorInterface::ABSOLUTE_URL);
         self::assertEquals($baseUrl.'?page=1', $json['links']['first']);
@@ -197,11 +188,9 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
 
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "id": "'.$packageId.'",
                 "type": "vcs",
@@ -222,8 +211,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     "composer.lock": []
                 }
             }
-            '
-        );
+            ');
     }
 
     public function testFindPackageNonExisting(): void
@@ -234,7 +222,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => self::$fakeId,
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
     public function testRemovePackage(): void
@@ -248,13 +236,11 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertTrue(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($packageId)
-                ->isEmpty()
-        );
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertTrue($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($packageId)
+            ->isEmpty());
     }
 
     public function testRemovePackageWhenBitbucketWebhookRemovalFailed(): void
@@ -271,19 +257,17 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         self::assertMatchesPattern('
             {
                 "warning": "@string@.contains(\'Webhook already removed\')"
             }
         ', (string) $this->client->getResponse()->getContent());
 
-        self::assertTrue(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($packageId)
-                ->isEmpty()
-        );
+        self::assertTrue($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($packageId)
+            ->isEmpty());
     }
 
     public function testRemovePackageWhenGithubWebhookRemovalFailed(): void
@@ -300,7 +284,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         self::assertMatchesPattern('
             {
                 "warning": "@string@.contains(\'Webhook already removed\')"
@@ -324,7 +308,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
         self::assertMatchesPattern('
             {
                 "warning": "@string@.contains(\'Webhook already removed\')"
@@ -342,7 +326,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => self::$fakeId,
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
     public function testSynchronizePackage(): void
@@ -356,7 +340,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => $packageId,
         ]));
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
     }
 
     public function testSynchronizePackageNonExisting(): void
@@ -367,7 +351,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => self::$fakeId,
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
     public function testUpdatePackage(): void
@@ -387,9 +371,9 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
 
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
-        self::assertEquals($package->url(), 'new-url');
-        self::assertEquals($package->keepLastReleases(), 6);
+        self::assertSame(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertSame('new-url', $package->url());
+        self::assertSame(6, $package->keepLastReleases());
     }
 
     public function testUpdatePackageBadRequest(): void
@@ -407,21 +391,18 @@ final class PackageControllerTest extends FunctionalTestCase
 
         $package = $this->container()->get(DbalPackageQuery::class)->getById($packageId)->get();
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
                         "field": "keepLastReleases",
-                        "message": "This value is not valid."
+                        "message": "Please enter an integer."
                     }
                 ]
             }
-            '
-        );
-        self::assertEquals($package->keepLastReleases(), 0);
+            ');
+        self::assertSame(0, $package->keepLastReleases());
     }
 
     public function testUpdatePackageNonExisting(): void
@@ -432,7 +413,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'package' => self::$fakeId,
         ]));
 
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
     }
 
     public function testAddPackageByUrl(): void
@@ -445,13 +426,11 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'https://github.com/buddy/test-composer-package',
         ]));
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($this->jsonResponse()['id'])
-                ->isEmpty()
-        );
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertFalse($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($this->jsonResponse()['id'])
+            ->isEmpty());
     }
 
     public function testAddPackageByPath(): void
@@ -465,9 +444,8 @@ final class PackageControllerTest extends FunctionalTestCase
         ]));
         $now = (new \DateTimeImmutable())->format(\DateTime::ATOM);
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString($this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "id": "'.$this->jsonResponse()['id'].'",
                 "type": "path",
@@ -486,14 +464,11 @@ final class PackageControllerTest extends FunctionalTestCase
                 "scanResultDate": null,
                 "lastScanResultContent": []
             }
-            '
-        );
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($this->jsonResponse()['id'])
-                ->isEmpty()
-        );
+            ');
+        self::assertFalse($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($this->jsonResponse()['id'])
+            ->isEmpty());
     }
 
     public function testAddPackageFromGitHub(): void
@@ -508,13 +483,11 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/repman',
         ]));
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($this->jsonResponse()['id'])
-                ->isEmpty()
-        );
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertFalse($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($this->jsonResponse()['id'])
+            ->isEmpty());
     }
 
     public function testAddPackageMissingGitHubRepoName(): void
@@ -528,10 +501,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => OAuthToken::TYPE_GITHUB,
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -540,8 +511,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageMissingGitHubIntegration(): void
@@ -554,10 +524,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/repman',
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -566,8 +534,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageFromGitLab(): void
@@ -582,13 +549,11 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/repman',
         ]));
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($this->jsonResponse()['id'])
-                ->isEmpty()
-        );
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertFalse($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($this->jsonResponse()['id'])
+            ->isEmpty());
     }
 
     public function testAddPackageFromGitLabRepoNotFound(): void
@@ -603,10 +568,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/missing',
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -615,8 +578,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageMissingGitLabRepoName(): void
@@ -630,10 +592,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => OAuthToken::TYPE_GITLAB,
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -642,8 +602,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageMissingGitLabIntegration(): void
@@ -656,10 +615,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/repman',
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -668,8 +625,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageFromBitbucket(): void
@@ -684,13 +640,11 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/repman',
         ]));
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
-        self::assertFalse(
-            $this->container()
-                ->get(DbalPackageQuery::class)
-                ->getById($this->jsonResponse()['id'])
-                ->isEmpty()
-        );
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertFalse($this->container()
+            ->get(DbalPackageQuery::class)
+            ->getById($this->jsonResponse()['id'])
+            ->isEmpty());
     }
 
     public function testAddPackageFromBitbucketRepoNotFound(): void
@@ -705,10 +659,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/missing',
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -717,8 +669,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageMissingBitbucketRepoName(): void
@@ -732,10 +683,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => OAuthToken::TYPE_BITBUCKET,
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -744,8 +693,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageMissingBitbucketIntegration(): void
@@ -758,10 +706,8 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'buddy-works/repman',
         ]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -770,8 +716,7 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
     }
 
     public function testAddPackageMissingType(): void
@@ -783,9 +728,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'www.url.com',
         ]));
 
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -794,10 +737,9 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 
     public function testAddPackageInvalidType(): void
@@ -810,21 +752,18 @@ final class PackageControllerTest extends FunctionalTestCase
             'repository' => 'www.url.com',
         ]));
 
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
                         "field": "type",
-                        "message": "This value is not valid."
+                        "message": "The selected choice is invalid."
                     }
                 ]
             }
-            '
-        );
+            ');
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 
     public function testAddPackageMissingUrl(): void
@@ -836,9 +775,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => 'git',
         ]));
 
-        self::assertJsonStringEqualsJsonString(
-            $this->lastResponseBody(),
-            '
+        self::assertJsonStringEqualsJsonString($this->lastResponseBody(), '
             {
                 "errors": [
                     {
@@ -847,10 +784,9 @@ final class PackageControllerTest extends FunctionalTestCase
                     }
                 ]
             }
-            '
-        );
+            ');
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 
     /**

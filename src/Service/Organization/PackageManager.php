@@ -8,17 +8,18 @@ use Buddy\Repman\Query\User\Model\PackageName;
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Composer\Semver\VersionParser;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\StorageAttributes;
 use Munus\Control\Option;
 
 class PackageManager
 {
     private Storage $distStorage;
-    private FilesystemInterface $repoFilesystem;
+    private FilesystemOperator $repoFilesystem;
     private VersionParser $versionParser;
 
-    public function __construct(Storage $distStorage, FilesystemInterface $repoFilesystem)
+    public function __construct(Storage $distStorage, FilesystemOperator $repoFilesystem)
     {
         $this->distStorage = $distStorage;
         $this->repoFilesystem = $repoFilesystem;
@@ -37,18 +38,18 @@ class PackageManager
 
         foreach ($packages as $package) {
             $filepath = $this->filepath($organizationAlias, $package->name());
-            if (!$this->repoFilesystem->has($filepath)) {
+            if (!$this->repoFilesystem->fileExists($filepath)) {
                 continue;
             }
 
-            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp((int) $this->repoFilesystem->getTimestamp($filepath));
+            $fileModifyDate = (new \DateTimeImmutable())->setTimestamp($this->repoFilesystem->lastModified($filepath));
 
             if ($fileModifyDate > $lastModified) {
                 $lastModified = $fileModifyDate;
             }
 
             $json = \unserialize(
-                (string) $this->repoFilesystem->read($filepath), ['allowed_classes' => false]
+                $this->repoFilesystem->read($filepath), ['allowed_classes' => false]
             );
             $data[] = $json['packages'] ?? [];
         }
@@ -64,7 +65,7 @@ class PackageManager
      */
     public function saveProvider(array $json, string $organizationAlias, string $packageName): void
     {
-        $this->repoFilesystem->put($this->filepath($organizationAlias, $packageName), \serialize($json));
+        $this->repoFilesystem->write($this->filepath($organizationAlias, $packageName), \serialize($json));
     }
 
     public function removeProvider(string $organizationAlias, string $packageName): self
@@ -78,25 +79,30 @@ class PackageManager
     public function removeDist(string $organizationAlias, string $packageName): self
     {
         $distDir = $organizationAlias.'/dist/'.$packageName;
-        $this->repoFilesystem->deleteDir($distDir);
+        $this->repoFilesystem->deleteDirectory($distDir);
 
         return $this;
     }
 
     public function removeVersionDists(string $organizationAlias, string $packageName, string $version, string $format, string $excludeRef): self
     {
-        $baseFilename = $organizationAlias.'/dist/'.$packageName.'/'.$this->versionParser->normalize($version).'_';
+        $distDir = $organizationAlias.'/dist/'.$packageName;
+        $baseFilename = $distDir.'/'.$this->versionParser->normalize($version).'_';
+        $keep = $baseFilename.$excludeRef.'.'.$format;
 
-        $filesToDelete = \array_filter(
-            (array) \glob($baseFilename.'*.'.$format),
-            fn ($file) => $file !== $baseFilename.$excludeRef.'.'.$format
+        if (!$this->repoFilesystem->directoryExists($distDir)) {
+            return $this;
+        }
+
+        $filesToDelete = $this->repoFilesystem->listContents($distDir)->filter(
+            fn (StorageAttributes $file) => $file->isFile()
+                && \strpos($file->path(), $baseFilename) === 0
+                && \substr($file->path(), -\strlen('.'.$format)) === '.'.$format
+                && $file->path() !== $keep
         );
 
-        foreach ($filesToDelete as $fileName) {
-            if (false === $fileName) {
-                continue;
-            }
-            $this->removeFile($fileName);
+        foreach ($filesToDelete as $file) {
+            $this->removeFile($file->path());
         }
 
         return $this;
@@ -104,7 +110,7 @@ class PackageManager
 
     public function removeOrganizationDir(string $organizationAlias): self
     {
-        $this->repoFilesystem->deleteDir($organizationAlias);
+        $this->repoFilesystem->deleteDirectory($organizationAlias);
 
         return $this;
     }
@@ -126,14 +132,61 @@ class PackageManager
      * @return Option<resource> Handle for a file
      */
     public function getDistFileReference(
-        string $fileName
+        string $fileName,
     ): Option {
-        $fileResource = $this->repoFilesystem->readStream($fileName);
-        if (false === $fileResource) {
+        try {
+            return Option::some($this->repoFilesystem->readStream($fileName));
+        } catch (FilesystemException $exception) {
             return Option::none();
         }
+    }
 
-        return Option::some($fileResource);
+    /**
+     * The composer.lock of a version installed from source (no dist archive), kept next to the dists
+     * as <version>_<ref>.lock for the security scan.
+     */
+    public function saveSourceLock(string $organizationAlias, string $packageName, string $version, string $ref, string $content): void
+    {
+        $this->repoFilesystem->write($this->sourceLockFilename($organizationAlias, $packageName, $version, $ref), $content);
+    }
+
+    /**
+     * Removes the kept lock files of every other version and reference: only the versions the scan
+     * reads need one, and the latest release moves on.
+     *
+     * @param array<string,string> $refsByVersion
+     */
+    public function keepOnlySourceLocks(string $organizationAlias, string $packageName, array $refsByVersion): void
+    {
+        $distDir = $organizationAlias.'/dist/'.$packageName;
+        if (!$this->repoFilesystem->directoryExists($distDir)) {
+            return;
+        }
+
+        $keep = [];
+        foreach ($refsByVersion as $version => $ref) {
+            $keep[$this->sourceLockFilename($organizationAlias, $packageName, $version, $ref)] = true;
+        }
+
+        foreach ($this->repoFilesystem->listContents($distDir) as $file) {
+            if ($file->isFile() && \str_ends_with($file->path(), '.lock') && !isset($keep[$file->path()])) {
+                $this->removeFile($file->path());
+            }
+        }
+    }
+
+    public function sourceLock(string $organizationAlias, string $packageName, string $version, string $ref): ?string
+    {
+        try {
+            return $this->repoFilesystem->read($this->sourceLockFilename($organizationAlias, $packageName, $version, $ref));
+        } catch (FilesystemException) {
+            return null;
+        }
+    }
+
+    private function sourceLockFilename(string $organizationAlias, string $packageName, string $version, string $ref): string
+    {
+        return $this->distStorage->filename(new Dist($organizationAlias, $packageName, $this->versionParser->normalize($version), $ref, 'lock'));
     }
 
     private function filepath(string $organizationAlias, string $packageName): string
@@ -145,7 +198,7 @@ class PackageManager
     {
         try {
             $this->repoFilesystem->delete($fileName);
-        } catch (FileNotFoundException $ignored) {
+        } catch (FilesystemException $ignored) {
         }
     }
 }

@@ -20,7 +20,7 @@ final class UserControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', $this->urlTo('admin_user_list'));
 
-        self::assertEquals(200, $this->client->getResponse()->getStatusCode());
+        self::assertSame(200, $this->client->getResponse()->getStatusCode());
         self::assertStringContainsString('test@buddy.works', $this->lastResponseBody());
     }
 
@@ -46,7 +46,7 @@ final class UserControllerTest extends FunctionalTestCase
             'user' => Uuid::uuid4()->toString(), // random
         ]));
 
-        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testEnableUser(): void
@@ -71,7 +71,7 @@ final class UserControllerTest extends FunctionalTestCase
             'user' => Uuid::uuid4()->toString(), // random
         ]));
 
-        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testChangeRoles(): void

@@ -21,6 +21,8 @@ final class FixPostgreSQLDefaultSchemaListener
         if (!$schemaManager instanceof PostgreSQLSchemaManager) {
             return;
         }
+        // DBAL offers no public API for the search path; this is the workaround from doctrine/dbal#1110
+        // @phpstan-ignore method.internal
         foreach ($schemaManager->getExistingSchemaSearchPaths() as $namespace) {
             if (!$args->getSchema()->hasNamespace($namespace)) {
                 $args->getSchema()->createNamespace($namespace);

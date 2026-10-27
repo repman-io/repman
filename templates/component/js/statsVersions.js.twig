@@ -49,7 +49,7 @@
 
     $('.package-version').click(function () {
         var version = $(this).text();
-        $.getJSON('{{ path('organization_package_version_stats', {organization: organization.alias, package: package.id, version: 'version', days: days}) }}'.replace('version', version), function(response) {
+        $.getJSON($(this).data('url'), function(response) {
             chart.updateSeries([{
                 name: version,
                 data: response

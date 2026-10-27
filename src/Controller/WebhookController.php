@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class WebhookController extends AbstractController
 {
@@ -21,15 +21,13 @@ final class WebhookController extends AbstractController
 
     public function __construct(
         WebhookRequests $webhookRequests,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->webhookRequests = $webhookRequests;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/hook/{package}", name="package_webhook", methods={"POST"})
-     */
+    #[Route(path: '/hook/{package}', name: 'package_webhook', methods: ['POST'])]
     public function package(Package $package, Request $request): Response
     {
         $this->messageBus->dispatch(new SynchronizePackage($package->id()));

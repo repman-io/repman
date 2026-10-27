@@ -11,7 +11,7 @@ use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Service\Integration\GitHubApi;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Github\Exception\ApiLimitExceedException;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 final class PackageControllerTest extends FunctionalTestCase
 {
@@ -35,9 +35,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => 'git',
         ]);
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy'])));
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(1, $transport->getSent());
@@ -61,9 +59,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'type' => 'path',
         ]);
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy'])));
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
         self::assertCount(1, $transport->getSent());
@@ -96,11 +92,9 @@ final class PackageControllerTest extends FunctionalTestCase
             'repositories' => ['buddy/repman'],
         ]);
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy'])));
 
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
@@ -119,11 +113,9 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'github']));
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('fetch_github_package_token', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('fetch_github_package_token', ['organization' => 'buddy'])));
     }
 
     public function testNewPackageFromGitLab(): void
@@ -136,11 +128,9 @@ final class PackageControllerTest extends FunctionalTestCase
             'repositories' => [123456],
         ]);
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy'])));
 
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
@@ -159,11 +149,9 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'gitlab']));
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('fetch_gitlab_package_token', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('fetch_gitlab_package_token', ['organization' => 'buddy'])));
     }
 
     public function testNewPackageFromBitbucket(): void
@@ -176,11 +164,9 @@ final class PackageControllerTest extends FunctionalTestCase
             'repositories' => ['{0f6dc6fe-f8ab-4a53-bb63-03042b80056f}'],
         ]);
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy'])));
 
         /** @var InMemoryTransport $transport */
         $transport = $this->container()->get('messenger.transport.async');
@@ -199,11 +185,9 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'bitbucket']));
 
-        self::assertTrue(
-            $this->client
-                ->getResponse()
-                ->isRedirect($this->urlTo('fetch_bitbucket_package_token', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client
+            ->getResponse()
+            ->isRedirect($this->urlTo('fetch_bitbucket_package_token', ['organization' => 'buddy'])));
     }
 
     public function testNewPackageUnsupportedType(): void
@@ -211,7 +195,7 @@ final class PackageControllerTest extends FunctionalTestCase
         $this->fixtures->createOrganization('buddy', $this->userId);
         $this->client->request('GET', $this->urlTo('organization_package_new', ['organization' => 'buddy', 'type' => 'bogus']));
 
-        self::assertEquals(404, $this->client->getResponse()->getStatusCode());
+        self::assertSame(404, $this->client->getResponse()->getStatusCode());
     }
 
     public function testUpdatePackage(): void
@@ -251,9 +235,7 @@ final class PackageControllerTest extends FunctionalTestCase
             'keepLastReleases' => '6',
         ]);
 
-        self::assertTrue(
-            $this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy']))
-        );
+        self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('organization_packages', ['organization' => 'buddy'])));
 
         $this->client->followRedirect();
         self::assertStringContainsString('Package will be synchronized in the background', $this->lastResponseBody());

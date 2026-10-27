@@ -8,9 +8,10 @@ use Buddy\Repman\Message\Organization\Member\RemoveMember;
 use Buddy\Repman\Repository\OrganizationRepository;
 use Buddy\Repman\Repository\UserRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class RemoveMemberHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class RemoveMemberHandler
 {
     private OrganizationRepository $organizations;
     private UserRepository $users;

@@ -6,13 +6,12 @@ namespace Buddy\Repman\Tests\Unit\Service\User\OAuthTokenStore;
 
 use Buddy\Repman\Service\User\OAuthTokenStore\StoredToken;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher\AccessToken;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class StoredTokenTest extends TestCase
 {
-    /**
-     * @dataProvider expiredTimeProvider
-     */
+    #[DataProvider('expiredTimeProvider')]
     public function testTokenAboutToExpireCountsAsExpired(string $modifyTime): void
     {
         self::assertTrue((new StoredToken('token', 'refresh', (new \DateTimeImmutable())->modify($modifyTime)))->isExpired());
@@ -32,10 +31,7 @@ final class StoredTokenTest extends TestCase
     {
         $expiresAt = (new \DateTimeImmutable())->modify('1 hour');
 
-        self::assertEquals(
-            new AccessToken('token', $expiresAt, 'refresh'),
-            (new StoredToken('token', 'refresh', $expiresAt))->asAccessToken()
-        );
+        self::assertEquals(new AccessToken('token', $expiresAt, 'refresh'), (new StoredToken('token', 'refresh', $expiresAt))->asAccessToken());
     }
 
     /**
@@ -45,15 +41,13 @@ final class StoredTokenTest extends TestCase
      * microseconds pass between constructing the token and asking, so it would assert
      * that the clock advances rather than anything about the margin.
      *
-     * @return array<array<string>>
+     * @return \Iterator<(int | string), array<string>>
      */
-    public function expiredTimeProvider(): array
+    public static function expiredTimeProvider(): \Iterator
     {
-        return [
-            ['-1 hour'],
-            ['0 sec'],
-            ['9 sec'],
-            ['59 sec'],
-        ];
+        yield ['-1 hour'];
+        yield ['0 sec'];
+        yield ['9 sec'];
+        yield ['59 sec'];
     }
 }

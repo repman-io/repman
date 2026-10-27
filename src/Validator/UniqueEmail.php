@@ -6,9 +6,7 @@ namespace Buddy\Repman\Validator;
 
 use Symfony\Component\Validator\Constraint;
 
-/**
- * @Annotation
- */
+#[\Attribute]
 class UniqueEmail extends Constraint
 {
     public string $message = 'Email "{{ value }}" already exists.';

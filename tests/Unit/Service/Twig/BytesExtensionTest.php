@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Buddy\Repman\Tests\Unit\Service\Twig;
 
 use Buddy\Repman\Service\Twig\BytesExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class BytesExtensionTest extends TestCase
@@ -18,29 +19,25 @@ final class BytesExtensionTest extends TestCase
 
     public function testGetFilters(): void
     {
-        self::assertEquals('format_bytes', $this->extension->getFilters()[0]->getName());
+        self::assertSame('format_bytes', $this->extension->getFilters()[0]->getName());
     }
 
-    /**
-     * @dataProvider formatBytesProvider
-     */
+    #[DataProvider('formatBytesProvider')]
     public function testFormatBytes(string $expected, int $bytes, int $precision): void
     {
-        self::assertEquals($expected, $this->extension->formatBytes($bytes, $precision));
+        self::assertSame($expected, $this->extension->formatBytes($bytes, $precision));
     }
 
     /**
-     * @return mixed[]
+     * @return \Iterator<(int | string), mixed>
      */
-    public function formatBytesProvider(): array
+    public static function formatBytesProvider(): \Iterator
     {
-        return [
-            ['1 KB', 1024, 0],
-            ['1.0 KB', 1024, 1],
-            ['1.00 KB', 1024, 2],
-            ['1.23 KB', 1260, 2],
-            ['5.75 MB', 6029312, 2],
-            ['13.37 GB', 14355928186, 2],
-        ];
+        yield ['1 KB', 1024, 0];
+        yield ['1.0 KB', 1024, 1];
+        yield ['1.00 KB', 1024, 2];
+        yield ['1.23 KB', 1260, 2];
+        yield ['5.75 MB', 6029312, 2];
+        yield ['13.37 GB', 14355928186, 2];
     }
 }

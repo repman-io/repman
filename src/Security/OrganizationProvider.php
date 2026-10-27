@@ -7,10 +7,14 @@ namespace Buddy\Repman\Security;
 use Buddy\Repman\Security\Model\Organization;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+/**
+ * @implements UserProviderInterface<Organization>
+ */
 final class OrganizationProvider implements UserProviderInterface
 {
     private Connection $connection;
@@ -18,19 +22,6 @@ final class OrganizationProvider implements UserProviderInterface
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-    }
-
-    public function loadUserByUsername(string $username)
-    {
-        $data = $this->getUserDataByToken($username);
-
-        if ($data === false) {
-            throw new BadCredentialsException();
-        }
-
-        $this->updateLastUsed($username);
-
-        return $this->hydrateOrganization($data);
     }
 
     public function loadUserByIdentifier(string $identifier): UserInterface
@@ -46,12 +37,16 @@ final class OrganizationProvider implements UserProviderInterface
         return $this->hydrateOrganization($data);
     }
 
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(UserInterface $user): UserInterface
     {
-        return $this->loadUserByIdentifier((string) $user->getPassword());
+        if (!$user instanceof Organization) {
+            throw new UnsupportedUserException(sprintf('Instances of "%s" are not supported.', $user::class));
+        }
+
+        return $this->loadUserByIdentifier($user->getPassword());
     }
 
-    public function supportsClass(string $class)
+    public function supportsClass(string $class): bool
     {
         return $class === Organization::class;
     }

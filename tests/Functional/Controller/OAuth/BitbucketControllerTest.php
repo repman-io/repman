@@ -141,7 +141,7 @@ final class BitbucketControllerTest extends FunctionalTestCase
 
     public function testHandleOAuthErrorDuringTokenFetching(): void
     {
-        $userId = $this->createAndLoginAdmin($email = 'test@buddy.works');
+        $userId = $this->createAndLoginAdmin('test@buddy.works');
         $this->fixtures->createOrganization('buddy', $userId);
         $this->client->request('GET', $this->urlTo('fetch_bitbucket_package_token', ['organization' => 'buddy']));
         $params = $this->getQueryParamsFromLastResponse();

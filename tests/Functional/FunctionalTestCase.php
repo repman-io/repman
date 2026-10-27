@@ -27,12 +27,10 @@ abstract class FunctionalTestCase extends WebTestCase
 
     public function contentFromStream(callable $request): string
     {
-        ob_start();
+        // the browser itself buffers what a StreamedResponse sends and keeps it in the internal response
         $request();
-        $content = (string) ob_get_contents();
-        ob_end_clean();
 
-        return $content;
+        return $this->client->getInternalResponse()->getContent();
     }
 
     /**

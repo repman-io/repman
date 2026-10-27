@@ -9,65 +9,54 @@ use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\Organization\Package;
 use Buddy\Repman\Entity\Organization\Token;
 use Buddy\Repman\Entity\User\OAuthToken;
+use Buddy\Repman\Repository\OrganizationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\OrganizationRepository")
- */
+#[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    /**
-     * @ORM\Column(type="string", unique=true, length=255)
-     */
+    #[ORM\Column(type: 'string', unique: true, length: 255)]
     private string $alias;
 
     /**
-     * @var Collection<int,Package>|Package[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Package", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, Package>
      */
+    #[ORM\OneToMany(targetEntity: Package::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
     private Collection $packages;
 
     /**
-     * @var Collection<int,Token>|Token[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Token", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, Token>
      */
+    #[ORM\OneToMany(targetEntity: Token::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
     private Collection $tokens;
 
     /**
-     * @var Collection<int,Invitation>|Invitation[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Invitation", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, Invitation>
      */
+    #[ORM\OneToMany(targetEntity: Invitation::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
     private Collection $invitations;
 
     /**
-     * @var Collection<int,Member>|Member[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="organization", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, Member>
      */
+    #[ORM\OneToMany(targetEntity: Member::class, mappedBy: 'organization', cascade: ['persist'], orphanRemoval: true)]
     private Collection $members;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": false})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $hasAnonymousAccess = false;
 
     public function __construct(UuidInterface $id, User $owner, string $name, string $alias)
@@ -128,7 +117,7 @@ class Organization
     }
 
     /**
-     * @return Collection<int,Package>|Package[]
+     * @return Collection<int, Package>
      */
     public function synchronizedPackages(): Collection
     {
@@ -270,7 +259,7 @@ class Organization
     }
 
     /**
-     * @return Collection<int,Member>|Member[]
+     * @return Collection<int, Member>
      */
     public function members(): Collection
     {

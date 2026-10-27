@@ -10,9 +10,10 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method ScanResult|null find($id, $lockMode = null, $lockVersion = null)
- * @method ScanResult|null findOneBy(array $criteria, array $orderBy = null)
+ * @method ScanResult|null findOneBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null)
  * @method ScanResult[]    findAll()
- * @method ScanResult[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method ScanResult[]    findBy(array<string, mixed> $criteria, array<string, string>|null $orderBy = null, $limit = null, $offset = null)
+ *
  * @extends ServiceEntityRepository<ScanResult>
  */
 class ScanResultRepository extends ServiceEntityRepository
@@ -24,7 +25,7 @@ class ScanResultRepository extends ServiceEntityRepository
 
     public function add(ScanResult $result): void
     {
-        $this->_em->persist($result);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($result);
+        $this->getEntityManager()->flush();
     }
 }

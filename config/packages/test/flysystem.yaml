@@ -2,21 +2,17 @@
 flysystem:
     storages:
         storage.memory.proxy:
-            adapter: 'local'
-            options:
+            local:
                 directory: '%dists_dir%'
 
         storage.local.repo:
-            adapter: 'local'
-            options:
+            local:
                 directory: '%repo_dir%'
 
         repo.storage:
-            adapter: 'lazy'
-            options:
+            lazy:
                 source: 'storage.local.repo'
 
         proxy.storage:
-            adapter: 'lazy'
-            options:
+            lazy:
                 source: 'storage.local.proxy'

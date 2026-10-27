@@ -12,6 +12,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 class AddPackageType extends AbstractType
 {
     /**
@@ -47,7 +50,6 @@ class AddPackageType extends AbstractType
                     'Bitbucket' => 'bitbucket',
                     'Mercurial' => 'mercurial',
                     'Subversion' => 'subversion',
-                    'Pear' => 'pear',
                     'Artifact' => 'artifact',
                     'Path' => 'path',
                 ], fn (string $type): bool => in_array($type, $this->allowedTypes, true)),

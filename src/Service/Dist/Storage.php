@@ -6,17 +6,17 @@ namespace Buddy\Repman\Service\Dist;
 
 use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Downloader;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
 use Munus\Control\Option;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Storage
 {
     private Downloader $downloader;
-    private FilesystemInterface $repoFilesystem;
+    private FilesystemOperator $repoFilesystem;
 
-    public function __construct(Downloader $downloader, FilesystemInterface $repoFilesystem)
+    public function __construct(Downloader $downloader, FilesystemOperator $repoFilesystem)
     {
         $this->downloader = $downloader;
         $this->repoFilesystem = $repoFilesystem;
@@ -24,7 +24,7 @@ class Storage
 
     public function has(Dist $dist): bool
     {
-        return $this->repoFilesystem->has($this->filename($dist));
+        return $this->repoFilesystem->fileExists($this->filename($dist));
     }
 
     /**
@@ -54,10 +54,7 @@ class Storage
 
     public function remove(Dist $dist): void
     {
-        $filename = $this->filename($dist);
-        if ($this->repoFilesystem->has($filename)) {
-            $this->repoFilesystem->delete($filename);
-        }
+        $this->repoFilesystem->delete($this->filename($dist));
     }
 
     public function filename(Dist $dist): string
@@ -74,13 +71,11 @@ class Storage
 
     public function size(Dist $dist): int
     {
-        $filename = $this->filename($dist);
-        if ($this->repoFilesystem->has($filename)) {
-            /* @phpstan-ignore-next-line - will always return int because file exists */
-            return $this->repoFilesystem->getSize($filename);
+        try {
+            return $this->repoFilesystem->fileSize($this->filename($dist));
+        } catch (FilesystemException $exception) {
+            return 0;
         }
-
-        return 0;
     }
 
     /**
@@ -96,6 +91,11 @@ class Storage
      */
     public function getLocalFileForDistUrl(string $distFilename): Option
     {
+        $distReadStream = $this->readStream($distFilename)->getOrNull();
+        if (null === $distReadStream) {
+            return Option::none();
+        }
+
         $tmpLocalFilename = $this->getTempFileName();
         $tmpLocalFileHandle = \fopen(
             $tmpLocalFilename,
@@ -105,12 +105,9 @@ class Storage
             throw new \RuntimeException('Could not open temporary file for writing zip file for dist.');
         }
 
-        $distReadStream = $this->readStream($distFilename)->getOrNull();
-        if (null === $distReadStream) {
-            return Option::none();
-        }
         \stream_copy_to_stream($distReadStream, $tmpLocalFileHandle);
         \fclose($tmpLocalFileHandle);
+        \fclose($distReadStream);
 
         return Option::of($tmpLocalFilename);
     }
@@ -126,14 +123,9 @@ class Storage
     private function readStream(string $path): Option
     {
         try {
-            $resource = $this->repoFilesystem->readStream($path);
-            if (false === $resource) {
-                return Option::none();
-            }
-        } catch (FileNotFoundException $e) {
+            return Option::of($this->repoFilesystem->readStream($path));
+        } catch (FilesystemException $e) {
             return Option::none();
         }
-
-        return Option::of($resource);
     }
 }

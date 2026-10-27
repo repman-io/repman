@@ -9,12 +9,13 @@ use Buddy\Repman\Form\Type\User\SendResetPasswordLinkType;
 use Buddy\Repman\Message\User\ResetPassword;
 use Buddy\Repman\Message\User\SendPasswordResetLink;
 use Buddy\Repman\Service\Config;
+use cbschuld\Browser;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -26,16 +27,14 @@ class SecurityController extends AbstractController
     public function __construct(
         AuthenticationUtils $authenticationUtils,
         Config $config,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
     ) {
         $this->authenticationUtils = $authenticationUtils;
         $this->config = $config;
         $this->messageBus = $messageBus;
     }
 
-    /**
-     * @Route("/login", name="app_login")
-     */
+    #[Route(path: '/login', name: 'app_login')]
     public function login(): Response
     {
         if ($this->getUser() !== null) {
@@ -49,15 +48,13 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/reset-password", name="app_send_reset_password_link", methods={"GET","POST"})
-     */
+    #[Route(path: '/reset-password', name: 'app_send_reset_password_link', methods: ['GET', 'POST'])]
     public function sendResetPasswordLink(Request $request): Response
     {
         $form = $this->createForm(SendResetPasswordLinkType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $browser = new \Browser();
+            $browser = new Browser((string) $request->headers->get('User-Agent'));
             $this->messageBus->dispatch(new SendPasswordResetLink(
                 $form->get('email')->getData(),
                 $browser->getPlatform(),
@@ -71,12 +68,10 @@ class SecurityController extends AbstractController
         return $this->render('security/sendResetPasswordLink.html.twig', ['form' => $form->createView()]);
     }
 
-    /**
-     * @Route("/reset-password/{token}", name="app_reset_password", methods={"GET", "POST"})
-     */
+    #[Route(path: '/reset-password/{token}', name: 'app_reset_password', methods: ['GET', 'POST'])]
     public function resetPassword(Request $request): Response
     {
-        $form = $this->createForm(ResetPasswordType::class, ['token' => $request->get('token')]);
+        $form = $this->createForm(ResetPasswordType::class, ['token' => $request->attributes->get('token')]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             try {

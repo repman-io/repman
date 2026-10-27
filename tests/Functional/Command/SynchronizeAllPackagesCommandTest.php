@@ -8,20 +8,18 @@ use Buddy\Repman\Command\SynchronizeAllPackagesCommand;
 use Buddy\Repman\Message\Security\ScanPackage;
 use Buddy\Repman\Tests\Functional\FunctionalTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Messenger\Transport\InMemoryTransport;
+use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 final class SynchronizeAllPackagesCommandTest extends FunctionalTestCase
 {
-    private string $buddyId;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $userId = $this->createAndLoginAdmin();
-        $this->buddyId = $this->fixtures->createOrganization('buddy', $userId);
+        $buddyId = $this->fixtures->createOrganization('buddy', $userId);
 
-        $packageId = $this->fixtures->addPackage($this->buddyId, 'https://buddy.com');
+        $packageId = $this->fixtures->addPackage($buddyId, 'https://buddy.com');
         $this->fixtures->syncPackageWithData($packageId, 'buddy-works/buddy', 'Test', '1.1.1', new \DateTimeImmutable());
     }
 
@@ -36,7 +34,7 @@ final class SynchronizeAllPackagesCommandTest extends FunctionalTestCase
 
         self::assertCount(1, $transport->getSent());
         self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
-        self::assertEquals($result, 0);
+        self::assertSame(0, $result);
     }
 
     public function testSynchronizeAllOrganizationSuccess(): void
@@ -51,7 +49,7 @@ final class SynchronizeAllPackagesCommandTest extends FunctionalTestCase
 
         self::assertCount(1, $transport->getSent());
         self::assertInstanceOf(ScanPackage::class, $transport->getSent()[0]->getMessage());
-        self::assertEquals($result, 0);
+        self::assertSame(0, $result);
     }
 
     public function testSynchronizeAllOrganizationFailure(): void

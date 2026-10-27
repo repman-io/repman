@@ -43,19 +43,19 @@ final class ConfigControllerTest extends FunctionalTestCase
         );
 
         $this->client->request('GET', $this->urlTo('app_register'));
-        self::assertEquals(Response::HTTP_OK, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_OK);
 
         $this->client->request('GET', $this->urlTo('register_github_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_gitlab_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_bitbucket_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_buddy_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [
@@ -71,22 +71,22 @@ final class ConfigControllerTest extends FunctionalTestCase
         );
 
         $this->client->request('GET', $this->urlTo('app_register'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_github_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_gitlab_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_bitbucket_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('register_buddy_start'));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('app_register_confirm', ['token' => '825f33c5-2311-41ec-ba18-e967027b3f6f']));
-        self::assertEquals(Response::HTTP_NOT_FOUND, $this->client->getResponse()->getStatusCode());
+        self::assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
 
         $this->client->request('GET', $this->urlTo('admin_config'));
         $this->client->submitForm('save', [

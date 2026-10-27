@@ -39,7 +39,7 @@ final class S3AdapterFactory
         ?string $key = null,
         ?string $secret = null,
         ?string $endpoint = null,
-        ?bool $pathStyleEndpoint = false
+        ?bool $pathStyleEndpoint = false,
     ) {
         $this->region = $region;
         $this->isOpaqueAuth = $isOpaqueAuth;

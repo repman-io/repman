@@ -22,10 +22,13 @@
 
                         <label class="ml-auto text-right">
                             Show
-                            <input type="number" name="limit" value="{{ filter.limit }}" class="form-control w-25 mx-2" min="1" />
+                            <input type="number" name="limit" value="{{ filter.limit }}" class="form-control w-25 mx-2" min="1" max="100" />
                             entries
                         </label>
 
+                        {% if filter.hasSort %}
+                            <input type="hidden" name="sort" value="{{ filter.sortColumn }}:{{ filter.sortOrder }}" />
+                        {% endif %}
                         <button class="btn btn-outline-primary btn-sm">Filter</button>
                     </form>
                 </td>
@@ -79,7 +82,7 @@
                                 {{ package.lastSyncError | nl2br }}
                             </div>
                         {% else %}
-                            {{ package.description }}
+                            {{ package.description|striptags }}
                         {% endif %}
                     </td>
                     {% if is_granted('ROLE_ORGANIZATION_MEMBER', organization) %}

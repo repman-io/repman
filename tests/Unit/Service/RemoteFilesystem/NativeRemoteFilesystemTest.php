@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace Buddy\Repman\Tests\Unit\Service\RemoteFilesystem;
 
-use Buddy\Repman\Service\Downloader\ReactDownloader;
+use Buddy\Repman\Service\Downloader\HttpClientDownloader;
 use PHPUnit\Framework\TestCase;
 
 final class NativeRemoteFilesystemTest extends TestCase
 {
     public function testCorrectDownload(): void
     {
-        $rf = new ReactDownloader();
+        $rf = new HttpClientDownloader();
 
         self::assertFalse($rf->getContents(__FILE__)->isEmpty());
     }
 
     public function testInCorrectDownload(): void
     {
-        $rf = new ReactDownloader();
+        $rf = new HttpClientDownloader();
 
         self::assertTrue($rf->getContents('/not/exits')->isEmpty());
     }

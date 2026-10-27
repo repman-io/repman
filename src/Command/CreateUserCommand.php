@@ -6,17 +6,18 @@ namespace Buddy\Repman\Command;
 
 use Buddy\Repman\Message\User\CreateUser;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsCommand(name: 'repman:create:user', description: 'Create normal user')]
 final class CreateUserCommand extends Command
 {
-    protected static $defaultName = 'repman:create:user';
-
     private MessageBusInterface $bus;
 
     public function __construct(MessageBusInterface $bus)
@@ -25,13 +26,9 @@ final class CreateUserCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription('Create normal user')
             ->addArgument('email', InputArgument::REQUIRED, 'e-mail used to log in')
             ->addArgument('password', InputArgument::OPTIONAL, 'plain password, if you don\'t provide it, you\'ll be asked for it')
         ;
@@ -42,7 +39,7 @@ final class CreateUserCommand extends Command
         /** @var string $email */
         $email = $input->getArgument('email');
         /** @var string $plainPassword */
-        $plainPassword = $input->getArgument('password') ?? $this->getHelper('question')
+        $plainPassword = $input->getArgument('password') ?? $this->questionHelper()
                                                                  ->ask($input, $output, (new Question('User password:'))->setHidden(true));
         $id = Uuid::uuid4()->toString();
 
@@ -55,6 +52,16 @@ final class CreateUserCommand extends Command
 
         $output->writeln(sprintf('Created user with id: %s', $id));
 
-        return 0;
+        return Command::SUCCESS;
+    }
+
+    private function questionHelper(): QuestionHelper
+    {
+        $helper = $this->getHelper('question');
+        if (!$helper instanceof QuestionHelper) {
+            throw new \LogicException('The question helper is not available');
+        }
+
+        return $helper;
     }
 }

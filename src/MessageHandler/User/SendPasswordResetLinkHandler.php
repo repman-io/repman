@@ -8,9 +8,10 @@ use Buddy\Repman\Message\User\SendPasswordResetLink;
 use Buddy\Repman\Repository\UserRepository;
 use Buddy\Repman\Service\Mailer;
 use Buddy\Repman\Service\User\ResetPasswordTokenGenerator;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-final class SendPasswordResetLinkHandler implements MessageHandlerInterface
+#[AsMessageHandler]
+final class SendPasswordResetLinkHandler
 {
     private UserRepository $users;
     private Mailer $mailer;

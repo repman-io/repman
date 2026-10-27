@@ -9,29 +9,25 @@ use Buddy\Repman\Service\Dist;
 use Buddy\Repman\Service\Dist\Storage;
 use Buddy\Repman\Service\Organization\PackageManager;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
-use League\Flysystem\Memory\MemoryAdapter;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Prophecy\PhpUnit\ProphecyTrait;
 
 final class PackageManagerTest extends TestCase
 {
-    use ProphecyTrait;
-
     private PackageManager $manager;
     private string $baseDir;
-    private FilesystemInterface $filesystem;
+    private FilesystemOperator $filesystem;
 
     protected function setUp(): void
     {
         $basePath = \dirname(__DIR__, 3);
-        $this->filesystem = new Filesystem(new Local($basePath.'/Resources/fixtures/'));
+        $this->filesystem = new Filesystem(new LocalFilesystemAdapter($basePath.'/Resources/fixtures/'));
         $this->manager = new PackageManager(
             new Storage(
-                new FakeDownloader(), new Filesystem(new MemoryAdapter())
+                new FakeDownloader(), new Filesystem(new InMemoryFilesystemAdapter())
             ),
             $this->filesystem
         );
@@ -58,15 +54,14 @@ final class PackageManagerTest extends TestCase
 
     public function testReturnDistributionFilenameWhenExist(): void
     {
-        /** @phpstan-var mixed $storage */
-        $storage = $this->prophesize(Storage::class);
-        $storage->has(Argument::type(Dist::class))->willReturn(true);
-        $storage->download(Argument::cetera())->shouldNotBeCalled();
-        $storage->filename(Argument::type(Dist::class))->willReturn(
+        $storage = $this->createMock(Storage::class);
+        $storage->method('has')->with(self::isInstanceOf(Dist::class))->willReturn(true);
+        $storage->expects(self::never())->method('download');
+        $storage->method('filename')->with(self::isInstanceOf(Dist::class))->willReturn(
             __DIR__.'/../../../Resources/buddy/dist/buddy-works/repman/1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip'
         );
 
-        $manager = new PackageManager($storage->reveal(), $this->filesystem);
+        $manager = new PackageManager($storage, $this->filesystem);
 
         self::assertStringContainsString(
             '1.2.3.0_ac7dcaf888af2324cd14200769362129c8dd8550.zip',
@@ -134,7 +129,7 @@ final class PackageManagerTest extends TestCase
 
     private function getManagerWithLocalStorage(): PackageManager
     {
-        $repoFilesystem = new Filesystem(new Local($this->baseDir));
+        $repoFilesystem = new Filesystem(new LocalFilesystemAdapter($this->baseDir));
 
         return new PackageManager(
             new Storage(new FakeDownloader(), $repoFilesystem),

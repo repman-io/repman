@@ -12,8 +12,8 @@ use Buddy\Repman\Service\PackageSynchronizer\ComposerPackageSynchronizer;
 use Buddy\Repman\Service\User\UserOAuthTokenRefresher;
 use Buddy\Repman\Tests\Doubles\FakeDownloader;
 use Buddy\Repman\Tests\MotherObject\PackageMother;
-use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use PHPUnit\Framework\TestCase;
 
 final class ReadmeComposerPackageSynchronizerTest extends TestCase
@@ -25,7 +25,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
     protected function setUp(): void
     {
         $baseDir = \sys_get_temp_dir().'/repman';
-        $repoFilesystem = new Filesystem(new Local($baseDir));
+        $repoFilesystem = new Filesystem(new LocalFilesystemAdapter($baseDir));
         $fileStorage = new Storage(new FakeDownloader(''), $repoFilesystem);
         $this->synchronizer = new ComposerPackageSynchronizer(
             new PackageManager(
@@ -33,9 +33,9 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
                 $repoFilesystem
             ),
             new PackageNormalizer(),
-            $this->createMock(PackageRepository::class),
+            self::createStub(PackageRepository::class),
             $fileStorage,
-            $this->createMock(UserOAuthTokenRefresher::class),
+            self::createStub(UserOAuthTokenRefresher::class),
             'gitlab.com'
         );
         $this->resourcesDir = dirname(__DIR__, 3).'/Resources/';
@@ -64,7 +64,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
-        self::assertEquals('1.2.0', $package->latestReleasedVersion());
+        self::assertSame('1.2.0', $package->latestReleasedVersion());
         self::assertNull($package->readme());
     }
 
@@ -83,11 +83,8 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         self::assertCount(3, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(3, $package->versions());
-        self::assertEquals('1.3.0', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        self::assertSame('1.3.0', $package->latestReleasedVersion());
+        self::assertSame("<h1><a id=\"user-content-test\" href=\"#test\" class=\"\" aria-hidden=\"true\" tabindex=\"-1\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 
     public function testCaseInsensitiveReadme(): void
@@ -105,11 +102,8 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
-        self::assertEquals('1.3.0', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        self::assertSame('1.3.0', $package->latestReleasedVersion());
+        self::assertSame("<h1><a id=\"user-content-test\" href=\"#test\" class=\"\" aria-hidden=\"true\" tabindex=\"-1\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 
     /**
@@ -133,11 +127,8 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
-        self::assertEquals('1.3.0', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        self::assertSame('1.3.0', $package->latestReleasedVersion());
+        self::assertSame("<h1><a id=\"user-content-test\" href=\"#test\" class=\"\" aria-hidden=\"true\" tabindex=\"-1\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 
     public function testUnstableVersion(): void
@@ -155,10 +146,7 @@ final class ReadmeComposerPackageSynchronizerTest extends TestCase
         self::assertCount(1, $json['packages']['buddy-works/alpha']);
 
         self::assertCount(1, $package->versions());
-        self::assertEquals('no stable release', $package->latestReleasedVersion());
-        self::assertEquals(
-            "<h1><a id=\"user-content-test\" href=\"#test\" name=\"test\" class=\"\" aria-hidden=\"true\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n",
-            $package->readme()
-        );
+        self::assertSame('no stable release', $package->latestReleasedVersion());
+        self::assertSame("<h1><a id=\"user-content-test\" href=\"#test\" class=\"\" aria-hidden=\"true\" tabindex=\"-1\" title=\"\"></a>Test</h1>\n<p>Testing</p>\n", $package->readme());
     }
 }

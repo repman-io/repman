@@ -28,7 +28,10 @@ final class RegistrationControllerTest extends FunctionalTestCase
     {
         $this->client->disableReboot();
         $this->client->request('GET', $this->urlTo('app_register'));
-        $this->client->getRequest()->getSession()->set('organization-token', $token = v4());
+        $session = $this->client->getRequest()->getSession();
+        $session->set('organization-token', $token = v4());
+        // since Symfony 6 the session is written at the end of a request, not by a shared service
+        $session->save();
         $this->client->submitForm('Sign up', [
             'email' => 'test@buddy.works',
             'plainPassword[first]' => 'secret123',
@@ -54,7 +57,7 @@ final class RegistrationControllerTest extends FunctionalTestCase
 
     public function testInvalidToken(): void
     {
-        $this->fixtures->createUser('test@buddy.works', 'secret', ['ROLE_USER'], $confirmToken = 'f731109f-505a-4459-b51d-b142e1046664');
+        $this->fixtures->createUser('test@buddy.works', 'secret', ['ROLE_USER'], 'f731109f-505a-4459-b51d-b142e1046664');
 
         $this->client->request('GET', $this->urlTo('app_register_confirm', ['token' => 'ffffffff-505a-4459-b51d-b142e1046664']));
         self::assertTrue($this->client->getResponse()->isRedirect($this->urlTo('index')));

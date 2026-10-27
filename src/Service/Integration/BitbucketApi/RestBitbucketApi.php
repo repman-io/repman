@@ -74,7 +74,7 @@ final class RestBitbucketApi implements BitbucketApi
     {
         $slugs = [];
 
-        foreach ($this->pager->fetchAll(new UserWorkspaces($this->client), 'list') as $entry) {
+        foreach ($this->pager->fetchAll($this->client->currentUser()->workspaces(), 'list') as $entry) {
             $workspace = is_array($entry) ? $entry : [];
             /** @var mixed $slug */
             $slug = $workspace['slug'] ?? $workspace['workspace']['slug'] ?? null;

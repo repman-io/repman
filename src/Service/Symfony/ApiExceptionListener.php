@@ -45,7 +45,7 @@ final class ApiExceptionListener implements EventSubscriberInterface
     /**
      * @codeCoverageIgnore
      *
-     * @return array<string,array<int,string|int>>
+     * @return array<string, array{0: string, 1?: int}>
      */
     public static function getSubscribedEvents(): array
     {

@@ -16,14 +16,14 @@ final class RepoControllerTest extends FunctionalTestCase
     {
         $this->client->request('GET', '/', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
 
-        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testAuthRequiredForOrganizationRepo(): void
     {
         $this->client->request('GET', '/packages.json', [], [], ['HTTP_HOST' => 'buddy.repo.repman.wip']);
 
-        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testPackagesActionWithInvalidToken(): void
@@ -34,7 +34,7 @@ final class RepoControllerTest extends FunctionalTestCase
             'PHP_AUTH_PW' => 'secret-org-token',
         ]);
 
-        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testNotAllowedToSeeOtherOrganizationPackages(): void
@@ -58,7 +58,7 @@ final class RepoControllerTest extends FunctionalTestCase
             'PHP_AUTH_PW' => 'secret-org-token',
         ]);
 
-        self::assertEquals(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
     }
 
     public function testOrganizationPackagesAction(): void
@@ -171,16 +171,16 @@ final class RepoControllerTest extends FunctionalTestCase
                 ],
             ],
             \JSON_THROW_ON_ERROR
-            )
+        )
         );
 
-        self::assertEquals(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_CREATED, $this->client->getResponse()->getStatusCode());
 
         $this->client->request('POST', '/downloads', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
         ], (string) \json_encode([]));
 
-        self::assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
+        self::assertSame(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
     }
 
     public function testAnonymousUserAccess(): void
@@ -231,7 +231,7 @@ final class RepoControllerTest extends FunctionalTestCase
         $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
 
         $fileModifiedTime = (new \DateTimeImmutable())
-            ->setTimestamp((int) \filemtime(TestStorage::path('p2/buddy-works/repman.json')));
+            ->setTimestamp((int) \filemtime(TestStorage::path('buddy/p/buddy-works/repman.json')));
 
         $this->client->request('GET', '/p2/buddy-works/repman.json', [], [], [
             'HTTP_HOST' => 'buddy.repo.repman.wip',
@@ -240,8 +240,8 @@ final class RepoControllerTest extends FunctionalTestCase
             'HTTP_IF_MODIFIED_SINCE' => $fileModifiedTime->format('D, d M Y H:i:s \G\M\T'),
         ]);
 
-        self::assertEquals(304, $this->client->getResponse()->getStatusCode());
-        self::assertEmpty($this->client->getResponse()->getContent());
+        self::assertSame(304, $this->client->getResponse()->getStatusCode());
+        self::assertSame('', $this->client->getResponse()->getContent());
     }
 
     public function testProviderV2ForMissingPackage(): void
@@ -288,5 +288,22 @@ final class RepoControllerTest extends FunctionalTestCase
             }
         }
         ', $this->client->getResponse()->getContent());
+    }
+
+    public function testAuthenticationFailureIsNotCacheable(): void
+    {
+        $adminId = $this->createAndLoginAdmin('test@buddy.works', 'secret');
+        $this->fixtures->createToken($this->fixtures->createOrganization('buddy', $adminId), 'secret-org-token');
+
+        $this->client->request('GET', '/packages.json', [], [], [
+            'HTTP_HOST' => 'buddy.repo.repman.wip',
+            'PHP_AUTH_USER' => 'token',
+            'PHP_AUTH_PW' => 'wrong-token',
+        ]);
+
+        self::assertResponseStatusCodeSame(403);
+        $cacheControl = (string) $this->client->getResponse()->headers->get('Cache-Control');
+        self::assertStringNotContainsString('public', $cacheControl);
+        self::assertStringContainsString('no-store', $cacheControl);
     }
 }

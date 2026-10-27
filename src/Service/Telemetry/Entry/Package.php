@@ -25,7 +25,7 @@ final class Package implements \JsonSerializable
         bool $hasWebhook,
         string $scanStatus,
         int $downloads,
-        int $webhookRequests
+        int $webhookRequests,
     ) {
         $this->type = $type;
         $this->lastRelease = $lastRelease;

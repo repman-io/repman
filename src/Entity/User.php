@@ -7,101 +7,79 @@ namespace Buddy\Repman\Entity;
 use Buddy\Repman\Entity\Organization\Member;
 use Buddy\Repman\Entity\User\ApiToken;
 use Buddy\Repman\Entity\User\OAuthToken;
+use Buddy\Repman\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="Buddy\Repman\Repository\UserRepository")
- * @ORM\Table(name="`user`")
- */
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
 class User
 {
     public const STATUS_ENABLED = 'enabled';
 
     public const STATUS_DISABLED = 'disabled';
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
-    /**
-     * @ORM\Column(type="string", length=180, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private string $email;
 
-    /**
-     * @ORM\Column(type="datetime_immutable")
-     */
+    #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     /**
      * @var array<string>
-     * @ORM\Column(type="json")
      */
+    #[ORM\Column(type: 'json')]
     private array $roles = [];
 
     /**
      * @var string The hashed password
-     * @ORM\Column(type="string")
      */
+    #[ORM\Column(type: 'string')]
     private string $password;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $emailConfirmedAt = null;
 
-    /**
-     * @ORM\Column(type="string", unique=true)
-     */
+    #[ORM\Column(type: 'string', unique: true)]
     private string $emailConfirmToken;
 
-    /**
-     * @ORM\Column(type="string", nullable=true, unique=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true, unique: true)]
     private ?string $resetPasswordToken = null;
 
-    /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $resetPasswordTokenCreatedAt = null;
 
     /**
-     * @var Collection<int,Member>|Member[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\Organization\Member", mappedBy="user", orphanRemoval=true)
+     * @var Collection<int, Member>
      */
+    #[ORM\OneToMany(targetEntity: Member::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $memberships;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $status = self::STATUS_ENABLED;
 
     /**
-     * @var Collection<int,OAuthToken>|OAuthToken[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\User\OAuthToken", mappedBy="user", orphanRemoval=true, cascade={"persist"})
+     * @var Collection<int, OAuthToken>
      */
+    #[ORM\OneToMany(targetEntity: OAuthToken::class, mappedBy: 'user', orphanRemoval: true, cascade: ['persist'])]
     private Collection $oauthTokens;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $emailScanResult = true;
 
     /**
-     * @var Collection<int,ApiToken>|ApiToken[]
-     * @ORM\OneToMany(targetEntity="Buddy\Repman\Entity\User\ApiToken", mappedBy="user", cascade={"persist"}, orphanRemoval=true)
+     * @var Collection<int, ApiToken>
      */
+    #[ORM\OneToMany(targetEntity: ApiToken::class, mappedBy: 'user', cascade: ['persist'], orphanRemoval: true)]
     private Collection $apiTokens;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $timezone;
 
     /**
@@ -188,7 +166,7 @@ class User
     }
 
     /**
-     * @return Collection<int,Organization>|Organization[]
+     * @return Collection<int, Organization>
      */
     public function getOrganizations(): Collection
     {
